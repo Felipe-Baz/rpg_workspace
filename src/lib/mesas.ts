@@ -236,7 +236,7 @@ export async function sairDaMesa(mesa: Mesa, usuarioUid: string) {
 // ---------- segredos do mestre (documento separado) ----------
 const SEGREDOS_VAZIOS: Segredos = { segredosMestre: "", notasSessoes: {} };
 
-function useDocSincronizado<T extends object>(caminho: string[], vazio: T, habilitado: boolean) {
+export function useDocSincronizado<T extends object>(caminho: string[], vazio: T, habilitado: boolean) {
   const [dados, setDados] = useState<T>(vazio);
   const [carregado, setCarregado] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);

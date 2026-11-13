@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import LivroNotas from "./LivroNotas";
+import Abas from "./Abas";
+import MapasMestre from "./mapas/MapasMestre";
 import { useAuth } from "@/lib/auth";
 import {
   STATUS_LABEL,
@@ -15,10 +18,16 @@ import {
   type Status,
 } from "@/lib/mesas";
 
+const ABAS = [
+  { id: "geral" as const, rotulo: "Geral" },
+  { id: "mapas" as const, rotulo: "Mapas" },
+];
+
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
 
 export default function VisaoMestre({ id }: { id: string }) {
   const { user } = useAuth();
+  const [aba, setAba] = useState<"geral" | "mapas">("geral");
   const { mesas, pronto } = useMesas();
   const mesa = mesas.find((m) => m.id === id);
   const ehMestre = !!mesa && mesa.donoUid === user?.uid;
@@ -42,9 +51,14 @@ export default function VisaoMestre({ id }: { id: string }) {
     <main className="mx-auto w-full max-w-4xl space-y-8 px-4 py-8 sm:px-6">
       <nav className="flex items-center justify-between text-sm">
         <Link href="/" className="text-muted hover:underline">← Dashboard</Link>
-        <Link href={`/mesas/${mesa.id}/jogador`} className="text-muted hover:underline">
-          Ver como jogador →
-        </Link>
+        <div className="flex gap-4">
+          <Link href={`/mesas/${mesa.id}/marcas`} className="text-muted hover:underline">
+            Marcas de Pacto
+          </Link>
+          <Link href={`/mesas/${mesa.id}/jogador`} className="text-muted hover:underline">
+            Ver como jogador →
+          </Link>
+        </div>
       </nav>
 
       <header className="space-y-3 border-l-4 pl-4" style={{ borderColor: mesa.cor }}>
@@ -83,6 +97,12 @@ export default function VisaoMestre({ id }: { id: string }) {
         />
       </header>
 
+      <Abas abas={ABAS} ativa={aba} onChange={setAba} />
+
+      {aba === "mapas" && <MapasMestre mesa={mesa} />}
+
+      {aba === "geral" && (
+        <>
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Jogadores</h2>
         {mesa.jogadores.map((j) => (
@@ -208,6 +228,8 @@ export default function VisaoMestre({ id }: { id: string }) {
           className={`${campo} border-amber-500/50`}
         />
       </section>
+        </>
+      )}
     </main>
   );
 }

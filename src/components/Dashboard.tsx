@@ -1,6 +1,5 @@
 "use client";
 
-import { MESA_PADRAO } from "@/lib/marcas-const";
 import Link from "next/link";
 import { useState } from "react";
 import { sair, useAuth } from "@/lib/auth";
@@ -31,12 +30,6 @@ export default function Dashboard() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-muted">{user?.displayName || user?.email}</span>
-          <Link
-            href={`/mesas/${MESA_PADRAO}/marcas`}
-            className="rounded-lg border border-border px-4 py-2 font-medium hover:bg-border/50"
-          >
-            Marcas de Pacto
-          </Link>
           <button
             onClick={() => setEntrando(true)}
             className="rounded-lg border border-border px-4 py-2 font-medium hover:bg-border/50"
@@ -105,6 +98,14 @@ function MesaCard({ mesa, uid }: { mesa: Mesa; uid: string }) {
               className="flex-1 rounded-lg bg-violet-600 px-3 py-1.5 text-center text-sm font-medium text-white hover:bg-violet-700"
             >
               Mestre
+            </Link>
+          )}
+          {mestre && (
+            <Link
+              href={`/mesas/${mesa.id}/marcas`}
+              className="flex-1 rounded-lg border border-border px-3 py-1.5 text-center text-sm font-medium hover:bg-border/50"
+            >
+              Marcas
             </Link>
           )}
           <Link

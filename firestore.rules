@@ -48,6 +48,22 @@ service cloud.firestore {
           && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
       }
 
+      // Mapas: o mestre escreve; o jogador lê só os liberados (para todos ou para ele).
+      match /mapas/{mapaId} {
+        allow read: if logado() && (
+          get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid
+          || (request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros
+              && (resource.data.todos == true || request.auth.uid in resource.data.liberadoPara)));
+        allow write: if logado()
+          && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
+      }
+
+      // Pinos do jogador: privados (só o próprio dono, sendo membro).
+      match /pinos/{donoId} {
+        allow read, write: if logado() && request.auth.uid == donoId
+          && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
+      }
+
       // ===== Marcas de Pacto (Mestre = donoUid da mesa; jogadores = membros) =====
       function mestreMesa() {
         return logado() && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;

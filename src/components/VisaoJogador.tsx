@@ -6,6 +6,8 @@ import { useState } from "react";
 import EditorMarkdown from "./EditorMarkdown";
 import Markdown from "./Markdown";
 import LivroNotas from "./LivroNotas";
+import Abas from "./Abas";
+import MapasJogador from "./mapas/MapasJogador";
 import MarcasSecao from "./marcas/MarcasSecao";
 import { STATUS_LABEL, paginasDe, assumirPersonagem, criarPersonagem, useAnotacoes, useMesas, type Mesa } from "@/lib/mesas";
 
@@ -17,6 +19,7 @@ function formatarData(d: string) {
 
 export default function VisaoJogador({ id }: { id: string }) {
   const { user } = useAuth();
+  const [aba, setAba] = useState<"geral" | "mapas">("geral");
   const { mesas, pronto } = useMesas();
   const mesa = mesas.find((m) => m.id === id);
   const { notas, notasJogadores, carregado, definirNota, definirNotaJogador } = useAnotacoes(id, user?.uid ?? "", !!user && !!mesa);
@@ -65,6 +68,19 @@ export default function VisaoJogador({ id }: { id: string }) {
         {mesa.descricao && <p className="pt-2">{mesa.descricao}</p>}
       </header>
 
+      <Abas
+        abas={[
+          { id: "geral", rotulo: "Geral" },
+          { id: "mapas", rotulo: "Mapas" },
+        ]}
+        ativa={aba}
+        onChange={setAba}
+      />
+
+      {aba === "mapas" && user && <MapasJogador mesaId={mesa.id} usuarioUid={user.uid} />}
+
+      {aba === "geral" && (
+        <>
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Grupo</h2>
         {mesa.jogadores.length === 0 ? (
@@ -120,6 +136,8 @@ export default function VisaoJogador({ id }: { id: string }) {
           ))
         )}
       </section>
+        </>
+      )}
     </main>
   );
 }
