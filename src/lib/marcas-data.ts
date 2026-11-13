@@ -24,6 +24,7 @@ export const MARCAS: Marca[] = [
   { id: "pele-de-vidro", name: "Marca da Pele de Vidro", sold: "a confiabilidade da própria resistência física.", build: "Dano concentrado / demolição" },
   { id: "ultimo-suspiro", name: "Marca do Último Suspiro", sold: "a certeza de uma morte natural.", build: "Morte / necromancia" },
   { id: "coro-silencioso", name: "Marca do Coro Silencioso", sold: "a solidão da própria alma.", build: "Suporte de grupo" },
+  { id: "fio-partido", name: "Marca do Fio Partido", sold: "a fronteira entre o próprio corpo e a própria magia.", build: "Cavaleiro arcano / spellblade" },
 ];
 
 export const marcaPorId = (id: string | undefined | null) => MARCAS.find((m) => m.id === id);

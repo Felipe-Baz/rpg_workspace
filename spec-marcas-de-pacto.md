@@ -64,7 +64,7 @@ Ponto crítico: o conteúdo de `lore` (a mecânica real de cada Marca) **não po
 
 ## Dados de referência (não-spoiler, podem ir no código)
 
-20 Marcas, cada uma com `id`, `name`, `sold` ("o que foi vendido") e `build` (build-alvo):
+21 Marcas, cada uma com `id`, `name`, `sold` ("o que foi vendido") e `build` (build-alvo):
 
 1. `eco-vazio` — Marca do Eco Vazio — "a dor e o medo — os primeiros avisos de que um corpo está em perigo." — Marcial de linha de frente / tanque
 2. `maos-que-lembram` — Marca das Mãos que Lembram — "a memória contínua de rostos, nomes e do próprio passado." — Perícia e versatilidade social
@@ -86,6 +86,7 @@ Ponto crítico: o conteúdo de `lore` (a mecânica real de cada Marca) **não po
 18. `pele-de-vidro` — Marca da Pele de Vidro — "a confiabilidade da própria resistência física." — Dano concentrado / demolição
 19. `ultimo-suspiro` — Marca do Último Suspiro — "a certeza de uma morte natural." — Morte / necromancia
 20. `coro-silencioso` — Marca do Coro Silencioso — "a solidão da própria alma." — Suporte de grupo
+21. `fio-partido` — Marca do Fio Partido — "a fronteira entre o próprio corpo e a própria magia." — Cavaleiro arcano / spellblade
 
 Os nomes de estágio para o seletor de "palpite de Círculo" do jogador (puramente de sabor, 0 = ainda não despertou):
 `Ainda não despertou, I — Limbo, II — Luxúria, III — Gula, IV — Avareza, V — Ira, VI — Heresia, VII — Violência, VIII — Fraude, IX — Traição`

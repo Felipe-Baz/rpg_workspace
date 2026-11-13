@@ -36,6 +36,7 @@ export const AMBIENTES: Record<string, Ambiente> = {
   "pele-de-vidro": { cor: "#bfe6f0", fx: "glitch", particula: p("#dff4fa", "risco", false, [4, 10], [0.5, 1.2], 40), drone: 120 },
   "ultimo-suspiro": { cor: "#b8c4c0", fx: "treva", particula: p("#c9d4d0", "ponto", true, [2, 5], [0.1, 0.35], 38), drone: 40 },
   "coro-silencioso": { cor: "#8fb0c0", fx: "pulso", particula: p("#a9c8d6", "ponto", true, [1, 3], [0.15, 0.5], 55), drone: 85 },
+  "fio-partido": { cor: "#5fb6d9", fx: "glitch", particula: p("#ff8a3c", "risco", false, [4, 10], [0.4, 1.0], 38), drone: 98 },
 };
 
 export const AMBIENTE_PADRAO: Ambiente = AMBIENTES["eco-vazio"];
