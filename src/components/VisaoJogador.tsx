@@ -8,6 +8,9 @@ import Markdown from "./Markdown";
 import LivroNotas from "./LivroNotas";
 import Abas from "./Abas";
 import MapasJogador from "./mapas/MapasJogador";
+import QuadroJogador from "./quadro/QuadroJogador";
+import FichasJogador from "./fichas/FichasJogador";
+import { CATEGORIAS, type CategoriaFicha } from "@/lib/fichas";
 import MarcasSecao from "./marcas/MarcasSecao";
 import { STATUS_LABEL, paginasDe, assumirPersonagem, criarPersonagem, useAnotacoes, useMesas, type Mesa } from "@/lib/mesas";
 
@@ -19,7 +22,7 @@ function formatarData(d: string) {
 
 export default function VisaoJogador({ id }: { id: string }) {
   const { user } = useAuth();
-  const [aba, setAba] = useState<"geral" | "mapas">("geral");
+  const [aba, setAba] = useState<"geral" | "mapas" | "quadro" | CategoriaFicha>("geral");
   const { mesas, pronto } = useMesas();
   const mesa = mesas.find((m) => m.id === id);
   const { notas, notasJogadores, carregado, definirNota, definirNotaJogador } = useAnotacoes(id, user?.uid ?? "", !!user && !!mesa);
@@ -47,7 +50,7 @@ export default function VisaoJogador({ id }: { id: string }) {
   const sessoes = [...mesa.sessoes].sort((a, b) => b.data.localeCompare(a.data));
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-8 px-4 py-8 sm:px-6">
+    <main className={`mx-auto w-full space-y-8 px-4 py-8 sm:px-6 ${aba === "quadro" ? "max-w-6xl" : "max-w-3xl"}`}>
       <nav className="flex items-center justify-between text-sm">
         <Link href="/" className="text-muted hover:underline">← Dashboard</Link>
         {mesa.donoUid === user?.uid ? (
@@ -72,12 +75,29 @@ export default function VisaoJogador({ id }: { id: string }) {
         abas={[
           { id: "geral", rotulo: "Geral" },
           { id: "mapas", rotulo: "Mapas" },
+          { id: "quadro", rotulo: "Quadro" },
+          ...CATEGORIAS.map((c) => ({ id: c.id, rotulo: c.rotulo })),
         ]}
         ativa={aba}
         onChange={setAba}
       />
 
+      {aba === "quadro" && user && <QuadroJogador mesaId={mesa.id} usuarioUid={user.uid} />}
+
       {aba === "mapas" && user && <MapasJogador mesaId={mesa.id} usuarioUid={user.uid} />}
+
+      {user &&
+        CATEGORIAS.filter((c) => c.id === aba).map((c) => (
+          <FichasJogador
+            key={c.id}
+            mesaId={mesa.id}
+            usuarioUid={user.uid}
+            categoria={c.id}
+            rotulo={c.rotulo}
+            singular={c.singular}
+            icone={c.icone}
+          />
+        ))}
 
       {aba === "geral" && (
         <>

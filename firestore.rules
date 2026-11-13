@@ -64,6 +64,56 @@ service cloud.firestore {
           && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
       }
 
+      // Fichas (NPCs, inimigos, pessoas importantes, itens).
+      // - Do jogador: privadas (só o dono). Não podem ser liberadas a ninguém.
+      // - Do mestre (mestre == true): o mestre escreve; o jogador lê só as liberadas
+      //   (para todos ou para ele).
+      match /fichas/{fichaId} {
+        allow read: if logado() && (
+          (resource.data.donoUid == request.auth.uid
+            && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros)
+          || (resource.data.get('mestre', false) == true && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid)
+          || (request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros
+              && resource.data.get('mestre', false) == true
+              && (resource.data.get('todos', false) == true
+                  || request.auth.uid in resource.data.get('liberadoPara', [])))
+        );
+        allow create: if logado() && request.resource.data.donoUid == request.auth.uid
+          && (
+            (request.resource.data.get('mestre', false) == false
+              && request.resource.data.get('todos', false) == false
+              && request.resource.data.get('liberadoPara', []).size() == 0
+              && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros)
+            || (request.resource.data.mestre == true
+              && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid)
+          );
+        allow update: if logado() && resource.data.donoUid == request.auth.uid
+          && request.resource.data.donoUid == request.auth.uid
+          && request.resource.data.get('mestre', false) == resource.data.get('mestre', false)
+          && (
+            (resource.data.get('mestre', false) == false
+              && request.resource.data.get('todos', false) == false
+              && request.resource.data.get('liberadoPara', []).size() == 0
+              && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros)
+            || (resource.data.mestre == true
+              && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid)
+          );
+        allow delete: if logado() && resource.data.donoUid == request.auth.uid
+          && (resource.data.get('mestre', false) == true
+              || request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros);
+      }
+
+      // Quadro de investigação: elementos privados do jogador que os criou.
+      match /quadro/{noId} {
+        allow read, delete: if logado() && resource.data.donoUid == request.auth.uid
+          && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
+        allow create: if logado() && request.resource.data.donoUid == request.auth.uid
+          && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
+        allow update: if logado() && resource.data.donoUid == request.auth.uid
+          && request.resource.data.donoUid == request.auth.uid
+          && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
+      }
+
       // ===== Marcas de Pacto (Mestre = donoUid da mesa; jogadores = membros) =====
       function mestreMesa() {
         return logado() && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;

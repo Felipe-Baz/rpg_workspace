@@ -22,9 +22,9 @@ export type Pino = { id: string; x: number; y: number; titulo: string; texto: st
 const LIMITE_BYTES = 900_000;
 
 /** Reduz e recomprime a imagem até caber no limite de um documento do Firestore. */
-export async function comprimirImagem(arquivo: File): Promise<string> {
+export async function comprimirImagem(arquivo: File, ladoInicial = 2200, limite = LIMITE_BYTES): Promise<string> {
   const bmp = await createImageBitmap(arquivo);
-  let lado = 2200;
+  let lado = ladoInicial;
   for (let tentativa = 0; tentativa < 8; tentativa++) {
     const esc = Math.min(1, lado / Math.max(bmp.width, bmp.height));
     const c = document.createElement("canvas");
@@ -36,7 +36,7 @@ export async function comprimirImagem(arquivo: File): Promise<string> {
     ctx.drawImage(bmp, 0, 0, c.width, c.height);
     for (const q of [0.85, 0.7, 0.55]) {
       const url = c.toDataURL("image/jpeg", q);
-      if (url.length <= LIMITE_BYTES) return url;
+      if (url.length <= limite) return url;
     }
     lado = Math.round(lado * 0.8);
   }

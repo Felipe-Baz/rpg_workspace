@@ -5,6 +5,8 @@ import { useState } from "react";
 import LivroNotas from "./LivroNotas";
 import Abas from "./Abas";
 import MapasMestre from "./mapas/MapasMestre";
+import FichasJogador from "./fichas/FichasJogador";
+import { CATEGORIAS, type CategoriaFicha } from "@/lib/fichas";
 import { useAuth } from "@/lib/auth";
 import {
   STATUS_LABEL,
@@ -21,13 +23,14 @@ import {
 const ABAS = [
   { id: "geral" as const, rotulo: "Geral" },
   { id: "mapas" as const, rotulo: "Mapas" },
+  ...CATEGORIAS.map((c) => ({ id: c.id, rotulo: c.rotulo })),
 ];
 
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
 
 export default function VisaoMestre({ id }: { id: string }) {
   const { user } = useAuth();
-  const [aba, setAba] = useState<"geral" | "mapas">("geral");
+  const [aba, setAba] = useState<"geral" | "mapas" | CategoriaFicha>("geral");
   const { mesas, pronto } = useMesas();
   const mesa = mesas.find((m) => m.id === id);
   const ehMestre = !!mesa && mesa.donoUid === user?.uid;
@@ -100,6 +103,20 @@ export default function VisaoMestre({ id }: { id: string }) {
       <Abas abas={ABAS} ativa={aba} onChange={setAba} />
 
       {aba === "mapas" && <MapasMestre mesa={mesa} />}
+
+      {user &&
+        CATEGORIAS.filter((c) => c.id === aba).map((c) => (
+          <FichasJogador
+            key={c.id}
+            mesa={mesa}
+            mesaId={mesa.id}
+            usuarioUid={user.uid}
+            categoria={c.id}
+            rotulo={c.rotulo}
+            singular={c.singular}
+            icone={c.icone}
+          />
+        ))}
 
       {aba === "geral" && (
         <>
