@@ -1,0 +1,135 @@
+.marcas {
+  --m-bg: #0b0908;
+  --m-panel: #14100e;
+  --m-panel2: #1b1512;
+  --m-line: #33291f;
+  --m-bone: #d8cfbd;
+  --m-dim: #8f8573;
+  --m-blood: #9b1c1c;
+  --m-blood-hi: #c02a2a;
+  --m-gold: #b08d3c;
+  background:
+    radial-gradient(ellipse at 50% -10%, #2a0f0c 0%, transparent 55%),
+    var(--m-bg);
+  color: var(--m-bone);
+  font-family: var(--font-garamond), Georgia, serif;
+  font-size: 1.08rem;
+  min-height: 100vh;
+}
+.marcas h1, .marcas h2, .marcas h3, .marcas .display {
+  font-family: var(--font-cinzel), serif;
+  letter-spacing: 0.04em;
+}
+.marcas h2, .marcas .gold { color: var(--m-gold); }
+.marcas .panel { background: var(--m-panel); border: 1px solid var(--m-line); border-radius: 4px; }
+.marcas .tag {
+  display: inline-block; border: 1px solid var(--m-gold); color: var(--m-gold);
+  font-family: var(--font-cinzel), serif; font-size: 0.7rem; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 0.15rem 0.55rem;
+}
+.marcas .dim { color: var(--m-dim); }
+.marcas input, .marcas textarea, .marcas select {
+  width: 100%; background: var(--m-bg); color: var(--m-bone); border: 1px solid var(--m-line);
+  border-radius: 3px; padding: 0.5rem 0.65rem; font: inherit;
+}
+.marcas input:focus, .marcas textarea:focus, .marcas select:focus {
+  outline: none; border-color: var(--m-blood-hi); box-shadow: 0 0 0 1px var(--m-blood-hi);
+}
+.marcas textarea { resize: vertical; min-height: 6rem; }
+.marcas .btn {
+  background: var(--m-blood); color: #f3e9d6; border: 1px solid var(--m-blood-hi);
+  font-family: var(--font-cinzel), serif; letter-spacing: 0.08em; font-size: 0.8rem;
+  padding: 0.5rem 1rem; border-radius: 3px; cursor: pointer;
+}
+.marcas .btn:hover { background: var(--m-blood-hi); }
+.marcas .btn.ghost { background: transparent; color: var(--m-bone); border-color: var(--m-line); }
+.marcas .btn.ghost:hover { border-color: var(--m-gold); color: var(--m-gold); }
+.marcas .postit {
+  background: #e4d7b3; color: #2a2118; transform: rotate(var(--rot, 0deg));
+  box-shadow: 0 6px 14px rgba(0,0,0,0.55); padding: 0.4rem; border-radius: 2px;
+}
+.marcas .postit textarea {
+  background: transparent; border: none; color: inherit; min-height: 7rem; box-shadow: none !important;
+}
+.marcas table { border-collapse: collapse; width: 100%; }
+.marcas th, .marcas td { border: 1px solid var(--m-line); padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+.marcas th { color: var(--m-gold); font-family: var(--font-cinzel), serif; font-size: 0.8rem; letter-spacing: 0.08em; }
+
+/* ================= Enigmas imersivos ================= */
+.marcas .cena { position: relative; isolation: isolate; border: 1px solid var(--m-line); border-radius: 6px; padding: 1.25rem; overflow: hidden; background: color-mix(in srgb, var(--amb) 6%, #0a0807); }
+.marcas .cena-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.marcas .cena-vinheta { position: absolute; inset: 0; pointer-events: none; z-index: 0; box-shadow: inset 0 0 140px 20px rgba(0,0,0,.75); }
+.marcas .cena-conteudo { position: relative; z-index: 1; }
+.marcas .cena .panel { background: color-mix(in srgb, var(--m-panel) 88%, transparent); backdrop-filter: blur(2px); }
+.marcas .etapa-aberta { border-color: color-mix(in srgb, var(--amb) 60%, var(--m-line)); }
+
+/* efeitos de tela por Marca */
+@keyframes m-pulso { 0%, 100% { box-shadow: inset 0 0 140px 20px rgba(0,0,0,.75); } 12% { box-shadow: inset 0 0 120px 40px color-mix(in srgb, var(--amb) 55%, #000); } 24% { box-shadow: inset 0 0 140px 20px rgba(0,0,0,.75); } 36% { box-shadow: inset 0 0 120px 30px color-mix(in srgb, var(--amb) 40%, #000); } }
+.marcas .fx-pulso .cena-vinheta { animation: m-pulso 1.8s ease-in-out infinite; }
+@keyframes m-respira { 0%, 100% { opacity: .85; } 50% { opacity: 1; } }
+.marcas .fx-respira .cena-vinheta { animation: m-respira 6s ease-in-out infinite; }
+@keyframes m-tremor { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(.6px,-.5px); } 50% { transform: translate(-.5px,.6px); } 75% { transform: translate(.4px,.4px); } }
+.marcas .fx-tremor .etapa { animation: m-tremor .22s linear infinite; }
+.marcas .fx-treva .cena-vinheta { box-shadow: none; background: radial-gradient(circle 190px at var(--lx, 50%) var(--ly, 20%), transparent 0%, rgba(0,0,0,.82) 100%); }
+@keyframes m-glitch { 0%, 92%, 100% { transform: none; text-shadow: none; } 93% { transform: translateX(-3px); text-shadow: 3px 0 #0ff, -3px 0 #f0f; } 95% { transform: translateX(3px) skewX(-6deg); text-shadow: -3px 0 #0ff, 3px 0 #f0f; } 97% { transform: translateX(-1px); text-shadow: 2px 0 #0ff; } }
+.marcas .fx-glitch .glitch-titulo { animation: m-glitch 4s steps(1) infinite; }
+@media (prefers-reduced-motion: reduce) { .marcas .cena *, .marcas .cena { animation: none !important; } }
+
+/* feedback */
+@keyframes m-treme { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+.marcas .treme { animation: m-treme .45s; }
+.marcas .revelacao { border-left: 3px solid var(--amb, var(--m-gold)); padding: .4rem .9rem; font-style: italic; color: var(--m-bone); background: color-mix(in srgb, var(--amb, var(--m-gold)) 12%, transparent); }
+
+/* cifra */
+.marcas .decifra { font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 1.15rem; letter-spacing: .12em; line-height: 1.7; padding: .9rem 1rem; background: #000a; border: 1px dashed var(--m-line); border-radius: 3px; word-break: break-word; transition: transform .6s; }
+.marcas .decifra.espelhado { transform: scaleX(-1); opacity: .9; }
+.marcas .decifra.runico { font-family: serif; font-size: 1.6rem; letter-spacing: .3em; }
+.marcas input[type="range"] { padding: 0; accent-color: var(--m-gold); }
+.marcas .tabua-runas { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr)); gap: .25rem .75rem; font-size: .9rem; color: var(--m-dim); }
+.marcas .tabua-runas b { color: var(--m-gold); font-weight: 400; }
+
+/* lanterna */
+.marcas .lanterna { position: relative; height: 15rem; background: #050403; border: 1px solid var(--m-line); border-radius: 3px; overflow: hidden; cursor: none; touch-action: none; user-select: none; }
+.marcas .lanterna-palavra { position: absolute; transform: translate(-10%, -50%); font-family: var(--font-cinzel), serif; font-size: 1.35rem; color: var(--m-bone); white-space: nowrap; text-shadow: 0 0 10px var(--amb, #fff); }
+.marcas .lanterna-escuro { position: absolute; inset: 0; background: radial-gradient(circle 95px at var(--px) var(--py), transparent 0%, rgba(5,4,3,.55) 55%, #050403 100%); }
+
+/* rastros */
+.marcas .rastros-texto { line-height: 2; font-size: 1.1rem; }
+.marcas .rastro { background: none; border: 0; padding: 0 .1rem; font: inherit; color: inherit; cursor: pointer; border-bottom: 1px dotted var(--m-dim); animation: m-brilha 3.2s ease-in-out infinite; }
+.marcas .rastro.achado { color: var(--amb, var(--m-gold)); border-bottom-style: solid; animation: none; }
+@keyframes m-brilha { 0%, 80%, 100% { text-shadow: none; } 90% { text-shadow: 0 0 8px var(--amb, #fff); } }
+.marcas .fragmento-achado { font-style: italic; color: var(--amb, var(--m-gold)); }
+
+/* morse */
+.marcas .morse-painel { display: flex; align-items: center; gap: 1.2rem; }
+.marcas .morse-lampada { width: 3.2rem; height: 3.2rem; border-radius: 50%; background: #1a1210; border: 2px solid var(--m-line); flex: none; transition: all .05s; }
+.marcas .morse-lampada.acesa { background: var(--amb, #ffd36b); box-shadow: 0 0 30px 8px var(--amb, #ffd36b); border-color: #fff8; }
+.marcas .morse-linha { margin-top: .5rem; font-family: var(--font-geist-mono), monospace; font-size: 1.4rem; letter-spacing: .25em; min-height: 2rem; }
+
+/* fragmentos */
+.marcas .fragmento { display: flex; align-items: center; gap: .6rem; padding: .55rem .75rem; background: #0007; border: 1px solid var(--m-line); border-radius: 3px; }
+.marcas .fragmento-texto { flex: 1; }
+.marcas .fragmento-botoes { display: flex; gap: .25rem; }
+.marcas .fragmento-botoes .btn { padding: .25rem .55rem; }
+.marcas .fragmento-botoes .btn:disabled { opacity: .3; cursor: default; }
+
+/* relógio */
+.marcas .relogio { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; }
+.marcas .relogio svg { width: 11rem; height: 11rem; flex: none; }
+.marcas .relogio-controles { display: grid; gap: .8rem; }
+.marcas .relogio-num { min-width: 2.6rem; text-align: center; font-family: var(--font-cinzel), serif; font-size: 1.4rem; align-self: center; }
+.marcas .relogio-controles .btn.ghost { padding: .2rem .7rem; }
+
+/* runas */
+.marcas .runas { display: flex; flex-wrap: wrap; gap: .7rem; justify-content: center; padding: 1rem; background: #000a; border: 1px solid var(--m-line); border-radius: 3px; transition: box-shadow .6s, border-color .6s; }
+.marcas .runas.aberto { border-color: var(--m-gold); box-shadow: 0 0 40px 4px color-mix(in srgb, var(--m-gold) 55%, transparent); }
+.marcas .runas-anel { display: flex; flex-direction: column; align-items: center; gap: .15rem; }
+.marcas .runas-anel button { background: none; border: 0; color: var(--m-dim); cursor: pointer; font-size: 1rem; padding: .1rem .8rem; }
+.marcas .runas-anel button:hover { color: var(--m-gold); }
+.marcas .runas-letra { font-family: var(--font-cinzel), serif; font-size: 2.1rem; width: 3.2rem; text-align: center; padding: .35rem 0; border: 1px solid var(--m-gold); color: var(--m-gold); background: #0b0908; }
+
+/* espera */
+.marcas .espera-botao { position: relative; width: 9rem; height: 9rem; border-radius: 50%; border: 2px solid var(--amb, var(--m-gold)); background: radial-gradient(circle, color-mix(in srgb, var(--amb, #fff) calc(var(--p, 0) * 70%), #0b0908) 0%, #0b0908 80%); color: var(--m-bone); font-family: var(--font-cinzel), serif; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; transition: transform .2s; }
+.marcas .espera-botao.ativo { transform: scale(calc(1 - var(--p, 0) * .08)); box-shadow: 0 0 calc(var(--p, 0) * 60px) var(--amb, #fff); }
+.marcas .espera-barra { height: 4px; background: var(--m-line); margin: 1rem auto 0; max-width: 20rem; }
+.marcas .espera-barra > div { height: 100%; background: var(--amb, var(--m-gold)); }
