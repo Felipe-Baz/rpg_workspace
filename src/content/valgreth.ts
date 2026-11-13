@@ -1,0 +1,431 @@
+import type { Mundo } from "@/lib/mundo";
+
+// Conteúdo padrão da aba Mundo (conhecimento público de Valgreth).
+// O mestre pode substituí-lo colando um JSON no mesmo formato.
+export const MUNDO_PADRAO: Mundo = {
+  titulo: "Conhecimento Público de Valgreth",
+  subtitulo: "O que qualquer pessoa sabe — guia para criar seu personagem em “O Juramento de Cinzas”",
+  introducao: `Este material reúne **apenas conhecimento público**: o que um camponês, um mercador, um taverneiro ou um soldado raso saberia sobre o mundo. Use-o para construir o background do seu personagem — de onde ele vem, o que aprendeu crescendo, o que teme e em que acredita.
+
+Tudo aqui é contado como **lenda, boato ou tradição oral** — nunca como verdade absoluta. Segredos de enredo e qualquer coisa ligada às Marcas de Pacto **não estão aqui** de propósito: isso seu personagem descobre jogando.`,
+  secoes: [
+    {
+      id: "guerra",
+      titulo: "A Guerra dos Deuses",
+      icone: "⚔️",
+      resumo: "A história que todo mundo conhece — e as lendas que todo mundo conta diferente.",
+      blocos: [
+        {
+          tipo: "texto",
+          texto: `Há cem anos, os deuses foram à guerra entre si. Ninguém que ainda vive sabe dizer exatamente por quê — e esse “exatamente por quê” é o assunto favorito de contadores de história, bêbados de taverna e velhos de aldeia havia três gerações. Toda região tem sua versão. Nenhuma bate exatamente com a outra. O que todo mundo concorda, porque o resultado está debaixo dos pés de todo mundo, é isto:`,
+        },
+        {
+          tipo: "cartoes",
+          titulo: "O que todos concordam",
+          colunas: 3,
+          itens: [
+            { icone: "💥", titulo: "Panteões destruídos", texto: "Panteões inteiros se destruíram, se despedaçaram ou desapareceram, e o mundo mortal pagou o preço como campo de batalha." },
+            { icone: "🔇", titulo: "Deuses calados", texto: "Nenhum deus age abertamente no mundo hoje. Rezar não garante resposta. A maioria reza mesmo assim, por hábito ou desespero." },
+            { icone: "🌀", titulo: "Magia instável", texto: "A magia ficou instável em certas regiões, principalmente perto do centro do continente." },
+            { icone: "🏚️", titulo: "Vilarejos amaldiçoados", texto: "Lugares que sofreram algo durante a guerra e nunca voltaram ao normal." },
+            { icone: "💎", titulo: "Fragmentos de deuses", texto: "Pedras, armaduras, luzes e lugares espalhados pelo mundo ainda têm algum poder residual." },
+          ],
+        },
+        {
+          tipo: "destaque",
+          texto: "Ninguém comum sabe explicar a teologia por trás disso. O que se sabe é prático: certos lugares são perigosos, certos objetos antigos não devem ser tocados, e quem promete explicar “a vontade dos deuses” com certeza absoluta está vendendo alguma coisa.",
+        },
+        {
+          tipo: "cartoes",
+          titulo: "Lendas sobre como a guerra começou e terminou",
+          texto: "Nenhuma é “a verdade”. São contadas ao redor do fogo, em feiras e velórios — e um personagem normalmente cresceu ouvindo uma ou duas como se fossem fato.",
+          colunas: 2,
+          itens: [
+            {
+              icone: "👁️",
+              titulo: "A Lenda da Última Testemunha",
+              tags: ["A mais comum"],
+              texto: "Um único mortal — um pastor, um ferreiro, uma criança, depende de quem conta — viu o primeiro golpe trocado entre dois deuses e nunca mais foi o mesmo: alguns dizem que ficou cego, outros mudo, outros que envelheceu cem anos numa única noite. “Ficar com os olhos da Última Testemunha” virou expressão popular para quem viu algo horrível demais para contar direito.",
+            },
+            {
+              icone: "🎶",
+              titulo: "O Canto dos Quatro Ecoantes",
+              tags: ["Balada de bardos"],
+              texto: "Descreve a guerra como “quatro grandes golpes” que partiram o céu em pedaços. Existem pelo menos cinco versões da letra e ninguém concorda em quais foram os quatro golpes, mas a métrica é boa o bastante para sobreviver gerações — toda taverna de porto conhece o refrão.",
+            },
+            {
+              icone: "🤫",
+              titulo: "A Praga do Silêncio",
+              tags: ["Negação da Guerra"],
+              texto: "Popular entre os devotos da Negação da Guerra: os deuses não morreram nem sumiram — simplesmente decidiram parar de responder, enojados com o que os mortais fizeram uns aos outros. Reconfortante e acusatória ao mesmo tempo: o silêncio divino vira culpa humana.",
+            },
+            {
+              icone: "🤝",
+              titulo: "O Juramento Que Ninguém Ouviu",
+              tags: ["Bosque Insepulto", "Ordens de cavalaria"],
+              texto: "Um deus tentou negociar paz entre os panteões rivais e foi traído por ambos os lados antes de terminar de falar. Ninguém concorda em qual deus era. “Quebrou como o Juramento que Ninguém Ouviu” é quase um provérbio em Valgreth.",
+            },
+            {
+              icone: "🌾",
+              titulo: "A Fome que Veio Depois",
+              tags: ["Regiões agrícolas"],
+              texto: "Contada baixinho: nos primeiros anos depois da guerra, a terra “esqueceu” como fazer as coisas crescerem direito em certos lugares — e os primeiros vilarejos amaldiçoados nasceram de tentativas desesperadas de plantar em solo que não devia mais ser tocado.",
+            },
+          ],
+        },
+        {
+          tipo: "destaque",
+          texto: "Um personagem pode ter crescido acreditando piamente em uma dessas lendas, zombando de outra e nunca tendo ouvido a terceira. Esse é o ponto: ninguém em Valgreth tem a história completa.",
+        },
+      ],
+    },
+    {
+      id: "geografia",
+      titulo: "Geografia",
+      icone: "🗺️",
+      resumo: "Um continente em forma de meia-lua cicatrizada.",
+      blocos: [
+        {
+          tipo: "texto",
+          texto: `Valgreth é um continente em forma de **meia-lua cicatrizada**, fechado a oeste e ao sul pelo **Mar sem Deuses** (nome que só pegou depois da guerra — antes, cada porto tinha seu próprio santo patrono para invocar contra tempestades) e a leste pelos **Dentes de Ferro**, uma cordilheira de onde ainda se extrai minério escuro de forjas antigas.`,
+        },
+        {
+          tipo: "destaque",
+          titulo: "A Chaga",
+          texto: "No centro do continente fica **A Chaga** — também chamada, por quem evita o nome real, de “Terras Famintas”. É a ferida aberta da Guerra dos Deuses: magia errática, vilarejos que “renascem” errados depois de sumirem, e um silêncio que ninguém gosta de descrever. Todo morador de Valgreth sabe que se deve evitar A Chaga sem motivo forte — e que quem tem um motivo forte geralmente vai até Cinzaporto primeiro.",
+        },
+        {
+          tipo: "tabela",
+          titulo: "Regiões",
+          colunas: ["Região", "Posição", "O que todo mundo sabe sobre ela"],
+          linhas: [
+            ["Coroa Partida", "Centro-norte", "Antigo coração de um império que não existe mais; hoje governada por juízes que consultam pedras sagradas"],
+            ["A Chaga", "Centro", "Terra amaldiçoada pela guerra; evita-se sem necessidade"],
+            ["Dentes de Ferro", "Norte/Leste", "Minas e forjas; de lá vem metade do metal e das armas de Valgreth"],
+            ["Bosque Insepulto", "Oeste", "Floresta antiga e estranha; nada ali apodrece como deveria"],
+            ["Costa de Sal", "Sudoeste", "Cidades de comércio; onde tudo tem preço, até favores"],
+            ["Pântano do Sono", "Sul", "Terras pantanosas; conhecidas por sonhos estranhos e clérigos que ainda tentam curar"],
+            ["Terras da Cinza Santa", "Extremo sul", "Deserto de cinzas; terra de peregrinos, penitentes e fanáticos"],
+            ["Cinzaporto", "Centro-sul", "Cidade-livre neutra; ponto de partida de quem vai caçar o que ninguém mais ousa enfrentar"],
+          ],
+        },
+      ],
+    },
+    {
+      id: "povos",
+      titulo: "Povos",
+      icone: "🧬",
+      resumo: "Cem anos de guerra remodelaram onde cada povo se agrupou e como é visto.",
+      blocos: [
+        {
+          tipo: "texto",
+          texto: "Nenhum povo foi extinto, mas todos mudaram de lugar e de reputação. **Nenhum povo tem reino próprio em Valgreth hoje** — todos vivem sob a mesma estrutura de poder fragmentado.",
+        },
+        {
+          tipo: "cartoes",
+          colunas: 2,
+          itens: [
+            { icone: "🧑", titulo: "Humanos", subtitulo: "Maioria em todas as regiões", texto: "A guerra os usou como campo de batalha e exército mais do que qualquer outro povo, e foi entre eles que o vácuo de poder político se reorganizou." },
+            { icone: "⛏️", titulo: "Anões", subtitulo: "Dentes de Ferro · Caldeira", texto: "Minas e forjas são tradição de família há gerações. Fora da montanha, são vistos com uma mistura de respeito (bom ferro, boa palavra) e desconfiança comercial." },
+            { icone: "🌿", titulo: "Elfos", subtitulo: "Bosque Insepulto · bolsões isolados", texto: "Raros. A guerra os atingiu menos diretamente, mas o trauma coletivo os deixou reservados — um elfo fora de sua região costuma ser olhado com curiosidade, não hostilidade." },
+            { icone: "📜", titulo: "Meio-elfos", subtitulo: "Vida urbana", texto: "Mais numerosos que elfos puros, comuns em cargos que exigem paciência e memória longa: arquivistas, juízes menores e negociadores." },
+            { icone: "🧺", titulo: "Halflings", subtitulo: "Rotas comerciais · Costa de Sal", texto: "Família e reputação pesam mais que qualquer outra coisa. Boa parte do comércio caravaneiro de Valgreth é halfling de geração em geração." },
+            { icone: "🪓", titulo: "Orcs e meio-orcs", subtitulo: "Companhias mercenárias · Cinzaporto", texto: "Comuns entre mercenários e caçadores. O preconceito regional ainda existe em cidades conservadoras como Talvorim, mas diminui perto das fronteiras e portos." },
+            { icone: "😈", titulo: "Tieflings", subtitulo: "Surgiram em maior número após a guerra", texto: "Ninguém sabe o motivo, e isso gera desconfiança. Tolerados na maioria dos lugares e tratados com suspeita religiosa em cidades devotas; Cinzaporto e Penhora são os lugares mais fáceis para viver sem comentários." },
+            { icone: "⚙️", titulo: "Gnomos", subtitulo: "Cidades comerciais · Caldeira", texto: "O povo mais raro de se ver fora das grandes cidades comerciais ou de Caldeira, onde trabalham ao lado dos anões como engenheiros e artesãos de precisão." },
+          ],
+        },
+      ],
+    },
+    {
+      id: "cidades",
+      titulo: "Cidades",
+      icone: "🏙️",
+      resumo: "Cinco cidades que todo viajante já ouviu falar.",
+      blocos: [
+        {
+          tipo: "cartoes",
+          colunas: 1,
+          itens: [
+            {
+              icone: "⚖️",
+              titulo: "Talvorim",
+              subtitulo: "A Capital da Lei",
+              tags: ["Coroa Partida"],
+              detalhes: [
+                { rotulo: "Governo", valor: "Tribunal dos Selos Cegos" },
+                { rotulo: "População", valor: "Majoritariamente humana; meio-elfos nos cargos jurídicos; pequena diáspora halfling de escrivães e mensageiros" },
+                { rotulo: "Lugares", valor: "Praça da Primeira Sentença · Selo Cego central · Claustros dos Juízes Encapuzados" },
+              ],
+              texto: `A cidade mais populosa de Valgreth e a que mais se parece com o império de antes da guerra. Construída em **anéis concêntricos** ao redor da Praça da Primeira Sentença — quanto mais perto do centro, mais antiga, rica e vigiada. Fachadas de mármore rachado e remendado, togas cerimoniais e arquivos legais empilhados por séculos em prédios que vazam quando chove.
+
+No centro está entronizado um **Selo Cego** do tamanho de um homem, consultado todo equinócio por juízes encapuzados. Crianças aprendem cedo que questionar um veredito do Selo em voz alta é tecnicamente heresia capital. A cidade vive numa paz tensa e num silêncio desconfortável sobre o que acontece a quem é condenado injustamente.
+
+**Como é viver lá:** horários rígidos, cerimônias constantes, um amor cansado pela ideia de ordem. Mercados fecham nos dias de consulta ao Selo e filas de litigantes dormem nos degraus dos Claustros. Um personagem de Talvorim provavelmente sabe recitar um trecho de lei de cor.`,
+            },
+            {
+              icone: "🕯️",
+              titulo: "Cinzaporto",
+              subtitulo: "A Cidade Sem Dono",
+              tags: ["Fronteira com A Chaga"],
+              detalhes: [
+                { rotulo: "Governo", valor: "Conselho rotativo das Companhias Livres" },
+                { rotulo: "População", valor: "A mais diversa de Valgreth — humanos, orcs e meio-orcs, tieflings sem constrangimento, anões e halflings de passagem" },
+                { rotulo: "Lugares", valor: "Mural dos Contratos · Capela sem Deus · Poços de Quarentena" },
+              ],
+              texto: `Não tem muralha de pedra — tem uma muralha de **reputação**. Nasceu como posto de reabastecimento para quem entrava ou saía de A Chaga e virou o único lugar onde praticamente qualquer um bebe numa taverna sem ser julgado. Construções de madeira, pedra reaproveitada e lona: ninguém ali constrói pensando em durar cem anos.
+
+O **Mural dos Contratos**, na praça central, é coberto de pedidos de caça, recompensas e súplicas de vilarejos desesperados. A **Capela sem Deus** é um templo abandonado por todos os cultos, reaproveitado como ponto de encontro neutro. Quem vem de A Chaga passa primeiro pelos **Poços de Quarentena**.
+
+**Como é viver lá:** barulhenta, suja, honesta do seu próprio jeito cínico. Reputação pessoal vale mais que sobrenome. Um personagem de Cinzaporto aprendeu cedo a julgar as pessoas pelo que fazem, não por quem dizem ser.`,
+            },
+            {
+              icone: "🪙",
+              titulo: "Penhora",
+              subtitulo: "A Cidade que Tudo Cobra",
+              tags: ["Costa de Sal"],
+              detalhes: [
+                { rotulo: "Governo", valor: "Conselho das Casas de Penhora" },
+                { rotulo: "População", valor: "Humanos e halflings no comércio; gnomos nos bancos e contratos mágicos; comunidades menores no trabalho portuário" },
+                { rotulo: "Lugares", valor: "Mercado das Promessas · Armazéns Flutuantes · Casa Cinzenta" },
+              ],
+              texto: `Erguida sobre um antigo porto que sobreviveu intacto à guerra (os deuses, dizem os mercadores, tinham coisa melhor para destruir). A cidade mais rica — e mais hipócrita, segundo quem não é de lá. Tudo tem preço, inclusive silêncio, inocência e lealdade.
+
+No **Mercado das Promessas**, contratos mágicos vinculantes são vendidos como qualquer mercadoria — dívidas, favores, até promessas de casamento. Os **Armazéns Flutuantes** existem oficialmente para proteger mercadoria da maré, e na prática para escapar de impostos terrestres. A **Casa Cinzenta** arbitra disputas entre famílias mercantes — raramente de forma justa para quem não tem dinheiro.
+
+**Como é viver lá:** elegante por fora, calculista por dentro. Toda conversa soa um pouco como negociação, e um acordo oferecido rápido demais, com sorriso largo demais, nunca é tão justo quanto parece. Um personagem de Penhora provavelmente sabe calcular juros de cabeça antes de saber nadar.`,
+            },
+            {
+              icone: "🔔",
+              titulo: "Alvorada",
+              subtitulo: "A Cidade-Catedral",
+              tags: ["Costa de Sal / Pântano do Sono"],
+              detalhes: [
+                { rotulo: "Governo", valor: "Irmandade da Última Benção" },
+                { rotulo: "População", valor: "Quase toda humana; meio-elfos entre os clérigos antigos; tieflings peregrinos enfrentam mais desconfiança ali do que em qualquer outro lugar" },
+                { rotulo: "Lugares", valor: "Catedral da Última Benção · Bairro Selado · Orfanato das Bênçãos" },
+              ],
+              texto: `Erguida ao redor da maior catedral de cura que sobreviveu à guerra — meio hospital, meio quarentena. Metade da cidade é mantida impecável pelos clérigos, com sinos a cada cura bem-sucedida. A outra metade é uma zona murada onde surtos de **Luz Apodrecida** deixaram ruas cobertas de carne luminosa que ainda cresce, lenta e silenciosamente. O nome é uma ironia: o amanhecer que nunca termina de apodrecer.
+
+A **Catedral** cobra caro por uma cura que às vezes funciona bem demais e vira problema novo. O **Bairro Selado** é constantemente invadido por saqueadores atrás de relíquias. O **Orfanato das Bênçãos** “protege” crianças nascidas com pele translúcida e levemente luminosa, mantidas isoladas por segurança de todos, inclusive delas mesmas.
+
+**Como é viver lá:** solene, triste, cheia de sinos. Um personagem de Alvorada cresceu perto de milagre e de tragédia na mesma rua, e reconhece de longe os primeiros sinais de Luz Apodrecida.`,
+            },
+            {
+              icone: "🔥",
+              titulo: "Caldeira",
+              subtitulo: "A Cidade-Forja",
+              tags: ["Dentes de Ferro"],
+              detalhes: [
+                { rotulo: "Governo", valor: "Guilda dos Mestres-Forjadores" },
+                { rotulo: "População", valor: "Anões em maioria absoluta; humanos como mão de obra; gnomos como engenheiros de precisão" },
+                { rotulo: "Lugares", valor: "Grande Fornalha Muda · Galerias Rachadas · Oficina do Forjador de Primeira Pedra" },
+              ],
+              texto: `Escavada nas entranhas dos Dentes de Ferro, é o que restou das fundições que forjaram armas para mortais lutarem ao lado — ou contra — seus próprios deuses. As minas exalam um calor que não vem de nenhuma fornalha ativa. Os mestres-forjadores são, em partes iguais, artesãos e **exorcistas de metal**: sabem dobrar aço e “acalmar” um lingote que ainda se lembra de ter sido arma divina.
+
+A **Grande Fornalha Muda** está desligada há cem anos e ainda quente ao toque. As **Galerias Rachadas** são túneis “instáveis demais”, eufemismo para túneis que ecoam sons de batalhas que já acabaram. A oficina do **Forjador de Primeira Pedra** é lendária: um mestre (ou espírito) capaz de reparar o que já deveria estar irremediavelmente quebrado.
+
+**Como é viver lá:** martelo o dia inteiro, calor mesmo nos corredores mais fundos, orgulho quase religioso do trabalho. Rixas entre clãs duram mais do que a cidade lembra o motivo. Um personagem de Caldeira reconhece metal de guerra pelo cheiro.`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "vilas",
+      titulo: "Vilas Amaldiçoadas",
+      icone: "🏚️",
+      resumo: "As histórias que todo mundo já ouviu — e como elas são contadas.",
+      blocos: [
+        {
+          tipo: "texto",
+          texto: "Praticamente todo morador de Valgreth conhece pelo menos uma lenda de vilarejo amaldiçoado. Cada uma foi contada tantas vezes, por tanta gente, que a versão que seu personagem ouviu pode não bater com o que realmente aconteceu. Isso é parte do mundo, não um erro.",
+        },
+        {
+          tipo: "cartoes",
+          colunas: 1,
+          itens: [
+            {
+              icone: "⚖️",
+              titulo: "A Lenda de Cervanta",
+              tags: ["Coroa Partida"],
+              texto: "Contada como advertência, às vezes como piada amarga. Uma vila pequena com um Selo Cego enterrado sob a praça há três gerações, que “nunca erra” — e que condenou tanta gente inocente quanto culpada sem que ninguém ousasse dizer em voz alta. Pais ensinam os filhos a nunca discordar de um veredito perto de ouvidos errados. Viajantes a contam como exemplo do que acontece quando uma vila decide que medo é mais fácil de manter do que dúvida.",
+            },
+            {
+              icone: "🫂",
+              titulo: "A Lenda do Vilarejo do Abraço Perigoso",
+              tags: ["Pântano do Sono", "Alvorada"],
+              texto: "Contada mais baixinho. Um lugar pequeno demais para ter nome em mapa oficial, onde famílias criam filhos que brilham por dentro e cujo abraço longo demais pode custar a vida de quem os ama. Algumas versões são ternas — pais que amam os filhos mesmo sabendo do perigo; outras são horror puro — crianças que “tomam” a vida de quem se aproxima de propósito. Ninguém de fora sabe qual é a mais correta.",
+            },
+            {
+              icone: "🌕",
+              titulo: "A Lenda da Vila que Renasce",
+              tags: ["A Chaga", "A mais assustadora"],
+              texto: "A mais contada em feiras e tavernas por viajantes que juram ter passado perto (ou dentro) de A Chaga. Uma aldeia que “morre” e “renasce” a cada lua cheia: ao amanhecer está de pé de novo, casas reconstruídas, fumaça nas chaminés — mas quem mora lá nunca é exatamente quem morava antes. Rostos quase certos. Memórias quase corretas. A lenda avisa: se a hospitalidade de um vilarejo desconhecido perto de A Chaga parecer boa demais, verifique se o pão ainda tem cheiro de pão antes de comer.",
+            },
+          ],
+        },
+        {
+          tipo: "cartoes",
+          titulo: "Outras histórias menores",
+          colunas: 3,
+          itens: [
+            { icone: "🌽", titulo: "Colheita e fome", texto: "Vilas onde a terra produziu, uma vez, uma colheita impossivelmente farta — seguida por uma fome impossivelmente cruel no ano seguinte." },
+            { icone: "🚫", titulo: "Quarentena esquecida", texto: "Lugares sob quarentena informal havia tanto tempo que ninguém lembra o motivo oficial, só que “não se entra lá”." },
+            { icone: "🌑", titulo: "Famílias que somem", texto: "Famílias inteiras desaparecem de uma vila numa única noite, sem luta, sem rastro — e a vila segue em frente como se nada tivesse acontecido." },
+          ],
+        },
+        {
+          tipo: "destaque",
+          texto: "Ninguém comum sabe explicar a causa exata de nenhuma dessas histórias. Se um estranho chega contando uma delas, o melhor é escutar e não rir. E se um personagem vem de um desses lugares, ele carrega a história como lembrança, não como lenda.",
+        },
+      ],
+    },
+    {
+      id: "poder",
+      titulo: "Quem Governa",
+      icone: "👑",
+      resumo: "O vácuo de poder: quatro autoridades que não reconhecem umas às outras.",
+      blocos: [
+        {
+          tipo: "texto",
+          texto: "Sem deuses para legitimar reis, quatro tipos de poder dividem Valgreth, e nenhum reconhece os outros como legítimos. Qualquer personagem cresceu sob a sombra de pelo menos um deles — mesmo que nunca tenha visto de perto quem manda.",
+        },
+        {
+          tipo: "cartoes",
+          colunas: 2,
+          itens: [
+            { icone: "⚖️", titulo: "Tribunal dos Selos Cegos", subtitulo: "Coroa Partida · Talvorim", texto: "Usa fragmentos sagrados como prova em julgamentos. É, no papel, a maior autoridade política do continente." },
+            { icone: "🪙", titulo: "Casas de Penhora", subtitulo: "Costa de Sal", texto: "Famílias mercantes que controlam a região através de dívida, contrato e frotas privadas." },
+            { icone: "🔔", titulo: "Irmandade da Última Benção", subtitulo: "Alvorada e região", texto: "Ordem clerical que governa por necessidade: é a maior fonte de cura que resta, mesmo sendo uma cura imperfeita." },
+            { icone: "🗡️", titulo: "Companhias Livres", subtitulo: "Cinzaporto", texto: "Mercenários e caçadores. Não controlam território, mas controlam quem está disposto a enfrentar o que ninguém mais encara." },
+          ],
+        },
+      ],
+    },
+    {
+      id: "fe",
+      titulo: "Fé e Religião Popular",
+      icone: "🕯️",
+      resumo: "O que se acredita, não o que é verdade.",
+      blocos: [
+        {
+          tipo: "texto",
+          texto: "Não existe mais religião organizada em escala de nação em Valgreth. O que existe é **fé de vizinhança**: cada comunidade reza do seu jeito, para o que sobrou perto dela, sem muita certeza teológica. Um camponês sabe os nomes que ouviu na infância, sabe quais objetos antigos são sagrados na sua região e quais padres ainda “funcionam” — mas raramente sabe explicar por quê.",
+        },
+        {
+          tipo: "cartoes",
+          titulo: "Como as pessoas comuns rezam",
+          texto: "A religião de Valgreth é feita de hábito doméstico: quase toda casa mantém um pequeno altar ou nicho — uma pedra, uma flor seca, um pedaço de metal guardado por família, uma vela acesa num dia específico do ano.",
+          colunas: 2,
+          itens: [
+            { icone: "🚪", titulo: "Oferendas de limiar", texto: "Deixar um pouco de comida, sal ou moeda na soleira antes de uma viagem ou negócio importante. Ninguém espera resposta divina; é mais superstição herdada do que fé." },
+            { icone: "🌇", titulo: "O silêncio do entardecer", texto: "Em muitas vilas, ficar em silêncio por instantes ao pôr do sol, “para não atrapalhar quem ainda está ouvindo”. Ninguém sabe dizer a quem se refere." },
+            { icone: "🧂", titulo: "Juramentos com sal", texto: "Jurar segurando um punhado de sal (às vezes derramando-o depois) é mais sério do que jurar de mãos vazias. Quebrar um juramento de sal é particularmente azarento." },
+            { icone: "🌙", titulo: "Nomes não ditos à noite", texto: "Muitas famílias evitam dizer o nome completo de parentes falecidos depois do anoitecer. A explicação varia, mas o costume é quase universal." },
+          ],
+        },
+        {
+          tipo: "cartoes",
+          titulo: "Os quatro tipos de culto",
+          colunas: 2,
+          itens: [
+            { icone: "💎", titulo: "1. Culto de fragmento", tags: ["O mais comum"], texto: "Devoção a um pedaço físico de um deus antigo: uma pedra, uma armadura, um veio de metal. A família que cuida do fragmento faz isso há gerações, por tradição mais do que por entendimento.\n\n**Conhecidos publicamente:** a **Ordem dos Selos Cegos** (fragmentos de julgamento em Cervanta e Talvorim), a **Irmandade da Última Benção** (fragmentos de cura em Alvorada), os **Juramentados do Guardião Partido** (guerreiros ligados a armaduras órfãs perto do Bosque Insepulto) e os **Colhedores do Grito Verde** (fazendeiros e parteiras que negociam pequenas bênçãos de colheita sem provocar crescimento descontrolado)." },
+            { icone: "📖", titulo: "2. Culto de memória", texto: "Devoção a um deus que não deixou nada físico conhecido por ali, só histórias e ritual. Dá conforto, raramente faz milagre." },
+            { icone: "🎭", titulo: "3. Charlatanismo e fé de ocasião", texto: "Todo vilarejo tem gente que vende bênçãos, amuletos e “proteção divina” sem fragmento nenhum por trás. Ninguém confia, mas ninguém se arrisca a dizer não." },
+            { icone: "🩸", titulo: "4. Pactos pessoais", texto: "É de conhecimento geral que algumas pessoas fazem acordos diretos e secretos com o que restou de poder no mundo, em troca de força. São vistas com desconfiança — às vezes como heréticas, às vezes como último recurso quando tudo falhou." },
+          ],
+        },
+        {
+          tipo: "cartoes",
+          titulo: "Padres e guardiões de qualquer vila",
+          colunas: 3,
+          itens: [
+            { icone: "🪨", titulo: "O Guardião de Fragmento", texto: "Cuida de um pedaço físico de deus, quase sempre por herança familiar e sem entender o que guarda. A figura religiosa mais comum fora das grandes cidades." },
+            { icone: "❓", titulo: "O Clérigo sem Certeza", texto: "Ainda conjura magia divina, mas não sabe de qual fragmento ou entidade ela vem. A fé funciona, e ninguém — nem ele — sabe explicar por quê." },
+            { icone: "🔥", titulo: "O Zelote Órfão", texto: "Devoto fervoroso de um deus que não responde mais. A fé é pura obstinação, não evidência; é respeitado e evitado na mesma medida." },
+          ],
+        },
+        {
+          tipo: "cartoes",
+          titulo: "Heresias e crenças populares",
+          texto: "O que se discute nas tavernas.",
+          colunas: 2,
+          itens: [
+            { icone: "🚷", titulo: "Negação da Guerra", texto: "Os deuses nunca travaram guerra nenhuma: abandonaram Valgreth de propósito, e tudo mais — magia errática, vilarejos amaldiçoados — é culpa dos próprios mortais. Recruta bem entre quem precisa de alguém, vivo ou morto, para culpar." },
+            { icone: "⚖️", titulo: "Teologia do Preço", texto: "Todo poder — divino, arcano ou de qualquer outra origem — sempre cobra algo, e portanto negar-se a pagar é o verdadeiro pecado. Usada por quem acredita em autossacrifício e por charlatães que cobram “oferendas” de vítimas desesperadas." },
+          ],
+        },
+      ],
+    },
+    {
+      id: "deuses",
+      titulo: "Os Antigos Deuses",
+      icone: "✨",
+      resumo: "Nível de lenda, não de teologia.",
+      blocos: [
+        {
+          tipo: "texto",
+          texto: "A maioria das pessoas conhece nomes e domínios de forma vaga, como personagens de uma história contada na infância. Os nomes variam de região para região — alguém da Costa de Sal pode nunca ter ouvido falar de um deus bem conhecido na Coroa Partida — e ninguém são trata essas histórias como certeza absoluta.",
+        },
+        {
+          tipo: "cartoes",
+          titulo: "Deuses da ordem e da lei",
+          texto: "Mais lembrados na Coroa Partida e em Alvorada.",
+          colunas: 2,
+          itens: [
+            { icone: "⚖️", titulo: "Thalvorin", subtitulo: "Lei e julgamento", texto: "Dizem que seu corpo virou os **Selos Cegos** espalhados por Valgreth, pedras que ainda julgam o que tocam, sem piedade e sem contexto." },
+            { icone: "🌅", titulo: "Seraphel", subtitulo: "Compaixão e cura", texto: "Dizem que sua luz sobreviveu à guerra, mas perdeu a capacidade de parar: dela viria a **Luz Apodrecida** que assombra parte de Alvorada." },
+            { icone: "🛡️", titulo: "Aurondil", subtitulo: "Proteção e sacrifício", texto: "Seus pedaços teriam virado **armaduras órfãs**, que escolhem portadores vivos e os protegem até cobrarem um preço alto demais." },
+            { icone: "📚", titulo: "Kethendor", subtitulo: "Conhecimento", texto: "Ninguém sabe o que aconteceu com ele. Contam que sua grande biblioteca, a **Biblioteca Que Sangra**, ainda está de pé em A Chaga, intacta e selada por dentro. Às vezes lembram de algum erudito desaparecido que teria ouvido uma voz lá dentro — ninguém que foi conferir voltou para confirmar." },
+          ],
+        },
+        {
+          tipo: "cartoes",
+          titulo: "Deuses da natureza",
+          texto: "Mais lembrados na Costa de Sal, no Pântano do Sono e entre caçadores.",
+          colunas: 2,
+          itens: [
+            { icone: "🌱", titulo: "Ygrahna", subtitulo: "Fertilidade e crescimento", texto: "Fazendeiros fazem pequenas oferendas para evitar que a colheita “cresça demais”. Muita gente a culpa, baixinho, pelos vilarejos onde a terra parece viva demais." },
+            { icone: "🐺", titulo: "Vethrak", subtitulo: "Caça e instinto", texto: "Caçadores de regiões selvagens invocam “a fome do Lobo” antes de uma caçada perigosa, sem saber de onde vem a tradição." },
+            { icone: "🌊", titulo: "Nyxa", subtitulo: "Mar e mudança", texto: "Marinheiros contam de algo nas profundezas que concede poder a quem ousa negociar, e de náufragos que voltam “mudados” de um naufrágio que não deviam ter sobrevivido." },
+            { icone: "⛰️", titulo: "Oruun", subtitulo: "Terra e montanhas", texto: "Pouco se fala dele hoje. Mineradores velhos dizem que já foi o mais paciente e justo dos deuses, mas que seu silêncio, diferente dos outros, parece definitivo." },
+          ],
+        },
+        {
+          tipo: "destaque",
+          titulo: "O quarto grupo",
+          texto: "Um grupo ligado à **morte e ao vazio** é raramente mencionado em voz alta. Poucos sabem nomear qualquer entidade dele, e menos ainda arriscariam invocá-la. É mais superstição e tabu do que religião — o tipo de coisa que se evita falar à noite, perto de uma vela.",
+        },
+        {
+          tipo: "texto",
+          texto: "Duas pessoas de vilas vizinhas podem discordar completamente sobre qual desses deuses “realmente” protege a colheita local, e as duas estarão igualmente convencidas de que estão certas.",
+        },
+      ],
+    },
+    {
+      id: "personagem",
+      titulo: "Criando seu Personagem",
+      icone: "🎭",
+      resumo: "Perguntas para construir um background com raízes em Valgreth.",
+      blocos: [
+        {
+          tipo: "cartoes",
+          colunas: 2,
+          itens: [
+            { icone: "📍", titulo: "Origem", texto: "De qual região e cidade (ou vila) seu personagem vem, e o que isso ensinou a ele sobre lei, fé e sobrevivência?" },
+            { icone: "🧬", titulo: "Povo", texto: "A qual povo ele pertence e como isso foi tratado onde cresceu — com naturalidade, desconfiança, curiosidade?" },
+            { icone: "👑", titulo: "Poder", texto: "Qual das quatro autoridades moldou a infância dele, mesmo que ele nunca tenha concordado com ela?" },
+            { icone: "🕯️", titulo: "Fé", texto: "Que tipo de fé (ou falta de fé) sua família praticava — fragmento, memória, charlatanismo, algo pessoal — e que pequenos costumes ele carrega sem pensar?" },
+            { icone: "⚔️", titulo: "Lenda da guerra", texto: "Qual lenda sobre a Guerra dos Deuses ele ouviu em criança, e ainda acredita nela?" },
+            { icone: "🏚️", titulo: "Lenda de vilarejo", texto: "Qual lenda de vilarejo amaldiçoado ele ouviu — e, se vem de um desses lugares, como carrega a história de forma diferente de quem só ouviu contar?" },
+          ],
+        },
+        {
+          tipo: "destaque",
+          texto: "Tudo o que seu personagem “sabe de verdade” sobre os deuses, as Marcas ou segredos de qualquer culto é conversa para a mesa com o mestre — não algo a assumir a partir deste material.",
+        },
+      ],
+    },
+  ],
+};

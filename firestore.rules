@@ -58,6 +58,14 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
       }
 
+      // Mundo (lore público): o mestre escreve; qualquer membro lê.
+      match /mundo/{docId} {
+        allow read: if logado()
+          && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
+        allow write: if logado()
+          && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
+      }
+
       // Pinos do jogador: privados (só o próprio dono, sendo membro).
       match /pinos/{donoId} {
         allow read, write: if logado() && request.auth.uid == donoId

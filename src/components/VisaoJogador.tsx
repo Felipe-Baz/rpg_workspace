@@ -9,6 +9,7 @@ import LivroNotas from "./LivroNotas";
 import Abas from "./Abas";
 import MapasJogador from "./mapas/MapasJogador";
 import QuadroJogador from "./quadro/QuadroJogador";
+import Mundo from "./Mundo";
 import FichasJogador from "./fichas/FichasJogador";
 import { CATEGORIAS, type CategoriaFicha } from "@/lib/fichas";
 import MarcasSecao from "./marcas/MarcasSecao";
@@ -22,7 +23,7 @@ function formatarData(d: string) {
 
 export default function VisaoJogador({ id }: { id: string }) {
   const { user } = useAuth();
-  const [aba, setAba] = useState<"geral" | "mapas" | "quadro" | CategoriaFicha>("geral");
+  const [aba, setAba] = useState<"geral" | "mapas" | "mundo" | "quadro" | CategoriaFicha>("geral");
   const { mesas, pronto } = useMesas();
   const mesa = mesas.find((m) => m.id === id);
   const { notas, notasJogadores, carregado, definirNota, definirNotaJogador } = useAnotacoes(id, user?.uid ?? "", !!user && !!mesa);
@@ -75,12 +76,15 @@ export default function VisaoJogador({ id }: { id: string }) {
         abas={[
           { id: "geral", rotulo: "Geral" },
           { id: "mapas", rotulo: "Mapas" },
+          { id: "mundo", rotulo: "Mundo" },
           { id: "quadro", rotulo: "Quadro" },
           ...CATEGORIAS.map((c) => ({ id: c.id, rotulo: c.rotulo })),
         ]}
         ativa={aba}
         onChange={setAba}
       />
+
+      {aba === "mundo" && <Mundo mesaId={mesa.id} ehMestre={false} />}
 
       {aba === "quadro" && user && <QuadroJogador mesaId={mesa.id} usuarioUid={user.uid} />}
 
