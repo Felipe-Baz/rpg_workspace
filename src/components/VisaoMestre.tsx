@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import LivroNotas from "./LivroNotas";
 import Abas from "./Abas";
+import AvatarPersonagem from "./AvatarPersonagem";
 import MapasMestre from "./mapas/MapasMestre";
 import Mundo from "./Mundo";
 import FichasJogador from "./fichas/FichasJogador";
@@ -128,7 +129,8 @@ export default function VisaoMestre({ id }: { id: string }) {
         <h2 className="text-xl font-semibold">Jogadores</h2>
         {mesa.jogadores.map((j) => (
           <div key={j.id} className="space-y-2">
-            <div className="flex gap-2">
+            <div className="flex items-start gap-2">
+              <AvatarPersonagem mesaId={mesa.id} jogadorId={j.id} foto={j.foto} nome={j.personagem || j.nome} editavel />
               <input
                 value={j.nome}
                 onChange={(e) =>

@@ -25,6 +25,8 @@ export const MARCAS: Marca[] = [
   { id: "ultimo-suspiro", name: "Marca do Último Suspiro", sold: "a certeza de uma morte natural.", build: "Morte / necromancia" },
   { id: "coro-silencioso", name: "Marca do Coro Silencioso", sold: "a solidão da própria alma.", build: "Suporte de grupo" },
   { id: "fio-partido", name: "Marca do Fio Partido", sold: "a fronteira entre o próprio corpo e a própria magia.", build: "Cavaleiro arcano / spellblade" },
+  { id: "dado-virado", name: "Marca do Dado Virado", sold: "a previsibilidade do próprio destino.", build: "Sorte / crítico / risco calculado" },
+  { id: "rosto-roubado", name: "Marca do Rosto Roubado", sold: "o rosto que era inquestionavelmente seu.", build: "Disfarce / infiltração social" },
 ];
 
 export const marcaPorId = (id: string | undefined | null) => MARCAS.find((m) => m.id === id);

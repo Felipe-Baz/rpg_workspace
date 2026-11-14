@@ -7,6 +7,7 @@ import EditorMarkdown from "./EditorMarkdown";
 import Markdown from "./Markdown";
 import LivroNotas from "./LivroNotas";
 import Abas from "./Abas";
+import AvatarPersonagem from "./AvatarPersonagem";
 import MapasJogador from "./mapas/MapasJogador";
 import QuadroJogador from "./quadro/QuadroJogador";
 import Mundo from "./Mundo";
@@ -26,7 +27,7 @@ export default function VisaoJogador({ id }: { id: string }) {
   const [aba, setAba] = useState<"geral" | "mapas" | "mundo" | "quadro" | CategoriaFicha>("geral");
   const { mesas, pronto } = useMesas();
   const mesa = mesas.find((m) => m.id === id);
-  const { notas, notasJogadores, carregado, definirNota, definirNotaJogador } = useAnotacoes(id, user?.uid ?? "", !!user && !!mesa);
+  const { notas, notasJogadores, opinioes, carregado, definirNota, definirNotaJogador, definirOpiniao } = useAnotacoes(id, user?.uid ?? "", !!user && !!mesa);
 
   if (!pronto) return null;
   if (!mesa)
@@ -100,6 +101,7 @@ export default function VisaoJogador({ id }: { id: string }) {
             rotulo={c.rotulo}
             singular={c.singular}
             icone={c.icone}
+            opinioes={{ valores: opinioes, carregado, definir: definirOpiniao }}
           />
         ))}
 
@@ -113,13 +115,24 @@ export default function VisaoJogador({ id }: { id: string }) {
           <ul className="grid gap-3 sm:grid-cols-2">
             {mesa.jogadores.map((j) => (
               <li key={j.id} className="rounded-xl border border-border bg-card p-3">
-                <p className="font-medium">
-                  {j.personagem || "Personagem sem nome"}
-                  {j.uid && j.uid === user?.uid && (
-                    <span className="ml-2 rounded-full bg-violet-600 px-2 py-0.5 text-xs text-white">você</span>
-                  )}
-                </p>
-                <p className="text-sm text-muted">{j.nome || "—"}</p>
+                <div className="flex items-start gap-3">
+                  <AvatarPersonagem
+                    mesaId={mesa.id}
+                    jogadorId={j.id}
+                    foto={j.foto}
+                    nome={j.personagem || j.nome}
+                    editavel={j.uid === user?.uid}
+                  />
+                  <div className="min-w-0">
+                    <p className="font-medium">
+                      {j.personagem || "Personagem sem nome"}
+                      {j.uid && j.uid === user?.uid && (
+                        <span className="ml-2 rounded-full bg-violet-600 px-2 py-0.5 text-xs text-white">você</span>
+                      )}
+                    </p>
+                    <p className="text-sm text-muted">{j.nome || "—"}</p>
+                  </div>
+                </div>
                 {j.uid !== user?.uid && (
                   <LivroNotas
                     className="mt-2"

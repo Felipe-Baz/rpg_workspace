@@ -124,7 +124,7 @@ export default function PainelMestre({ mesaId }: { mesaId: string }) {
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-xl">As Vinte Marcas</h2>
           <button className="btn ghost" onClick={() => setImportando((v) => !v)}>
-            {importando ? "Fechar importação" : `Importar lore (${lores.length}/20)`}
+            {importando ? "Fechar importação" : `Importar lore (${lores.length}/${MARCAS.length})`}
           </button>
         </div>
         {importando && <ImportarJson mesaId={mesaId} tipo="lore" />}

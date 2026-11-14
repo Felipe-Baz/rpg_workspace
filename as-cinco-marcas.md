@@ -2,7 +2,7 @@
 
 ### O preço de cada pacto — Guia dos Marcados de "O Juramento de Cinzas"
 
-Cada jogador escolhe uma Marca diferente dentre as vinte e uma disponíveis abaixo. Nenhuma Marca pertence a uma classe — qualquer classe pode carregar qualquer uma delas, e a Marca não substitui a classe: ela é uma segunda camada de personagem, um fardo e uma fonte de poder que crescem junto com a campanha.
+Cada jogador escolhe uma Marca diferente dentre as vinte e três disponíveis abaixo. Nenhuma Marca pertence a uma classe — qualquer classe pode carregar qualquer uma delas, e a Marca não substitui a classe: ela é uma segunda camada de personagem, um fardo e uma fonte de poder que crescem junto com a campanha.
 
 ## Estrutura obrigatória de toda Marca
 
@@ -12,7 +12,7 @@ Toda Marca deste documento segue exatamente o mesmo esqueleto:
 2. **Passiva** — um benefício sempre ativo, bom para *interpretação, investigação e vida social*, mas que **não torna o personagem mecanicamente melhor em combate**. É sabor com utilidade narrativa, não dano ou defesa.
 3. **Fardo** — uma penalidade passiva, constante e ruim o bastante para o jogador genuinamente se perguntar, em algum momento da campanha, se aceitar a Marca foi uma benção ou uma maldição.
 4. **Habilidade** — um poder ativo de uso limitado (por descanso curto/longo, ou por sessão) com um trade-off real: ou ele custa caro em dano/risco para quem o usa, ou ele é tão útil fora de combate que seu custo é narrativo e social.
-5. **Build-alvo** — a que tipo de build a Marca mais serve (sem nunca exigir uma classe específica). As vinte e uma Marcas juntas cobrem os principais arquétipos de build do D&D 5e.
+5. **Build-alvo** — a que tipo de build a Marca mais serve (sem nunca exigir uma classe específica). As vinte e três Marcas juntas cobrem os principais arquétipos de build do D&D 5e.
 6. **Os Nove Círculos** — a evolução da Marca em nove estágios.
 7. **Remoção** — um puzzle específico, ligado ao mundo e à origem daquela Marca, que permite removê-la (sempre com custo e risco genuíno, nunca trivial).
 
@@ -635,6 +635,64 @@ Sugestão de ritmo: não force os nove níveis numa única campanha curta — a 
 
 ---
 
+## 22. Marca do Dado Virado
+**O que foi vendido:** a previsibilidade do próprio destino. Ele vendeu a certeza de que o mesmo esforço gera o mesmo resultado — agora a sorte decide, de forma amplificada, a favor ou contra ele, sem que ele controle qual.
+
+**Passiva — Sopro da Sorte:** sente instintivamente quando um evento próximo (um jogo, uma decisão, um resultado) foi determinado por pura sorte em vez de mérito — identifica dados viciados, jogos trapaceados e resultados "forçados demais para serem naturais". Ótimo para apostas, negociação e investigação; não ajuda a acertar golpes.
+
+**Fardo:** sempre que rola um 1 natural em qualquer teste, ataque ou salvaguarda, algo pequeno e imprevisível vira contra ele (uma "reviravolta" determinada pelo mestre) — nunca sabe de antemão o quê, só que vai doer de algum jeito, mecânico ou narrativo.
+
+**Habilidade — Virar o Dado:** força a repetição de qualquer rolagem de d20 (própria ou de outra pessoa) a até curta distância, 1x por descanso curto — ao custo de uma reviravolta de destino garantida e imediata (não precisa de 1 natural), cujo efeito o jogador não escolhe nem conhece até acontecer.
+
+**Build-alvo:** feiticeiros de qualquer origem (ideal para Magia Selvagem) e qualquer build que gire em torno de sorte, crítico ou risco calculado — jogadores de dados, apostadores, builds de crítico.
+
+### Os Nove Círculos
+
+| Círculo | Gatilho | O que muda |
+|---|---|---|
+| **I — Limbo** | Percebe, ao perder algo importante num jogo de azar, que o dado "deveria" ter caído diferente. | A Marca desperta; ganha a Passiva. |
+| **II — Luxúria** | Busca jogos de azar e apostas de propósito só para testar o próprio poder sobre a sorte. | Virar o Dado fica disponível; Fardo: a reviravolta de destino em 1 natural começa a ocorrer. |
+| **III — Gula** | Usa Virar o Dado repetidamente na mesma sessão sem necessidade real. | Pode também virar um dado de dano, não só de teste; Fardo: a reviravolta em 1 natural passa a poder afetar também aliados próximos, não só ele. |
+| **IV — Avareza** | Esconde de um aliado que poderia ter ajudado usando Virar o Dado, guardando a vantagem só para si. | Pode usar Virar o Dado 1x por descanso curto adicional; Fardo: a reviravolta de destino em 1 natural se torna mais severa e duradoura. |
+| **V — Ira** | Usa Virar o Dado para azarar um inimigo por puro rancor, não necessidade tática. | Virar o Dado pode ser usado como reação, revertendo um dado já rolado; Fardo: cada uso aumenta a chance de uma reviravolta ocorrer logo depois, mesmo sem rolar 1. |
+| **VI — Heresia** | Debate um oráculo/sábio do destino, negando que manipular a sorte tenha qualquer preço real. | Virar o Dado pode afetar dois dados na mesma rolagem; Fardo: oráculos e adivinhos passam a notá-lo como uma anomalia perigosa no tecido do destino. |
+| **VII — Violência** | Usa Virar o Dado para transformar um golpe fraco em fatal contra um inimigo já praticamente derrotado. | Virar o Dado pode garantir um resultado máximo, não só rerolar, 1x por descanso longo; Fardo: a reviravolta de destino em 1 natural passa a poder afetar todos presentes na cena. |
+| **VIII — Fraude** | Usa a Marca de forma dissimulada para fazer sua sorte parecer "normal", enganando quem joga contra ele. | Pode usar Virar o Dado sem que ninguém perceba a intervenção; Fardo: o destino começa a "cobrar" dele em momentos que ele não escolhe, fora de combate. |
+| **IX — Traição** | Usa Virar o Dado no momento decisivo e a reviravolta subsequente atinge, catastroficamente, um aliado em vez dele. | Pode, uma vez por sessão, virar o destino de uma cena inteira a seu favor (todos os dados relevantes); Fardo final: todo 1 natural rolado por ele ou por qualquer aliado próximo passa a arriscar uma reviravolta grave — a sorte dele se tornou instável para todo o grupo, não só para ele. |
+
+**Remoção:** existe uma "Mesa do Árbitro Imparcial", guardada por uma entidade ou relíquia que encarna o acaso puro e sem favoritismo. O Marcado precisa jogar contra ela um jogo de pura sorte, sem usar magia nem a própria Marca, aceitando o resultado — vitória ou derrota — exatamente como ele vier, sem tentar influenciá-lo de forma alguma.
+
+---
+
+## 23. Marca do Rosto Roubado
+**O que foi vendido:** o rosto que era inquestionavelmente seu — a certeza de que, por baixo de qualquer disfarce, existe um "ele mesmo" real e fixo. O que comprou essa Marca não quis sua alma de uma vez só; quis o direito de nunca ter certeza de qual rosto é o original.
+
+**Passiva — Olho da Máscara:** percebe instantaneamente quando a identidade que alguém apresenta — nome, cargo, reputação, até um disfarce mágico — é falsa, roubada ou incompleta. Ótimo para desmascarar impostores, falsificadores e intrigas de corte; não ajuda a acertar golpes.
+
+**Fardo:** quando está sendo genuinamente ele mesmo — sem disfarce, sem alias, sem máscara nenhuma — soa menos convincente do que quando finge ser qualquer outra pessoa. Testes sociais em que precisa ser levado a sério *como si mesmo* (não como alguém que finge ser) sofrem desvantagem. Cada vez mais, ele mesmo não tem certeza de quais hábitos, gostos e tiques são genuinamente seus ou só sobras de rostos que já usou.
+
+**Habilidade — Pele Alheia:** por uma cena, assume não só a aparência mas a identidade social completa de uma pessoa real que já estudou, tocou ou imitou de perto — fala com a autoridade dela, e NPCs o aceitam como ela mesmo sob escrutínio moderado (mais robusto que um simples disfarce, que cai diante de quem conhece a pessoa bem ou de magia de detecção simples). 1x por descanso longo — ao custo de uma consequência real e deixada para trás: quando o efeito termina, algo do que ele fez ou disse sob aquele rosto recai sobre a pessoa verdadeira, prejudicando a reputação ou a vida dela por algo que ela nunca fez.
+
+**Build-alvo:** builds de disfarce / infiltração social avançada — ladinos infiltradores, bruxos ou bardos carismáticos que já giram em torno de identidade falsa, falsificação e engano.
+
+### Os Nove Círculos
+
+| Círculo | Gatilho | O que muda |
+|---|---|---|
+| **I — Limbo** | Percebe, ao se apresentar com o próprio nome verdadeiro a um estranho, que a própria voz soou menos convincente do que quando finge ser outra pessoa. | A Marca desperta; ganha a Passiva. |
+| **II — Luxúria** | Busca assumir identidades emprestadas só pelo prazer de ser outra pessoa, mesmo sem necessidade real. | Pele Alheia fica disponível; Fardo: o desconforto de ser "só ele mesmo" começa a ser perceptível por quem o conhece bem. |
+| **III — Gula** | Usa Pele Alheia repetidamente na mesma semana de jogo, por puro vício na sensação de ser outra pessoa. | Pele Alheia passa a durar uma cena inteira, não só um encontro; Fardo: a consequência deixada sobre a pessoa real se torna mais severa. |
+| **IV — Avareza** | Esconde de um aliado que uma identidade roubada causou um problema real para a pessoa verdadeira. | Pode usar Pele Alheia 1x por descanso curto adicional; Fardo: começa a esquecer pequenos detalhes genuinamente seus — um gosto, um hábito — substituídos por tiques de rostos emprestados. |
+| **V — Ira** | Usa Pele Alheia para se vingar de alguém escondido atrás do rosto de outra pessoa, sem que ela jamais saiba. | Pele Alheia passa a enganar também magias simples de detecção; Fardo: a consequência deixada na pessoa copiada passa a ser física ou social grave, não só reputacional. |
+| **VI — Heresia** | Debate abertamente um estudioso de identidade/alma, negando que usar o rosto alheio tenha qualquer preço real. | Pode manter duas identidades emprestadas "guardadas", prontas para uso imediato; Fardo: estudiosos de identidade e alma passam a notá-lo como uma anomalia perigosa. |
+| **VII — Violência** | Usa Pele Alheia para cometer um ato irreversível e violento sob o rosto de outra pessoa, deixando-a culpada no lugar dele. | Pele Alheia engana até quem conhece intimamente a pessoa copiada; Fardo: começa a genuinamente esquecer, por períodos crescentes, qual rosto é o seu original. |
+| **VIII — Fraude** | Finge para o próprio grupo ser ele mesmo quando na verdade ainda está sob o efeito de Pele Alheia. | Pode usar Pele Alheia sem deixar a consequência de costume na pessoa copiada, uma vez por descanso longo; Fardo: a linha entre suas identidades emprestadas e seu "eu" original começa a desaparecer até para ele mesmo. |
+| **IX — Traição** | Usa Pele Alheia para trair um aliado próximo, que só percebe a traição tarde demais, ao reconhecer o rosto verdadeiro por trás da máscara. | Pode, uma vez por sessão, assumir a identidade de alguém que nunca conheceu pessoalmente — só ouviu descrever; Fardo final: corre o risco real e crescente de, um dia, não conseguir mais voltar a ser "ele mesmo" — de ficar permanentemente preso dentro de um rosto que não é o seu. |
+
+**Remoção:** existe, nos becos de algum entreposto de Valgreth, um "Mercado das Máscaras" — onde identidades roubadas são negociadas como mercadoria. O Marcado precisa voltar lá e comprar de volta, a um preço real e pessoal (nunca ouro), a própria primeira identidade que a Marca o fez roubar — e conduzir toda a negociação com o próprio rosto verdadeiro exposto, sem usar Pele Alheia ou qualquer disfarce em nenhum momento, provando que ainda consegue ser só ele mesmo quando mais importa.
+
+---
+
 ## Cobertura de builds
 
 | Arquétipo de build | Marcas que servem bem |
@@ -651,9 +709,11 @@ Sugestão de ritmo: não force os nove níveis numa única campanha curta — a 
 | Divino / anti-divino | Silêncio Divino |
 | Morte / necromancia | Último Suspiro |
 | Suporte de grupo | Sono Roubado, Coro Silencioso |
-| Híbrido marcial-arcano / spellblade | Fio Partido |
+| Híbrido marcial-arcano (cavaleiros arcanos, spellblades) | Fio Partido |
+| Sorte / crítico / risco calculado (ideal para Magia Selvagem) | Dado Virado |
+| Disfarce / infiltração social avançada (bruxos de pacto da lâmina, faces carismáticas) | Rosto Roubado |
 
-Nenhuma Marca exige uma classe específica para funcionar — a tabela acima é sobre qual Marca *ressoa* melhor com cada estilo de jogo, não uma restrição de regras. Juntas, as vinte e uma cobrem pelo menos um arquétipo de build relevante para cada uma das doze classes principais do 5e.
+Nenhuma Marca exige uma classe específica para funcionar — a tabela acima é sobre qual Marca *ressoa* melhor com cada estilo de jogo, não uma restrição de regras. Juntas, as vinte e três cobrem pelo menos um arquétipo de build relevante para cada uma das doze classes principais do 5e.
 
 ## Notas de mesa
 
@@ -661,4 +721,4 @@ Nenhuma Marca exige uma classe específica para funcionar — a tabela acima é 
 - **Os gatilhos dos Nove Círculos são ganchos de sessão, não checkboxes.** Plante-os como cenas, não como uma lista que o jogador marca sozinho — o ideal é que o próprio jogador não saiba exatamente o que vai destravar o próximo Círculo até descobrir em jogo.
 - **Remoção é sempre uma aventura, nunca uma transação.** Os puzzles de remoção foram desenhados para exigir investigação, risco e uma escolha difícil — nunca "pague X moedas" ou "encontre um NPC que remove magicamente".
 - **Ponto sem retorno:** a partir do Círculo VII (Violência), considere que a transformação física/narrativa deixa de ser discreta — NPCs e facções devem começar a reagir abertamente à presença da Marca.
-- **Com 21 Marcas para 5 jogadores,** considere deixar os jogadores escolherem livremente em vez de sortear — a ressonância entre a Marca e o personagem que o jogador já imagina tende a gerar melhores cenas do que uma escolha aleatória.
+- **Com 23 Marcas para 5 jogadores,** considere deixar os jogadores escolherem livremente em vez de sortear — a ressonância entre a Marca e o personagem que o jogador já imagina tende a gerar melhores cenas do que uma escolha aleatória.

@@ -7,6 +7,9 @@ import { comprimirImagem } from "@/lib/mapas";
 import type { Mesa } from "@/lib/mesas";
 import { atualizarFicha, criarFicha, excluirFicha, useFichas, type CategoriaFicha, type Ficha } from "@/lib/fichas";
 
+/** Opiniões privadas do jogador sobre fichas do mestre (chave = id da ficha). */
+export type Opinioes = { valores: Record<string, string>; carregado: boolean; definir: (fichaId: string, texto: string) => void };
+
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
 
 export default function FichasJogador({
@@ -17,7 +20,9 @@ export default function FichasJogador({
   singular,
   icone,
   mesa,
+  opinioes,
 }: {
+  opinioes?: Opinioes;
   /** Presente = modo mestre: cadastra fichas e escolhe quem as vê. */
   mesa?: Mesa;
   mesaId: string;
@@ -94,6 +99,7 @@ export default function FichasJogador({
           icone={icone}
           mesa={mesa}
           somenteLeitura={aberta.mestre && !mesa}
+          opinioes={opinioes}
           onFechar={() => setAbertaId(null)}
         />
       )}
@@ -107,8 +113,10 @@ function FichaModal({
   icone,
   mesa,
   somenteLeitura,
+  opinioes,
   onFechar,
 }: {
+  opinioes?: Opinioes;
   mesaId: string;
   ficha: Ficha;
   icone: string;
@@ -122,6 +130,15 @@ function FichaModal({
   const [erro, setErro] = useState("");
   const [ampliada, setAmpliada] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const [opiniao, setOpiniao] = useState(opinioes?.valores[ficha.id] ?? "");
+  const [editandoOpiniao, setEditandoOpiniao] = useState(false);
+  const opiniaoCarregada = useRef(false);
+  // Se o documento carregar depois de abrir o modal, adota o valor salvo (uma vez, sem edição em curso).
+  useEffect(() => {
+    if (!opinioes?.carregado || opiniaoCarregada.current) return;
+    opiniaoCarregada.current = true;
+    setOpiniao((atual) => atual || opinioes.valores[ficha.id] || "");
+  }, [opinioes, ficha.id]);
 
   // Salva nome e texto com debounce.
   useEffect(() => {
@@ -245,6 +262,37 @@ function FichaModal({
           <Markdown texto={texto} />
         ) : (
           <p className="text-sm text-muted">Sem anotações.</p>
+        )}
+        {somenteLeitura && opinioes && (
+          <div className="space-y-2 border-t border-border pt-3">
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold">
+                Minha opinião <span className="font-normal text-muted">(só você vê · Markdown)</span>
+              </h4>
+              <button
+                onClick={() => setEditandoOpiniao((v) => !v)}
+                disabled={!opinioes.carregado}
+                className="rounded-lg border border-border px-3 py-1 text-xs font-medium hover:bg-border/50 disabled:opacity-50"
+              >
+                {editandoOpiniao ? "Concluir" : opiniao ? "Editar" : "Escrever"}
+              </button>
+            </div>
+            {editandoOpiniao ? (
+              <EditorMarkdown
+                valor={opiniao}
+                onChange={(v) => {
+                  setOpiniao(v);
+                  opinioes.definir(ficha.id, v);
+                }}
+                desabilitado={!opinioes.carregado}
+                placeholder="O que você acha, desconfia ou quer lembrar…"
+              />
+            ) : opiniao.trim() ? (
+              <Markdown texto={opiniao} />
+            ) : (
+              <p className="text-sm text-muted">Nenhuma opinião ainda.</p>
+            )}
+          </div>
         )}
         {!somenteLeitura && (
         <div className="flex justify-between">

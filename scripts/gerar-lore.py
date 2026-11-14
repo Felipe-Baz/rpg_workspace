@@ -11,7 +11,7 @@ md = (raiz / "as-cinco-marcas.md").read_text(encoding="utf8")
 IDS = ["eco-vazio","maos-que-lembram","sangue-que-nega","voz-perdida","reflexo-partido","juramento-cinzento",
        "segundo-pacto","pagina-que-esquece","sono-roubado","fome-eterna","coracao-de-ferro","maos-manchadas",
        "tempo-perdido","fera-interior","silencio-divino","sombra-viva","preco-justo","pele-de-vidro",
-       "ultimo-suspiro","coro-silencioso","fio-partido"]
+       "ultimo-suspiro","coro-silencioso","fio-partido","dado-virado","rosto-roubado"]
 
 blocos = re.split(r"^## (\d+)\. Marca .*$", md, flags=re.M)
 # blocos = [pre, num, corpo, num, corpo, ...]
@@ -43,8 +43,8 @@ for i in range(1, len(blocos), 2):
     saida[mid] = {"sold": vendido, "passivaNome": pn, "passiva": passiva, "fardo": fardo,
                   "habilidadeNome": hn, "habilidade": hab, "circles": circles, "remocao": remocao}
 
-if len(saida) != 21:
-    erros.append(f"esperava 21 Marcas, achei {len(saida)}")
+if len(saida) != 23:
+    erros.append(f"esperava 23 Marcas, achei {len(saida)}")
 (raiz / "lore-marcas.json").write_text(json.dumps(saida, ensure_ascii=False, indent=2), encoding="utf8")
 print(f"{len(saida)} Marcas gravadas em lore-marcas.json")
 if erros:

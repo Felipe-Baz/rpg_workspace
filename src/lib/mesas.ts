@@ -19,7 +19,8 @@ import { db } from "./firebase";
 export type Status = "planejando" | "ativa" | "pausada" | "encerrada";
 
 // uid: conta que controla o personagem (vazio = ainda não reivindicado)
-export type Jogador = { id: string; nome: string; personagem: string; uid?: string };
+// foto: miniatura do personagem (data URL pequeno, ou ausente)
+export type Jogador = { id: string; nome: string; personagem: string; uid?: string; foto?: string };
 
 export type Sessao = {
   id: string;
@@ -196,6 +197,23 @@ export async function criarPersonagem(mesaId: string, usuarioUid: string, nome: 
   });
 }
 
+/** Define (ou remove, com "") a foto de um personagem sem sobrescrever o resto da lista. */
+export async function definirFotoPersonagem(mesaId: string, jogadorId: string, foto: string) {
+  const ref = doc(db, COLECAO, mesaId);
+  await runTransaction(db, async (tx) => {
+    const mesa = (await tx.get(ref)).data() as Mesa;
+    if (!mesa.jogadores.some((j) => j.id === jogadorId)) throw new Error("Personagem não existe mais.");
+    tx.update(ref, {
+      jogadores: mesa.jogadores.map((j) => {
+        if (j.id !== jogadorId) return j;
+        const { foto: _antiga, ...resto } = j;
+        void _antiga;
+        return foto ? { ...resto, foto } : resto;
+      }),
+    });
+  });
+}
+
 async function enviar(id: string) {
   const patch = pendentes.get(id);
   timers.delete(id);
@@ -298,7 +316,12 @@ export function useSegredos(mesaId: string, habilitado: boolean) {
 
 // Diário privado do jogador: mesas/{id}/anotacoes/{uid}, uma nota por sessão.
 // notasJogadores: o que o jogador junta sobre os outros (chave = Jogador.id).
-export type Anotacoes = { notas: Record<string, string>; notasJogadores?: Record<string, string[] | string> };
+// opinioes: opinião privada do jogador sobre fichas liberadas pelo mestre (chave = Ficha.id).
+export type Anotacoes = {
+  notas: Record<string, string>;
+  notasJogadores?: Record<string, string[] | string>;
+  opinioes?: Record<string, string>;
+};
 const ANOTACOES_VAZIAS: Anotacoes = { notas: {}, notasJogadores: {} };
 
 export function useAnotacoes(mesaId: string, usuarioUid: string, habilitado: boolean) {
@@ -310,7 +333,10 @@ export function useAnotacoes(mesaId: string, usuarioUid: string, habilitado: boo
   return {
     notas: dados.notas,
     notasJogadores: dados.notasJogadores ?? {},
+    opinioes: dados.opinioes ?? {},
     carregado,
+    definirOpiniao: (fichaId: string, texto: string) =>
+      atualizar({ ...dados, opinioes: { ...dados.opinioes, [fichaId]: texto } }),
     definirNota: (sessaoId: string, texto: string) =>
       atualizar({ ...dados, notas: { ...dados.notas, [sessaoId]: texto } }),
     definirNotaJogador: (jogadorId: string, paginas: string[]) =>

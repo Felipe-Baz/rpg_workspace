@@ -2,7 +2,7 @@
 
 ## Contexto
 
-Site de apoio para uma mesa de RPG de dark fantasy (D&D 5e, tom Berserk/The Witcher) chamada **"O Juramento de Cinzas"**. Os jogadores interpretam **Marcados**: personagens que venderam algo de si em troca de uma **Marca de Pacto**. Existem **20 Marcas** pré-definidas (lore completa anexada abaixo), cada uma com: o que foi vendido, uma Passiva, um Fardo, uma Habilidade ativa, um build-alvo, uma progressão de 9 estágios ("Os Nove Círculos") e um puzzle de Remoção.
+Site de apoio para uma mesa de RPG de dark fantasy (D&D 5e, tom Berserk/The Witcher) chamada **"O Juramento de Cinzas"**. Os jogadores interpretam **Marcados**: personagens que venderam algo de si em troca de uma **Marca de Pacto**. Existem **23 Marcas** pré-definidas (lore completa anexada abaixo), cada uma com: o que foi vendido, uma Passiva, um Fardo, uma Habilidade ativa, um build-alvo, uma progressão de 9 estágios ("Os Nove Círculos") e um puzzle de Remoção.
 
 Ponto central de design do RPG: **o jogador nunca deve receber a mecânica da própria Marca de bandeja**. Ele descobre a Passiva, o Fardo, a Habilidade e os estágios através de role-play em sessão — nunca por explicação direta do Mestre. O site existe para dar suporte a essa descoberta gradual, não para entregá-la.
 
@@ -10,7 +10,7 @@ Usuários do site: **1 Mestre** e **N jogadores** (hoje 5, mas deve suportar qua
 
 ## Objetivo do site
 
-1. O Mestre atribui uma das 20 Marcas a cada jogador.
+1. O Mestre atribui uma das 23 Marcas a cada jogador.
 2. Cada Marca atribuída só é visível a **duas pessoas**: o jogador que a possui e o Mestre. Nenhum outro jogador pode ver qual Marca um colega tem, nem o conteúdo das anotações dele.
 3. A tela do jogador mostra a "foto"/ícone da sua Marca e dá a ele um espaço para:
    - escrever **post-its** livres (pistas, teorias, coisas que ouviu em jogo);
@@ -24,8 +24,8 @@ Usuários do site: **1 Mestre** e **N jogadores** (hoje 5, mas deve suportar qua
 
 ### Visão do Mestre
 - Lista/cadastro dos jogadores que já acessaram o site (nome resolvido pela conta deles).
-- Para cada jogador: seletor para atribuir uma das 20 Marcas (ou remover a atribuição).
-- Grade com as 20 Marcas, mostrando ícone, nome, build-alvo e **a quem está atribuída** (se a ninguém, dizer isso claramente).
+- Para cada jogador: seletor para atribuir uma das 23 Marcas (ou remover a atribuição).
+- Grade com as 23 Marcas, mostrando ícone, nome, build-alvo e **a quem está atribuída** (se a ninguém, dizer isso claramente).
 - Ao clicar numa Marca, expandir um "gabarito" só-Mestre com: o que foi vendido, Passiva (nome + texto), Fardo, Habilidade (nome + texto), tabela completa dos Nove Círculos (coluna Círculo / Gatilho / O que muda) e o puzzle de Remoção. Esse conteúdo **nunca** pode estar acessível a um jogador, nem mesmo inspecionando o código-fonte da página.
 - Para cada jogador com Marca atribuída, visão somente-leitura do que ele anotou: Passiva/Fardo/Habilidade (como ele mesmo descreveu), palpite de em qual Círculo ele acha que está, e a lista de post-its.
 
@@ -46,7 +46,7 @@ Quatro coleções, uma linha (documento) por jogador em três delas:
 - `players/{userId}` — registro de quem já abriu o site (criado pelo próprio jogador ao entrar). `{ joinedAt }`
 - `assignments/{userId}` — a Marca atribuída a esse jogador. Só o Mestre escreve. `{ markId, assignedAt }`
 - `notes/{userId}` — as anotações desse jogador. Jogador lê/escreve a própria; Mestre lê todas (read-only). `{ passiva, fardo, habilidade, circleGuess, postits: [{ text }], updatedAt }`
-- `lore/{markId}` — gabarito completo de cada uma das 20 Marcas, só-Mestre (leitura e escrita). `{ sold, passivaNome, passiva, fardo, habilidadeNome, habilidade, circles: [{ circulo, gatilho, mudanca }] (9 linhas), remocao }`
+- `lore/{markId}` — gabarito completo de cada uma das 23 Marcas, só-Mestre (leitura e escrita). `{ sold, passivaNome, passiva, fardo, habilidadeNome, habilidade, circles: [{ circulo, gatilho, mudanca }] (9 linhas), remocao }`
 
 ### Regra de acesso (resumo da intenção, não de uma sintaxe específica)
 
@@ -64,7 +64,7 @@ Ponto crítico: o conteúdo de `lore` (a mecânica real de cada Marca) **não po
 
 ## Dados de referência (não-spoiler, podem ir no código)
 
-21 Marcas, cada uma com `id`, `name`, `sold` ("o que foi vendido") e `build` (build-alvo):
+23 Marcas, cada uma com `id`, `name`, `sold` ("o que foi vendido") e `build` (build-alvo):
 
 1. `eco-vazio` — Marca do Eco Vazio — "a dor e o medo — os primeiros avisos de que um corpo está em perigo." — Marcial de linha de frente / tanque
 2. `maos-que-lembram` — Marca das Mãos que Lembram — "a memória contínua de rostos, nomes e do próprio passado." — Perícia e versatilidade social
@@ -87,6 +87,8 @@ Ponto crítico: o conteúdo de `lore` (a mecânica real de cada Marca) **não po
 19. `ultimo-suspiro` — Marca do Último Suspiro — "a certeza de uma morte natural." — Morte / necromancia
 20. `coro-silencioso` — Marca do Coro Silencioso — "a solidão da própria alma." — Suporte de grupo
 21. `fio-partido` — Marca do Fio Partido — "a fronteira entre o próprio corpo e a própria magia." — Cavaleiro arcano / spellblade
+22. `dado-virado` — Marca do Dado Virado — "a previsibilidade do próprio destino." — Sorte / crítico / risco calculado
+23. `rosto-roubado` — Marca do Rosto Roubado — "o rosto que era inquestionavelmente seu." — Disfarce / infiltração social
 
 Os nomes de estágio para o seletor de "palpite de Círculo" do jogador (puramente de sabor, 0 = ainda não despertou):
 `Ainda não despertou, I — Limbo, II — Luxúria, III — Gula, IV — Avareza, V — Ira, VI — Heresia, VII — Violência, VIII — Fraude, IX — Traição`
