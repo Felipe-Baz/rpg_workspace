@@ -4,18 +4,26 @@ import { useState } from "react";
 import EditorMarkdown from "../EditorMarkdown";
 import Markdown from "../Markdown";
 import { uid } from "@/lib/mesas";
-import { useMapasJogador, usePinos, type Pino } from "@/lib/mapas";
+import { useMapasJogador, usePinos, type Colecao, type Pino } from "@/lib/mapas";
 
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
 
-export default function MapasJogador({ mesaId, usuarioUid }: { mesaId: string; usuarioUid: string }) {
-  const { mapas, carregado } = useMapasJogador(mesaId, usuarioUid, true);
-  const { carregado: pinosOk, pinosDe, definirPinos } = usePinos(mesaId, usuarioUid, true);
+export default function MapasJogador({
+  mesaId,
+  usuarioUid,
+  colecao = "mapas",
+}: {
+  mesaId: string;
+  usuarioUid: string;
+  colecao?: Colecao;
+}) {
+  const { mapas, carregado } = useMapasJogador(mesaId, usuarioUid, true, colecao);
+  const { carregado: pinosOk, pinosDe, definirPinos, notaDe, definirNota } = usePinos(mesaId, usuarioUid, true);
   const [sel, setSel] = useState<string | null>(null);
   const mapa = mapas.find((m) => m.id === sel) ?? mapas[0];
 
   if (!carregado) return <p className="text-muted">Carregando…</p>;
-  if (!mapa) return <p className="text-muted">Nenhum mapa foi liberado pelo mestre ainda.</p>;
+  if (!mapa) return <p className="text-muted">{colecao === "mapas" ? "Nenhum mapa foi liberado" : "Nenhuma imagem foi liberada"} pelo mestre ainda.</p>;
 
   return (
     <section className="space-y-4">
@@ -28,7 +36,7 @@ export default function MapasJogador({ mesaId, usuarioUid }: { mesaId: string; u
               m.id === mapa.id ? "bg-violet-600 text-white" : "hover:bg-border/50"
             }`}
           >
-            {m.nome || "Mapa"}
+            {m.nome || (colecao === "mapas" ? "Mapa" : "Imagem")}
           </button>
         ))}
       </div>
@@ -37,6 +45,8 @@ export default function MapasJogador({ mesaId, usuarioUid }: { mesaId: string; u
         imagem={mapa.imagem}
         nome={mapa.nome}
         pinos={pinosDe(mapa.id)}
+        nota={notaDe(mapa.id)}
+        onNota={(v) => definirNota(mapa.id, v)}
         desabilitado={!pinosOk}
         onChange={(p) => definirPinos(mapa.id, p)}
       />
@@ -48,12 +58,16 @@ function VisorMapa({
   imagem,
   nome,
   pinos,
+  nota,
+  onNota,
   desabilitado,
   onChange,
 }: {
   imagem: string;
   nome: string;
   pinos: Pino[];
+  nota: string;
+  onNota: (v: string) => void;
   desabilitado: boolean;
   onChange: (p: Pino[]) => void;
 }) {
@@ -117,6 +131,18 @@ function VisorMapa({
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="space-y-1">
+        <p className="text-xs text-muted">🔒 Anotações gerais sobre esta imagem · só você vê</p>
+        <textarea
+          value={nota}
+          onChange={(e) => onNota(e.target.value)}
+          disabled={desabilitado}
+          rows={4}
+          placeholder="O que você percebeu, deduziu ou quer lembrar…"
+          className={campo}
+        />
       </div>
 
       {pino && (

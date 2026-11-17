@@ -43,3 +43,5 @@ next-env.d.ts
 # gabarito de mestre (spoiler)
 /lore-marcas.json
 /puzzles-marcas.json
+/lore-marcas-novas.json
+/puzzles-marcas-novas.json

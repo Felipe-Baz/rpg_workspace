@@ -19,6 +19,9 @@ export type Mapa = {
 // Pino privado do jogador. x/y em fração (0–1) da imagem.
 export type Pino = { id: string; x: number; y: number; titulo: string; texto: string };
 
+// "mapas" e "imagens" compartilham o mesmo formato; só mudam a coleção e os rótulos.
+export type Colecao = "mapas" | "imagens";
+
 const LIMITE_BYTES = 900_000;
 
 /** Reduz e recomprime a imagem até caber no limite de um documento do Firestore. */
@@ -43,7 +46,7 @@ export async function comprimirImagem(arquivo: File, ladoInicial = 2200, limite 
   throw new Error("Não foi possível reduzir a imagem o bastante.");
 }
 
-function useColecaoMapas(mesaId: string, consultas: (() => Query)[], habilitado: boolean) {
+function useColecaoMapas(mesaId: string, colecao: Colecao, consultas: (() => Query)[], habilitado: boolean) {
   const [grupos, setGrupos] = useState<Mapa[][]>([]);
   const [carregado, setCarregado] = useState(false);
 
@@ -69,7 +72,7 @@ function useColecaoMapas(mesaId: string, consultas: (() => Query)[], habilitado:
     );
     return () => offs.forEach((o) => o());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mesaId, habilitado]);
+  }, [mesaId, colecao, habilitado]);
 
   const vistos = new Map<string, Mapa>();
   grupos.flat().forEach((m) => vistos.set(m.id, m));
@@ -77,36 +80,39 @@ function useColecaoMapas(mesaId: string, consultas: (() => Query)[], habilitado:
   return { mapas, carregado };
 }
 
-const col = (mesaId: string) => collection(db, "mesas", mesaId, "mapas");
+const col = (mesaId: string, colecao: Colecao = "mapas") => collection(db, "mesas", mesaId, colecao);
 
-export function useMapasMestre(mesaId: string, habilitado: boolean) {
-  return useColecaoMapas(mesaId, [() => query(col(mesaId))], habilitado);
+export function useMapasMestre(mesaId: string, habilitado: boolean, colecao: Colecao = "mapas") {
+  return useColecaoMapas(mesaId, colecao, [() => query(col(mesaId, colecao))], habilitado);
 }
 
 /** Mapas liberados para todos ou individualmente para este jogador. */
-export function useMapasJogador(mesaId: string, usuarioUid: string, habilitado: boolean) {
+export function useMapasJogador(mesaId: string, usuarioUid: string, habilitado: boolean, colecao: Colecao = "mapas") {
   return useColecaoMapas(
     mesaId,
+    colecao,
     [
-      () => query(col(mesaId), where("todos", "==", true)),
-      () => query(col(mesaId), where("liberadoPara", "array-contains", usuarioUid)),
+      () => query(col(mesaId, colecao), where("todos", "==", true)),
+      () => query(col(mesaId, colecao), where("liberadoPara", "array-contains", usuarioUid)),
     ],
     habilitado && !!usuarioUid,
   );
 }
 
-export async function criarMapa(mesaId: string, nome: string, imagem: string) {
+export async function criarMapa(mesaId: string, nome: string, imagem: string, colecao: Colecao = "mapas") {
   const mapa: Mapa = { id: novoId(), nome, imagem, criadoEm: Date.now(), todos: false, liberadoPara: [] };
-  await setDoc(doc(col(mesaId), mapa.id), mapa);
+  await setDoc(doc(col(mesaId, colecao), mapa.id), mapa);
 }
 
-export const atualizarMapa = (mesaId: string, mapaId: string, patch: Partial<Mapa>) =>
-  updateDoc(doc(col(mesaId), mapaId), patch);
+export const atualizarMapa = (mesaId: string, mapaId: string, patch: Partial<Mapa>, colecao: Colecao = "mapas") =>
+  updateDoc(doc(col(mesaId, colecao), mapaId), patch);
 
-export const excluirMapa = (mesaId: string, mapaId: string) => deleteDoc(doc(col(mesaId), mapaId));
+export const excluirMapa = (mesaId: string, mapaId: string, colecao: Colecao = "mapas") =>
+  deleteDoc(doc(col(mesaId, colecao), mapaId));
 
-// Pinos privados: mesas/{id}/pinos/{uid} → { porMapa: { [mapaId]: Pino[] } }
-type PinosDoc = { porMapa: Record<string, Pino[]> };
+// Pinos privados: mesas/{id}/pinos/{uid} → { porMapa: { [mapaId]: Pino[] }, notas: { [mapaId]: texto } }
+// (os ids de mapas e imagens não colidem, então os dois usam o mesmo documento).
+type PinosDoc = { porMapa: Record<string, Pino[]>; notas?: Record<string, string> };
 const PINOS_VAZIOS: PinosDoc = { porMapa: {} };
 
 export function usePinos(mesaId: string, usuarioUid: string, habilitado: boolean) {
@@ -119,6 +125,9 @@ export function usePinos(mesaId: string, usuarioUid: string, habilitado: boolean
     carregado,
     pinosDe: (mapaId: string) => dados.porMapa?.[mapaId] ?? [],
     definirPinos: (mapaId: string, pinos: Pino[]) =>
-      atualizar({ porMapa: { ...dados.porMapa, [mapaId]: pinos } }),
+      atualizar({ ...dados, porMapa: { ...dados.porMapa, [mapaId]: pinos } }),
+    notaDe: (mapaId: string) => dados.notas?.[mapaId] ?? "",
+    definirNota: (mapaId: string, texto: string) =>
+      atualizar({ ...dados, notas: { ...(dados.notas ?? {}), [mapaId]: texto } }),
   };
 }

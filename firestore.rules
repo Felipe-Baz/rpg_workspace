@@ -58,8 +58,26 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
       }
 
+      // Imagens (handouts): o mestre escreve; o jogador lê só os liberados (para todos ou para ele).
+      match /imagens/{mapaId} {
+        allow read: if logado() && (
+          get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid
+          || (request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros
+              && (resource.data.todos == true || request.auth.uid in resource.data.liberadoPara)));
+        allow write: if logado()
+          && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
+      }
+
       // Mundo (lore público): o mestre escreve; qualquer membro lê.
       match /mundo/{docId} {
+        allow read: if logado()
+          && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
+        allow write: if logado()
+          && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
+      }
+
+      // Missões: o mestre escreve; qualquer membro lê.
+      match /missoes/{missaoId} {
         allow read: if logado()
           && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
         allow write: if logado()

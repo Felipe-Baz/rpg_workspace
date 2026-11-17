@@ -11,6 +11,7 @@ import AvatarPersonagem from "./AvatarPersonagem";
 import MapasJogador from "./mapas/MapasJogador";
 import QuadroJogador from "./quadro/QuadroJogador";
 import Mundo from "./Mundo";
+import Missoes from "./Missoes";
 import FichasJogador from "./fichas/FichasJogador";
 import { CATEGORIAS, type CategoriaFicha } from "@/lib/fichas";
 import MarcasSecao from "./marcas/MarcasSecao";
@@ -24,7 +25,7 @@ function formatarData(d: string) {
 
 export default function VisaoJogador({ id }: { id: string }) {
   const { user } = useAuth();
-  const [aba, setAba] = useState<"geral" | "mapas" | "mundo" | "quadro" | CategoriaFicha>("geral");
+  const [aba, setAba] = useState<"geral" | "mapas" | "imagens" | "mundo" | "missoes" | "quadro" | CategoriaFicha>("geral");
   const { mesas, pronto } = useMesas();
   const mesa = mesas.find((m) => m.id === id);
   const { notas, notasJogadores, opinioes, carregado, definirNota, definirNotaJogador, definirOpiniao } = useAnotacoes(id, user?.uid ?? "", !!user && !!mesa);
@@ -77,7 +78,9 @@ export default function VisaoJogador({ id }: { id: string }) {
         abas={[
           { id: "geral", rotulo: "Geral" },
           { id: "mapas", rotulo: "Mapas" },
+          { id: "imagens", rotulo: "Imagens" },
           { id: "mundo", rotulo: "Mundo" },
+          { id: "missoes", rotulo: "Missões" },
           { id: "quadro", rotulo: "Quadro" },
           ...CATEGORIAS.map((c) => ({ id: c.id, rotulo: c.rotulo })),
         ]}
@@ -87,9 +90,13 @@ export default function VisaoJogador({ id }: { id: string }) {
 
       {aba === "mundo" && <Mundo mesaId={mesa.id} ehMestre={false} />}
 
+      {aba === "missoes" && <Missoes mesaId={mesa.id} ehMestre={false} />}
+
       {aba === "quadro" && user && <QuadroJogador mesaId={mesa.id} usuarioUid={user.uid} />}
 
       {aba === "mapas" && user && <MapasJogador mesaId={mesa.id} usuarioUid={user.uid} />}
+
+      {aba === "imagens" && user && <MapasJogador mesaId={mesa.id} usuarioUid={user.uid} colecao="imagens" />}
 
       {user &&
         CATEGORIAS.filter((c) => c.id === aba).map((c) => (

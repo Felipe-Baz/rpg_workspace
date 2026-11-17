@@ -2,12 +2,18 @@
 
 import { useRef, useState } from "react";
 import type { Mesa } from "@/lib/mesas";
-import { atualizarMapa, comprimirImagem, criarMapa, excluirMapa, useMapasMestre, type Mapa } from "@/lib/mapas";
+import { atualizarMapa, comprimirImagem, criarMapa, excluirMapa, useMapasMestre, type Colecao, type Mapa } from "@/lib/mapas";
 
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
 
-export default function MapasMestre({ mesa }: { mesa: Mesa }) {
-  const { mapas, carregado } = useMapasMestre(mesa.id, true);
+const TEXTOS = {
+  mapas: { titulo: "Mapas", novo: "+ Subir mapa", vazio: "Nenhum mapa ainda.", nome: "Nome do mapa", item: "o mapa" },
+  imagens: { titulo: "Imagens", novo: "+ Subir imagem", vazio: "Nenhuma imagem ainda.", nome: "Nome da imagem", item: "a imagem" },
+};
+
+export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; colecao?: Colecao }) {
+  const t = TEXTOS[colecao];
+  const { mapas, carregado } = useMapasMestre(mesa.id, true, colecao);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
   const input = useRef<HTMLInputElement>(null);
@@ -18,9 +24,9 @@ export default function MapasMestre({ mesa }: { mesa: Mesa }) {
     setEnviando(true);
     try {
       const imagem = await comprimirImagem(arquivo);
-      await criarMapa(mesa.id, arquivo.name.replace(/\.[^.]+$/, ""), imagem);
+      await criarMapa(mesa.id, arquivo.name.replace(/\.[^.]+$/, ""), imagem, colecao);
     } catch (e) {
-      setErro(e instanceof Error ? e.message : "Falha ao enviar o mapa.");
+      setErro(e instanceof Error ? e.message : "Falha ao enviar a imagem.");
     } finally {
       setEnviando(false);
       if (input.current) input.current.value = "";
@@ -30,41 +36,43 @@ export default function MapasMestre({ mesa }: { mesa: Mesa }) {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">Mapas</h2>
+        <h2 className="text-xl font-semibold">{t.titulo}</h2>
         <button
           onClick={() => input.current?.click()}
           disabled={enviando}
           className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
         >
-          {enviando ? "Enviando…" : "+ Subir mapa"}
+          {enviando ? "Enviando…" : t.novo}
         </button>
         <input ref={input} type="file" accept="image/*" hidden onChange={(e) => subir(e.target.files?.[0])} />
       </div>
       <p className="text-sm text-muted">
-        Jogadores só veem os mapas que você liberar. As imagens são reduzidas automaticamente (~900 KB).
+        Jogadores só veem {colecao === "mapas" ? "os mapas" : "as imagens"} que você liberar e fazem anotações privadas sobre elas. As imagens são reduzidas automaticamente (~900 KB).
       </p>
       {erro && <p className="text-sm text-red-500">{erro}</p>}
-      {carregado && mapas.length === 0 && <p className="text-muted">Nenhum mapa ainda.</p>}
+      {carregado && mapas.length === 0 && <p className="text-muted">{t.vazio}</p>}
       <div className="grid gap-4 sm:grid-cols-2">
         {mapas.map((m) => (
-          <CartaoMapa key={m.id} mesa={mesa} mapa={m} />
+          <CartaoMapa key={m.id} mesa={mesa} mapa={m} colecao={colecao} />
         ))}
       </div>
     </section>
   );
 }
 
-function CartaoMapa({ mesa, mapa }: { mesa: Mesa; mapa: Mapa }) {
+function CartaoMapa({ mesa, mapa, colecao }: { mesa: Mesa; mapa: Mapa; colecao: Colecao }) {
+  const t = TEXTOS[colecao];
   const [aberto, setAberto] = useState(false);
   const [nome, setNome] = useState(mapa.nome);
   const jogadores = mesa.jogadores.filter((j) => j.uid);
 
   const alternar = (uid: string) =>
-    atualizarMapa(mesa.id, mapa.id, {
-      liberadoPara: mapa.liberadoPara.includes(uid)
-        ? mapa.liberadoPara.filter((u) => u !== uid)
-        : [...mapa.liberadoPara, uid],
-    });
+    atualizarMapa(
+      mesa.id,
+      mapa.id,
+      { liberadoPara: mapa.liberadoPara.includes(uid) ? mapa.liberadoPara.filter((u) => u !== uid) : [...mapa.liberadoPara, uid] },
+      colecao,
+    );
 
   return (
     <article className="space-y-3 rounded-xl border border-border bg-card p-3">
@@ -78,15 +86,15 @@ function CartaoMapa({ mesa, mapa }: { mesa: Mesa; mapa: Mapa }) {
       <input
         value={nome}
         onChange={(e) => setNome(e.target.value)}
-        onBlur={() => nome !== mapa.nome && atualizarMapa(mesa.id, mapa.id, { nome })}
+        onBlur={() => nome !== mapa.nome && atualizarMapa(mesa.id, mapa.id, { nome }, colecao)}
         className={campo}
-        aria-label="Nome do mapa"
+        aria-label={t.nome}
       />
       <label className="flex items-center gap-2 text-sm font-medium">
         <input
           type="checkbox"
           checked={mapa.todos}
-          onChange={(e) => atualizarMapa(mesa.id, mapa.id, { todos: e.target.checked })}
+          onChange={(e) => atualizarMapa(mesa.id, mapa.id, { todos: e.target.checked }, colecao)}
         />
         Liberar para todos
       </label>
@@ -101,7 +109,7 @@ function CartaoMapa({ mesa, mapa }: { mesa: Mesa; mapa: Mapa }) {
         ))}
       </div>
       <button
-        onClick={() => confirm(`Excluir o mapa "${mapa.nome}"?`) && excluirMapa(mesa.id, mapa.id)}
+        onClick={() => confirm(`Excluir ${t.item} "${mapa.nome}"?`) && excluirMapa(mesa.id, mapa.id, colecao)}
         className="text-sm text-muted hover:text-red-500"
       >
         Excluir
