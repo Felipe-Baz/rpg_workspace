@@ -55,3 +55,70 @@ body {
 .md th, .md td { border: 1px solid var(--border); padding: 0.35em 0.7em; }
 .md th { font-weight: 600; background: color-mix(in srgb, var(--border) 50%, transparent); }
 .md img { max-width: 100%; border-radius: 0.5em; }
+
+/* ===== Papiro (aba Missões) — tema pergaminho, estilo livros de D&D 5e =====
+   Redefine as variáveis de cor dentro do escopo, então text-muted, border-border,
+   bg-background etc. se adaptam sozinhos, no tema claro e no escuro. */
+.papiro {
+  --foreground: #3a2410;
+  --muted: #7b6340;
+  --border: #c4a96d;
+  --background: rgba(255, 248, 225, 0.55);
+  --card: rgba(255, 250, 235, 0.5);
+  --acento: #7a1f16;
+  position: relative;
+  color: var(--foreground);
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  padding: 1.5rem 1.25rem;
+  border-radius: 6px;
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(255, 255, 255, 0.45), transparent 45%),
+    radial-gradient(ellipse at 85% 90%, rgba(120, 70, 20, 0.22), transparent 50%),
+    radial-gradient(ellipse at 90% 15%, rgba(150, 95, 35, 0.15), transparent 40%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.3  0 0 0 0 0.1  0 0 0 0.16 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+    linear-gradient(135deg, #f4e4b8, #e8d29b 55%, #dcc183);
+  box-shadow:
+    inset 0 0 60px rgba(110, 70, 20, 0.45),
+    inset 0 0 8px rgba(80, 45, 10, 0.5),
+    0 6px 24px rgba(0, 0, 0, 0.35);
+}
+@media (min-width: 640px) { .papiro { padding: 2rem 2.25rem; } }
+.papiro h2, .papiro h3, .papiro h4, .papiro .titulo-papiro {
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  color: var(--acento);
+}
+.papiro input, .papiro textarea, .papiro select { color: var(--foreground); font-family: inherit; }
+.papiro input::placeholder, .papiro textarea::placeholder { color: var(--muted); opacity: 0.8; }
+.papiro .md a { color: var(--acento); }
+.papiro .md blockquote { border-left-color: var(--acento); }
+.papiro .md h1, .papiro .md h2 { color: var(--acento); font-variant: small-caps; }
+/* Régua dupla sob o título, como nos livros */
+.papiro .regua { height: 5px; border-top: 2px solid var(--acento); border-bottom: 1px solid var(--acento); opacity: 0.8; }
+/* Caixa lateral (sidebar) de D&D */
+.papiro .caixa-dnd {
+  background: linear-gradient(90deg, rgba(230, 200, 140, 0.55), rgba(240, 218, 165, 0.35));
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--acento);
+  box-shadow: 0 1px 3px rgba(80, 45, 10, 0.25);
+}
+/* Selo de status carimbado */
+.papiro .carimbo {
+  display: inline-block;
+  transform: rotate(-8deg);
+  border: 3px double currentColor;
+  border-radius: 6px;
+  padding: 0.15rem 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+}
+.papiro .moldura {
+  border: 6px solid #f8efd2;
+  outline: 1px solid var(--border);
+  box-shadow: 0 3px 8px rgba(70, 40, 10, 0.45);
+  filter: sepia(0.25) contrast(1.02);
+}
