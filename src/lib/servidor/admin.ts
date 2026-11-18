@@ -2,6 +2,7 @@ import "server-only";
 import { cert, getApp, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
 /** Há credencial admin configurada? */
 export const adminConfigurado = () => !!process.env.FIREBASE_ADMIN_CREDENTIALS;
@@ -18,3 +19,4 @@ function app(): App {
 
 export const adminAuth = () => getAuth(app());
 export const adminDb = () => getFirestore(app());
+export const adminBucket = () => getStorage(app()).bucket();

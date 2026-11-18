@@ -246,12 +246,25 @@ service cloud.firestore {
         allow read: if mestreMesa();
         allow write: if false;
       }
+
+      // Jobs de geração de assets: o mestre acompanha (onSnapshot); só o servidor (Admin SDK) escreve.
+      match /jobs/{jobId} {
+        allow read: if mestreMesa();
+        allow write: if false;
+      }
     }
 
     // Configuração de IA do usuário (provedores ativos e chaves cifradas): acessada
     // somente pelo servidor (Admin SDK). O cliente nunca lê nem escreve, em especial segredos.
     match /usuarios/{uid}/{document=**} {
       allow read, write: if false;
+    }
+
+    // Biblioteca pública: assets gerados por IA, legíveis por qualquer usuário logado.
+    // Só o servidor (Admin SDK) escreve. Assets enviados (PNG) nunca entram aqui.
+    match /assetsPublicos/{assetId} {
+      allow read: if logado();
+      allow write: if false;
     }
 
     // Convites: código -> mesa. Só leitura por código exato (sem listar).

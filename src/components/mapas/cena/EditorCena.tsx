@@ -9,9 +9,10 @@ import { aplicar, desfazer, executar, historicoVazio, refazer, type Comando, typ
 import { patchSalvarRender } from "@/lib/cena/compat";
 import { alcaEm, clamp01, larguraCelulaFracao, objetoEm, snapGrid, type Alca, type Pt } from "@/lib/cena/geometria";
 import { RenderCena } from "@/lib/cena/render";
-import type { Asset, Camada, Cena, ObjetoCena } from "@/lib/cena/tipos";
-import { PERSPECTIVAS, assetServe, mostrarSeletor, obterPerspectiva } from "@/lib/mapas-ia/perspectivas/registro";
+import type { Camada, Cena, ObjetoCena } from "@/lib/cena/tipos";
+import { PERSPECTIVAS, mostrarSeletor, obterPerspectiva } from "@/lib/mapas-ia/perspectivas/registro";
 import { useTemas } from "@/lib/mapas-ia/temas/temas";
+import BibliotecaAssets from "./BibliotecaAssets";
 
 const btn = "rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/50 disabled:opacity-40";
 const btnAtivo = "rounded-lg border border-violet-600 bg-violet-600 px-2.5 py-1.5 text-sm text-white";
@@ -183,7 +184,7 @@ export default function EditorCena({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const alvo = e.target as HTMLElement;
-      if (alvo.closest("input, textarea, select")) return;
+      if (alvo.closest("input, textarea, select, [data-modal]")) return;
       const ctrl = e.ctrlKey || e.metaKey;
       if (ctrl && e.key.toLowerCase() === "z") {
         e.preventDefault();
@@ -231,7 +232,7 @@ export default function EditorCena({
       if (!a || !camada) return;
       if (!camada.visivel || camada.travada) return setErro("A camada ativa está oculta ou travada.");
       const pos = snap && cena.grid ? snapGrid(cena, p) : p;
-      const larg = larguraCelulaFracao(cena) ?? 0.1;
+      const larg = (larguraCelulaFracao(cena) ?? 0.1) * (a.escalaBase ?? 1);
       const z = Math.max(-1, ...cena.objetos.filter((o) => o.camadaId === camada.id).map((o) => o.z)) + 1;
       const objeto: ObjetoCena = { id: uid(), assetId: a.id, camadaId: camada.id, x: pos.x, y: pos.y, escala: larg, rotacao: 0, espelhado: false, z };
       rodar({ tipo: "adicionarObjeto", objeto });
@@ -377,10 +378,7 @@ export default function EditorCena({
     if (render.current === r0) r0.atualizar(cena, assets, { selecionadoId: selId, mostrarGrid, pxPorTela: pxPorTela() });
   }
 
-  // A paleta só lista assets da perspectiva da cena (objetos já colocados continuam renderizando).
-  const assetsPaleta = cena ? assetsLista.filter((a) => assetServe(a, cena.perspectiva)) : assetsLista;
   const camadasInv = cena ? [...cena.camadas].reverse() : [];
-  const assetAtual = assetSel ? assets.get(assetSel) : null;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
@@ -447,26 +445,18 @@ export default function EditorCena({
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         {/* Assets */}
         <aside className="max-h-40 w-full shrink-0 space-y-2 overflow-y-auto border-b border-border p-2 md:max-h-none md:w-52 md:border-b-0 md:border-r">
-          <button className={`${btn} w-full`} onClick={() => inputAsset.current?.click()} disabled={enviando}>
-            {enviando ? "Enviando…" : "+ Enviar PNG"}
-          </button>
+          <BibliotecaAssets
+            mesaId={mesaId}
+            cena={cena}
+            assets={assetsLista}
+            temas={temas}
+            assetSel={assetSel}
+            onSelecionar={setAssetSel}
+            onUpload={() => inputAsset.current?.click()}
+            enviando={enviando}
+            onErro={setErro}
+          />
           <input ref={inputAsset} type="file" accept="image/png,image/webp" multiple hidden onChange={(e) => subirAssets(e.target.files)} />
-          <p className="text-xs text-muted">
-            {assetAtual ? `Carimbo: ${assetAtual.nome}. Clique no mapa (Esc cancela).` : "Escolha um asset e clique no mapa para carimbar."}
-          </p>
-          <div className="grid grid-cols-3 gap-1.5 md:grid-cols-2">
-            {assetsPaleta.map((a: Asset) => (
-              <button
-                key={a.id}
-                onClick={() => setAssetSel(assetSel === a.id ? null : a.id)}
-                className={`rounded-lg border p-1 ${assetSel === a.id ? "border-violet-600 bg-violet-600/20" : "border-border"}`}
-                title={a.nome}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={a.url} alt={a.nome} className="mx-auto h-14 w-full object-contain" />
-              </button>
-            ))}
-          </div>
         </aside>
 
         {/* Canvas */}

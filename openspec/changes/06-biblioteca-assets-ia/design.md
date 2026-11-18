@@ -17,7 +17,7 @@ O editor manual já aceita PNGs enviados. Temas, perspectivas e provedores exist
 
 - **Documento do asset** em `mesas/{id}/assets/{id}`: `{ tipo, nome, tags[], temaId, perspectivaId, escalaBase, url, origem, geradoPor{provedor,modelo,prompt}, criadoEm }`.
 - **Prompt composto**: perfil do tema + fragmento da perspectiva + descrição do mestre + regras do tipo (por exemplo "fundo liso", "sem sombra projetada").
-- **Provedor inicial Google Gemini** (sem alfa nativo): sprites são pedidos sobre fundo de cor-chave e recortados pelo `RemovedorFundoChroma`; texturas e decals seguem sem recorte. A consistência de estilo vem das imagens âncora do tema como referência e do reuso de assets.
+- **Provedor inicial Google Gemini** (sem alfa nativo): sprites são pedidos sobre fundo de cor-chave e recortados pelo `RemovedorFundoChroma`; texturas e pincéis seguem sem recorte. Decals também são recortados: a validação com Gemini mostrou que um decal sem recorte chega como retângulo opaco. A consistência de estilo vem das imagens âncora do tema como referência e do reuso de assets.
 - **Pipeline** como lista de etapas: `gerar → (removerFundo) → recortar → normalizar → verificar → salvar`. Etapas opcionais conforme `capacidades`.
 - **Verificação de textura repetível**: comparar bordas opostas; se a diferença passar do limite, aplicar costura simples ou sugerir regerar.
 - **Jobs** em `mesas/{id}/jobs/{id}` com `status`, `progresso` e `resultado`; a UI assina com `onSnapshot`.

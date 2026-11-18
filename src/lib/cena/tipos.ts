@@ -11,7 +11,12 @@ export type Camada = {
   opacidade: number; // 0–1
 };
 
-/** Documento mesas/{id}/assets/{assetId}. `origem: "ia"` é usado pela change 06. */
+export type TipoAsset = "sprite" | "textura" | "pincel" | "decal";
+
+/** Como o asset foi gerado (só `origem: "ia"`). */
+export type GeradoPor = { provedor: string; modelo: string; prompt: string };
+
+/** Documento mesas/{id}/assets/{assetId}. Os campos da biblioteca são opcionais: assets enviados antes da change 06 não os têm. */
 export type Asset = {
   id: string;
   nome: string;
@@ -19,9 +24,21 @@ export type Asset = {
   largura: number; // px naturais
   altura: number;
   origem: "enviado" | "ia";
+  /** Ausente = sprite. */
+  tipo?: TipoAsset;
+  tags?: string[];
   /** Ausente = top-down (assets anteriores à change 05). */
   perspectivaId?: string;
   temaId?: string;
+  /** Largura sugerida ao carimbar, em células do grid (ausente = 1). */
+  escalaBase?: number;
+  geradoPor?: GeradoPor;
+  /** Asset de que esta é uma nova versão (regeneração). */
+  versaoDeId?: string;
+  /** Há uma cópia na biblioteca pública (mesmo id); o arquivo no Storage é compartilhado e a mesa não o apaga. */
+  publico?: boolean;
+  /** Textura que não passou na verificação de bordas. */
+  naoRepetivel?: boolean;
   criadoEm: number;
 };
 

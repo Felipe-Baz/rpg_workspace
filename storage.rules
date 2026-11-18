@@ -13,6 +13,12 @@ service firebase.storage {
       return logado() && mesa(mesaId).donoUid == request.auth.uid;
     }
 
+    // Biblioteca pública de assets de IA: leitura para qualquer usuário logado; escrita só pelo servidor.
+    match /publico/{tipo}/{arquivo=**} {
+      allow read: if logado();
+      allow write: if false;
+    }
+
     // Arquivos da mesa (mapas, assets, refs, cenas): membros leem; só o mestre escreve (até 15 MB, imagens).
     // A ocultação de mapas não liberados fica no Firestore (a URL só chega a quem lê o documento).
     match /mesas/{mesaId}/{tipo}/{arquivo=**} {

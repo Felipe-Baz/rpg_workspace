@@ -54,9 +54,9 @@ export async function excluirTemaEmCascata(mesaId: string, tema: Tema) {
     await excluirCena(mesaId, d.id);
   }
   for (const d of (await getDocs(consultaAssets(mesaId, tema.id))).docs) {
-    const url = (d.data() as { url?: string }).url;
+    const { url, publico } = d.data() as { url?: string; publico?: boolean };
     await deleteDoc(d.ref);
-    if (url) await excluirPorUrl(url);
+    if (url && !publico) await excluirPorUrl(url); // arquivo público é compartilhado com outras mesas
   }
   await deleteDoc(doc(colTemas(mesaId), tema.id));
   await Promise.all([...tema.referencias, ...tema.ancoras].map(excluirPorUrl));
