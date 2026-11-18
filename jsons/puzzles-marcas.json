@@ -1,0 +1,1676 @@
+{
+  "eco-vazio": {
+    "titulo": "O Espelho que Cobra",
+    "etapas": [
+      {
+        "titulo": "O que falta no corpo",
+        "texto": "Uma curandeira examina suas mãos feridas e murmura: \"Todo corpo grita antes de cair. O seu cala. Quem lhe tirou o aviso, tirou também o medo de morrer.\"",
+        "pergunta": "O que, exatamente, a curandeira diz que você perdeu — e qual o perigo disso?",
+        "resposta": "Dor e medo/instinto de autopreservação. Perigo: não saber quando está gravemente ferido.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "atbash",
+          "cifrado": "HVN NRN L XLIKL MZL ZERHZ. XLN NRN L ULTL VMHRMZ. JFVN HLF VF?",
+          "solucao": "dor|medo",
+          "dica": "Atbash: A vira Z, B vira Y. O que o corpo sente antes de cair?"
+        },
+        "revelacao": "Dor. E com ela o medo, a voz que mantém um corpo vivo. Sem os dois, você não sabe quando está morrendo."
+      },
+      {
+        "titulo": "A relíquia dos que sofrem",
+        "texto": "Num hino de flagelantes se canta: \"Ajoelha-te ante o vidro que lembra. O que doeu primeiro dói de novo, e quem desvia o rosto não é perdoado.\"",
+        "pergunta": "Que objeto e que culto o hino descreve?",
+        "resposta": "O Espelho da Primeira Dor, guardado pelo culto que venera o sofrimento como prova de fé.",
+        "mecanica": {
+          "tipo": "rastros",
+          "texto": "Ajoelha-te ante o [[vidro]] que lembra. O que doeu [[primeiro]] dói de novo, e quem desvia o [[rosto]] não é perdoado.",
+          "revelacoes": [
+            "Um objeto que devolve a sua face.",
+            "A primeira dor, a que você nunca esqueceu.",
+            "Quem teme se olhar não é perdoado."
+          ],
+          "solucao": "espelho",
+          "dica": "Que vidro devolve o rosto?"
+        },
+        "revelacao": "O Espelho da Primeira Dor, e o culto que venera o sofrimento como fé."
+      },
+      {
+        "titulo": "Diante do vidro",
+        "texto": "Um velho adepto avisa: \"Não há anestesia. Há só você e o momento. E o espelho sabe quando você mente.\"",
+        "pergunta": "O que o ritual exige de você, e o que o invalida?",
+        "resposta": "Reencenar, consciente e sem anestesia, o momento em que perdeu a dor, sentindo-a de verdade. Fugir, desviar o olhar ou mentir invalida.",
+        "mecanica": {
+          "tipo": "espera",
+          "modo": "segurar",
+          "segundos": 12,
+          "rotulo": "Encare",
+          "tentacoes": [
+            "Desvie o olhar. Só um instante.",
+            "Você não precisa sentir isso de novo.",
+            "Mentir é mais fácil.",
+            "O espelho já sabe que você está fraquejando."
+          ]
+        },
+        "revelacao": "O vidro vê. Você ficou, e a dor voltou inteira."
+      }
+    ],
+    "ambiente": "eco-vazio"
+  },
+  "maos-que-lembram": {
+    "titulo": "O Arquivo de Cinzas",
+    "etapas": [
+      {
+        "titulo": "Memórias que não são suas",
+        "texto": "Ao tocar um anel de defunto você vê um rosto que nunca conheceu. Um bibliotecário diz: \"Quem toma o passado de um morto precisa devolvê-lo inteiro.\"",
+        "pergunta": "De quem é a memória que você carrega, e o que o bibliotecário diz que se deve fazer com ela?",
+        "resposta": "De um morto específico cuja memória a Marca tomou. Deve ser devolvida, com nome e história completos.",
+        "mecanica": {
+          "tipo": "fragmentos",
+          "pecas": [
+            "Ao tocar o anel, o morto lhe empresta o passado.",
+            "Mas quem toma o passado de um morto",
+            "com o nome completo e a história toda.",
+            "precisa devolvê-lo inteiro,"
+          ],
+          "solucao": "0,1,3,2",
+          "dica": "Pense na frase como a bibliotecária a diria, do começo ao fim."
+        },
+        "revelacao": "Devolver o que não é seu: nome inteiro, história inteira."
+      },
+      {
+        "titulo": "Onde os livros queimaram",
+        "texto": "Boatos falam de salas de papel carbonizado onde fichas de cinza ainda guardam nomes, \"para quem souber ler sem magia\".",
+        "pergunta": "Que lugar é esse e em que tipo de ruína fica?",
+        "resposta": "O Arquivo de Cinzas, nas ruínas de uma biblioteca queimada.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "pó",
+              "x": 12,
+              "y": 22
+            },
+            {
+              "t": "ARQUIVO",
+              "x": 18,
+              "y": 40
+            },
+            {
+              "t": "fuligem",
+              "x": 66,
+              "y": 18
+            },
+            {
+              "t": "DE",
+              "x": 52,
+              "y": 58
+            },
+            {
+              "t": "papel",
+              "x": 20,
+              "y": 80
+            },
+            {
+              "t": "CINZAS",
+              "x": 62,
+              "y": 76
+            },
+            {
+              "t": "nome",
+              "x": 85,
+              "y": 45
+            }
+          ],
+          "solucao": "arquivo de cinzas|arquivo|cinzas",
+          "dica": "As palavras maiores e mais claras formam o nome do lugar."
+        },
+        "revelacao": "O Arquivo de Cinzas, onde queimaram os livros mas não os nomes."
+      },
+      {
+        "titulo": "Devolver em voz alta",
+        "texto": "\"Nada de adivinhação\", diz a velha arquivista. \"Só pistas reais, juntadas com paciência. E o nome inteiro, dito no lugar certo.\"",
+        "pergunta": "Que condições o ritual impõe?",
+        "resposta": "Reconstruir por pistas reais (sem magia de adivinhação) o nome completo e a história do morto e devolvê-los em voz alta no local certo.",
+        "mecanica": {
+          "tipo": "runas",
+          "aneis": [
+            "UAZMNC",
+            "GMYZBO",
+            "LSOKJM",
+            "MEIGCP"
+          ],
+          "solucao": "NOME",
+          "dica": "O que se devolve primeiro, em voz alta, e por inteiro?"
+        },
+        "revelacao": "O nome. Dito em voz alta, no lugar certo."
+      }
+    ],
+    "ambiente": "maos-que-lembram"
+  },
+  "sangue-que-nega": {
+    "titulo": "O Bosque que Não Morre",
+    "etapas": [
+      {
+        "titulo": "A planta que murchou",
+        "texto": "A erva ao lado de sua ferida secou em minutos. Uma criança foge de você sem saber por quê. Um druida resmunga: \"Você toma a vida que passa perto.\"",
+        "pergunta": "O que sua Marca faz com a vida ao redor, segundo o druida?",
+        "resposta": "Suga/nega a vida: feridas não fecham, plantas murcham, criaturas o evitam por instinto.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "YTRT T VZJ UFXXF UJWYT. F KJWNIF SFT KJHMF. F JWAF XJHF. T VZJ JZ YTRT?",
+          "deslocamento": 5,
+          "solucao": "vida",
+          "dica": "Cifra de César: gire o disco até o texto fazer sentido."
+        },
+        "revelacao": "Sua Marca suga a vida ao redor, e a vida o evita."
+      },
+      {
+        "titulo": "Onde nada apodrece",
+        "texto": "Contam de um bosque cujas folhas nunca caem: \"Ali, tudo vive. Menos o que carrega o vazio.\"",
+        "pergunta": "Que lugar é esse?",
+        "resposta": "O Bosque que Não Morre.",
+        "mecanica": {
+          "tipo": "rastros",
+          "texto": "Contam de um [[bosque]] cujas folhas nunca [[caem]]: ali, tudo [[vive]]. Menos o que carrega o vazio.",
+          "revelacoes": [
+            "Muitas árvores juntas.",
+            "Nada apodrece, nada morre.",
+            "Um lugar de pura vida."
+          ],
+          "solucao": "bosque|bosque que nao morre",
+          "dica": "Onde as folhas nunca caem?"
+        },
+        "revelacao": "O Bosque que Não Morre."
+      },
+      {
+        "titulo": "Dar sem tomar",
+        "texto": "O druida completa: \"Existe uma criatura que ainda não o teme. Deixe que ela o fira e não retribua em cura.\"",
+        "pergunta": "O que você precisa achar, e o que precisa aceitar?",
+        "resposta": "A única criatura viva imune à Marca; deixar-se ferir por ela sem se curar de volta, completando um ciclo de dar sem tomar.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "Uma criatura que ainda não o teme se aproxima. Ela morde.",
+              "opcoes": [
+                "Curar a mordida na hora",
+                "Aceitar a ferida e ficar parado",
+                "Fugir"
+              ]
+            },
+            {
+              "fala": "A ferida arde. Sua Marca quer tomar a vida dela.",
+              "opcoes": [
+                "Deixar a Marca tomar só um pouco",
+                "Não tomar nada",
+                "Matar a criatura"
+              ]
+            },
+            {
+              "fala": "Ela se deita ao seu lado. O ciclo pede o último gesto.",
+              "opcoes": [
+                "Dar de volta sem pedir nada",
+                "Tomar o que sobrou",
+                "Ir embora sem olhar"
+              ]
+            }
+          ],
+          "solucao": "1|1,1|1,1,0",
+          "dica": "Dar sem tomar."
+        },
+        "revelacao": "O ciclo se fecha. A vida lhe volta um instante, emprestada, sem ser tomada."
+      }
+    ],
+    "ambiente": "sangue-que-nega"
+  },
+  "voz-perdida": {
+    "titulo": "O Poço das Vozes Caladas",
+    "etapas": [
+      {
+        "titulo": "A língua que quebra",
+        "texto": "Você tentou uma mentira pequena e a voz falhou, dolorida, na frente de todos. Um bardo cego ri baixo: \"Quem vende o nome vende também o direito de enganar.\"",
+        "pergunta": "O que você vendeu, em duas coisas?",
+        "resposta": "O próprio nome verdadeiro e a liberdade de mentir.",
+        "mecanica": {
+          "tipo": "morse",
+          "codigo": "-. --- -- .",
+          "solucao": "nome",
+          "dica": "Escute as pausas. Quatro letras."
+        },
+        "revelacao": "O nome verdadeiro, e com ele a liberdade de mentir."
+      },
+      {
+        "titulo": "Onde os nomes ecoam",
+        "texto": "\"Na Guerra dos Deuses os nomes se perderam. Alguns caíram num buraco que ainda responde quando se grita.\"",
+        "pergunta": "Que lugar é esse?",
+        "resposta": "O Poço das Vozes Caladas.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "eco",
+              "x": 8,
+              "y": 30
+            },
+            {
+              "t": "POCO",
+              "x": 22,
+              "y": 62
+            },
+            {
+              "t": "...oço...",
+              "x": 74,
+              "y": 20
+            },
+            {
+              "t": "DAS",
+              "x": 48,
+              "y": 36
+            },
+            {
+              "t": "VOZES",
+              "x": 70,
+              "y": 70
+            },
+            {
+              "t": "CALADAS",
+              "x": 28,
+              "y": 84
+            },
+            {
+              "t": "ouve",
+              "x": 88,
+              "y": 50
+            }
+          ],
+          "solucao": "poco das vozes caladas|poco|vozes caladas",
+          "dica": "As palavras que brilham mais, na ordem em que o eco as devolveria."
+        },
+        "revelacao": "O Poço das Vozes Caladas, onde os nomes ecoam."
+      },
+      {
+        "titulo": "Gritar e ouvir",
+        "texto": "Uma sombra no poço sussurra: \"Primeiro saiba quem você é. Depois diga, e não corra do que voltar.\"",
+        "pergunta": "O que o ritual exige?",
+        "resposta": "Descobrir o próprio nome verdadeiro (arco de investigação), gritá-lo no poço e aceitar ouvir a resposta sem fugir.",
+        "mecanica": {
+          "tipo": "espera",
+          "modo": "quietude",
+          "segundos": 10,
+          "rotulo": "Gritar e ouvir"
+        },
+        "revelacao": "A voz do poço respondeu. Você ficou. Ela era sua."
+      }
+    ],
+    "ambiente": "voz-perdida"
+  },
+  "reflexo-partido": {
+    "titulo": "O Retrato Verdadeiro",
+    "etapas": [
+      {
+        "titulo": "Sem imagem",
+        "texto": "A água parada devolve só o céu. No dia seguinte o estalajadeiro não lembra de você. Um pintor suspira: \"Quem não é visto, aos poucos não é.\"",
+        "pergunta": "Quais dois sinais mostram o que você perdeu?",
+        "resposta": "Não tem reflexo (espelhos, água, metal) e é esquecido por quem o deixa de ver por mais de um dia.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "espelho",
+          "cifrado": "O QUE VEJO NA AGUA E NO VIDRO E EM TODO METAL, E VOCE PERDEU?",
+          "solucao": "reflexo|imagem",
+          "dica": "O texto está do avesso. Vire o espelho."
+        },
+        "revelacao": "O reflexo. E quem não é visto, aos poucos não é."
+      },
+      {
+        "titulo": "Quem pode pintar",
+        "texto": "O pintor avisa: \"Eu faria por moedas, e de nada serviria. A obra precisa nascer de quem se importa de verdade.\"",
+        "pergunta": "Que tipo de pessoa pode fazer o retrato, e quem não pode?",
+        "resposta": "Alguém que genuinamente se importa com você; nunca um artista contratado.",
+        "mecanica": {
+          "tipo": "rastros",
+          "texto": "Eu faria por [[moedas]], e de nada serviria. A obra precisa nascer de quem [[se importa]] de verdade, nunca de um [[contratado]].",
+          "revelacoes": [
+            "Ouro não compra isso.",
+            "Quem cuida de você. Quem sentiria a sua falta.",
+            "Pincel pago não vê."
+          ],
+          "solucao": "importa|se importa|quem se importa|alguem que se importa|amigo|quem ama",
+          "dica": "Quem pode pintar o retrato?"
+        },
+        "revelacao": "Só um retrato feito por quem se importa pode quebrar o vínculo."
+      },
+      {
+        "titulo": "A verdade inteira",
+        "texto": "\"Enquanto o pincel corre, você fala. Tudo. Sem cortar pedaço.\"",
+        "pergunta": "O que o ritual exige de você, e como ele se completa?",
+        "resposta": "Contar em voz alta, sem omissão, como obteve a Marca; o vínculo quebra se a obra captar seu reflexo corretamente pela primeira vez.",
+        "mecanica": {
+          "tipo": "espera",
+          "modo": "quietude",
+          "segundos": 12,
+          "rotulo": "Posar para o retrato"
+        },
+        "revelacao": "Enquanto o pincel corria, você contou tudo. O espelho de tinta aprendeu seu rosto."
+      }
+    ],
+    "ambiente": "reflexo-partido"
+  },
+  "juramento-cinzento": {
+    "titulo": "O Gesto de Reparação",
+    "etapas": [
+      {
+        "titulo": "A terra que rejeita",
+        "texto": "Num santuário seu corpo estremece e a cura de um aliado pouco rende. Um frade murmura: \"Convicção quebrada não se perdoa. Fica na pele.\"",
+        "pergunta": "Que reação você tem a coisas sagradas, e qual a origem disso?",
+        "resposta": "Solo consagrado, símbolos e bênçãos reagem mal a ele; cura de outros é menos eficaz. A origem é uma convicção pessoal quebrada.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "runico",
+          "cifrado": "ᚠ ᚦᛉᛈᛜᚺᚦᚦᚠᛉ ᛏᛚᚱᚢᛒᚠᚨᚠ ᚲᚺᚦᚠ ᛈᚠ ᛊᚱᛃᚱ. ᛈᚠᛉ ᛖᚱ ᛊᚱᛒᚨᛉᚠ. ᛏᛚᚱ ᚦᛉᚺᛖᚠ ᛖᚱ ᛏᛚᚱᚢᛒᛉᛚ?",
+          "solucao": "juramento|conviccao|promessa|voto",
+          "dica": "Use a tábua de runas."
+        },
+        "revelacao": "Um juramento. E ele tem endereço."
+      },
+      {
+        "titulo": "Onde tudo quebrou",
+        "texto": "O frade diz: \"A ferida tem endereço. Só volta quem lembra do lugar exato do juramento.\"",
+        "pergunta": "Aonde você precisa retornar?",
+        "resposta": "Ao exato local onde a convicção foi quebrada.",
+        "mecanica": {
+          "tipo": "fragmentos",
+          "pecas": [
+            "Você prometeu diante de todos.",
+            "Algo o fez quebrar a promessa.",
+            "A ferida agora tem endereço: aquele chão.",
+            "Você virou as costas sem olhar para trás."
+          ],
+          "solucao": "0,1,3,2",
+          "dica": "A ordem em que as coisas aconteceram."
+        },
+        "revelacao": "Volte ao chão exato onde tudo quebrou."
+      },
+      {
+        "titulo": "Com as próprias mãos",
+        "texto": "\"Sem magia. Sem pressa emprestada. E alguém que você traiu precisa ver.\"",
+        "pergunta": "O que deve ser feito e o que invalida?",
+        "resposta": "Reconstruir à mão, sem magia, algo que simbolize o que foi quebrado, como reparação pública diante de alguém traído/abandonado. Usar magia para acelerar invalida.",
+        "mecanica": {
+          "tipo": "runas",
+          "aneis": [
+            "BMNOSX",
+            "GSXFZA",
+            "HRVOWQ",
+            "EARPTS"
+          ],
+          "solucao": "MAOS",
+          "dica": "Com o quê se repara sem magia?"
+        },
+        "revelacao": "Com as próprias mãos, diante de quem você traiu."
+      }
+    ],
+    "ambiente": "juramento-cinzento"
+  },
+  "segundo-pacto": {
+    "titulo": "A Barganha da Entidade Original",
+    "etapas": [
+      {
+        "titulo": "O pensamento alheio",
+        "texto": "Um pensamento passou pela sua cabeça com a voz de outro. Seu patrono ri, desconfortável: \"Isso não fui eu.\"",
+        "pergunta": "O que a segunda voz revela sobre a sua Marca?",
+        "resposta": "Há uma entidade com agenda própria, distinta do patrono, que vendeu o Segundo Pacto e interfere no poder emprestado.",
+        "mecanica": {
+          "tipo": "morse",
+          "codigo": "-.-. .-. . -.. --- .-.",
+          "solucao": "credor",
+          "dica": "Seis letras. Quem empresta?"
+        },
+        "revelacao": "Há uma entidade com agenda própria, distinta do seu patrono."
+      },
+      {
+        "titulo": "Quem vendeu",
+        "texto": "Um oráculo insiste: \"Procure o primeiro credor. Não o que lhe empresta poder hoje. O que o vendeu.\"",
+        "pergunta": "Quem você deve procurar e onde o encontrará?",
+        "resposta": "A entidade original que vendeu o Segundo Pacto, em seu próprio domínio.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "SURFXUH R SULPHLUR FUHGRU. QDR R TXH HPSUHVWD KRMH, R TXH YHQGHX. RQGH HOH YLYH?",
+          "deslocamento": 3,
+          "solucao": "dominio|seu dominio",
+          "dica": "Gire o disco de César. Onde um ser poderoso é senhor?"
+        },
+        "revelacao": "No domínio dela, onde as regras são dela."
+      },
+      {
+        "titulo": "Os termos dela",
+        "texto": "\"Ali, as regras são dela. Não adianta espada. Adianta saber barganhar.\"",
+        "pergunta": "Que tipo de confronto é esse?",
+        "resposta": "Uma negociação ou duelo nos termos da entidade, um puzzle de barganha e não de combate puro.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "Ela sorri: “Ofereço poder sem preço.”",
+              "opcoes": [
+                "Aceitar",
+                "Perguntar o preço antes",
+                "Sacar a espada"
+              ]
+            },
+            {
+              "fala": "“O preço é pequeno: uma lembrança.”",
+              "opcoes": [
+                "Oferecer a lembrança mais antiga",
+                "Propor uma troca de igual valor",
+                "Recusar e sair"
+              ]
+            },
+            {
+              "fala": "“Troca justa? Então mostre o que você tem que eu não tenho.”",
+              "opcoes": [
+                "Mostrar o que só você sabe",
+                "Mentir sobre um valor",
+                "Ameaçar"
+              ]
+            }
+          ],
+          "solucao": "1|1,1|1,1,0",
+          "dica": "Não é combate: é barganha."
+        },
+        "revelacao": "A entidade ri. A barganha foi aceita, nos termos dela, mas não só nos dela."
+      }
+    ],
+    "ambiente": "segundo-pacto"
+  },
+  "pagina-que-esquece": {
+    "titulo": "A Dívida de Conhecimento",
+    "etapas": [
+      {
+        "titulo": "A letra que muda",
+        "texto": "No seu caderno, um nome está grafado diferente do que você lembra. Ninguém mexeu nele. Um escriba sussurra: \"Registros próprios deixam de ser confiáveis.\"",
+        "pergunta": "O que a Marca faz com seus registros e com sua mente?",
+        "resposta": "Seus registros mudam sutilmente sem ele notar; sempre há risco de uma informação própria estar errada.",
+        "mecanica": {
+          "tipo": "rastros",
+          "texto": "Meu [[caderno]] mente. A [[letra]] muda sem ninguém tocar. O que já não é confiável é a minha [[mente]].",
+          "revelacoes": [
+            "Onde eu anoto o que sei.",
+            "Um nome que eu juro ter escrito diferente.",
+            "Eu não sei mais se me lembro direito."
+          ],
+          "solucao": "registros|memoria|mente|caderno|anotacoes",
+          "dica": "O que a Marca corrompe?"
+        },
+        "revelacao": "Seus registros mudam sem você perceber."
+      },
+      {
+        "titulo": "De onde veio o saber",
+        "texto": "\"Conhecimento roubado tem dono\", diz o escriba. \"Uma biblioteca, uma mente, um espírito. Procure a fonte.\"",
+        "pergunta": "O que você precisa localizar?",
+        "resposta": "A fonte original do conhecimento roubado pela Marca (biblioteca, mente ou espírito específico).",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "NZYSPNTXPYEZ CZFMLOZ EPX OZYZ. MTMWTZEPNL, XPYEP ZF PDATCTEZ. Z BFP GZNP ACZNFCL?",
+          "deslocamento": 11,
+          "solucao": "fonte|dono|origem",
+          "dica": "César: gire o disco."
+        },
+        "revelacao": "A fonte original do saber roubado."
+      },
+      {
+        "titulo": "Troca justa",
+        "texto": "\"Ouro não paga isso. Só saber que mais ninguém tem.\"",
+        "pergunta": "Com que se paga a dívida?",
+        "resposta": "Devolvendo conhecimento genuíno e irrepetível que só o Marcado possui, por troca justa e não por força.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "O escriba estende a mão: “Com o que paga?”",
+              "opcoes": [
+                "Ouro",
+                "Um saber que só você tem",
+                "Sua força"
+              ]
+            },
+            {
+              "fala": "“Esse saber já existe em outras cabeças?”",
+              "opcoes": [
+                "Sim, é comum",
+                "Não. É irrepetível, só eu o tenho",
+                "Não sei"
+              ]
+            },
+            {
+              "fala": "“Dê por vontade própria. Sem arrancar nada em troca.”",
+              "opcoes": [
+                "Entregar e não exigir mais nada",
+                "Pedir uma garantia",
+                "Ameaçar contar a outros"
+              ]
+            }
+          ],
+          "solucao": "1|1,1|1,1,0",
+          "dica": "O que só você tem vale mais que ouro."
+        },
+        "revelacao": "Troca justa: um saber irrepetível por outro."
+      }
+    ],
+    "ambiente": "pagina-que-esquece"
+  },
+  "sono-roubado": {
+    "titulo": "O Relicário do Sono Primeiro",
+    "etapas": [
+      {
+        "titulo": "Olhos que não fecham",
+        "texto": "Você dorme, mas acorda mais cansado, com a lembrança de um sonho que não é seu. Uma monja diz: \"Perdeu o refúgio. E agora visita o de outros.\"",
+        "pergunta": "O que você vendeu e qual o sinal disso?",
+        "resposta": "O sono tranquilo e os sonhos como refúgio; descansos não restauram e ele sonha sonhos alheios.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "sono",
+              "x": 15,
+              "y": 30
+            },
+            {
+              "t": "perdido",
+              "x": 60,
+              "y": 15
+            },
+            {
+              "t": "SONHOS",
+              "x": 40,
+              "y": 55
+            },
+            {
+              "t": "alheios",
+              "x": 78,
+              "y": 68
+            },
+            {
+              "t": "REFUGIO",
+              "x": 14,
+              "y": 78
+            }
+          ],
+          "solucao": "sono|sonhos|refugio|sono tranquilo",
+          "dica": "O que a monja diz que você perdeu, e o que visita no lugar disso."
+        },
+        "revelacao": "O sono tranquilo, o refúgio. E agora você visita o dos outros."
+      },
+      {
+        "titulo": "O santuário onírico",
+        "texto": "\"Há um relicário onde o primeiro sono foi guardado, num santuário que só existe para quem sonha.\"",
+        "pergunta": "Que lugar é esse?",
+        "resposta": "O Relicário do Sono Primeiro, em um santuário onírico.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "runico",
+          "cifrado": "ᛉᛈᚨᚱ ᚲᚺᚦᚠ ᚷᛚᚠᛒᚨᚠᚨᛉ ᛉ ᛊᛒᚺᛇᚱᚺᛒᛉ ᛖᛉᛈᛉ? ᚱᛇ ᛚᛇ ___ ᛈᛉ ᛖᚠᛈᛗᛚᚠᛒᚺᛉ ᛉᛈᚺᛒᚺᚦᛉ.",
+          "solucao": "relicario",
+          "dica": "Uma caixa sagrada que guarda restos de santos."
+        },
+        "revelacao": "O Relicário do Sono Primeiro."
+      },
+      {
+        "titulo": "A última boa noite",
+        "texto": "\"Deite-se dentro. Lembre a última noite em paz, e não fuja do que sentir.\"",
+        "pergunta": "O que o ritual exige?",
+        "resposta": "Dormir dentro do relicário e reviver, sem fugir da emoção, a última noite de sono tranquilo antes da Marca.",
+        "mecanica": {
+          "tipo": "espera",
+          "modo": "quietude",
+          "segundos": 15,
+          "rotulo": "Deitar no relicário"
+        },
+        "revelacao": "Você reviveu a última noite em paz. Doeu. Você ficou."
+      }
+    ],
+    "ambiente": "sono-roubado"
+  },
+  "fome-eterna": {
+    "titulo": "O Jejum da Moderação",
+    "etapas": [
+      {
+        "titulo": "A mesa nunca basta",
+        "texto": "Você comeu por três e a barriga ainda ronca. Um cozinheiro franze o cenho: \"Falta-lhe o 'já chega'.\"",
+        "pergunta": "O que você vendeu?",
+        "resposta": "A saciedade, a sensação de 'já basta'.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "atbash",
+          "cifrado": "XLNL KLI GIVH V MZL YZHGZ. L JFV NV UZOGZ V Z HVMHZXZL WV... QZ L JFV?",
+          "solucao": "chega|basta|saciedade|ja chega|ja basta",
+          "dica": "Atbash. A frase termina com o que a barriga deveria dizer."
+        },
+        "revelacao": "A saciedade. O 'já chega' que você vendeu."
+      },
+      {
+        "titulo": "O lugar da moderação",
+        "texto": "Peregrinos falam de um local sagrado onde se aprende o contrário da gula: \"ali ninguém come, e todos aprendem.\"",
+        "pergunta": "Que tipo de local você procura?",
+        "resposta": "Um local sagrado ligado à moderação, onde se realiza o jejum.",
+        "mecanica": {
+          "tipo": "rastros",
+          "texto": "Peregrinos falam de um [[local]] sagrado onde se aprende o contrário da [[gula]]: ali ninguém [[come]], e todos aprendem.",
+          "revelacoes": [
+            "Um templo ou santuário.",
+            "O pecado de comer demais.",
+            "Ficar sem comer é o ofício deles."
+          ],
+          "solucao": "jejum|moderacao|templo|santuario",
+          "dica": "O que se pratica ali, em vez de comer?"
+        },
+        "revelacao": "Um santuário da moderação, onde se faz o jejum."
+      },
+      {
+        "titulo": "Sem exceções",
+        "texto": "O guardião avisa: \"Visões virão com a voz de quem você ama. Uma quebra, e recomeça do zero.\"",
+        "pergunta": "Quais as regras do ritual?",
+        "resposta": "Jejuar por completo, sem exceções, pelo número de dias fixado pelo mestre, resistindo às tentações; falhar uma vez reinicia a contagem.",
+        "mecanica": {
+          "tipo": "espera",
+          "modo": "segurar",
+          "segundos": 20,
+          "rotulo": "Jejuar",
+          "tentacoes": [
+            "Sua mãe preparou o seu prato favorito.",
+            "Só uma mordida. Ninguém vai saber.",
+            "Aquele cheiro de pão quente…",
+            "Um amigo ri e lhe estende um pedaço.",
+            "Você já aguentou o bastante."
+          ]
+        },
+        "revelacao": "O jejum foi cumprido, sem exceção. A fome ficou, mas deixou de mandar."
+      }
+    ],
+    "ambiente": "fome-eterna"
+  },
+  "coracao-de-ferro": {
+    "titulo": "A Conversa Difícil",
+    "etapas": [
+      {
+        "titulo": "O vazio diante do abalo",
+        "texto": "Um amigo novo chorou ao se despedir e você não sentiu nada. Uma anciã diz: \"O velho laço fica. O novo não pega.\"",
+        "pergunta": "O que você vendeu e o que resta?",
+        "resposta": "A capacidade de se apegar a alguém novo; vínculos anteriores à Marca continuam intactos.",
+        "mecanica": {
+          "tipo": "morse",
+          "codigo": ".- .--. . --. ---",
+          "solucao": "apego|vinculo|laco",
+          "dica": "Cinco letras. O que você não consegue mais criar?"
+        },
+        "revelacao": "A capacidade de se apegar a alguém novo. Os laços antigos continuam."
+      },
+      {
+        "titulo": "O laço que ainda existe",
+        "texto": "\"Só um laço antigo pode ainda lhe cobrar alguma coisa. Quem era importante antes?\"",
+        "pergunta": "Quem você precisa procurar?",
+        "resposta": "Alguém de um vínculo antigo, anterior à Marca.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "“Quem lhe cobraria alguma coisa?”",
+              "opcoes": [
+                "Um amigo de ontem",
+                "Alguém de antes da Marca",
+                "Um desconhecido"
+              ]
+            }
+          ],
+          "solucao": "1",
+          "dica": "Só um laço antigo ainda pega."
+        },
+        "revelacao": "Alguém do seu passado, de antes da Marca."
+      },
+      {
+        "titulo": "Sem armadura",
+        "texto": "\"Sem apagar o que sente, nem fingir. Fale até o fim.\"",
+        "pergunta": "O que o ritual exige e o que invalida?",
+        "resposta": "Atravessar uma conversa vulnerável e difícil até o fim, sem usar Desligar ou suporte mágico; fugir a qualquer momento invalida.",
+        "mecanica": {
+          "tipo": "espera",
+          "modo": "quietude",
+          "segundos": 15,
+          "rotulo": "Atravessar a conversa"
+        },
+        "revelacao": "Sem armadura, sem fingir. Você falou até o fim."
+      }
+    ],
+    "ambiente": "coracao-de-ferro"
+  },
+  "maos-manchadas": {
+    "titulo": "A Confissão",
+    "etapas": [
+      {
+        "titulo": "O que não sai com água",
+        "texto": "Depois da briga, a mancha em sua mão não lava. Uma criança aponta: \"Você fez algo ruim.\"",
+        "pergunta": "O que sua Marca faz com seus atos violentos?",
+        "resposta": "Marca suas mãos com manchas visíveis após violência significativa; qualquer um pode perceber.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "WJX UJEJ LXV JPDJ. LJMJ DVJ MN VRV N DV JCX. X ZDN BXD?",
+          "deslocamento": 9,
+          "solucao": "mancha|manchas|marca",
+          "dica": "César: gire o disco."
+        },
+        "revelacao": "As manchas: cada uma é um ato."
+      },
+      {
+        "titulo": "Cada mancha tem um nome",
+        "texto": "Um padre cochicha: \"Cada marca permanente é um ato. Conte quantos.\"",
+        "pergunta": "O que você precisa levantar?",
+        "resposta": "Cada ato que gerou uma mancha permanente.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "cada",
+              "x": 10,
+              "y": 25
+            },
+            {
+              "t": "MANCHA",
+              "x": 38,
+              "y": 58
+            },
+            {
+              "t": "tem",
+              "x": 72,
+              "y": 22
+            },
+            {
+              "t": "um",
+              "x": 82,
+              "y": 72
+            },
+            {
+              "t": "ATO",
+              "x": 18,
+              "y": 80
+            },
+            {
+              "t": "sangue",
+              "x": 56,
+              "y": 12
+            }
+          ],
+          "solucao": "ato|atos|cada ato",
+          "dica": "As manchas guardam o quê?"
+        },
+        "revelacao": "Cada ato violento que deixou uma marca permanente."
+      },
+      {
+        "titulo": "Diante de quem sofreu",
+        "texto": "\"Diga tudo. Em voz alta. E aceite o que vier.\"",
+        "pergunta": "Como é a confissão?",
+        "resposta": "Confessar em voz alta, com detalhes verdadeiros, diante de alguém afetado por ao menos um dos atos, aceitando o julgamento sem tentar influenciá-lo.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "Diante de quem sofreu, você:",
+              "opcoes": [
+                "Fala só o essencial",
+                "Conta tudo, com detalhes verdadeiros",
+                "Conta uma versão mais gentil"
+              ]
+            },
+            {
+              "fala": "Ele(a) pergunta: “Por quê?”",
+              "opcoes": [
+                "Explica sem se justificar",
+                "Culpa as circunstâncias",
+                "Fica em silêncio"
+              ]
+            },
+            {
+              "fala": "O julgamento vem.",
+              "opcoes": [
+                "Aceita sem tentar mudá-lo",
+                "Tenta suavizar com palavras",
+                "Vai embora"
+              ]
+            }
+          ],
+          "solucao": "1|1,0|1,0,0",
+          "dica": "Sem se defender."
+        },
+        "revelacao": "Confessar é aceitar o julgamento, seja ele qual for."
+      }
+    ],
+    "ambiente": "maos-manchadas"
+  },
+  "tempo-perdido": {
+    "titulo": "O Relógio que Não Anda",
+    "etapas": [
+      {
+        "titulo": "Minutos tortos",
+        "texto": "Você jurava que se passou um instante; as testemunhas dizem uma hora. Um relojoeiro diz: \"O tempo deixou de ser linha para você.\"",
+        "pergunta": "O que você vendeu e como isso se manifesta?",
+        "resposta": "A percepção linear e confiável do tempo; saltos involuntários de percepção.",
+        "mecanica": {
+          "tipo": "relogio",
+          "solucao": "12:00",
+          "dica": "Quando os dois ponteiros se encontram, apontando para cima."
+        },
+        "revelacao": "O tempo parou onde começou e onde termina: o alto do relógio."
+      },
+      {
+        "titulo": "O ponto errático",
+        "texto": "\"Num ponto de poder temporal errático de Valgreth, um relógio parado conserta o que o tempo quebrou.\"",
+        "pergunta": "Que objeto é esse?",
+        "resposta": "O Relógio que Não Anda.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "C FSZCUWC EIS BOC OBRO QCBGSFHO C EIS C HSADC EISPFCI. QCAC GS QVOAO?",
+          "deslocamento": 14,
+          "solucao": "relogio que nao anda|o relogio que nao anda",
+          "dica": "A resposta está dentro da própria frase."
+        },
+        "revelacao": "O Relógio que Não Anda, num ponto errático de Valgreth."
+      },
+      {
+        "titulo": "Esperar",
+        "texto": "\"Fique parado, sem atalho, sem magia, e o tempo se realinha.\"",
+        "pergunta": "O que o ritual exige?",
+        "resposta": "Permanecer parado diante do relógio, por um período real determinado pelo mestre, sem usar Segundo Instante nem qualquer magia.",
+        "mecanica": {
+          "tipo": "espera",
+          "modo": "quietude",
+          "segundos": 20,
+          "rotulo": "Esperar"
+        },
+        "revelacao": "O tempo se realinhou. Não houve atalho."
+      }
+    ],
+    "ambiente": "tempo-perdido"
+  },
+  "fera-interior": {
+    "titulo": "A Besta Espelho",
+    "etapas": [
+      {
+        "titulo": "O olhar estranho",
+        "texto": "Ao sentir cheiro de sangue, você ouviu um rosnado que era seu. Um caçador recua: \"Algo respira dentro de você.\"",
+        "pergunta": "O que você perdeu e o que isso causa?",
+        "resposta": "O controle sobre os próprios instintos básicos; impulsos involuntários (atacar, fugir, devorar) em estresse.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "rosnado",
+              "x": 70,
+              "y": 20
+            },
+            {
+              "t": "INSTINTO",
+              "x": 12,
+              "y": 58
+            },
+            {
+              "t": "sangue",
+              "x": 55,
+              "y": 78
+            },
+            {
+              "t": "fome",
+              "x": 82,
+              "y": 54
+            },
+            {
+              "t": "fuga",
+              "x": 30,
+              "y": 22
+            }
+          ],
+          "solucao": "instinto|instintos",
+          "dica": "A palavra grande que ruge em você."
+        },
+        "revelacao": "O controle sobre os próprios instintos."
+      },
+      {
+        "titulo": "A criatura espelho",
+        "texto": "Um xamã diz: \"No mundo existe uma besta que é o seu instinto com garras. Ela tem rosto.\"",
+        "pergunta": "O que você precisa encontrar?",
+        "resposta": "Uma besta específica que incorpora o instinto perdido, construída como espelho do personagem.",
+        "mecanica": {
+          "tipo": "rastros",
+          "texto": "No mundo existe uma [[besta]] que é o seu [[instinto]] com garras. Ela tem [[rosto]], e o rosto é o seu.",
+          "revelacoes": [
+            "Uma fera específica.",
+            "Sua parte que não pensa.",
+            "Ela o reconhece."
+          ],
+          "solucao": "besta|fera|besta espelho|criatura",
+          "dica": "O que o xamã mandou você encontrar?"
+        },
+        "revelacao": "Sua Besta Espelho."
+      },
+      {
+        "titulo": "Sem violência",
+        "texto": "\"Não é caça. É paciência.\"",
+        "pergunta": "O que o ritual exige?",
+        "resposta": "Domar a besta, sem matá-la e sem violência, apenas com paciência e tempo.",
+        "mecanica": {
+          "tipo": "espera",
+          "modo": "quietude",
+          "segundos": 20,
+          "rotulo": "Ficar com a fera"
+        },
+        "revelacao": "Nada de violência. Só paciência. A fera se deitou."
+      }
+    ],
+    "ambiente": "fera-interior"
+  },
+  "silencio-divino": {
+    "titulo": "O Santuário Esquecido",
+    "etapas": [
+      {
+        "titulo": "A bênção que não chega",
+        "texto": "O sacerdote ergueu a mão e a bênção passou por você como vento. Ele sussurra: \"Os deuses não o veem.\"",
+        "pergunta": "O que você vendeu e o que isso causa?",
+        "resposta": "A capacidade de ser ouvido por força divina; invisível a divinação, bênção ou maldição divina, inclusive as benéficas.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "runico",
+          "cifrado": "ᛉᛖ ᚨᚱᛚᛖᚱᛖ ᛈᚠᛉ ᛇᚱ ᛜᚱᚱᛇ. ᛈᚱᛇ ᚠ ᚢᚱᛈᚦᚠᛉ, ᛈᚱᛇ ᚠ ᛇᚠᛃᚨᚺᚦᚠᛉ. ᛉ ᛏᛚᚱ ᛊᚱᛒᚨᚺ?",
+          "solucao": "ser ouvido|ouvido|ser visto|visto|atencao|voz",
+          "dica": "Use a tábua de runas."
+        },
+        "revelacao": "A capacidade de ser ouvido por qualquer força divina."
+      },
+      {
+        "titulo": "Um deus sem fiéis",
+        "texto": "Uma erudita fala de \"fragmentos divinos esquecidos, sem templo e sem nome, que ainda escutariam.\"",
+        "pergunta": "A quem você deve se dirigir?",
+        "resposta": "A um fragmento divino esquecido (não um deus ativo).",
+        "mecanica": {
+          "tipo": "morse",
+          "codigo": "..-. .-. .- --. -- . -. - ---",
+          "solucao": "fragmento|fragmento divino|deus esquecido",
+          "dica": "Nove letras. Um pedaço de deus."
+        },
+        "revelacao": "Um fragmento divino esquecido, sem templo e sem nome."
+      },
+      {
+        "titulo": "A oferenda",
+        "texto": "\"Construa o altar com seus braços. Deixe algo que lhe custe.\"",
+        "pergunta": "O que o ritual exige?",
+        "resposta": "Reconstruir à mão um pequeno santuário e fazer ali, sozinho e sem magia, uma oferenda genuína de algo que valoriza.",
+        "mecanica": {
+          "tipo": "fragmentos",
+          "pecas": [
+            "Junte as pedras com as próprias mãos.",
+            "Deixe uma oferenda que lhe custe.",
+            "Fique em silêncio e espere.",
+            "Levante o altar sozinho, sem magia."
+          ],
+          "solucao": "0,3,1,2",
+          "dica": "Primeiro o altar, depois a oferenda."
+        },
+        "revelacao": "O altar existe. A oferenda é verdadeira."
+      }
+    ],
+    "ambiente": "silencio-divino"
+  },
+  "sombra-viva": {
+    "titulo": "O Duelo com a Sombra",
+    "etapas": [
+      {
+        "titulo": "Passo adiantado",
+        "texto": "Sua sombra se moveu antes de você. Uma criança pergunta: \"Por que ela é maior que você?\"",
+        "pergunta": "O que acontece com sua sombra?",
+        "resposta": "Ela ganhou vontade parcial e se move de modo independente e sutilmente errado.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "ela",
+              "x": 12,
+              "y": 22
+            },
+            {
+              "t": "TEM",
+              "x": 36,
+              "y": 50
+            },
+            {
+              "t": "vontade",
+              "x": 72,
+              "y": 18
+            },
+            {
+              "t": "VONTADE",
+              "x": 58,
+              "y": 76
+            },
+            {
+              "t": "própria",
+              "x": 18,
+              "y": 82
+            }
+          ],
+          "solucao": "vontade|vontade propria|propria vontade",
+          "dica": "A palavra que mais aparece."
+        },
+        "revelacao": "A sombra ganhou vontade parcial."
+      },
+      {
+        "titulo": "Onde não há luz",
+        "texto": "\"Só no escuro completo ela fala de igual para igual\", diz um mendigo.",
+        "pergunta": "Onde o confronto deve ocorrer?",
+        "resposta": "Em um local de escuridão absoluta.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "“Só no escuro completo ela fala de igual para igual.” Onde você a enfrenta?",
+              "opcoes": [
+                "Sob o sol do meio-dia",
+                "Numa taverna iluminada",
+                "No escuro absoluto"
+              ]
+            }
+          ],
+          "solucao": "2",
+          "dica": "A sombra só existe onde não há luz."
+        },
+        "revelacao": "Em um local de escuridão absoluta."
+      },
+      {
+        "titulo": "Nunca ignorar",
+        "texto": "\"Duelo, enigma ou acordo, escolha. Mas olhe para ela.\"",
+        "pergunta": "O que o ritual exige?",
+        "resposta": "Um confronto simbólico real com a própria sombra (duelo, enigma ou negociação); ignorá-la não vale.",
+        "mecanica": {
+          "tipo": "espera",
+          "modo": "quietude",
+          "segundos": 12,
+          "rotulo": "Olhar para a sombra"
+        },
+        "revelacao": "Você a olhou e ela olhou de volta."
+      }
+    ],
+    "ambiente": "sombra-viva"
+  },
+  "preco-justo": {
+    "titulo": "O Acordo Desvantajoso",
+    "etapas": [
+      {
+        "titulo": "A proposta que não pude recusar",
+        "texto": "Você fechou um negócio medíocre sem entender por quê. Um mercador sorri: \"Equilibrado demais para dizer não.\"",
+        "pergunta": "O que você perdeu?",
+        "resposta": "O senso de 'o suficiente': a capacidade de recusar uma barganha justa.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "E FEVKERLE IVE NYWXE HIQEMW TEVE VIGYWEV. S UYI QI JEPXE I S WIRWS HI...",
+          "deslocamento": 4,
+          "solucao": "suficiente|o suficiente|basta|chega",
+          "dica": "César: gire o disco."
+        },
+        "revelacao": "O senso de 'o suficiente'."
+      },
+      {
+        "titulo": "O primeiro acordo",
+        "texto": "\"Alguém lhe fez o primeiro negócio justo. Lembre-se de quem.\"",
+        "pergunta": "A quem você deve procurar?",
+        "resposta": "A pessoa que ofereceu o primeiro acordo justo que a Marca não deixou recusar.",
+        "mecanica": {
+          "tipo": "rastros",
+          "texto": "Alguém lhe fez o [[primeiro]] negócio [[justo]]. Um sorriso, um aperto de mão, um [[mercador]] como tantos.",
+          "revelacoes": [
+            "A primeira vez que você não conseguiu recusar.",
+            "Equilibrado demais.",
+            "Quem vende."
+          ],
+          "solucao": "mercador|comerciante|negociante",
+          "dica": "Quem era, de ofício?"
+        },
+        "revelacao": "O mercador do primeiro acordo."
+      },
+      {
+        "titulo": "Perder por escolha",
+        "texto": "\"Sem contrato mágico. Aceite o ruim porque quis.\"",
+        "pergunta": "O que o ritual exige?",
+        "resposta": "Negociar, sem usar Contrato Vinculante, um acordo final genuinamente desvantajoso, aceito por livre e consciente escolha.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "A proposta é ruim para você. Você:",
+              "opcoes": [
+                "Aceita porque quer",
+                "Exige um contrato mágico",
+                "Recusa"
+              ]
+            },
+            {
+              "fala": "Ele oferece um Contrato Vinculante.",
+              "opcoes": [
+                "Aceita",
+                "Dispensa o contrato",
+                "Pede que ele jure"
+              ]
+            },
+            {
+              "fala": "Você assina com a própria mão:",
+              "opcoes": [
+                "Por livre escolha",
+                "Por obrigação",
+                "Sem ler"
+              ]
+            }
+          ],
+          "solucao": "0|0,1|0,1,0",
+          "dica": "Perder de propósito, por escolha."
+        },
+        "revelacao": "Um acordo ruim aceito livremente. A Marca perdeu a mão."
+      }
+    ],
+    "ambiente": "preco-justo"
+  },
+  "pele-de-vidro": {
+    "titulo": "O Forjador de Primeira Pedra",
+    "etapas": [
+      {
+        "titulo": "A rachadura",
+        "texto": "Após o golpe, sua pele trincou como louça. Um ferreiro estala a língua: \"Sua resistência não é mais confiável.\"",
+        "pergunta": "O que você perdeu e qual o sintoma?",
+        "resposta": "A confiabilidade da própria resistência física; rachaduras temporárias deixam-no vulnerável.",
+        "mecanica": {
+          "tipo": "morse",
+          "codigo": "...- .. -.. .-. ---",
+          "solucao": "vidro|fragil|rachadura",
+          "dica": "Cinco letras. Do que sua pele é feita?"
+        },
+        "revelacao": "Sua resistência não é mais confiável."
+      },
+      {
+        "titulo": "Quem conserta o que é conceito",
+        "texto": "\"Existe quem repara o que está quebrado na ideia, não só no corpo: artesão ou espírito.\"",
+        "pergunta": "Quem você deve achar?",
+        "resposta": "Um Forjador de Primeira Pedra.",
+        "mecanica": {
+          "tipo": "runas",
+          "aneis": [
+            "ZGKFEM",
+            "VKQYOR",
+            "APMTRK",
+            "MPWJRC",
+            "BAYXHS"
+          ],
+          "solucao": "FORJA",
+          "dica": "Onde se conserta o que é conceito?"
+        },
+        "revelacao": "Um Forjador de Primeira Pedra."
+      },
+      {
+        "titulo": "Quieto e consciente",
+        "texto": "\"Dói. E você precisa ficar quieto, acordado, até o fim.\"",
+        "pergunta": "O que o ritual exige?",
+        "resposta": "Participar do próprio reparo, doloroso e literal, permanecendo consciente e quieto durante todo o ritual.",
+        "mecanica": {
+          "tipo": "espera",
+          "modo": "quietude",
+          "segundos": 15,
+          "rotulo": "Aceitar o reparo"
+        },
+        "revelacao": "Dói, e você ficou quieto e acordado até o fim."
+      }
+    ],
+    "ambiente": "pele-de-vidro"
+  },
+  "ultimo-suspiro": {
+    "titulo": "O Primeiro Morto",
+    "etapas": [
+      {
+        "titulo": "Os mortos o reconhecem",
+        "texto": "Um espírito se aproxima de você como a um parente. Um coveiro diz: \"Quem não tem certeza da própria morte é familiar a eles.\"",
+        "pergunta": "O que você vendeu e como os mortos reagem?",
+        "resposta": "A certeza de uma morte natural; mortos-vivos e espíritos o acham familiar e são atraídos ou agressivos.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "atbash",
+          "cifrado": "LH NLIGLH NV IVXLMSVXVN XLNL KZIVMGV. MZL GVMSL XVIGVAZ WZ NRMSZ... L JFV?",
+          "solucao": "morte|morte natural",
+          "dica": "Atbash. Parente de quem?"
+        },
+        "revelacao": "A certeza de uma morte natural."
+      },
+      {
+        "titulo": "O que o persegue",
+        "texto": "\"Um deles não larga você desde o começo. O primeiro que sentiu.\"",
+        "pergunta": "Quem você precisa identificar?",
+        "resposta": "O primeiro morto que sentiu, cuja presença ainda o persegue.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "segue",
+              "x": 76,
+              "y": 24
+            },
+            {
+              "t": "PRIMEIRO",
+              "x": 14,
+              "y": 36
+            },
+            {
+              "t": "nunca",
+              "x": 50,
+              "y": 78
+            },
+            {
+              "t": "MORTO",
+              "x": 56,
+              "y": 52
+            },
+            {
+              "t": "desde",
+              "x": 24,
+              "y": 82
+            }
+          ],
+          "solucao": "primeiro morto|morto",
+          "dica": "As duas palavras maiúsculas."
+        },
+        "revelacao": "O Primeiro Morto, desde o começo."
+      },
+      {
+        "titulo": "Descanso sem atalho",
+        "texto": "\"Enterro, rito ou verdade dita. Mas não use o Empréstimo nele.\"",
+        "pergunta": "O que o ritual exige?",
+        "resposta": "Dar descanso adequado ao morto (enterro, ritual ou verdade revelada), sem usar Empréstimo dos Mortos nele.",
+        "mecanica": {
+          "tipo": "fragmentos",
+          "pecas": [
+            "Descubra quem ele era.",
+            "Nada de Empréstimo dos Mortos.",
+            "Enterre-o ou liberte-o.",
+            "Diga a verdade que ele esperava."
+          ],
+          "solucao": "0,3,2,1",
+          "dica": "Primeiro saber, depois dizer, depois descansar."
+        },
+        "revelacao": "Descanso sem atalho."
+      }
+    ],
+    "ambiente": "ultimo-suspiro"
+  },
+  "coro-silencioso": {
+    "titulo": "A Devolução dos Ecos",
+    "etapas": [
+      {
+        "titulo": "A dor que não é minha",
+        "texto": "Você chorou sem motivo e depois soube que um aliado perdera alguém. Um eremita diz: \"Sua alma ficou sem muros.\"",
+        "pergunta": "O que você perdeu e qual o sintoma?",
+        "resposta": "A solidão da própria alma; sente fragmentos do Fardo de outros Marcados próximos.",
+        "mecanica": {
+          "tipo": "morse",
+          "codigo": ". -.-. --- ...",
+          "solucao": "eco|ecos",
+          "dica": "Quatro letras. O que você sente dos outros?"
+        },
+        "revelacao": "Fragmentos do Fardo de outros Marcados."
+      },
+      {
+        "titulo": "Quem canta junto",
+        "texto": "\"Cada eco que você carrega tem um dono. Reúna-os.\"",
+        "pergunta": "Quem deve estar presente?",
+        "resposta": "Todos os outros Marcados cujos ecos ele já carregou, ao mesmo tempo e no mesmo lugar.",
+        "mecanica": {
+          "tipo": "rastros",
+          "texto": "Cada [[eco]] que você carrega tem um [[dono]]. [[Reúna-os]], todos, no mesmo lugar.",
+          "revelacoes": [
+            "O que você sentiu sem ser seu.",
+            "Cada fragmento é de alguém.",
+            "Todos ao mesmo tempo."
+          ],
+          "solucao": "marcados|outros marcados|os outros marcados|donos|os donos",
+          "dica": "Quem deve estar presente?"
+        },
+        "revelacao": "Todos os outros Marcados cujos ecos você já carregou."
+      },
+      {
+        "titulo": "Devolver de boa vontade",
+        "texto": "\"Cada um devolve em voz alta o que é do outro. Quem não quiser, estraga tudo.\"",
+        "pergunta": "O que o ritual exige e quando falha?",
+        "resposta": "Ritual coletivo de separação em que cada um devolve conscientemente o fragmento ao dono; falha se qualquer Marcado não estiver genuinamente disposto.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "Cada um devolve em voz alta o que é do outro. Você:",
+              "opcoes": [
+                "Devolve de boa vontade",
+                "Devolve de má vontade",
+                "Guarda um eco consigo"
+              ]
+            },
+            {
+              "fala": "Um dos outros hesita.",
+              "opcoes": [
+                "Espera, sem pressionar",
+                "Insiste até ele ceder",
+                "Desiste do ritual"
+              ]
+            }
+          ],
+          "solucao": "0|0,0",
+          "dica": "Só funciona se todos estiverem dispostos."
+        },
+        "revelacao": "Os ecos voltaram a quem pertencem."
+      }
+    ],
+    "ambiente": "coro-silencioso"
+  },
+  "fio-partido": {
+    "titulo": "Os Dois Fios",
+    "etapas": [
+      {
+        "titulo": "Golpe sem eco",
+        "texto": "Seu golpe congelou o ar sem que você lançasse nada. Um ferreiro velho olha suas lâminas e diz: \"Elas não sabem mais onde você termina.\"",
+        "pergunta": "O que você vendeu?",
+        "resposta": "A fronteira entre o próprio corpo e a própria magia.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "CLUKP H MYVUALPYH LUAYL SHTPUH L MLPAPJV. V XBL MPJVB WHYAPKV? XBL JVPZH MPUH ZLWHYH VZ KVPZ?",
+          "deslocamento": 7,
+          "solucao": "fio|o fio|um fio",
+          "dica": "Uma palavra de três letras. O que se parte entre lâmina e feitiço?"
+        },
+        "revelacao": "A fronteira entre corpo e magia."
+      },
+      {
+        "titulo": "Uma metade de cada vez",
+        "texto": "\"Para voltar, prove que ainda é só uma coisa de cada vez.\"",
+        "pergunta": "O que a prova exige?",
+        "resposta": "Um golpe de arma perfeito sem magia e uma magia completa sem arma, em tentativas isoladas.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "fusão",
+              "x": 14,
+              "y": 22
+            },
+            {
+              "t": "ESPADA",
+              "x": 20,
+              "y": 44
+            },
+            {
+              "t": "brasa",
+              "x": 68,
+              "y": 16
+            },
+            {
+              "t": "OU",
+              "x": 52,
+              "y": 60
+            },
+            {
+              "t": "gelo",
+              "x": 78,
+              "y": 78
+            },
+            {
+              "t": "FEITIÇO",
+              "x": 58,
+              "y": 82
+            },
+            {
+              "t": "aço",
+              "x": 12,
+              "y": 78
+            }
+          ],
+          "solucao": "espada ou feitico|espada ou feitiço",
+          "dica": "As palavras maiores e mais claras formam a regra da prova."
+        },
+        "revelacao": "Só espada ou só feitiço, nunca os dois."
+      },
+      {
+        "titulo": "O Forjador de Dois Fios",
+        "texto": "\"Duas tentativas, cada uma sozinha. Se uma delas tiver o outro lado, a fusão se torna permanente.\"",
+        "pergunta": "Como se passa pela provação?",
+        "resposta": "Num Forjador de Dois Fios: golpe perfeito sem magia E magia completa sem arma, cada um isolado, antes que a fusão seja irreversível.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "Primeira tentativa: o golpe perfeito. Como?",
+              "opcoes": [
+                "Lâmina em chamas",
+                "Só aço, sem magia",
+                "Aço e uma runa de gelo"
+              ]
+            },
+            {
+              "fala": "Segunda tentativa: o feitiço completo. Como?",
+              "opcoes": [
+                "Conjura com a espada na mão",
+                "Conjura com as mãos vazias",
+                "Conjura e golpeia ao mesmo tempo"
+              ]
+            }
+          ],
+          "solucao": "1,1",
+          "dica": "Cada metade precisa existir sozinha."
+        },
+        "revelacao": "Espada e feitiço, separados de novo."
+      }
+    ],
+    "ambiente": "fio-partido"
+  },
+  "dado-virado": {
+    "titulo": "O Árbitro Imparcial",
+    "etapas": [
+      {
+        "titulo": "Sorte demais para ser sorte",
+        "texto": "Você ganhou três rodadas seguidas e, na quarta, perdeu tudo — e ninguém no salão se espantou. Uma apostadora velha murmura: \"Dado que cai demais pra um lado já foi virado por alguém.\"",
+        "pergunta": "O que você vendeu?",
+        "resposta": "A previsibilidade do próprio destino.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "AJSIN F UWJANXNGNQNIFIJ IT RJZ IJXYNST. T VZJ T RJXRT JXKTWHT OF SFT LFWFSYJ RFNX?",
+          "deslocamento": 5,
+          "solucao": "previsibilidade|a previsibilidade",
+          "dica": "Uma palavra longa: a garantia de que o mesmo esforço dá o mesmo resultado."
+        },
+        "revelacao": "A previsibilidade. Agora a sorte decide por você, para o bem ou para o mal."
+      },
+      {
+        "titulo": "Onde o acaso não tem lado",
+        "texto": "\"Existe uma mesa onde ninguém trapaceia\", diz a apostadora. \"Nem o dono. Nem o diabo.\"",
+        "pergunta": "Que lugar é esse?",
+        "resposta": "A Mesa do Árbitro Imparcial.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "fumaça",
+              "x": 14,
+              "y": 20
+            },
+            {
+              "t": "MESA",
+              "x": 22,
+              "y": 42
+            },
+            {
+              "t": "ficha",
+              "x": 70,
+              "y": 16
+            },
+            {
+              "t": "DO",
+              "x": 52,
+              "y": 60
+            },
+            {
+              "t": "dados",
+              "x": 80,
+              "y": 46
+            },
+            {
+              "t": "ARBITRO",
+              "x": 50,
+              "y": 82
+            },
+            {
+              "t": "sal",
+              "x": 12,
+              "y": 78
+            }
+          ],
+          "solucao": "mesa do arbitro|mesa do arbitro imparcial|arbitro",
+          "dica": "As palavras maiores e mais claras formam o nome do lugar."
+        },
+        "revelacao": "A Mesa do Árbitro Imparcial."
+      },
+      {
+        "titulo": "Aceitar o resultado",
+        "texto": "\"Jogue. Sem magia, sem a Marca. E aceite o que vier — vitória ou derrota — sem tentar mexer em nada.\"",
+        "pergunta": "Como se passa pela prova?",
+        "resposta": "Jogar contra o Árbitro um jogo de pura sorte, sem magia nem a Marca, aceitando o resultado como vier.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "O dado vai rolar. A Marca coça para virá-lo.",
+              "opcoes": [
+                "Virar o dado só um pouquinho",
+                "Deixar o dado cair sozinho",
+                "Pedir a um aliado que observe de perto"
+              ]
+            },
+            {
+              "fala": "Deu azar. O Árbitro espera sua reação.",
+              "opcoes": [
+                "Exigir uma nova rodada",
+                "Aceitar a derrota",
+                "Culpar a Marca"
+              ]
+            }
+          ],
+          "solucao": "1,1",
+          "dica": "Nenhuma interferência — nem na vitória, nem na derrota."
+        },
+        "revelacao": "Pura sorte, aceita como veio."
+      }
+    ],
+    "ambiente": "dado-virado"
+  },
+  "rosto-roubado": {
+    "titulo": "O Mercado das Máscaras",
+    "etapas": [
+      {
+        "titulo": "Mais convincente como outro",
+        "texto": "Diante de um estranho, você disse seu próprio nome — e ele hesitou. Com o nome de outro, acreditaram em você de primeira. Um falsificador sorri: \"Rosto que vive emprestado esquece qual era o seu.\"",
+        "pergunta": "O que você vendeu?",
+        "resposta": "O rosto que era inquestionavelmente seu.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "YHQGL R PHX URVWR. TXDO GHOHV DLQGD H R RULJLQDO?",
+          "deslocamento": 3,
+          "solucao": "rosto|o rosto|meu rosto",
+          "dica": "Uma palavra de seis letras: a primeira coisa que alguém vê."
+        },
+        "revelacao": "O rosto. E a certeza de qual deles é o original."
+      },
+      {
+        "titulo": "Onde identidades se compram",
+        "texto": "Nos becos de Valgreth, diz o falsificador, \"nomes e rostos são vendidos como pão — e o preço nunca é ouro\".",
+        "pergunta": "Que lugar é esse?",
+        "resposta": "O Mercado das Máscaras.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "beco",
+              "x": 12,
+              "y": 22
+            },
+            {
+              "t": "MERCADO",
+              "x": 18,
+              "y": 44
+            },
+            {
+              "t": "véu",
+              "x": 68,
+              "y": 16
+            },
+            {
+              "t": "DAS",
+              "x": 52,
+              "y": 60
+            },
+            {
+              "t": "cera",
+              "x": 82,
+              "y": 44
+            },
+            {
+              "t": "MASCARAS",
+              "x": 50,
+              "y": 82
+            },
+            {
+              "t": "fio",
+              "x": 12,
+              "y": 78
+            }
+          ],
+          "solucao": "mercado das mascaras|mercado",
+          "dica": "As palavras maiores e mais claras formam o nome do lugar."
+        },
+        "revelacao": "O Mercado das Máscaras."
+      },
+      {
+        "titulo": "Comprar o primeiro rosto",
+        "texto": "\"Volte lá. Compre de volta a primeira identidade que roubou — com algo seu, nunca ouro — e negocie de cara limpa.\"",
+        "pergunta": "Como se passa pela prova?",
+        "resposta": "Comprar de volta, a um preço pessoal, a primeira identidade roubada, negociando com o próprio rosto exposto, sem Pele Alheia nem disfarce.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "O mascareiro pede o preço da primeira máscara. Como você se apresenta?",
+              "opcoes": [
+                "Sob o rosto de um nobre",
+                "Com o próprio rosto, sem disfarce",
+                "Com uma máscara de cera comum"
+              ]
+            },
+            {
+              "fala": "Ele não aceita ouro. O que você oferece?",
+              "opcoes": [
+                "Uma bolsa cheia de moedas",
+                "Algo pessoal, que lhe faria falta",
+                "Uma ameaça velada"
+              ]
+            }
+          ],
+          "solucao": "1,1",
+          "dica": "A prova é ser só você mesmo, e pagar com algo seu."
+        },
+        "revelacao": "O próprio rosto, e um preço de verdade."
+      }
+    ],
+    "ambiente": "rosto-roubado"
+  }
+}

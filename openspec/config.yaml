@@ -1,0 +1,67 @@
+schema: spec-driven
+
+context: |
+  Projeto: ferramenta de apoio a mesas de RPG (Next.js 16, React 19, Tailwind 4, TypeScript, Firebase).
+  Idioma: português do Brasil em código de domínio, UI, specs e documentação.
+  IMPORTANTE: esta versão do Next.js tem mudanças incompatíveis com o conhecimento prévio.
+  Antes de escrever código, ler o guia relevante em `node_modules/next/dist/docs/` (ver AGENTS.md).
+
+  Estado atual dos mapas:
+  - `src/lib/mapas.ts`: tipo `Mapa` com `imagem` (data URL de até ~900 KB no documento), `zonas`,
+    `cobertas`, `todos`, `liberadoPara`. Coleções "mapas" e "imagens" compartilham o formato.
+  - Coberturas e pinos usam coordenadas em fração 0 a 1 da imagem.
+  - Visores: `VisorMestre`, `MapasJogador`, `CamadaCobertura`. Pinos privados em `mesas/{id}/pinos/{uid}`.
+  - Acesso: o mestre (donoUid da mesa) escreve; o jogador lê só o liberado (`firestore.rules`).
+  - Só Firestore hoje: sem Storage e sem rotas de servidor.
+
+  Feature em andamento: "Mapas com IA" (branch `feature/mapas-ia`, isolada da produção).
+  Visão geral e ordem das fases: `docs/mapas-ia-guia-de-fases.md` e `spec-mapas-ia.md`.
+  As changes são numeradas e devem ser implementadas na ordem:
+  02 infra-storage-servidor, 03 mapas-cena-editor-manual, 04 provedores-ia-config,
+  05 temas-e-perspectivas, 06 biblioteca-assets-ia, 07 agente-criador-mapas,
+  08 importar-imagem-em-camadas.
+  A 01 (spike-provedores-imagem) foi ADIADA e está em `openspec/adiadas/` (exigiria créditos em vários provedores).
+  Decisão: iniciar com o Google Gemini (Nano Banana) para imagem. O LLM é independente do gerador de
+  imagem e pode ser de outro fabricante (por exemplo Claude Sonnet com Gemini para imagem). Há adaptadores
+  LLM do Google e da Anthropic. O mestre escolhe provedor, modelo e chave de cada um separadamente; as
+  credenciais são por fabricante (compartilhadas entre provedores do mesmo fabricante). O Gemini não entrega alfa
+  nativo, então sprites usam fundo de cor-chave e remoção local (`RemovedorFundoChroma`).
+
+  Princípios da feature (valem para todas as changes):
+  1. O mapa de cena é um grafo editável (camadas e objetos com transformação). A IA NÃO edita a imagem
+     inteira: ela cria assets e altera a cena por comandos reversíveis (aplicar e desfazer), os mesmos
+     usados pela interface. Todo comando registra o autor (humano ou ia).
+  2. Compatibilidade total: o mestre escolhe entre mapa de imagem (fluxo atual) e mapa de cena.
+     Mapa de cena mantém `Mapa.imagem` com o render; zonas, coberturas, pinos, liberação e visores
+     NÃO podem exigir alteração nem saber se o mapa é de cena. `Mapa` só ganha campos opcionais
+     (`origem`, `cenaId`). Remover `cenaId` deixa um mapa de imagem válido.
+  3. O aspect ratio do canvas é travado após a criação, para não deslocar coberturas e pinos.
+  4. Provedores de IA são extensões: interfaces `ProvedorImagem` e `ProvedorLlm` (Strategy, Registry,
+     Adapter) com capacidades declaradas (alfaNativo, imagensReferencia, inpainting, seed, segmentacao).
+     Adicionar um provedor = um arquivo mais uma linha no registro, sem mudar UI nem núcleo.
+     A tela de configuração é gerada a partir dos `campos` do provedor. O orquestrador degrada por
+     capacidade (por exemplo, remove fundo quando não há alfa nativo).
+  5. Cada mestre usa a própria chave (BYOK). Chaves cifradas no servidor (AES-GCM), nunca legíveis
+     pelo cliente, nunca em log; chamadas de IA só em rotas de servidor que validam o ID token e exigem
+     o mestre dono da mesa. Teto de gasto por mesa e estimativa antes de ações em lote.
+  6. Perspectivas são módulos cadastráveis (id, nome, imagem de exemplo, fragmento de prompt, regra de
+     ordenação). Grid é sempre top-down; cenário aceita qualquer perspectiva cadastrada.
+  7. Tema da mesa = perfil de estilo (descrição, paleta, regras, termos proibidos, imagens âncora)
+     injetado em toda geração. Reutilizar assets da biblioteca antes de gerar.
+  8. Infra: Firebase no plano Blaze, Firebase Storage para arquivos, `firebase-admin` nas rotas.
+  9. Geração demorada roda como job assíncrono (`mesas/{id}/jobs`) com status em tempo real.
+  10. Cada change deve ser testável e entregar valor sozinha; manter a UI funcional sem IA configurada.
+
+rules:
+  proposal:
+    - Citar a ordem numérica da change e suas dependências (changes anteriores).
+    - Incluir uma seção ou item deixando claro que mapas de imagem e os recursos existentes (zonas, coberturas, jogadores, pinos) não mudam.
+  specs:
+    - Escrever em português, com requisitos SHALL/MUST e cenários WHEN/THEN testáveis.
+    - Toda change que toca mapas deve ter ao menos um cenário de compatibilidade com mapa de imagem.
+  design:
+    - Registrar decisões sobre segurança de chaves e impacto no custo quando houver chamada de IA.
+    - Mencionar a leitura do guia do Next em `node_modules/next/dist/docs/` quando houver rota, componente cliente ou carregamento dinâmico.
+  tasks:
+    - Terminar com um grupo "Verificação" que inclua testes de compatibilidade com mapas de imagem.
+    - Tarefas pequenas (uma sessão cada), ordenadas por dependência.

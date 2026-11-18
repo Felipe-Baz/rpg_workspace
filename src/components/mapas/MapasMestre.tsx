@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import type { Mesa } from "@/lib/mesas";
 import CamadaCobertura from "./CamadaCobertura";
 import VisorMestre from "./VisorMestre";
+import { enviarArquivo, excluirPorUrl, storageConfigurado } from "@/lib/storage";
 import { atualizarMapa, comprimirImagem, criarMapa, excluirMapa, useMapasMestre, type Colecao, type Mapa } from "@/lib/mapas";
 
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
@@ -25,7 +26,14 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
     setErro("");
     setEnviando(true);
     try {
-      const imagem = await comprimirImagem(arquivo);
+      // Com Storage configurado, sobe o arquivo (até 15 MB); senão, data URL comprimida.
+      let imagem: string;
+      if (storageConfigurado()) {
+        const ext = arquivo.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+        imagem = await enviarArquivo(mesa.id, "mapas", arquivo, ext);
+      } else {
+        imagem = await comprimirImagem(arquivo);
+      }
       await criarMapa(mesa.id, arquivo.name.replace(/\.[^.]+$/, ""), imagem, colecao);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Falha ao enviar a imagem.");
@@ -111,7 +119,11 @@ function CartaoMapa({ mesa, mapa, colecao }: { mesa: Mesa; mapa: Mapa; colecao: 
         ))}
       </div>
       <button
-        onClick={() => confirm(`Excluir ${t.item} "${mapa.nome}"?`) && excluirMapa(mesa.id, mapa.id, colecao)}
+        onClick={async () => {
+          if (!confirm(`Excluir ${t.item} "${mapa.nome}"?`)) return;
+          await excluirMapa(mesa.id, mapa.id, colecao);
+          await excluirPorUrl(mapa.imagem);
+        }}
         className="text-sm text-muted hover:text-red-500"
       >
         Excluir
