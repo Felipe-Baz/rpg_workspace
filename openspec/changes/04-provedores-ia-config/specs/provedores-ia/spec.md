@@ -47,6 +47,21 @@ Quando o provedor não tem alfa nativo, o sistema SHALL gerar o sprite sobre fun
 - **WHEN** o objeto contém tons próximos da cor-chave
 - **THEN** o sistema escolhe outra cor-chave para aquele asset
 
+### Requirement: Cor-chave escolhida por asset
+Antes de gerar um sprite, o sistema SHALL escolher a cor de fundo (cor-chave) em função das cores que o objeto terá: o LLM ativo lista a paleta do objeto e o sistema escolhe, entre as candidatas, a mais distante de todas elas. Sem LLM, ou se ele falhar, SHALL usar uma heurística por palavras-chave, sem bloquear a geração.
+
+#### Scenario: Muro de pedra
+- **WHEN** o asset é um muro de pedra (cinzas e marrons)
+- **THEN** a cor-chave escolhida é magenta
+
+#### Scenario: Canteiro de flores
+- **WHEN** o asset é um canteiro com flores rosa, roxas e vermelhas
+- **THEN** a cor-chave escolhida não é magenta nem vermelha (ex.: ciano) e as flores permanecem opacas após o recorte
+
+#### Scenario: LLM indisponível
+- **WHEN** a consulta ao LLM falha ou devolve paleta inválida
+- **THEN** o sistema usa a heurística por palavras-chave e a geração prossegue
+
 ### Requirement: Provedor LLM da Anthropic
 O sistema SHALL incluir um adaptador LLM da Anthropic (Claude Sonnet) com modelo configurável pelo mestre, usando a credencial `anthropic`.
 

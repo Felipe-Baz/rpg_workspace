@@ -231,6 +231,22 @@ service cloud.firestore {
         allow read, write: if logado()
           && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
       }
+
+      // Uso de IA (contadores e teto): o mestre lê; só o servidor (Admin SDK) escreve.
+      match /uso/{docId} {
+        allow read: if mestreMesa();
+        allow write: if false;
+      }
+      match /usoRegistros/{docId} {
+        allow read: if mestreMesa();
+        allow write: if false;
+      }
+    }
+
+    // Configuração de IA do usuário (provedores ativos e chaves cifradas): acessada
+    // somente pelo servidor (Admin SDK). O cliente nunca lê nem escreve, em especial segredos.
+    match /usuarios/{uid}/{document=**} {
+      allow read, write: if false;
     }
 
     // Convites: código -> mesa. Só leitura por código exato (sem listar).
