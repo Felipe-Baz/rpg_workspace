@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import type { Mesa } from "@/lib/mesas";
+import CamadaCobertura from "./CamadaCobertura";
+import VisorMestre from "./VisorMestre";
 import { atualizarMapa, comprimirImagem, criarMapa, excluirMapa, useMapasMestre, type Colecao, type Mapa } from "@/lib/mapas";
 
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
@@ -47,7 +49,7 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
         <input ref={input} type="file" accept="image/*" hidden onChange={(e) => subir(e.target.files?.[0])} />
       </div>
       <p className="text-sm text-muted">
-        Jogadores só veem {colecao === "mapas" ? "os mapas" : "as imagens"} que você liberar e fazem anotações privadas sobre elas. As imagens são reduzidas automaticamente (~900 KB).
+        Jogadores só veem {colecao === "mapas" ? "os mapas" : "as imagens"} que você liberar e fazem anotações privadas sobre elas. As imagens são reduzidas automaticamente (~900 KB). Clique numa imagem para abri-la em tela cheia e cobrir áreas ainda não visitadas (os jogadores veem as áreas cobertas).
       </p>
       {erro && <p className="text-sm text-red-500">{erro}</p>}
       {carregado && mapas.length === 0 && <p className="text-muted">{t.vazio}</p>}
@@ -76,13 +78,13 @@ function CartaoMapa({ mesa, mapa, colecao }: { mesa: Mesa; mapa: Mapa; colecao: 
 
   return (
     <article className="space-y-3 rounded-xl border border-border bg-card p-3">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={mapa.imagem}
-        alt={mapa.nome}
-        onClick={() => setAberto(true)}
-        className="h-44 w-full cursor-zoom-in rounded-lg object-cover"
-      />
+      <div className="flex justify-center rounded-lg bg-black/60">
+        <div onClick={() => setAberto(true)} className="relative cursor-zoom-in leading-[0]" title="Abrir / cobrir salas">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={mapa.imagem} alt={mapa.nome} className="block max-h-44 w-auto max-w-full rounded-lg" />
+          <CamadaCobertura cobertas={mapa.cobertas} modo="mostrar" />
+        </div>
+      </div>
       <input
         value={nome}
         onChange={(e) => setNome(e.target.value)}
@@ -114,15 +116,7 @@ function CartaoMapa({ mesa, mapa, colecao }: { mesa: Mesa; mapa: Mapa; colecao: 
       >
         Excluir
       </button>
-      {aberto && (
-        <div
-          onClick={() => setAberto(false)}
-          className="fixed inset-0 z-50 flex cursor-zoom-out items-center justify-center bg-black/80 p-4"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={mapa.imagem} alt={mapa.nome} className="max-h-full max-w-full" />
-        </div>
-      )}
+      {aberto && <VisorMestre mesaId={mesa.id} mapa={mapa} colecao={colecao} onFechar={() => setAberto(false)} />}
     </article>
   );
 }

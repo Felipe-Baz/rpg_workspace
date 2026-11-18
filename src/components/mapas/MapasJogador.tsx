@@ -4,7 +4,8 @@ import { useState } from "react";
 import EditorMarkdown from "../EditorMarkdown";
 import Markdown from "../Markdown";
 import { uid } from "@/lib/mesas";
-import { useMapasJogador, usePinos, type Colecao, type Pino } from "@/lib/mapas";
+import { useMapasJogador, usePinos, type Colecao, type Cobertura, type Pino } from "@/lib/mapas";
+import CamadaCobertura from "./CamadaCobertura";
 
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
 
@@ -44,6 +45,7 @@ export default function MapasJogador({
         key={mapa.id}
         imagem={mapa.imagem}
         nome={mapa.nome}
+        cobertas={mapa.cobertas}
         pinos={pinosDe(mapa.id)}
         nota={notaDe(mapa.id)}
         onNota={(v) => definirNota(mapa.id, v)}
@@ -57,6 +59,7 @@ export default function MapasJogador({
 function VisorMapa({
   imagem,
   nome,
+  cobertas,
   pinos,
   nota,
   onNota,
@@ -65,6 +68,7 @@ function VisorMapa({
 }: {
   imagem: string;
   nome: string;
+  cobertas?: Cobertura[];
   pinos: Pino[];
   nota: string;
   onNota: (v: string) => void;
@@ -113,6 +117,7 @@ function VisorMapa({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imagem} alt={nome} className="block w-full select-none" draggable={false} />
+          <CamadaCobertura cobertas={cobertas} modo="mostrar" />
           {pinos.map((p) => (
             <button
               key={p.id}

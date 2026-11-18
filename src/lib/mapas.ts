@@ -14,7 +14,14 @@ export type Mapa = {
   criadoEm: number;
   todos: boolean; // liberado para todos os jogadores
   liberadoPara: string[]; // uids com acesso individual
+  zonas?: Zona[]; // agrupamentos de coberturas (ex.: um cômodo)
+  cobertas?: Cobertura[]; // áreas pretas sobre o mapa; vale para mestre e jogadores
 };
+
+// Pontos em fração (0–1) da imagem. Objetos {x,y}: o Firestore não aceita arrays aninhados.
+export type Ponto = { x: number; y: number };
+export type Zona = { id: string; nome: string };
+export type Cobertura = { id: string; zonaId: string; pontos: Ponto[]; revelada: boolean };
 
 // Pino privado do jogador. x/y em fração (0–1) da imagem.
 export type Pino = { id: string; x: number; y: number; titulo: string; texto: string };
