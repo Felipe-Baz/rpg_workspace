@@ -15,7 +15,7 @@ Uma cena SHALL conter canvas (largura, altura), modo (`grid` ou `cenario`), pers
 
 #### Scenario: Criar cena de cenário
 - **WHEN** o mestre cria uma cena em modo cenário
-- **THEN** a cena não tem grid e usa a perspectiva top-down
+- **THEN** a cena não tem grid e usa a perspectiva escolhida (top-down por padrão)
 
 ### Requirement: Objetos com transformação
 Cada objeto SHALL referenciar um asset e ter posição (fração 0 a 1), escala, rotação, espelhamento e ordem z.
@@ -41,3 +41,22 @@ Depois de criada, a proporção do canvas SHALL NOT ser alterada.
 #### Scenario: Tentar mudar a proporção
 - **WHEN** o mestre tenta alterar largura sem manter a proporção
 - **THEN** a operação é recusada com explicação
+
+### Requirement: Cena referencia tema e perspectiva
+Uma cena SHALL referenciar um `perspectivaId` registrado e, opcionalmente, um `temaId` existente na mesa.
+
+#### Scenario: Tema removido em cascata
+- **WHEN** o mestre exclui um tema referenciado por cenas e digita o nome do tema como confirmação
+- **THEN** o tema, os mapas de cena que o usam (cena e render) e os assets do tema são apagados
+- **AND** sem a digitação correta do nome a exclusão não é executada
+
+#### Scenario: Cena sem tema
+- **WHEN** a cena não tem `temaId`
+- **THEN** ela continua editável manualmente, sem perfil de estilo aplicado
+
+### Requirement: Paleta de assets filtrada por perspectiva
+O editor SHALL listar apenas assets da perspectiva da cena.
+
+#### Scenario: Asset de outra perspectiva
+- **WHEN** o mestre abre a paleta de uma cena top-down
+- **THEN** assets isométricos não aparecem
