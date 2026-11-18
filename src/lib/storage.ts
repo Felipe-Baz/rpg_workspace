@@ -12,7 +12,7 @@ export const storageConfigurado = () => !!process.env.NEXT_PUBLIC_FIREBASE_STORA
 const storage = () => getStorage(getApp());
 
 /** Envia um arquivo para mesas/{mesaId}/{pasta}/ e devolve a URL. O nome é aleatório (não adivinhável). */
-export async function enviarArquivo(mesaId: string, pasta: "mapas" | "assets" | "refs", arquivo: Blob, ext = "jpg") {
+export async function enviarArquivo(mesaId: string, pasta: "mapas" | "assets" | "refs" | "cenas", arquivo: Blob, ext = "jpg") {
   if (arquivo.size > LIMITE) throw new Error("Arquivo maior que 15 MB.");
   const nome = `${crypto.randomUUID()}.${ext}`;
   const r = ref(storage(), `mesas/${mesaId}/${pasta}/${nome}`);

@@ -1,0 +1,73 @@
+// Modelo de dados da cena (módulo puro: sem React, Firebase ou Pixi, para ser testável em Node).
+
+export type TipoCamada = "terreno" | "caminhos" | "decals" | "objetos" | "rotulos";
+
+export type Camada = {
+  id: string;
+  nome: string;
+  tipo: TipoCamada;
+  visivel: boolean;
+  travada: boolean;
+  opacidade: number; // 0–1
+};
+
+/** Documento mesas/{id}/assets/{assetId}. `origem: "ia"` é usado pela change 06. */
+export type Asset = {
+  id: string;
+  nome: string;
+  url: string;
+  largura: number; // px naturais
+  altura: number;
+  origem: "enviado" | "ia";
+  criadoEm: number;
+};
+
+/**
+ * Posição em fração (0–1) do canvas. `escala` é a largura do objeto como fração da
+ * largura do canvas (a altura segue a proporção do asset), então não depende da resolução.
+ */
+export type ObjetoCena = {
+  id: string;
+  assetId: string;
+  camadaId: string;
+  x: number;
+  y: number;
+  escala: number;
+  rotacao: number; // radianos
+  espelhado: boolean;
+  z: number;
+};
+
+export type Grid = {
+  tipo: "quadrado" | "hex";
+  colunas: number;
+  linhas: number;
+  /** Se o grid entra na imagem final. */
+  noRender: boolean;
+};
+
+export type Cena = {
+  id: string;
+  nome: string;
+  mapaId?: string;
+  modo: "grid" | "cenario";
+  perspectiva: "topdown";
+  largura: number; // px; só a resolução muda, nunca a proporção
+  altura: number;
+  grid?: Grid;
+  fundo: string; // cor CSS
+  camadas: Camada[];
+  objetos: ObjetoCena[];
+  criadoEm: number;
+  atualizadoEm: number;
+};
+
+export const LADO_MAXIMO_RENDER = 4096;
+
+export const TIPOS_CAMADA: { tipo: TipoCamada; nome: string }[] = [
+  { tipo: "terreno", nome: "Terreno" },
+  { tipo: "caminhos", nome: "Caminhos" },
+  { tipo: "decals", nome: "Decals" },
+  { tipo: "objetos", nome: "Objetos" },
+  { tipo: "rotulos", nome: "Rótulos" },
+];

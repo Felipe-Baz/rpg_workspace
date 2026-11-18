@@ -68,6 +68,16 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
       }
 
+      // Cenas e assets do editor de mapas: somente o mestre (jogador só vê o render em `mapas`).
+      match /cenas/{cenaId} {
+        allow read, write: if logado()
+          && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
+      }
+      match /assets/{assetId} {
+        allow read, write: if logado()
+          && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
+      }
+
       // Mundo (lore público): o mestre escreve; qualquer membro lê.
       match /mundo/{docId} {
         allow read: if logado()

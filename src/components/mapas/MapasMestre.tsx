@@ -1,11 +1,18 @@
 "use client";
 
 import { useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import type { Mesa } from "@/lib/mesas";
 import CamadaCobertura from "./CamadaCobertura";
 import VisorMestre from "./VisorMestre";
 import { enviarArquivo, excluirPorUrl, storageConfigurado } from "@/lib/storage";
-import { atualizarMapa, comprimirImagem, criarMapa, excluirMapa, useMapasMestre, type Colecao, type Mapa } from "@/lib/mapas";
+import { atualizarMapa, comprimirImagem, criarMapa, desvincularCena, excluirMapa, useMapasMestre, type Colecao, type Mapa } from "@/lib/mapas";
+import { ehMapaDeCena } from "@/lib/cena/compat";
+import { excluirCena } from "@/lib/cena/cenas";
+import NovaCena from "./cena/NovaCena";
+
+// O editor (e o PixiJS) só é baixado quando o mestre abre uma cena.
+const EditorCena = dynamic(() => import("./cena/EditorCena"), { ssr: false, loading: () => null });
 
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
 
@@ -20,6 +27,9 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
   const input = useRef<HTMLInputElement>(null);
+  const [novaCena, setNovaCena] = useState(false);
+  const [editandoId, setEditandoId] = useState<string | null>(null);
+  const editando = mapas.find((m) => m.id === editandoId);
 
   async function subir(arquivo?: File) {
     if (!arquivo) return;
@@ -47,13 +57,23 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-xl font-semibold">{t.titulo}</h2>
-        <button
-          onClick={() => input.current?.click()}
-          disabled={enviando}
-          className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
-        >
-          {enviando ? "Enviando…" : t.novo}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => input.current?.click()}
+            disabled={enviando}
+            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
+          >
+            {enviando ? "Enviando…" : t.novo}
+          </button>
+          {colecao === "mapas" && storageConfigurado() && (
+            <button
+              onClick={() => setNovaCena(true)}
+              className="rounded-lg border border-violet-600 px-4 py-2 text-sm font-medium text-violet-500 hover:bg-violet-600/10"
+            >
+              + Nova cena
+            </button>
+          )}
+        </div>
         <input ref={input} type="file" accept="image/*" hidden onChange={(e) => subir(e.target.files?.[0])} />
       </div>
       <p className="text-sm text-muted">
@@ -63,14 +83,28 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
       {carregado && mapas.length === 0 && <p className="text-muted">{t.vazio}</p>}
       <div className="grid gap-4 sm:grid-cols-2">
         {mapas.map((m) => (
-          <CartaoMapa key={m.id} mesa={mesa} mapa={m} colecao={colecao} />
+          <CartaoMapa key={m.id} mesa={mesa} mapa={m} colecao={colecao} onEditar={() => setEditandoId(m.id)} />
         ))}
       </div>
+      {novaCena && (
+        <NovaCena
+          mesaId={mesa.id}
+          colecao={colecao}
+          onCancelar={() => setNovaCena(false)}
+          onCriado={(m) => {
+            setNovaCena(false);
+            setEditandoId(m.id);
+          }}
+        />
+      )}
+      {editando && ehMapaDeCena(editando) && (
+        <EditorCena mesaId={mesa.id} mapa={editando} colecao={colecao} onFechar={() => setEditandoId(null)} />
+      )}
     </section>
   );
 }
 
-function CartaoMapa({ mesa, mapa, colecao }: { mesa: Mesa; mapa: Mapa; colecao: Colecao }) {
+function CartaoMapa({ mesa, mapa, colecao, onEditar }: { mesa: Mesa; mapa: Mapa; colecao: Colecao; onEditar: () => void }) {
   const t = TEXTOS[colecao];
   const [aberto, setAberto] = useState(false);
   const [nome, setNome] = useState(mapa.nome);
@@ -88,6 +122,11 @@ function CartaoMapa({ mesa, mapa, colecao }: { mesa: Mesa; mapa: Mapa; colecao: 
     <article className="space-y-3 rounded-xl border border-border bg-card p-3">
       <div className="flex justify-center rounded-lg bg-black/60">
         <div onClick={() => setAberto(true)} className="relative cursor-zoom-in leading-[0]" title="Abrir / cobrir salas">
+          {ehMapaDeCena(mapa) && (
+            <span className="absolute left-1.5 top-1.5 z-10 rounded bg-violet-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-normal text-white">
+              Cena
+            </span>
+          )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={mapa.imagem} alt={mapa.nome} className="block max-h-44 w-auto max-w-full rounded-lg" />
           <CamadaCobertura cobertas={mapa.cobertas} modo="mostrar" />
@@ -118,10 +157,28 @@ function CartaoMapa({ mesa, mapa, colecao }: { mesa: Mesa; mapa: Mapa; colecao: 
           </label>
         ))}
       </div>
+      {ehMapaDeCena(mapa) && (
+        <div className="flex gap-3 text-sm">
+          <button onClick={onEditar} className="font-medium text-violet-500 hover:underline">
+            Editar cena
+          </button>
+          <button
+            onClick={async () => {
+              if (!confirm("Desvincular a cena? O mapa fica só com a imagem atual e a cena é apagada.")) return;
+              await desvincularCena(mesa.id, mapa.id, colecao);
+              await excluirCena(mesa.id, mapa.cenaId!);
+            }}
+            className="text-muted hover:text-red-500"
+          >
+            Desvincular cena
+          </button>
+        </div>
+      )}
       <button
         onClick={async () => {
           if (!confirm(`Excluir ${t.item} "${mapa.nome}"?`)) return;
           await excluirMapa(mesa.id, mapa.id, colecao);
+          if (ehMapaDeCena(mapa)) await excluirCena(mesa.id, mapa.cenaId!);
           await excluirPorUrl(mapa.imagem);
         }}
         className="text-sm text-muted hover:text-red-500"
