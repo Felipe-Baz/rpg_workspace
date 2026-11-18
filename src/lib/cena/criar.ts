@@ -1,13 +1,14 @@
 import type { Camada, Cena, Grid } from "./tipos.ts";
 import { LADO_MAXIMO_RENDER, TIPOS_CAMADA } from "./tipos.ts";
 import { tamanhoExport } from "./geometria.ts";
+import { perspectivaEfetiva } from "../mapas-ia/perspectivas/registro.ts";
 
 export const camadasPadrao = (novoId: () => string): Camada[] =>
   TIPOS_CAMADA.map(({ tipo, nome }) => ({ id: novoId(), nome, tipo, visivel: true, travada: false, opacidade: 1 }));
 
 export type OpcoesCena =
-  | { nome: string; modo: "grid"; tipoGrid: "quadrado" | "hex"; colunas: number; linhas: number; celulaPx?: number }
-  | { nome: string; modo: "cenario"; largura: number; altura: number };
+  | { nome: string; modo: "grid"; tipoGrid: "quadrado" | "hex"; colunas: number; linhas: number; celulaPx?: number; temaId?: string }
+  | { nome: string; modo: "cenario"; largura: number; altura: number; perspectiva?: string; temaId?: string };
 
 /** Cria uma cena vazia. Em grid, o canvas deriva do número de células (proporção fica travada). */
 export function criarCenaVazia(op: OpcoesCena, novoId: () => string, agora = Date.now()): Cena {
@@ -34,7 +35,8 @@ export function criarCenaVazia(op: OpcoesCena, novoId: () => string, agora = Dat
     id: novoId(),
     nome: op.nome,
     modo: op.modo,
-    perspectiva: "topdown",
+    perspectiva: perspectivaEfetiva(op.modo, op.modo === "cenario" ? op.perspectiva : undefined),
+    ...(op.temaId ? { temaId: op.temaId } : {}),
     largura: t.largura,
     altura: t.altura,
     grid,

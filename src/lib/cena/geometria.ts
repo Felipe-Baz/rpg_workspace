@@ -1,5 +1,6 @@
 import type { Asset, Cena, ObjetoCena } from "./tipos.ts";
 import { LADO_MAXIMO_RENDER } from "./tipos.ts";
+import { chaveOrdem, obterPerspectiva } from "../mapas-ia/perspectivas/registro.ts";
 
 export type Pt = { x: number; y: number };
 
@@ -78,13 +79,14 @@ export function acertaObjeto(cena: Cena, o: ObjetoCena, a: Pick<Asset, "largura"
 /** Objeto mais alto (z/ordem) sob o ponto, ignorando camadas ocultas ou travadas. */
 export function objetoEm(cena: Cena, assets: Map<string, Asset>, p: Pt): ObjetoCena | null {
   const ordemCamada = new Map(cena.camadas.map((c, i) => [c.id, i]));
+  const persp = obterPerspectiva(cena.perspectiva);
   const candidatos = cena.objetos
     .map((o, i) => ({ o, i }))
     .filter(({ o }) => {
       const c = cena.camadas.find((x) => x.id === o.camadaId);
       return c && c.visivel && !c.travada && assets.has(o.assetId);
     })
-    .sort((a, b) => (ordemCamada.get(b.o.camadaId)! - ordemCamada.get(a.o.camadaId)!) || b.o.z - a.o.z || b.i - a.i);
+    .sort((a, b) => (ordemCamada.get(b.o.camadaId)! - ordemCamada.get(a.o.camadaId)!) || chaveOrdem(persp, b.o, b.i) - chaveOrdem(persp, a.o, a.i));
   return candidatos.find(({ o }) => acertaObjeto(cena, o, assets.get(o.assetId)!, p))?.o ?? null;
 }
 

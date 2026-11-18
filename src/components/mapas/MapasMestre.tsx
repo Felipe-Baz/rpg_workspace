@@ -10,6 +10,7 @@ import { atualizarMapa, comprimirImagem, criarMapa, desvincularCena, excluirMapa
 import { ehMapaDeCena } from "@/lib/cena/compat";
 import { excluirCena } from "@/lib/cena/cenas";
 import NovaCena from "./cena/NovaCena";
+import TemasMestre from "./cena/TemasMestre";
 
 // O editor (e o PixiJS) só é baixado quando o mestre abre uma cena.
 const EditorCena = dynamic(() => import("./cena/EditorCena"), { ssr: false, loading: () => null });
@@ -28,6 +29,7 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
   const [erro, setErro] = useState("");
   const input = useRef<HTMLInputElement>(null);
   const [novaCena, setNovaCena] = useState(false);
+  const [temasAberto, setTemasAberto] = useState(false);
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const editando = mapas.find((m) => m.id === editandoId);
 
@@ -73,6 +75,11 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
               + Nova cena
             </button>
           )}
+          {colecao === "mapas" && storageConfigurado() && (
+            <button onClick={() => setTemasAberto(true)} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-border/50">
+              Temas
+            </button>
+          )}
         </div>
         <input ref={input} type="file" accept="image/*" hidden onChange={(e) => subir(e.target.files?.[0])} />
       </div>
@@ -86,6 +93,7 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
           <CartaoMapa key={m.id} mesa={mesa} mapa={m} colecao={colecao} onEditar={() => setEditandoId(m.id)} />
         ))}
       </div>
+      {temasAberto && <TemasMestre mesaId={mesa.id} onFechar={() => setTemasAberto(false)} />}
       {novaCena && (
         <NovaCena
           mesaId={mesa.id}

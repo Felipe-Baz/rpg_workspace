@@ -19,6 +19,9 @@ export type Asset = {
   largura: number; // px naturais
   altura: number;
   origem: "enviado" | "ia";
+  /** Ausente = top-down (assets anteriores à change 05). */
+  perspectivaId?: string;
+  temaId?: string;
   criadoEm: number;
 };
 
@@ -51,7 +54,10 @@ export type Cena = {
   nome: string;
   mapaId?: string;
   modo: "grid" | "cenario";
-  perspectiva: "topdown";
+  /** Id de uma perspectiva do registro (mapas-ia/perspectivas). Grid é sempre "topdown". */
+  perspectiva: string;
+  /** Tema da mesa (mesas/{id}/temas/{temaId}); opcional. */
+  temaId?: string;
   largura: number; // px; só a resolução muda, nunca a proporção
   altura: number;
   grid?: Grid;

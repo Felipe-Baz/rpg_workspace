@@ -1,4 +1,5 @@
 import type { Camada, Cena, Grid, ObjetoCena } from "./tipos.ts";
+import { obterPerspectiva } from "../mapas-ia/perspectivas/registro.ts";
 
 // Toda mutação da cena é um Comando. `aplicar` devolve a nova cena e o comando inverso;
 // desfazer = aplicar o inverso. A IA (change 07) usa os mesmos comandos.
@@ -14,6 +15,8 @@ export type Comando =
   | { tipo: "moverCamada"; id: string; indice: number }
   | { tipo: "definirGrid"; grid: Grid | undefined }
   | { tipo: "definirFundo"; fundo: string }
+  | { tipo: "definirPerspectiva"; perspectiva: string }
+  | { tipo: "definirTema"; temaId: string | undefined }
   | { tipo: "redimensionar"; largura: number; altura: number }
   | { tipo: "lote"; comandos: Comando[] };
 
@@ -113,6 +116,23 @@ export function aplicar(cena: Cena, cmd: Comando): Resultado {
       return { cena: { ...cena, grid: cmd.grid, modo: cmd.grid ? "grid" : "cenario" }, inverso: { tipo: "definirGrid", grid: cena.grid } };
     case "definirFundo":
       return { cena: { ...cena, fundo: cmd.fundo }, inverso: { tipo: "definirFundo", fundo: cena.fundo } };
+    case "definirPerspectiva": {
+      const p = obterPerspectiva(cmd.perspectiva);
+      if (!p) throw new Error("Perspectiva desconhecida.");
+      if (cmd.perspectiva === cena.perspectiva) return { cena, inverso: cmd };
+      if (cena.objetos.length > 0)
+        throw new Error("A perspectiva não pode ser trocada depois que o mapa tem objetos: remova os objetos antes (os assets de outra perspectiva não combinam).");
+      if (cena.modo === "grid" && !p.permiteGrid) throw new Error("Mapas em grid são sempre top-down.");
+      return { cena: { ...cena, perspectiva: cmd.perspectiva }, inverso: { tipo: "definirPerspectiva", perspectiva: cena.perspectiva } };
+    }
+    case "definirTema": {
+      const { temaId: _anterior, ...resto } = cena;
+      void _anterior;
+      return {
+        cena: cmd.temaId ? { ...resto, temaId: cmd.temaId } : resto,
+        inverso: { tipo: "definirTema", temaId: cena.temaId },
+      };
+    }
     case "redimensionar": {
       const erro = validarResolucao(cena, cmd.largura, cmd.altura);
       if (erro) throw new Error(erro);

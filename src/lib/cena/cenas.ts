@@ -70,7 +70,7 @@ export function useAssets(mesaId: string) {
 }
 
 /** Envia um PNG (com transparência) e registra o asset. */
-export async function enviarAsset(mesaId: string, arquivo: File): Promise<Asset> {
+export async function enviarAsset(mesaId: string, arquivo: File, perspectivaId = "topdown"): Promise<Asset> {
   if (!/^image\/(png|webp)$/.test(arquivo.type)) throw new Error("Use PNG (ou WebP) com transparência.");
   const bmp = await createImageBitmap(arquivo);
   const url = await enviarArquivo(mesaId, "assets", arquivo, arquivo.type === "image/webp" ? "webp" : "png");
@@ -81,6 +81,7 @@ export async function enviarAsset(mesaId: string, arquivo: File): Promise<Asset>
     largura: bmp.width,
     altura: bmp.height,
     origem: "enviado",
+    perspectivaId,
     criadoEm: Date.now(),
   };
   await setDoc(doc(db, "mesas", mesaId, "assets", asset.id), asset);

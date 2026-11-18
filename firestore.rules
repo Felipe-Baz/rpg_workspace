@@ -73,6 +73,11 @@ service cloud.firestore {
         allow read, write: if logado()
           && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
       }
+      // Temas de estilo (mapas por IA): somente o mestre.
+      match /temas/{temaId} {
+        allow read, write: if logado()
+          && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
+      }
       match /assets/{assetId} {
         allow read, write: if logado()
           && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;

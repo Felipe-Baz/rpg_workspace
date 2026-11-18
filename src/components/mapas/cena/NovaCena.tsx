@@ -6,8 +6,10 @@ import { criarMapa, type Colecao, type Mapa } from "@/lib/mapas";
 import { enviarArquivo } from "@/lib/storage";
 import { salvarCena } from "@/lib/cena/cenas";
 import { criarCenaVazia, type OpcoesCena } from "@/lib/cena/criar";
+import { PERSPECTIVAS, PERSPECTIVA_PADRAO, mostrarSeletor } from "@/lib/mapas-ia/perspectivas/registro";
+import { useTemas } from "@/lib/mapas-ia/temas/temas";
 
-const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
+const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted";
 const num = (v: string, min: number, max: number) => Math.min(max, Math.max(min, Math.round(Number(v) || min)));
 
 /** Imagem inicial (cor de fundo) para o mapa de cena já nascer com um `imagem` válido. */
@@ -39,6 +41,9 @@ export default function NovaCena({
   const [linhas, setLinhas] = useState("20");
   const [largura, setLargura] = useState("1920");
   const [altura, setAltura] = useState("1080");
+  const [perspectiva, setPerspectiva] = useState(PERSPECTIVA_PADRAO);
+  const [temaId, setTemaId] = useState("");
+  const temas = useTemas(mesaId);
   const [criando, setCriando] = useState(false);
   const [erro, setErro] = useState("");
 
@@ -49,8 +54,8 @@ export default function NovaCena({
       const nomeFinal = nome.trim() || "Mapa de cena";
       const op: OpcoesCena =
         modo === "grid"
-          ? { nome: nomeFinal, modo, tipoGrid, colunas: num(colunas, 2, 100), linhas: num(linhas, 2, 100) }
-          : { nome: nomeFinal, modo, largura: num(largura, 256, 4096), altura: num(altura, 256, 4096) };
+          ? { nome: nomeFinal, modo, tipoGrid, colunas: num(colunas, 2, 100), linhas: num(linhas, 2, 100), temaId: temaId || undefined }
+          : { nome: nomeFinal, modo, largura: num(largura, 256, 4096), altura: num(altura, 256, 4096), perspectiva, temaId: temaId || undefined };
       const cena = criarCenaVazia(op, uid);
       const mapaId = uid();
       const blob = await renderVazio(cena.largura, cena.altura, cena.fundo);
@@ -110,6 +115,35 @@ export default function NovaCena({
             </label>
           </div>
         )}
+        {mostrarSeletor(modo) && (
+          <div className="space-y-1 text-sm">
+            <span>Perspectiva</span>
+            <div className="grid grid-cols-2 gap-2">
+              {PERSPECTIVAS.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setPerspectiva(p.id)}
+                  className={`overflow-hidden rounded-lg border text-left ${perspectiva === p.id ? "border-violet-600 ring-1 ring-violet-600" : "border-border"}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.imagemExemplo} alt={`Exemplo: ${p.nome}`} className="h-20 w-full object-cover" />
+                  <span className="block px-2 py-1 text-xs">{p.nome}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {modo === "grid" && <p className="text-xs text-muted">Mapas com grid são sempre top-down.</p>}
+        <label className="block text-sm">
+          Tema
+          <select className={campo} value={temaId} onChange={(e) => setTemaId(e.target.value)}>
+            <option value="">Sem tema</option>
+            {temas.map((t) => (
+              <option key={t.id} value={t.id}>{t.nome}</option>
+            ))}
+          </select>
+        </label>
         <p className="text-xs text-muted">A proporção do canvas fica travada depois de criada. O lado maior é limitado a 4096 px.</p>
         {erro && <p className="text-sm text-red-500">{erro}</p>}
         <div className="flex justify-end gap-2">

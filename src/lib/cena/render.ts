@@ -3,6 +3,7 @@
 import type { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
 import type { Asset, Cena } from "./tipos";
 import { geometriaSelecao, medidasGrid, tamanhoExport } from "./geometria";
+import { chaveOrdem, obterPerspectiva } from "../mapas-ia/perspectivas/registro";
 
 type Pixi = typeof import("pixi.js");
 
@@ -88,6 +89,7 @@ export class RenderCena {
     app.stage.setChildIndex(this.selecao, app.stage.children.length - 1);
 
     // Objetos.
+    const persp = obterPerspectiva(cena.perspectiva);
     const objetosVivos = new Set<string>();
     cena.objetos.forEach((o, i) => {
       const asset = assets.get(o.assetId);
@@ -108,7 +110,7 @@ export class RenderCena {
       s.position.set(o.x * cena.largura, o.y * cena.altura);
       s.scale.set(o.espelhado ? -esc : esc, esc);
       s.rotation = o.rotacao;
-      s.zIndex = o.z * 100000 + i;
+      s.zIndex = chaveOrdem(persp, o, i);
       s.visible = !!tex;
     });
     for (const [id, s] of this.sprites) {

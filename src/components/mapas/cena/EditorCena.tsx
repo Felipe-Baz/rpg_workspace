@@ -10,6 +10,8 @@ import { patchSalvarRender } from "@/lib/cena/compat";
 import { alcaEm, clamp01, larguraCelulaFracao, objetoEm, snapGrid, type Alca, type Pt } from "@/lib/cena/geometria";
 import { RenderCena } from "@/lib/cena/render";
 import type { Asset, Camada, Cena, ObjetoCena } from "@/lib/cena/tipos";
+import { PERSPECTIVAS, assetServe, mostrarSeletor, obterPerspectiva } from "@/lib/mapas-ia/perspectivas/registro";
+import { useTemas } from "@/lib/mapas-ia/temas/temas";
 
 const btn = "rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/50 disabled:opacity-40";
 const btnAtivo = "rounded-lg border border-violet-600 bg-violet-600 px-2.5 py-1.5 text-sm text-white";
@@ -50,6 +52,7 @@ export default function EditorCena({
 }) {
   const assetsLista = useAssets(mesaId);
   const assets = useMemo(() => new Map(assetsLista.map((a) => [a.id, a])), [assetsLista]);
+  const temas = useTemas(mesaId);
 
   const [cena, setCena] = useState<Cena | null>(null);
   const [cenaSalva, setCenaSalva] = useState<Cena | null>(null);
@@ -310,7 +313,7 @@ export default function EditorCena({
     setEnviando(true);
     setErro("");
     try {
-      for (const f of Array.from(arquivos)) await enviarAsset(mesaId, f);
+      for (const f of Array.from(arquivos)) await enviarAsset(mesaId, f, cena?.perspectiva);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Falha ao enviar o asset.");
     } finally {
@@ -374,6 +377,8 @@ export default function EditorCena({
     if (render.current === r0) r0.atualizar(cena, assets, { selecionadoId: selId, mostrarGrid, pxPorTela: pxPorTela() });
   }
 
+  // A paleta só lista assets da perspectiva da cena (objetos já colocados continuam renderizando).
+  const assetsPaleta = cena ? assetsLista.filter((a) => assetServe(a, cena.perspectiva)) : assetsLista;
   const camadasInv = cena ? [...cena.camadas].reverse() : [];
   const assetAtual = assetSel ? assets.get(assetSel) : null;
 
@@ -393,6 +398,38 @@ export default function EditorCena({
           <label className="flex items-center gap-1 text-sm text-muted">
             Fundo
             <input type="color" value={cena.fundo} onChange={(e) => rodar({ tipo: "definirFundo", fundo: e.target.value })} />
+          </label>
+        )}
+        {cena && mostrarSeletor(cena.modo) && (
+          <label className="flex items-center gap-1 text-sm text-muted" title="Só pode ser trocada em mapas sem objetos">
+            Perspectiva
+            <select
+              className="rounded-lg border border-border bg-background px-2 py-1 text-sm"
+              value={cena.perspectiva}
+              onChange={(ev) => rodar({ tipo: "definirPerspectiva", perspectiva: ev.target.value })}
+            >
+              {PERSPECTIVAS.map((p) => (
+                <option key={p.id} value={p.id}>{p.nome}</option>
+              ))}
+            </select>
+          </label>
+        )}
+        {cena && !mostrarSeletor(cena.modo) && (
+          <span className="text-xs text-muted">Perspectiva: {obterPerspectiva(cena.perspectiva)?.nome ?? "Top-down"} (fixa em grid)</span>
+        )}
+        {cena && (
+          <label className="flex items-center gap-1 text-sm text-muted">
+            Tema
+            <select
+              className="rounded-lg border border-border bg-background px-2 py-1 text-sm"
+              value={cena.temaId ?? ""}
+              onChange={(ev) => rodar({ tipo: "definirTema", temaId: ev.target.value || undefined })}
+            >
+              <option value="">Sem tema</option>
+              {temas.map((t) => (
+                <option key={t.id} value={t.id}>{t.nome}</option>
+              ))}
+            </select>
           </label>
         )}
         {process.env.NODE_ENV !== "production" && (
@@ -418,7 +455,7 @@ export default function EditorCena({
             {assetAtual ? `Carimbo: ${assetAtual.nome}. Clique no mapa (Esc cancela).` : "Escolha um asset e clique no mapa para carimbar."}
           </p>
           <div className="grid grid-cols-3 gap-1.5 md:grid-cols-2">
-            {assetsLista.map((a: Asset) => (
+            {assetsPaleta.map((a: Asset) => (
               <button
                 key={a.id}
                 onClick={() => setAssetSel(assetSel === a.id ? null : a.id)}

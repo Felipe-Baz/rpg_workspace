@@ -3,9 +3,10 @@
 ### Requirement: Cena referencia tema e perspectiva
 Uma cena SHALL referenciar um `perspectivaId` registrado e, opcionalmente, um `temaId` existente na mesa.
 
-#### Scenario: Tema removido
-- **WHEN** um tema referenciado por uma cena é excluído
-- **THEN** a exclusão é recusada enquanto houver mapas que o usam
+#### Scenario: Tema removido em cascata
+- **WHEN** o mestre exclui um tema referenciado por cenas e digita o nome do tema como confirmação
+- **THEN** o tema, os mapas de cena que o usam (cena e render) e os assets do tema são apagados
+- **AND** sem a digitação correta do nome a exclusão não é executada
 
 #### Scenario: Cena sem tema
 - **WHEN** a cena não tem `temaId`
