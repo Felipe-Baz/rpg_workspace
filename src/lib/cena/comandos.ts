@@ -154,25 +154,88 @@ export function aplicar(cena: Cena, cmd: Comando): Resultado {
   }
 }
 
+/** Quem fez a alteração. Os comandos da IA podem ser destacados e revertidos em bloco. */
+export type Autor = "humano" | "ia";
+
+export type MetaComando = {
+  autor: Autor;
+  /** Passo da IA: cada passo é UMA entrada do histórico (um lote), expansível pelo `resumo`. */
+  passo?: { id: string; titulo: string; resumo: string[]; objetos?: string[] };
+  /** Esta entrada reverteu, fora de ordem, os passos com estes ids. */
+  reverte?: string[];
+};
+
+export const HUMANO: MetaComando = { autor: "humano" };
+
+/** `cmd` é o inverso (no passado) ou o comando a refazer (no futuro). */
+export type Entrada = { cmd: Comando; meta: MetaComando };
+
 /** Pilha única de desfazer/refazer. Imutável: cada operação devolve a nova cena e o novo histórico. */
-export type Historico = { passado: Comando[]; futuro: Comando[] };
+export type Historico = { passado: Entrada[]; futuro: Entrada[] };
 export const historicoVazio = (): Historico => ({ passado: [], futuro: [] });
 
-export function executar(cena: Cena, h: Historico, cmd: Comando): { cena: Cena; historico: Historico } {
+export function executar(cena: Cena, h: Historico, cmd: Comando, meta: MetaComando = HUMANO): { cena: Cena; historico: Historico } {
   const r = aplicar(cena, cmd);
-  return { cena: r.cena, historico: { passado: [...h.passado, r.inverso], futuro: [] } };
+  return { cena: r.cena, historico: { passado: [...h.passado, { cmd: r.inverso, meta }], futuro: [] } };
 }
 
 export function desfazer(cena: Cena, h: Historico): { cena: Cena; historico: Historico } {
-  const inverso = h.passado[h.passado.length - 1];
-  if (!inverso) return { cena, historico: h };
-  const r = aplicar(cena, inverso);
-  return { cena: r.cena, historico: { passado: h.passado.slice(0, -1), futuro: [...h.futuro, r.inverso] } };
+  const e = h.passado[h.passado.length - 1];
+  if (!e) return { cena, historico: h };
+  const r = aplicar(cena, e.cmd);
+  return { cena: r.cena, historico: { passado: h.passado.slice(0, -1), futuro: [...h.futuro, { cmd: r.inverso, meta: e.meta }] } };
 }
 
 export function refazer(cena: Cena, h: Historico): { cena: Cena; historico: Historico } {
-  const cmd = h.futuro[h.futuro.length - 1];
-  if (!cmd) return { cena, historico: h };
-  const r = aplicar(cena, cmd);
-  return { cena: r.cena, historico: { passado: [...h.passado, r.inverso], futuro: h.futuro.slice(0, -1) } };
+  const e = h.futuro[h.futuro.length - 1];
+  if (!e) return { cena, historico: h };
+  const r = aplicar(cena, e.cmd);
+  return { cena: r.cena, historico: { passado: [...h.passado, { cmd: r.inverso, meta: e.meta }], futuro: h.futuro.slice(0, -1) } };
+}
+
+/**
+ * Aplica o que ainda for aplicável e ignora o resto (ex.: o objeto já foi removido à mão).
+ * Usado para reverter fora de ordem, quando a cena mudou depois do passo.
+ */
+export function aplicarTolerante(cena: Cena, cmd: Comando): { cena: Cena; inverso: Comando; ignorados: number } {
+  if (cmd.tipo === "lote") {
+    let atual = cena;
+    let ignorados = 0;
+    const inversos: Comando[] = [];
+    for (const c of cmd.comandos) {
+      const r = aplicarTolerante(atual, c);
+      atual = r.cena;
+      ignorados += r.ignorados;
+      inversos.unshift(r.inverso);
+    }
+    return { cena: atual, inverso: { tipo: "lote", comandos: inversos }, ignorados };
+  }
+  try {
+    return { ...aplicar(cena, cmd), ignorados: 0 };
+  } catch {
+    return { cena, inverso: { tipo: "lote", comandos: [] }, ignorados: 1 };
+  }
+}
+
+/** Ids dos passos da IA revertidos por entradas que ainda estão no passado. */
+export const passosRevertidos = (h: Historico) => new Set(h.passado.flatMap((e) => e.meta.reverte ?? []));
+
+/**
+ * Reverte só os passos indicados, sem tocar no que veio antes ou depois deles. Vira uma nova
+ * entrada do histórico (desfazê-la reaplica os passos).
+ */
+export function reverterPassos(cena: Cena, h: Historico, ids: string[]): { cena: Cena; historico: Historico; ignorados: number } {
+  const ja = passosRevertidos(h);
+  const alvo = new Set(ids.filter((id) => !ja.has(id)));
+  const entradas = h.passado.filter((e) => e.meta.passo && alvo.has(e.meta.passo.id)).reverse(); // mais recente primeiro
+  if (!entradas.length) return { cena, historico: h, ignorados: 0 };
+  const r = aplicarTolerante(cena, { tipo: "lote", comandos: entradas.map((e) => e.cmd) });
+  const meta: MetaComando = { autor: "humano", reverte: entradas.map((e) => e.meta.passo!.id) };
+  return { cena: r.cena, historico: { passado: [...h.passado, { cmd: r.inverso, meta }], futuro: [] }, ignorados: r.ignorados };
+}
+
+/** "Reverter ações da IA nesta sessão": desfaz só as entradas de autoria IA; as feitas à mão permanecem. */
+export function reverterIa(cena: Cena, h: Historico) {
+  const ids = h.passado.filter((e) => e.meta.autor === "ia" && e.meta.passo).map((e) => e.meta.passo!.id);
+  return reverterPassos(cena, h, ids);
 }

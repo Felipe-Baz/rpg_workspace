@@ -56,7 +56,15 @@ export type ObjetoCena = {
   rotacao: number; // radianos
   espelhado: boolean;
   z: number;
+  /** Só em objetos embutidos `assetId: ASSET_LUZ` (a `escala` é o diâmetro). */
+  luz?: { cor: string; intensidade: number };
+  /** Só em objetos embutidos `assetId: ASSET_ROTULO` (a `escala` é a largura do texto). */
+  rotulo?: { texto: string; cor: string };
 };
+
+/** Objetos sem arquivo de asset: desenhados pelo próprio render (usam os mesmos comandos dos demais). */
+export const ASSET_LUZ = "@luz";
+export const ASSET_ROTULO = "@rotulo";
 
 export type Grid = {
   tipo: "quadrado" | "hex";

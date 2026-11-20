@@ -1,4 +1,4 @@
-import { exigirCampo, postarJson } from "../http.ts";
+import { exigirCampo, juntarPapeisIguais, postarJson } from "../http.ts";
 import { ErroProvedor, type CampoConfig, type ChamadaFerramenta, type MensagemLlm, type PedidoLlm, type ProvedorLlm } from "../tipos.ts";
 
 export const MODELO_ANTHROPIC_PADRAO = "claude-sonnet-5-5";
@@ -33,7 +33,7 @@ export const anthropicLlm: ProvedorLlm = {
     const corpo: Record<string, unknown> = {
       model: ctx.config.modelo?.trim() || MODELO_ANTHROPIC_PADRAO,
       max_tokens: 4096,
-      messages: p.mensagens.map(mensagem),
+      messages: juntarPapeisIguais(p.mensagens.map(mensagem), "content"),
     };
     if (p.sistema) corpo.system = p.sistema;
     if (p.ferramentas?.length) {

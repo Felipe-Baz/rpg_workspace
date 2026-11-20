@@ -31,7 +31,8 @@ export default function NovaCena({
 }: {
   mesaId: string;
   colecao: Colecao;
-  onCriado: (mapa: Mapa) => void;
+  /** `descricao`: pedido para o agente montar o mapa ao abrir o editor (opcional). */
+  onCriado: (mapa: Mapa, descricao?: string) => void;
   onCancelar: () => void;
 }) {
   const [nome, setNome] = useState("");
@@ -43,6 +44,7 @@ export default function NovaCena({
   const [altura, setAltura] = useState("1080");
   const [perspectiva, setPerspectiva] = useState(PERSPECTIVA_PADRAO);
   const [temaId, setTemaId] = useState("");
+  const [descricao, setDescricao] = useState("");
   const temas = useTemas(mesaId);
   const [criando, setCriando] = useState(false);
   const [erro, setErro] = useState("");
@@ -62,7 +64,15 @@ export default function NovaCena({
       const url = await enviarArquivo(mesaId, "mapas", blob, "jpg");
       await salvarCena(mesaId, { ...cena, mapaId });
       const mapa = await criarMapa(mesaId, nomeFinal, url, colecao, { id: mapaId, origem: "cena", cenaId: cena.id });
-      onCriado(mapa);
+      const pedido = descricao.trim();
+      onCriado(
+        mapa,
+        pedido
+          ? cena.grid
+            ? `${pedido}\n(Mapa em grid de ${cena.grid.colunas}x${cena.grid.linhas} células: alinhe tudo às células.)`
+            : pedido
+          : undefined,
+      );
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Falha ao criar a cena.");
       setCriando(false);
@@ -143,6 +153,15 @@ export default function NovaCena({
               <option key={t.id} value={t.id}>{t.nome}</option>
             ))}
           </select>
+        </label>
+        <label className="block text-sm">
+          Descrever para a IA <span className="text-muted">(opcional)</span>
+          <textarea
+            className={`${campo} h-20 resize-none`}
+            placeholder="Ex.: taverna de beira de estrada com lareira, balcão e mesas"
+            value={descricao}
+            onChange={(e) => setDescricao(e.target.value)}
+          />
         </label>
         <p className="text-xs text-muted">A proporção do canvas fica travada depois de criada. O lado maior é limitado a 4096 px.</p>
         {erro && <p className="text-sm text-red-500">{erro}</p>}

@@ -1,8 +1,8 @@
 "use client";
 
-import type { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
-import type { Asset, Cena } from "./tipos";
-import { geometriaSelecao, medidasGrid, tamanhoExport } from "./geometria";
+import type { Application, Container, Graphics, Sprite, Text, Texture } from "pixi.js";
+import { ASSET_LUZ, ASSET_ROTULO, type Asset, type Cena, type ObjetoCena } from "./tipos";
+import { baseDoObjeto, geometriaSelecao, medidasGrid, tamanhoExport } from "./geometria";
 import { chaveOrdem, obterPerspectiva } from "../mapas-ia/perspectivas/registro";
 
 type Pixi = typeof import("pixi.js");
@@ -12,7 +12,12 @@ export type OpcoesRender = {
   mostrarGrid?: boolean;
   /** px do canvas por px da tela (para alças com tamanho constante na tela). */
   pxPorTela?: number;
+  /** Objetos com contorno de destaque (prévia do plano, ações da IA). */
+  destacados?: string[];
 };
+
+/** Objeto embutido (luz ou rótulo): redesenhado só quando `chave` muda. */
+type Embutido = { g: Graphics | Text; chave: string };
 
 /**
  * Renderizador da cena em PixiJS (WebGL). Carregado sob demanda (import dinâmico), só no editor.
@@ -22,6 +27,7 @@ export class RenderCena {
   private texturas = new Map<string, Texture>();
   private carregando = new Map<string, Promise<void>>();
   private sprites = new Map<string, Sprite>();
+  private embutidos = new Map<string, Embutido>();
   private camadas = new Map<string, Container>();
   private fundo: Graphics;
   private grade: Graphics;
@@ -92,8 +98,13 @@ export class RenderCena {
     const persp = obterPerspectiva(cena.perspectiva);
     const objetosVivos = new Set<string>();
     cena.objetos.forEach((o, i) => {
-      const asset = assets.get(o.assetId);
       const cont = this.camadas.get(o.camadaId);
+      if (cont && (o.assetId === ASSET_LUZ || o.assetId === ASSET_ROTULO)) {
+        objetosVivos.add(o.id);
+        this.desenharEmbutido(cena, o, cont, chaveOrdem(persp, o, i));
+        return;
+      }
+      const asset = assets.get(o.assetId);
       if (!asset || !cont) return;
       objetosVivos.add(o.id);
       const tex = this.textura(asset);
@@ -119,10 +130,60 @@ export class RenderCena {
         this.sprites.delete(id);
       }
     }
+    for (const [id, e] of this.embutidos) {
+      if (!objetosVivos.has(id)) {
+        e.g.destroy();
+        this.embutidos.delete(id);
+      }
+    }
 
     this.desenharGrade(cena, opc.mostrarGrid ?? true);
     this.desenharSelecao(cena, assets, opc);
     app.render();
+  }
+
+  /** Luz = brilho radial aditivo (círculos concêntricos); rótulo = texto com contorno. */
+  private desenharEmbutido(cena: Cena, o: ObjetoCena, cont: Container, zIndex: number) {
+    const { pixi } = this;
+    const larg = o.escala * cena.largura;
+    const chave = JSON.stringify([o.assetId, o.luz, o.rotulo, o.assetId === ASSET_LUZ ? larg : 0]);
+    let e = this.embutidos.get(o.id);
+    if (e && e.chave !== chave) {
+      e.g.destroy();
+      this.embutidos.delete(o.id);
+      e = undefined;
+    }
+    if (!e) {
+      if (o.assetId === ASSET_LUZ) {
+        const g = new pixi.Graphics();
+        const cor = o.luz?.cor ?? "#ffb347";
+        const aneis = 14;
+        const intensidade = o.luz?.intensidade ?? 0.6;
+        for (let k = 0; k < aneis; k++) {
+          const r = (larg / 2) * (1 - k / aneis);
+          g.circle(0, 0, Math.max(1, r)).fill({ color: cor, alpha: (intensidade / aneis) * 1.6 });
+        }
+        g.blendMode = "add";
+        e = { g, chave };
+      } else {
+        const t = new pixi.Text({
+          text: o.rotulo?.texto ?? "",
+          style: { fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 96, fontWeight: "bold", fill: o.rotulo?.cor ?? "#1f1a14", stroke: { color: "#f4ecd8", width: 10 } },
+        });
+        t.anchor.set(0.5);
+        e = { g: t, chave };
+      }
+      this.embutidos.set(o.id, e);
+    }
+    const g = e.g;
+    if (g.parent !== cont) cont.addChild(g);
+    g.position.set(o.x * cena.largura, o.y * cena.altura);
+    if (o.assetId === ASSET_ROTULO) {
+      const esc = larg / Math.max(1, g.getLocalBounds().width);
+      g.scale.set(o.espelhado ? -esc : esc, esc);
+    }
+    g.rotation = o.rotacao;
+    g.zIndex = zIndex;
   }
 
   private textura(asset: Asset): Texture | undefined {
@@ -173,10 +234,19 @@ export class RenderCena {
 
   private desenharSelecao(cena: Cena, assets: Map<string, Asset>, opc: OpcoesRender) {
     const g = this.selecao.clear();
-    const o = cena.objetos.find((x) => x.id === opc.selecionadoId);
-    const a = o && assets.get(o.assetId);
-    if (!o || !a) return;
     const k = opc.pxPorTela ?? 1;
+    if (opc.destacados?.length) {
+      const ids = new Set(opc.destacados);
+      for (const d of cena.objetos) {
+        const b = ids.has(d.id) ? baseDoObjeto(d, assets) : undefined;
+        if (!b) continue;
+        const s = geometriaSelecao(cena, d, b, k);
+        g.poly(s.cantos.flatMap((p) => [p.x, p.y]), true).stroke({ width: 1.5 * k, color: 0x22d3ee, alpha: 0.9 });
+      }
+    }
+    const o = cena.objetos.find((x) => x.id === opc.selecionadoId);
+    const a = o && baseDoObjeto(o, assets);
+    if (!o || !a) return;
     const s = geometriaSelecao(cena, o, a, k);
     g.poly(s.cantos.flatMap((p) => [p.x, p.y]), true).stroke({ width: 2 * k, color: 0x7c3aed });
     g.moveTo(s.topo.x, s.topo.y).lineTo(s.alcaRotacao.x, s.alcaRotacao.y).stroke({ width: 1.5 * k, color: 0x7c3aed });

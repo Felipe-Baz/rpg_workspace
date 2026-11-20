@@ -5,7 +5,7 @@ import { collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, setDoc } from 
 import { db } from "../firebase";
 import { uid as novoId } from "../mesas";
 import { enviarArquivo, excluirPorUrl } from "../storage";
-import type { Job } from "../mapas-ia/assets/jobs";
+import { TEMPO_MAX_JOB_MS, jobExpirado, type Job } from "../mapas-ia/assets/jobs";
 import { cenasQueUsam, decidirExclusao, substituirAsset, type UsoEmCena } from "../mapas-ia/assets/biblioteca";
 import type { Asset, Cena } from "./tipos";
 
@@ -165,4 +165,32 @@ export async function adotarAssetPublico(mesaId: string, pub: Asset): Promise<As
   const asset: Asset = { ...pub, publico: true };
   await setDoc(doc(db, "mesas", mesaId, "assets", asset.id), limpar(asset));
   return asset;
+}
+
+/** Espera o job terminar ("pronto" ou "falhou"); job preso além do tempo máximo conta como falha. */
+export function aguardarJob(mesaId: string, jobId: string): Promise<Job> {
+  return new Promise((ok, falha) => {
+    // Sem novos snapshots, um job preso nunca reavaliaria a expiração: o prazo encerra a espera.
+    const prazo = setTimeout(() => {
+      parar();
+      falha(new Error("A geração não terminou a tempo."));
+    }, TEMPO_MAX_JOB_MS);
+    const parar = onSnapshot(
+      doc(db, "mesas", mesaId, "jobs", jobId),
+      (s) => {
+        const job = s.data() as Job | undefined;
+        if (!job) return;
+        if (job.status === "pronto" || job.status === "falhou" || jobExpirado(job)) {
+          parar();
+          clearTimeout(prazo);
+          ok(jobExpirado(job) ? { ...job, status: "falhou", erro: job.erro ?? "A geração não terminou a tempo." } : job);
+        }
+      },
+      (e) => {
+        parar();
+        clearTimeout(prazo);
+        falha(e);
+      },
+    );
+  });
 }

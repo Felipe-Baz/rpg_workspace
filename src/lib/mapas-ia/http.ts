@@ -47,3 +47,17 @@ export function exigirCampo(config: Record<string, string>, chave: string, rotul
   if (!v) throw new ErroProvedor(`Campo obrigatório ausente: ${rotulo}.`);
   return v;
 }
+
+/**
+ * Junta mensagens seguidas do mesmo papel (ex.: vários resultados de ferramenta). Gemini exige todas as
+ * respostas de função num único turno e a Anthropic, todos os tool_result na mensagem seguinte.
+ */
+export function juntarPapeisIguais<T extends { role: string }>(msgs: T[], campo: keyof T): T[] {
+  const out: T[] = [];
+  for (const m of msgs) {
+    const ult = out[out.length - 1];
+    if (ult && ult.role === m.role) out[out.length - 1] = { ...ult, [campo]: [...(ult[campo] as unknown[]), ...(m[campo] as unknown[])] };
+    else out.push(m);
+  }
+  return out;
+}

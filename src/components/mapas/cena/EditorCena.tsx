@@ -5,14 +5,29 @@ import { uid } from "@/lib/mesas";
 import { atualizarMapa, type Colecao, type Mapa } from "@/lib/mapas";
 import { enviarArquivo, excluirPorUrl } from "@/lib/storage";
 import { carregarCena, enviarAsset, salvarCena, useAssets } from "@/lib/cena/cenas";
-import { aplicar, desfazer, executar, historicoVazio, refazer, type Comando, type Historico } from "@/lib/cena/comandos";
+import {
+  aplicar,
+  desfazer,
+  executar,
+  historicoVazio,
+  passosRevertidos,
+  refazer,
+  reverterIa,
+  reverterPassos,
+  type Comando,
+  type Historico,
+} from "@/lib/cena/comandos";
 import { patchSalvarRender } from "@/lib/cena/compat";
-import { alcaEm, clamp01, larguraCelulaFracao, objetoEm, snapGrid, type Alca, type Pt } from "@/lib/cena/geometria";
+import { alcaEm, baseDoObjeto, clamp01, larguraCelulaFracao, objetoEm, snapGrid, type Alca, type Pt } from "@/lib/cena/geometria";
 import { RenderCena } from "@/lib/cena/render";
 import type { Camada, Cena, ObjetoCena } from "@/lib/cena/tipos";
+import { aplicarPasso, previa } from "@/lib/mapas-ia/agente/passos";
+import type { Passo } from "@/lib/mapas-ia/agente/tipos";
 import { PERSPECTIVAS, mostrarSeletor, obterPerspectiva } from "@/lib/mapas-ia/perspectivas/registro";
 import { useTemas } from "@/lib/mapas-ia/temas/temas";
 import BibliotecaAssets from "./BibliotecaAssets";
+import ChatIA from "./ChatIA";
+import HistoricoEditor from "./HistoricoEditor";
 
 const btn = "rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/50 disabled:opacity-40";
 const btnAtivo = "rounded-lg border border-violet-600 bg-violet-600 px-2.5 py-1.5 text-sm text-white";
@@ -44,11 +59,14 @@ export default function EditorCena({
   mesaId,
   mapa,
   colecao,
+  pedidoInicial,
   onFechar,
 }: {
   mesaId: string;
   mapa: Mapa;
   colecao: Colecao;
+  /** Descrição feita ao criar o mapa: abre o chat e já envia ao agente. */
+  pedidoInicial?: string;
   onFechar: () => void;
 }) {
   const assetsLista = useAssets(mesaId);
@@ -68,6 +86,10 @@ export default function EditorCena({
   const [mostrarGrid, setMostrarGrid] = useState(true);
   const [snap, setSnap] = useState(true);
   const [medida, setMedida] = useState("");
+  const [chatAberto, setChatAberto] = useState(!!pedidoInicial);
+  const [previaPassos, setPreviaPassos] = useState<Passo[]>([]);
+  const [destaquePrevia, setDestaquePrevia] = useState<string[]>([]);
+  const [destacarIa, setDestacarIa] = useState(false);
 
   const area = useRef<HTMLDivElement>(null);
   const host = useRef<HTMLDivElement>(null);
@@ -125,11 +147,28 @@ export default function EditorCena({
     return c && cena ? cena.largura / Math.max(1, c.getBoundingClientRect().width) : 1;
   }, [cena]);
 
+  // Prévia do plano da IA: a cena como ficaria, sem tocar no histórico.
+  const emPrevia = previaPassos.length > 0;
+  const cenaVista = useMemo(() => (cena && emPrevia ? previa(cena, previaPassos) : cena), [cena, emPrevia, previaPassos]);
+  const onPrevia = useCallback((passos: Passo[], destaque: string[]) => {
+    setPreviaPassos(passos);
+    setDestaquePrevia(destaque);
+  }, []);
+
+  // Objetos criados/alterados por passos da IA ainda ativos (para destacar).
+  const revertidos = useMemo(() => passosRevertidos(hist), [hist]);
+  const aplicados = useMemo(() => new Set(hist.passado.flatMap((e) => (e.meta.passo ? [e.meta.passo.id] : []))), [hist]);
+  const objetosIa = useMemo(
+    () => hist.passado.flatMap((e) => (e.meta.passo && !revertidos.has(e.meta.passo.id) ? (e.meta.passo.objetos ?? []) : [])),
+    [hist, revertidos],
+  );
+  const destacados = emPrevia ? destaquePrevia : destacarIa ? objetosIa : undefined;
+
   // Redesenha quando algo muda.
   useEffect(() => {
-    if (!pronto || !cena || !render.current) return;
-    render.current.atualizar(cena, assets, { selecionadoId: selId, mostrarGrid, pxPorTela: pxPorTela() });
-  }, [pronto, cena, assets, selId, mostrarGrid, tam, pxPorTela]);
+    if (!pronto || !cenaVista || !render.current) return;
+    render.current.atualizar(cenaVista, assets, { selecionadoId: emPrevia ? null : selId, mostrarGrid, pxPorTela: pxPorTela(), destacados });
+  }, [pronto, cenaVista, assets, selId, mostrarGrid, tam, pxPorTela, emPrevia, destacados]);
 
   // ---- Comandos ----
   const rodar = useCallback(
@@ -162,6 +201,39 @@ export default function EditorCena({
     setHist(r.historico);
     if (selId && !r.cena.objetos.some((o) => o.id === selId)) setSelId(null);
   }, [cena, hist, selId]);
+
+  // ---- Passos da IA: cada passo é uma entrada de undo (autoria IA) ----
+  const aplicarPassosIa = useCallback(
+    (passos: Passo[]) => {
+      if (!cena) return 0;
+      let c = cena;
+      let h = hist;
+      let ignorados = 0;
+      for (const p of passos) {
+        const r = aplicarPasso(c, h, p);
+        c = r.cena;
+        h = r.historico;
+        ignorados += r.ignorados;
+      }
+      setCena(c);
+      setHist(h);
+      setErro("");
+      return ignorados;
+    },
+    [cena, hist],
+  );
+
+  const reverterResultado = useCallback(
+    (r: { cena: Cena; historico: Historico; ignorados: number }) => {
+      setCena(r.cena);
+      setHist(r.historico);
+      setErro(r.ignorados ? `${r.ignorados} ação(ões) da IA já tinham sido alteradas à mão e foram mantidas.` : "");
+      if (selId && !r.cena.objetos.some((o) => o.id === selId)) setSelId(null);
+    },
+    [selId],
+  );
+  const reverterPassosIa = useCallback((ids: string[]) => cena && reverterResultado(reverterPassos(cena, hist, ids)), [cena, hist, reverterResultado]);
+  const reverterTudoIa = useCallback(() => cena && reverterResultado(reverterIa(cena, hist)), [cena, hist, reverterResultado]);
 
   const sel = cena?.objetos.find((o) => o.id === selId) ?? null;
   const camadaDe = (c: Cena, id: string) => c.camadas.find((x) => x.id === id);
@@ -224,6 +296,7 @@ export default function EditorCena({
 
   function aoPressionar(e: React.PointerEvent) {
     if (!cena || !render.current || e.button !== 0) return;
+    if (emPrevia) return setErro("Prévia do plano da IA: aplique ou descarte os passos no chat para voltar a editar.");
     const p = fracao(e);
 
     if (assetSel) {
@@ -242,7 +315,7 @@ export default function EditorCena({
 
     const k = pxPorTela();
     if (sel) {
-      const a = assets.get(sel.assetId);
+      const a = baseDoObjeto(sel, assets);
       const alca: Alca | null = a ? alcaEm(cena, sel, a, k, emPx(p)) : null;
       if (alca === "escala") {
         const c = { x: sel.x * cena.largura, y: sel.y * cena.altura };
@@ -434,13 +507,19 @@ export default function EditorCena({
           <button className={btn} onClick={medirDesempenho} disabled={!pronto}>⏱ 500 objetos</button>
         )}
         {medida && <span className="text-xs text-muted">{medida}</span>}
-        <span className="ml-auto text-xs text-muted">{sujo ? "Alterações não salvas" : "Salvo"}</span>
-        <button className="rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50" onClick={salvar} disabled={!sujo || salvando || !pronto}>
+        <button className={chatAberto ? btnAtivo : btn} onClick={() => setChatAberto(!chatAberto)} title="Criar e editar o mapa conversando com a IA">✦ IA</button>
+        <span className="ml-auto text-xs text-muted">{emPrevia ? "Prévia do plano" : sujo ? "Alterações não salvas" : "Salvo"}</span>
+        <button className="rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50" onClick={salvar} disabled={!sujo || salvando || !pronto || emPrevia} title={emPrevia ? "Aplique ou descarte a prévia antes de salvar" : undefined}>
           {salvando ? "Salvando…" : "Salvar"}
         </button>
         <button className={btn} onClick={fechar}>Fechar</button>
       </header>
       {erro && <p className="border-b border-border bg-red-500/10 px-3 py-1 text-sm text-red-500">{erro}</p>}
+      {emPrevia && (
+        <p className="border-b border-border bg-cyan-500/10 px-3 py-1 text-sm text-cyan-400">
+          Prévia do plano da IA (contornos em ciano). Nada foi aplicado: use o chat para aplicar ou descartar.
+        </p>
+      )}
 
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         {/* Assets */}
@@ -525,7 +604,32 @@ export default function EditorCena({
               </>
             )}
           </section>
+
+          <HistoricoEditor
+            historico={hist}
+            revertidos={revertidos}
+            destacarIa={destacarIa}
+            onDestacarIa={setDestacarIa}
+            onReverterPasso={(id) => reverterPassosIa([id])}
+            onReverterIa={reverterTudoIa}
+          />
         </aside>
+
+        {chatAberto && cena && (
+          <aside className="h-80 w-full shrink-0 border-t border-border md:h-auto md:w-80 md:border-l md:border-t-0">
+            <ChatIA
+              mesaId={mesaId}
+              cena={cena}
+              selecao={selId ? [selId] : []}
+              aplicados={aplicados}
+              revertidos={revertidos}
+              pedidoInicial={pedidoInicial}
+              onPrevia={onPrevia}
+              onAplicar={aplicarPassosIa}
+              onReverter={reverterPassosIa}
+            />
+          </aside>
+        )}
       </div>
     </div>
   );

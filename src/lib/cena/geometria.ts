@@ -1,5 +1,5 @@
 import type { Asset, Cena, ObjetoCena } from "./tipos.ts";
-import { LADO_MAXIMO_RENDER } from "./tipos.ts";
+import { ASSET_LUZ, ASSET_ROTULO, LADO_MAXIMO_RENDER } from "./tipos.ts";
 import { chaveOrdem, obterPerspectiva } from "../mapas-ia/perspectivas/registro.ts";
 
 export type Pt = { x: number; y: number };
@@ -58,6 +58,26 @@ export function snapGrid(cena: Cena, p: Pt): Pt {
   return melhor ?? p;
 }
 
+/** Centro (em fração) da célula (coluna, linha); aceita frações de célula. Sem grid, devolve null. */
+export function centroCelula(cena: Cena, coluna: number, linha: number): Pt | null {
+  const m = medidasGrid(cena);
+  if (!m) return null;
+  if (m.tipo === "quadrado") return { x: ((coluna + 0.5) * m.celula) / cena.largura, y: ((linha + 0.5) * m.celula) / cena.altura };
+  const l = Math.round(linha);
+  const desloc = (((l % 2) + 2) % 2) * (m.larg / 2);
+  return { x: (m.larg / 2 + coluna * m.larg + desloc) / cena.largura, y: (m.raio + linha * 1.5 * m.raio) / cena.altura };
+}
+
+/**
+ * Proporções-base do objeto: as do asset ou, nos objetos embutidos (luz, rótulo), uma caixa
+ * calculada. `undefined` se o asset não existir (o objeto não é desenhado nem selecionável).
+ */
+export function baseDoObjeto(o: ObjetoCena, assets: Map<string, Pick<Asset, "largura" | "altura">>): Pick<Asset, "largura" | "altura"> | undefined {
+  if (o.assetId === ASSET_LUZ) return { largura: 1, altura: 1 };
+  if (o.assetId === ASSET_ROTULO) return { largura: 0.6 * Math.max(1, o.rotulo?.texto.length ?? 1), altura: 1 };
+  return assets.get(o.assetId);
+}
+
 /** Dimensões do objeto em px do canvas. */
 export function tamanhoObjeto(cena: Cena, o: ObjetoCena, a: Pick<Asset, "largura" | "altura">) {
   const w = o.escala * cena.largura;
@@ -84,10 +104,10 @@ export function objetoEm(cena: Cena, assets: Map<string, Asset>, p: Pt): ObjetoC
     .map((o, i) => ({ o, i }))
     .filter(({ o }) => {
       const c = cena.camadas.find((x) => x.id === o.camadaId);
-      return c && c.visivel && !c.travada && assets.has(o.assetId);
+      return c && c.visivel && !c.travada && !!baseDoObjeto(o, assets);
     })
     .sort((a, b) => (ordemCamada.get(b.o.camadaId)! - ordemCamada.get(a.o.camadaId)!) || chaveOrdem(persp, b.o, b.i) - chaveOrdem(persp, a.o, a.i));
-  return candidatos.find(({ o }) => acertaObjeto(cena, o, assets.get(o.assetId)!, p))?.o ?? null;
+  return candidatos.find(({ o }) => acertaObjeto(cena, o, baseDoObjeto(o, assets)!, p))?.o ?? null;
 }
 
 /** Tamanho do render: preserva a proporção e limita o lado maior. */

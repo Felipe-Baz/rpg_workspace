@@ -31,6 +31,7 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
   const [novaCena, setNovaCena] = useState(false);
   const [temasAberto, setTemasAberto] = useState(false);
   const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [pedidoInicial, setPedidoInicial] = useState<string | undefined>();
   const editando = mapas.find((m) => m.id === editandoId);
 
   async function subir(arquivo?: File) {
@@ -99,14 +100,24 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
           mesaId={mesa.id}
           colecao={colecao}
           onCancelar={() => setNovaCena(false)}
-          onCriado={(m) => {
+          onCriado={(m, descricao) => {
             setNovaCena(false);
+            setPedidoInicial(descricao);
             setEditandoId(m.id);
           }}
         />
       )}
       {editando && ehMapaDeCena(editando) && (
-        <EditorCena mesaId={mesa.id} mapa={editando} colecao={colecao} onFechar={() => setEditandoId(null)} />
+        <EditorCena
+          mesaId={mesa.id}
+          mapa={editando}
+          colecao={colecao}
+          pedidoInicial={pedidoInicial}
+          onFechar={() => {
+            setEditandoId(null);
+            setPedidoInicial(undefined);
+          }}
+        />
       )}
     </section>
   );

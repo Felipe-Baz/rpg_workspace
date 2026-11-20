@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- JSON de APIs externas */
-import { exigirCampo, postarJson } from "../http.ts";
+import { exigirCampo, juntarPapeisIguais, postarJson } from "../http.ts";
 import { ErroProvedor, type ChamadaFerramenta, type MensagemLlm, type PedidoLlm, type ProvedorLlm } from "../tipos.ts";
 import { GOOGLE_BASE, campoGoogleKey, campoModelo } from "./google-comum.ts";
 
@@ -28,7 +28,7 @@ export const googleLlm: ProvedorLlm = {
   async conversar(ctx, p: PedidoLlm) {
     const key = exigirCampo(ctx.config, "apiKey", "chave do Google");
     const modelo = ctx.config.modelo?.trim() || MODELO_LLM_GOOGLE_PADRAO;
-    const corpo: Record<string, unknown> = { contents: p.mensagens.map(conteudo) };
+    const corpo: Record<string, unknown> = { contents: juntarPapeisIguais(p.mensagens.map(conteudo), "parts") };
     if (p.sistema) corpo.systemInstruction = { parts: [{ text: p.sistema }] };
     if (p.ferramentas?.length) {
       corpo.tools = [{ functionDeclarations: p.ferramentas.map((f) => ({ name: f.nome, description: f.descricao, parameters: f.parametros })) }];
