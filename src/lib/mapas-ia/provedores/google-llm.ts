@@ -11,7 +11,8 @@ function conteudo(m: MensagemLlm) {
   }
   const parts: unknown[] = (m.imagens ?? []).map((i) => ({ inlineData: { mimeType: i.mime, data: i.base64 } }));
   if (m.texto) parts.push({ text: m.texto });
-  for (const c of m.chamadas ?? []) parts.push({ functionCall: { name: c.nome, args: c.argumentos } });
+  // Gemini 3 exige a thoughtSignature de volta na mesma parte da functionCall (só a primeira de chamadas paralelas a tem).
+  for (const c of m.chamadas ?? []) parts.push({ functionCall: { name: c.nome, args: c.argumentos }, ...(c.assinatura ? { thoughtSignature: c.assinatura } : {}) });
   return { role: m.papel === "assistente" ? "model" : "user", parts };
 }
 
@@ -40,7 +41,10 @@ export const googleLlm: ProvedorLlm = {
     let texto = "";
     partes.forEach((pt, i) => {
       if (pt.text) texto += pt.text;
-      if (pt.functionCall) chamadas.push({ id: pt.functionCall.id ?? `g${i}`, nome: pt.functionCall.name, argumentos: pt.functionCall.args ?? {} });
+      if (pt.functionCall) {
+        const assinatura = pt.thoughtSignature ?? pt.thought_signature;
+        chamadas.push({ id: pt.functionCall.id ?? `g${i}`, nome: pt.functionCall.name, argumentos: pt.functionCall.args ?? {}, ...(assinatura ? { assinatura } : {}) });
+      }
     });
     return { texto, chamadas };
   },

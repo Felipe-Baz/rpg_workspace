@@ -1,4 +1,4 @@
-import type { Camada, Cena, Grid, ObjetoCena } from "./tipos.ts";
+import type { Camada, Cena, Grid, ObjetoCena, Parede } from "./tipos.ts";
 import { obterPerspectiva } from "../mapas-ia/perspectivas/registro.ts";
 
 // Toda mutação da cena é um Comando. `aplicar` devolve a nova cena e o comando inverso;
@@ -18,6 +18,7 @@ export type Comando =
   | { tipo: "definirPerspectiva"; perspectiva: string }
   | { tipo: "definirTema"; temaId: string | undefined }
   | { tipo: "redimensionar"; largura: number; altura: number }
+  | { tipo: "definirParedes"; paredes: Parede[] | undefined }
   | { tipo: "lote"; comandos: Comando[] };
 
 export type Resultado = { cena: Cena; inverso: Comando };
@@ -139,6 +140,14 @@ export function aplicar(cena: Cena, cmd: Comando): Resultado {
       return {
         cena: { ...cena, largura: cmd.largura, altura: cmd.altura },
         inverso: { tipo: "redimensionar", largura: cena.largura, altura: cena.altura },
+      };
+    }
+    case "definirParedes": {
+      const { paredes: _anteriores, ...resto } = cena;
+      void _anteriores;
+      return {
+        cena: cmd.paredes?.length ? { ...resto, paredes: cmd.paredes } : resto,
+        inverso: { tipo: "definirParedes", paredes: cena.paredes },
       };
     }
     case "lote": {

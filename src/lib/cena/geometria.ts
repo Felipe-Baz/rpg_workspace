@@ -58,6 +58,15 @@ export function snapGrid(cena: Cena, p: Pt): Pt {
   return melhor ?? p;
 }
 
+/** Vértice mais próximo do grid quadrado (paredes seguem as linhas das células). Hex ou sem grid: devolve `p`. */
+export function snapVertice(cena: Cena, p: Pt): Pt {
+  const m = medidasGrid(cena);
+  if (m?.tipo !== "quadrado") return p;
+  const c = Math.min(m.colunas, Math.max(0, Math.round((p.x * cena.largura) / m.celula)));
+  const l = Math.min(m.linhas, Math.max(0, Math.round((p.y * cena.altura) / m.celula)));
+  return { x: (c * m.celula) / cena.largura, y: (l * m.celula) / cena.altura };
+}
+
 /** Centro (em fração) da célula (coluna, linha); aceita frações de célula. Sem grid, devolve null. */
 export function centroCelula(cena: Cena, coluna: number, linha: number): Pt | null {
   const m = medidasGrid(cena);

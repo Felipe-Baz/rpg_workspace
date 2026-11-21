@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { PROVEDORES, descreverProvedor, provedoresImagem, provedoresLlm } from "./registro.ts";
-import { ErroProvedor, type ContextoProvedor, type FerramentaNeutra, type HttpFn, type ProvedorImagem } from "./tipos.ts";
+import { ErroProvedor, type ContextoProvedor, type FerramentaNeutra, type HttpFn, type Provedor, type ProvedorImagem } from "./tipos.ts";
 import { googleImagem } from "./provedores/google-imagem.ts";
 import { googleLlm } from "./provedores/google-llm.ts";
 import { anthropicLlm } from "./provedores/anthropic-llm.ts";
@@ -17,6 +17,13 @@ import { cifrar, decifrar } from "../servidor/cifra.ts";
 const CHAVE = "SEGREDO-SUPER-123456";
 const resp = (status: number, corpo: unknown): Response => new Response(typeof corpo === "string" ? corpo : JSON.stringify(corpo), { status });
 const ctx = (http: HttpFn, extra: Record<string, string> = {}): ContextoProvedor => ({ config: { apiKey: CHAVE, ...extra }, http });
+/** A operação principal de cada tipo de provedor. */
+const operar = (p: Provedor, c: ContextoProvedor): Promise<unknown> =>
+  p.tipo === "imagem"
+    ? p.gerar(c, { prompt: "x" })
+    : p.tipo === "llm"
+      ? p.conversar(c, { mensagens: [{ papel: "usuario", texto: "x" }] })
+      : p.segmentar(c, { imagem: { mime: "image/png", base64: "AAAA" } });
 
 // ---------- 1.3 Suíte de contrato (todo provedor passa pelos mesmos testes) ----------
 for (const p of PROVEDORES) {
@@ -30,7 +37,7 @@ for (const p of PROVEDORES) {
 
   test(`contrato [${p.id}]: erro do provedor não vaza a chave`, async () => {
     const http: HttpFn = async () => resp(401, { error: { message: `chave inválida ${CHAVE}` } });
-    const op = p.tipo === "imagem" ? p.gerar(ctx(http), { prompt: "x" }) : p.conversar(ctx(http), { mensagens: [{ papel: "usuario", texto: "x" }] });
+    const op = operar(p, ctx(http));
     await assert.rejects(op, (e: Error) => e instanceof ErroProvedor && !e.message.includes(CHAVE) && e.message.includes("401"));
     await assert.rejects(p.testar(ctx(http)), (e: Error) => !e.message.includes(CHAVE));
   });
@@ -39,7 +46,7 @@ for (const p of PROVEDORES) {
     const http: HttpFn = async () => {
       throw new Error(`boom ${CHAVE}`);
     };
-    const op = p.tipo === "imagem" ? p.gerar(ctx(http), { prompt: "x" }) : p.conversar(ctx(http), { mensagens: [{ papel: "usuario", texto: "x" }] });
+    const op = operar(p, ctx(http));
     await assert.rejects(op, (e: Error) => !e.message.includes(CHAVE));
     await assert.rejects(p.testar({ config: {}, http }), ErroProvedor);
   });
@@ -377,4 +384,25 @@ test("cor-chave: extrairPaleta e trechoFundo", () => {
   assert.deepEqual(extrairPaleta("#AABBCC e #aabbcc, #00ff00"), [[170, 187, 204], [0, 255, 0]]);
   const t = trechoFundo(CANDIDATAS[1]);
   assert.ok(t.includes("cyan") && t.includes("#00FFFF") && t.includes("no cyan anywhere"));
+});
+
+test("Gemini: thoughtSignature da functionCall volta na mesma parte no turno seguinte", async () => {
+  const corpos: any[] = [];
+  const http: HttpFn = async (_url, init) => {
+    corpos.push(JSON.parse(String(init?.body)));
+    return resp(200, { candidates: [{ content: { parts: [{ functionCall: { name: "buscar_asset", args: { q: "mesa" } }, thoughtSignature: "SIG1" }, { functionCall: { name: "buscar_asset", args: { q: "barril" } } }] } }] });
+  };
+  const r = await googleLlm.conversar(ctx(http), { mensagens: [{ papel: "usuario", texto: "x" }] });
+  assert.equal(r.chamadas[0].assinatura, "SIG1");
+  assert.equal(r.chamadas[1].assinatura, undefined);
+  await googleLlm.conversar(ctx(http), {
+    mensagens: [
+      { papel: "usuario", texto: "x" },
+      { papel: "assistente", chamadas: r.chamadas },
+      ...r.chamadas.map((c) => ({ papel: "ferramenta" as const, texto: "[]", resultadoDe: { id: c.id, nome: c.nome } })),
+    ],
+  });
+  const partes = corpos[1].contents[1].parts;
+  assert.equal(partes[0].thoughtSignature, "SIG1");
+  assert.equal(partes[1].thoughtSignature, undefined);
 });

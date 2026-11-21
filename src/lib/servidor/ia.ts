@@ -2,7 +2,7 @@ import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
 import { TETO_PADRAO, periodoDe, verificarTeto, type UsoPeriodo } from "../mapas-ia/limites";
 import { PROVEDORES, obterProvedor } from "../mapas-ia/registro";
-import type { ContextoProvedor, Provedor } from "../mapas-ia/tipos";
+import type { ContextoProvedor, Provedor, TipoProvedor } from "../mapas-ia/tipos";
 import { adminDb } from "./admin";
 import { cifrar, decifrar } from "./cifra";
 import { ErroHttp } from "./auth";
@@ -13,13 +13,15 @@ const docConfig = (uid: string) => adminDb().collection("usuarios").doc(uid).col
 export interface ConfigIa {
   provedorImagemAtivo?: string;
   provedorLlmAtivo?: string;
+  /** Segmentador usado ao converter mapa de imagem em cena. */
+  provedorSegmentacaoAtivo?: string;
   /** Campos não-secretos por provedor (ex.: modelo). */
   campos: Record<string, Record<string, string>>;
 }
 
 export async function lerConfig(uid: string): Promise<ConfigIa> {
   const d = (await docConfig(uid).get()).data() ?? {};
-  return { provedorImagemAtivo: d.provedorImagemAtivo, provedorLlmAtivo: d.provedorLlmAtivo, campos: d.campos ?? {} };
+  return { provedorImagemAtivo: d.provedorImagemAtivo, provedorLlmAtivo: d.provedorLlmAtivo, provedorSegmentacaoAtivo: d.provedorSegmentacaoAtivo, campos: d.campos ?? {} };
 }
 
 export async function salvarConfig(uid: string, c: Partial<ConfigIa>) {
@@ -28,6 +30,8 @@ export async function salvarConfig(uid: string, c: Partial<ConfigIa>) {
     throw new ErroHttp(400, "Provedor de imagem inválido.");
   if (c.provedorLlmAtivo !== undefined && obterProvedor(c.provedorLlmAtivo)?.tipo !== "llm")
     throw new ErroHttp(400, "Provedor de LLM inválido.");
+  if (c.provedorSegmentacaoAtivo !== undefined && obterProvedor(c.provedorSegmentacaoAtivo)?.tipo !== "segmentacao")
+    throw new ErroHttp(400, "Segmentador inválido.");
   const campos = { ...atual.campos };
   for (const [pid, valores] of Object.entries(c.campos ?? {})) {
     const p = obterProvedor(pid);
@@ -40,6 +44,7 @@ export async function salvarConfig(uid: string, c: Partial<ConfigIa>) {
   const novo: Record<string, unknown> = { campos };
   novo.provedorImagemAtivo = c.provedorImagemAtivo ?? atual.provedorImagemAtivo ?? null;
   novo.provedorLlmAtivo = c.provedorLlmAtivo ?? atual.provedorLlmAtivo ?? null;
+  novo.provedorSegmentacaoAtivo = c.provedorSegmentacaoAtivo ?? atual.provedorSegmentacaoAtivo ?? null;
   await docConfig(uid).set(novo);
 }
 
@@ -103,7 +108,7 @@ export async function exigirTeto(mesaId: string, quantidade: number) {
   if (!d.ok) throw new ErroHttp(429, d.motivo);
 }
 
-export async function registrarUso(mesaId: string, provedorId: string, tipo: "imagem" | "llm", quantidade = 1) {
+export async function registrarUso(mesaId: string, provedorId: string, tipo: TipoProvedor, quantidade = 1) {
   const periodo = periodoDe();
   await refUso(mesaId)
     .doc(periodo)

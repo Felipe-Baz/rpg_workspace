@@ -130,14 +130,14 @@ export async function atualizarAsset(mesaId: string, assetId: string, patch: Par
   await setDoc(doc(db, "mesas", mesaId, "assets", assetId), limpar(patch), { merge: true });
 }
 
-/** Acompanha um job em tempo real (null enquanto não carrega ou sem id). */
-export function useJob(mesaId: string, jobId: string | null) {
-  const [estado, setEstado] = useState<{ id: string; job: Job | null } | null>(null);
+/** Acompanha um job em tempo real (null enquanto não carrega ou sem id). `T`: de asset (padrão) ou de conversão. */
+export function useJob<T extends Pick<Job, "status" | "atualizadoEm"> = Job>(mesaId: string, jobId: string | null) {
+  const [estado, setEstado] = useState<{ id: string; job: T | null } | null>(null);
   useEffect(() => {
     if (!jobId) return;
     return onSnapshot(
       doc(db, "mesas", mesaId, "jobs", jobId),
-      (s) => setEstado({ id: jobId, job: s.exists() ? (s.data() as Job) : null }),
+      (s) => setEstado({ id: jobId, job: s.exists() ? (s.data() as T) : null }),
       (e) => console.error("job:", e),
     );
   }, [mesaId, jobId]);

@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   }
 }
 
-// Corpo: { provedorImagemAtivo?, provedorLlmAtivo?, campos?, segredos?: {credId: chave}, removerSegredos?: [credId] }
+// Corpo: { provedorImagemAtivo?, provedorLlmAtivo?, provedorSegmentacaoAtivo?, campos?, segredos?: {credId: chave}, removerSegredos?: [credId] }
 export async function PUT(req: Request) {
   try {
     const { uid } = await verificarToken(req);
@@ -25,7 +25,7 @@ export async function PUT(req: Request) {
       if (typeof chave === "string" && chave.trim()) await salvarSegredo(uid, cred, chave);
     }
     for (const cred of (b.removerSegredos ?? []) as string[]) await removerSegredo(uid, cred);
-    await salvarConfig(uid, { provedorImagemAtivo: b.provedorImagemAtivo, provedorLlmAtivo: b.provedorLlmAtivo, campos: b.campos });
+    await salvarConfig(uid, { provedorImagemAtivo: b.provedorImagemAtivo, provedorLlmAtivo: b.provedorLlmAtivo, provedorSegmentacaoAtivo: b.provedorSegmentacaoAtivo, campos: b.campos });
     return Response.json({ ok: true, credenciais: await estadoCredenciais(uid), config: await lerConfig(uid) });
   } catch (e) {
     return respostaErro(e);

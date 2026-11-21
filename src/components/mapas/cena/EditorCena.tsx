@@ -18,7 +18,7 @@ import {
   type Historico,
 } from "@/lib/cena/comandos";
 import { patchSalvarRender } from "@/lib/cena/compat";
-import { alcaEm, baseDoObjeto, clamp01, larguraCelulaFracao, objetoEm, snapGrid, type Alca, type Pt } from "@/lib/cena/geometria";
+import { alcaEm, baseDoObjeto, clamp01, larguraCelulaFracao, objetoEm, snapGrid, snapVertice, type Alca, type Pt } from "@/lib/cena/geometria";
 import { RenderCena } from "@/lib/cena/render";
 import type { Camada, Cena, ObjetoCena } from "@/lib/cena/tipos";
 import { aplicarPasso, previa } from "@/lib/mapas-ia/agente/passos";
@@ -27,6 +27,7 @@ import { PERSPECTIVAS, mostrarSeletor, obterPerspectiva } from "@/lib/mapas-ia/p
 import { useTemas } from "@/lib/mapas-ia/temas/temas";
 import BibliotecaAssets from "./BibliotecaAssets";
 import ChatIA from "./ChatIA";
+import ExportarCena from "./ExportarCena";
 import HistoricoEditor from "./HistoricoEditor";
 
 const btn = "rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/50 disabled:opacity-40";
@@ -90,6 +91,9 @@ export default function EditorCena({
   const [previaPassos, setPreviaPassos] = useState<Passo[]>([]);
   const [destaquePrevia, setDestaquePrevia] = useState<string[]>([]);
   const [destacarIa, setDestacarIa] = useState(false);
+  const [ferramenta, setFerramenta] = useState<"selecionar" | "paredes">("selecionar");
+  const [rascunho, setRascunho] = useState<Pt[]>([]);
+  const [exportando, setExportando] = useState(false);
 
   const area = useRef<HTMLDivElement>(null);
   const host = useRef<HTMLDivElement>(null);
@@ -167,8 +171,15 @@ export default function EditorCena({
   // Redesenha quando algo muda.
   useEffect(() => {
     if (!pronto || !cenaVista || !render.current) return;
-    render.current.atualizar(cenaVista, assets, { selecionadoId: emPrevia ? null : selId, mostrarGrid, pxPorTela: pxPorTela(), destacados });
-  }, [pronto, cenaVista, assets, selId, mostrarGrid, tam, pxPorTela, emPrevia, destacados]);
+    render.current.atualizar(cenaVista, assets, {
+      selecionadoId: emPrevia ? null : selId,
+      mostrarGrid,
+      pxPorTela: pxPorTela(),
+      destacados,
+      mostrarParedes: true,
+      rascunhoParede: rascunho,
+    });
+  }, [pronto, cenaVista, assets, selId, mostrarGrid, tam, pxPorTela, emPrevia, destacados, rascunho]);
 
   // ---- Comandos ----
   const rodar = useCallback(
@@ -246,6 +257,14 @@ export default function EditorCena({
     setSelId(novo.id);
   }, [cena, sel, rodar]);
 
+  // Paredes: cada clique é um ponto; duplo clique ou Enter conclui (uma entrada de desfazer por parede).
+  const concluirParede = useCallback(() => {
+    if (!cena) return;
+    const pts = rascunho.filter((p, i) => i === 0 || Math.hypot(p.x - rascunho[i - 1].x, p.y - rascunho[i - 1].y) > 0.002);
+    setRascunho([]);
+    if (pts.length >= 2) rodar({ tipo: "definirParedes", paredes: [...(cena.paredes ?? []), { id: uid(), pontos: pts }] });
+  }, [cena, rascunho, rodar]);
+
   const remover = useCallback(() => {
     if (!sel) return;
     rodar({ tipo: "removerObjeto", id: sel.id });
@@ -270,14 +289,17 @@ export default function EditorCena({
         duplicar();
       } else if (e.key === "Delete" || e.key === "Backspace") {
         remover();
+      } else if (e.key === "Enter" && ferramenta === "paredes") {
+        concluirParede();
       } else if (e.key === "Escape") {
-        if (assetSel) setAssetSel(null);
+        if (rascunho.length) setRascunho([]);
+        else if (assetSel) setAssetSel(null);
         else setSelId(null);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [desfazerFn, refazerFn, duplicar, remover, assetSel]);
+  }, [desfazerFn, refazerFn, duplicar, remover, assetSel, ferramenta, rascunho, concluirParede]);
 
   // Aviso do navegador ao sair com alterações pendentes.
   useEffect(() => {
@@ -298,6 +320,11 @@ export default function EditorCena({
     if (!cena || !render.current || e.button !== 0) return;
     if (emPrevia) return setErro("Prévia do plano da IA: aplique ou descarte os passos no chat para voltar a editar.");
     const p = fracao(e);
+
+    if (ferramenta === "paredes") {
+      setRascunho((r) => [...r, snap ? snapVertice(cena, p) : p]);
+      return;
+    }
 
     if (assetSel) {
       const a = assets.get(assetSel);
@@ -507,6 +534,17 @@ export default function EditorCena({
           <button className={btn} onClick={medirDesempenho} disabled={!pronto}>⏱ 500 objetos</button>
         )}
         {medida && <span className="text-xs text-muted">{medida}</span>}
+        <button
+          className={ferramenta === "paredes" ? btnAtivo : btn}
+          onClick={() => { setFerramenta(ferramenta === "paredes" ? "selecionar" : "paredes"); setRascunho([]); setAssetSel(null); setSelId(null); }}
+          title="Paredes para exportar ao VTT: clique os pontos, duplo clique ou Enter conclui, Esc cancela"
+        >
+          ✏ Paredes
+        </button>
+        {ferramenta === "paredes" && !!cena?.paredes?.length && (
+          <button className={btn} onClick={() => rodar({ tipo: "definirParedes", paredes: undefined })}>Limpar paredes ({cena.paredes.length})</button>
+        )}
+        <button className={btn} onClick={() => setExportando(true)} disabled={!pronto || emPrevia}>⇩ Exportar</button>
         <button className={chatAberto ? btnAtivo : btn} onClick={() => setChatAberto(!chatAberto)} title="Criar e editar o mapa conversando com a IA">✦ IA</button>
         <span className="ml-auto text-xs text-muted">{emPrevia ? "Prévia do plano" : sujo ? "Alterações não salvas" : "Salvo"}</span>
         <button className="rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50" onClick={salvar} disabled={!sujo || salvando || !pronto || emPrevia} title={emPrevia ? "Aplique ou descarte a prévia antes de salvar" : undefined}>
@@ -515,6 +553,9 @@ export default function EditorCena({
         <button className={btn} onClick={fechar}>Fechar</button>
       </header>
       {erro && <p className="border-b border-border bg-red-500/10 px-3 py-1 text-sm text-red-500">{erro}</p>}
+      {exportando && cena && (
+        <ExportarCena cena={cena} nome={mapa.nome} exportar={(o) => render.current!.exportar(cena, o)} onFechar={() => setExportando(false)} />
+      )}
       {emPrevia && (
         <p className="border-b border-border bg-cyan-500/10 px-3 py-1 text-sm text-cyan-400">
           Prévia do plano da IA (contornos em ciano). Nada foi aplicado: use o chat para aplicar ou descartar.
@@ -544,12 +585,13 @@ export default function EditorCena({
           {cena && (
             <div
               ref={host}
-              style={{ width: tam.w, height: tam.h, cursor: assetSel ? "crosshair" : "default" }}
+              style={{ width: tam.w, height: tam.h, cursor: assetSel || ferramenta === "paredes" ? "crosshair" : "default" }}
               className="shrink-0 touch-none"
               onPointerDown={aoPressionar}
               onPointerMove={aoMover}
               onPointerUp={aoSoltar}
               onPointerCancel={aoSoltar}
+              onDoubleClick={() => ferramenta === "paredes" && concluirParede()}
             />
           )}
         </div>

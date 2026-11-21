@@ -39,6 +39,10 @@ export type Asset = {
   publico?: boolean;
   /** Textura que não passou na verificação de bordas. */
   naoRepetivel?: boolean;
+  /** Recortado de um mapa de imagem desta mesa (id do mapa original). Derivado de arte do mestre: nunca vai à biblioteca pública. */
+  convertidoDe?: string;
+  /** Objeto cortado ou encoberto na imagem original: o sprite pode estar incompleto (completar por IA). */
+  incompleto?: boolean;
   criadoEm: number;
 };
 
@@ -89,9 +93,14 @@ export type Cena = {
   fundo: string; // cor CSS
   camadas: Camada[];
   objetos: ObjetoCena[];
+  /** Paredes (linha de visão, exportada para VTT); não aparecem no render. */
+  paredes?: Parede[];
   criadoEm: number;
   atualizadoEm: number;
 };
+
+/** Polilinha em fração (0–1) do canvas. */
+export type Parede = { id: string; pontos: { x: number; y: number }[] };
 
 export const LADO_MAXIMO_RENDER = 4096;
 

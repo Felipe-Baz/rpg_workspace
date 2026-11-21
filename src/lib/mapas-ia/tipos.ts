@@ -59,7 +59,7 @@ export interface ProvedorImagem extends ProvedorBase {
   tipo: "imagem";
   capacidades: CapacidadesImagem;
   gerar(ctx: ContextoProvedor, pedido: PedidoImagem): Promise<ImagemBase64>;
-  /** Edição por instrução (ou máscara, conforme capacidades.inpainting). */
+  /** Edição por instrução (ou máscara, conforme capacidades.inpainting). Também é o inpainting da conversão em cena. */
   editar?(ctx: ContextoProvedor, pedido: PedidoImagem & { imagem: ImagemBase64 }): Promise<ImagemBase64>;
 }
 
@@ -74,6 +74,8 @@ export interface ChamadaFerramenta {
   id: string;
   nome: string;
   argumentos: Record<string, unknown>;
+  /** Dado opaco do provedor que precisa voltar junto com a chamada (ex.: thoughtSignature do Gemini 3). */
+  assinatura?: string;
 }
 export interface MensagemLlm {
   papel: "usuario" | "assistente" | "ferramenta";
@@ -100,7 +102,45 @@ export interface ProvedorLlm extends ProvedorBase {
   conversar(ctx: ContextoProvedor, pedido: PedidoLlm): Promise<RespostaLlm>;
 }
 
-export type Provedor = ProvedorImagem | ProvedorLlm;
+// ----- Segmentação (separar objetos de uma imagem) -----
+export interface CapacidadesSegmentacao {
+  /** "mascara" = contorno por pixel; "caixa" = só retângulos. */
+  saida: "mascara" | "caixa";
+  /** Máximo de objetos por chamada. */
+  maxObjetos: number;
+}
+
+/** Retângulo em fração (0–1) da imagem. */
+export interface Caixa {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}
+
+export interface SegmentoBruto {
+  rotulo: string;
+  caixa: Caixa;
+  /** Máscara em tons de cinza com o tamanho da caixa (>= 128 = objeto). Ausente: a caixa inteira. */
+  mascara?: ImagemBase64;
+}
+
+export interface PedidoSegmentacao {
+  imagem: ImagemBase64;
+  /** Contexto opcional (ex.: "mapa top-down de taverna"). */
+  dica?: string;
+  maxObjetos?: number;
+}
+
+/** Ponto de extensão: novo segmentador = um arquivo em ./provedores e uma linha no registro. */
+export interface Segmentador extends ProvedorBase {
+  tipo: "segmentacao";
+  capacidades: CapacidadesSegmentacao;
+  segmentar(ctx: ContextoProvedor, pedido: PedidoSegmentacao): Promise<SegmentoBruto[]>;
+}
+
+export type Provedor = ProvedorImagem | ProvedorLlm | Segmentador;
+export type TipoProvedor = Provedor["tipo"];
 
 /** Erro de provedor com mensagem já saneada (sem segredos). */
 export class ErroProvedor extends Error {}

@@ -6,17 +6,23 @@ import { useAuth } from "@/lib/auth";
 import { chamarIa } from "@/lib/ia-cliente";
 import { useMesas } from "@/lib/mesas";
 import { verificarLlm } from "@/lib/mapas-ia/orquestrador";
-import type { CampoConfig } from "@/lib/mapas-ia/tipos";
+import type { CampoConfig, TipoProvedor } from "@/lib/mapas-ia/tipos";
 
-type Desc = { id: string; nome: string; tipo: "imagem" | "llm"; credencialId: string; campos: CampoConfig[]; capacidades: Record<string, unknown> };
+type Desc = { id: string; nome: string; tipo: TipoProvedor; credencialId: string; campos: CampoConfig[]; capacidades: Record<string, unknown> };
 type Estado = {
   provedores: Desc[];
-  config: { provedorImagemAtivo?: string | null; provedorLlmAtivo?: string | null; campos: Record<string, Record<string, string>> };
+  config: {
+    provedorImagemAtivo?: string | null;
+    provedorLlmAtivo?: string | null;
+    provedorSegmentacaoAtivo?: string | null;
+    campos: Record<string, Record<string, string>>;
+  };
   credenciais: Record<string, { configurada: boolean; ultimos4?: string }>;
 };
 
 const NOME_CRED: Record<string, string> = { google: "Google", anthropic: "Anthropic" };
 const input = "w-full rounded-lg border border-border bg-transparent px-3 py-2";
+const CHAVE_ATIVO = { imagem: "provedorImagemAtivo", llm: "provedorLlmAtivo", segmentacao: "provedorSegmentacaoAtivo" } as const;
 
 export default function ConfigIa() {
   const [est, setEst] = useState<Estado | null>(null);
@@ -39,6 +45,7 @@ export default function ConfigIa() {
     <div className="space-y-8">
       <Seletor est={est} tipo="imagem" titulo="Provedor de imagem" onSalvo={setEst} />
       <Seletor est={est} tipo="llm" titulo="Provedor de LLM (agente e análise de tema)" onSalvo={setEst} />
+      <Seletor est={est} tipo="segmentacao" titulo="Segmentador (converter mapa de imagem em cena)" onSalvo={setEst} />
       <p className="text-sm text-muted">
         Imagem e LLM são independentes: você pode combinar fabricantes (ex.: Gemini para imagens e Claude como LLM). Provedores do
         mesmo fabricante compartilham uma única chave. As chaves são cifradas no servidor e nunca voltam para o navegador.
@@ -48,9 +55,9 @@ export default function ConfigIa() {
   );
 }
 
-function Seletor({ est, tipo, titulo, onSalvo }: { est: Estado; tipo: "imagem" | "llm"; titulo: string; onSalvo: (e: Estado) => void }) {
+function Seletor({ est, tipo, titulo, onSalvo }: { est: Estado; tipo: TipoProvedor; titulo: string; onSalvo: (e: Estado) => void }) {
   const lista = est.provedores.filter((p) => p.tipo === tipo);
-  const ativoId = (tipo === "imagem" ? est.config.provedorImagemAtivo : est.config.provedorLlmAtivo) ?? "";
+  const ativoId = est.config[CHAVE_ATIVO[tipo]] ?? "";
   const [sel, setSel] = useState(ativoId || lista[0]?.id || "");
   const p = lista.find((x) => x.id === sel);
   const [valores, setValores] = useState<Record<string, string>>({});
@@ -75,7 +82,7 @@ function Seletor({ est, tipo, titulo, onSalvo }: { est: Estado; tipo: "imagem" |
         else campos[c.chave] = v;
       }
       const corpo: Record<string, unknown> = { segredos, campos: { [p!.id]: campos } };
-      if (ativar) corpo[tipo === "imagem" ? "provedorImagemAtivo" : "provedorLlmAtivo"] = p!.id;
+      if (ativar) corpo[CHAVE_ATIVO[tipo]] = p!.id;
       await chamarIa("config", { method: "PUT", corpo });
       setValores({});
       onSalvo(await chamarIa<Estado>("config"));

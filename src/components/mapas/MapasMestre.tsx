@@ -11,6 +11,7 @@ import { ehMapaDeCena } from "@/lib/cena/compat";
 import { excluirCena } from "@/lib/cena/cenas";
 import NovaCena from "./cena/NovaCena";
 import TemasMestre from "./cena/TemasMestre";
+import ConverterCena from "./ConverterCena";
 
 // O editor (e o PixiJS) só é baixado quando o mestre abre uma cena.
 const EditorCena = dynamic(() => import("./cena/EditorCena"), { ssr: false, loading: () => null });
@@ -32,7 +33,9 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
   const [temasAberto, setTemasAberto] = useState(false);
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [pedidoInicial, setPedidoInicial] = useState<string | undefined>();
+  const [convertendoId, setConvertendoId] = useState<string | null>(null);
   const editando = mapas.find((m) => m.id === editandoId);
+  const convertendo = mapas.find((m) => m.id === convertendoId);
 
   async function subir(arquivo?: File) {
     if (!arquivo) return;
@@ -91,7 +94,7 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
       {carregado && mapas.length === 0 && <p className="text-muted">{t.vazio}</p>}
       <div className="grid gap-4 sm:grid-cols-2">
         {mapas.map((m) => (
-          <CartaoMapa key={m.id} mesa={mesa} mapa={m} colecao={colecao} onEditar={() => setEditandoId(m.id)} />
+          <CartaoMapa key={m.id} mesa={mesa} mapa={m} colecao={colecao} onEditar={() => setEditandoId(m.id)} onConverter={() => setConvertendoId(m.id)} />
         ))}
       </div>
       {temasAberto && <TemasMestre mesaId={mesa.id} onFechar={() => setTemasAberto(false)} />}
@@ -104,6 +107,18 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
             setNovaCena(false);
             setPedidoInicial(descricao);
             setEditandoId(m.id);
+          }}
+        />
+      )}
+      {convertendo && (
+        <ConverterCena
+          mesaId={mesa.id}
+          mapa={convertendo}
+          colecao={colecao}
+          onFechar={() => setConvertendoId(null)}
+          onConvertido={(id) => {
+            setConvertendoId(null);
+            setEditandoId(id);
           }}
         />
       )}
@@ -123,7 +138,7 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
   );
 }
 
-function CartaoMapa({ mesa, mapa, colecao, onEditar }: { mesa: Mesa; mapa: Mapa; colecao: Colecao; onEditar: () => void }) {
+function CartaoMapa({ mesa, mapa, colecao, onEditar, onConverter }: { mesa: Mesa; mapa: Mapa; colecao: Colecao; onEditar: () => void; onConverter: () => void }) {
   const t = TEXTOS[colecao];
   const [aberto, setAberto] = useState(false);
   const [nome, setNome] = useState(mapa.nome);
@@ -192,6 +207,11 @@ function CartaoMapa({ mesa, mapa, colecao, onEditar }: { mesa: Mesa; mapa: Mapa;
             Desvincular cena
           </button>
         </div>
+      )}
+      {colecao === "mapas" && !ehMapaDeCena(mapa) && storageConfigurado() && (
+        <button onClick={onConverter} className="block text-sm font-medium text-violet-500 hover:underline" title="Cria um novo mapa de cena com os objetos separados; este mapa não muda">
+          Converter em cena
+        </button>
       )}
       <button
         onClick={async () => {

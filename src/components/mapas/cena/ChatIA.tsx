@@ -73,7 +73,10 @@ export default function ChatIA({ mesaId, cena, selecao, aplicados, revertidos, p
     } catch {}
   };
 
-  useEffect(() => fim.current?.scrollIntoView({ block: "end" }), [mensagens, atividade, parcial, confirmacao]);
+  // Com chaves: navegadores recentes fazem scrollIntoView devolver uma Promise, que o React tomaria por limpeza.
+  useEffect(() => {
+    fim.current?.scrollIntoView({ block: "end" });
+  }, [mensagens, atividade, parcial, confirmacao]);
 
   // Plano mais recente: só os passos dele entram na prévia (planos antigos ficaram para trás).
   const iUltimo = mensagens.findLastIndex((m) => m.papel === "assistente");

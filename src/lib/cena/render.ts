@@ -14,6 +14,20 @@ export type OpcoesRender = {
   pxPorTela?: number;
   /** Objetos com contorno de destaque (prévia do plano, ações da IA). */
   destacados?: string[];
+  /** Mostra as paredes (só no editor; nunca entram no render final). */
+  mostrarParedes?: boolean;
+  /** Parede sendo desenhada (fração do canvas). */
+  rascunhoParede?: { x: number; y: number }[];
+};
+
+export type OpcoesExport = {
+  formato?: "jpg" | "png";
+  /** Desenha o grid. Padrão: `grid.noRender` da cena. */
+  grade?: boolean;
+  /** Grid a desenhar no lugar do da cena (ex.: grade de exportação de um cenário livre). */
+  grid?: Cena["grid"];
+  /** Largura final em px (a altura segue a proporção). Padrão: limitada a 4096 no lado maior. */
+  largura?: number;
 };
 
 /** Objeto embutido (luz ou rótulo): redesenhado só quando `chave` muda. */
@@ -32,6 +46,7 @@ export class RenderCena {
   private fundo: Graphics;
   private grade: Graphics;
   private selecao: Graphics;
+  private paredes: Graphics;
   private ultima?: { cena: Cena; assets: Map<string, Asset>; opc: OpcoesRender };
   private destruido = false;
 
@@ -39,7 +54,8 @@ export class RenderCena {
     this.fundo = new pixi.Graphics();
     this.grade = new pixi.Graphics();
     this.selecao = new pixi.Graphics();
-    app.stage.addChild(this.fundo, this.grade, this.selecao);
+    this.paredes = new pixi.Graphics();
+    app.stage.addChild(this.fundo, this.grade, this.paredes, this.selecao);
   }
 
   /** Cria o canvas dentro de `host` (e o remove em `destruir`). */
@@ -91,7 +107,8 @@ export class RenderCena {
       cont.alpha = c.opacidade;
       app.stage.setChildIndex(cont, 1 + i); // depois do fundo
     });
-    app.stage.setChildIndex(this.grade, app.stage.children.length - 2);
+    app.stage.setChildIndex(this.grade, app.stage.children.length - 3);
+    app.stage.setChildIndex(this.paredes, app.stage.children.length - 2);
     app.stage.setChildIndex(this.selecao, app.stage.children.length - 1);
 
     // Objetos.
@@ -138,6 +155,7 @@ export class RenderCena {
     }
 
     this.desenharGrade(cena, opc.mostrarGrid ?? true);
+    this.desenharParedes(cena, opc);
     this.desenharSelecao(cena, assets, opc);
     app.render();
   }
@@ -232,6 +250,20 @@ export class RenderCena {
     g.stroke({ width: Math.max(1, cena.largura / 1500), color: 0x000000, alpha: 0.3 });
   }
 
+  private desenharParedes(cena: Cena, opc: OpcoesRender) {
+    const g = this.paredes.clear();
+    const k = opc.pxPorTela ?? 1;
+    const linha = (pts: { x: number; y: number }[], cor: number) => {
+      if (pts.length < 1) return;
+      g.moveTo(pts[0].x * cena.largura, pts[0].y * cena.altura);
+      for (const p of pts.slice(1)) g.lineTo(p.x * cena.largura, p.y * cena.altura);
+      g.stroke({ width: 4 * k, color: cor, alpha: 0.9 });
+      for (const p of pts) g.circle(p.x * cena.largura, p.y * cena.altura, 4 * k).fill(cor);
+    };
+    if (opc.mostrarParedes) for (const p of cena.paredes ?? []) linha(p.pontos, 0xf97316);
+    if (opc.rascunhoParede?.length) linha(opc.rascunhoParede, 0xfacc15);
+  }
+
   private desenharSelecao(cena: Cena, assets: Map<string, Asset>, opc: OpcoesRender) {
     const g = this.selecao.clear();
     const k = opc.pxPorTela ?? 1;
@@ -254,26 +286,33 @@ export class RenderCena {
     g.rect(s.alcaEscala.x - 6 * k, s.alcaEscala.y - 6 * k, 12 * k, 12 * k).fill(0xffffff).stroke({ width: 2 * k, color: 0x7c3aed });
   }
 
-  /** Render final (sem seleção; grade só se `grid.noRender`) em JPEG, com o lado maior limitado a 4096 px. */
-  async exportar(cena: Cena): Promise<Blob> {
-    const t = tamanhoExport(cena);
-    const selVis = this.selecao.visible;
-    const gradeVis = this.grade.visible;
+  /**
+   * Render final, sem seleção nem paredes. Padrão: JPEG, grade só se `grid.noRender`, lado maior limitado a 4096 px.
+   * Espera as texturas carregarem antes de desenhar.
+   */
+  async exportar(cena: Cena, opc: OpcoesExport = {}): Promise<Blob> {
+    await this.aguardarTexturas();
+    if (this.ultima) this.atualizar(this.ultima.cena, this.ultima.assets, this.ultima.opc);
+    const largura = opc.largura ?? tamanhoExport(cena).largura;
+    const vis = [this.selecao.visible, this.grade.visible, this.paredes.visible];
     this.selecao.visible = false;
-    this.grade.visible = !!cena.grid?.noRender;
+    this.paredes.visible = false;
+    const comGrade = opc.grade ?? !!cena.grid?.noRender;
+    if (comGrade && opc.grid) this.desenharGrade({ ...cena, grid: opc.grid }, true);
+    else this.grade.visible = comGrade && !!cena.grid;
     try {
       const url = await this.app.renderer.extract.base64({
         target: this.app.stage,
         frame: new this.pixi.Rectangle(0, 0, cena.largura, cena.altura),
-        resolution: t.largura / cena.largura,
-        format: "jpg",
+        resolution: largura / cena.largura,
+        format: opc.formato ?? "jpg",
         quality: 0.92,
       });
       return await (await fetch(url)).blob();
     } finally {
-      this.selecao.visible = selVis;
-      this.grade.visible = gradeVis;
-      this.app.render();
+      [this.selecao.visible, this.grade.visible, this.paredes.visible] = vis;
+      if (this.ultima) this.atualizar(this.ultima.cena, this.ultima.assets, this.ultima.opc);
+      else this.app.render();
     }
   }
 

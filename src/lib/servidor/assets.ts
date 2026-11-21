@@ -38,7 +38,7 @@ async function atualizarJob(mesaId: string, jobId: string, patch: Partial<Job>) 
 }
 
 /** Só baixa do Storage da própria mesa (as URLs vêm de documentos do Firestore, nunca do corpo da requisição). */
-const urlDaMesa = (url: string, mesaId: string) => {
+export const urlDaMesa = (url: string, mesaId: string) => {
   try {
     const u = new URL(url);
     const okHost = u.protocol === "https:" && (u.hostname === "firebasestorage.googleapis.com" || u.hostname.endsWith(".storage.googleapis.com"));
@@ -61,10 +61,13 @@ async function baixarReferencia(url: string, mesaId: string): Promise<ImagemBase
   }
 }
 
-/** Assets de IA ficam em publico/assets (legíveis por qualquer usuário logado); o mesmo arquivo serve à mesa e à biblioteca pública. */
-async function enviarPng(png: Buffer): Promise<{ url: string; caminho: string }> {
+/**
+ * Assets de IA ficam em publico/assets (legíveis por qualquer usuário logado); o mesmo arquivo serve à mesa e à
+ * biblioteca pública. Com `mesaPrivada`, o arquivo fica só na pasta da mesa (derivados de arte do mestre).
+ */
+async function enviarPng(png: Buffer, mesaPrivada?: string): Promise<{ url: string; caminho: string }> {
   const bucket = adminBucket();
-  const caminho = `publico/assets/${randomUUID()}.png`;
+  const caminho = mesaPrivada ? `mesas/${mesaPrivada}/assets/${randomUUID()}.png` : `publico/assets/${randomUUID()}.png`;
   const token = randomUUID();
   await bucket.file(caminho).save(png, { contentType: "image/png", metadata: { metadata: { firebaseStorageDownloadTokens: token } } });
   return { caminho, url: `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(caminho)}?alt=media&token=${token}` };
@@ -133,6 +136,8 @@ export async function executarJobAsset(p: { mesaId: string; uid: string; jobId: 
       corChave = (await escolherCorChaveParaAsset(pedido.descricao, llm)).chave;
     }
 
+    // Nova versão de um objeto recortado do mapa do mestre: continua privada da mesa.
+    const privado = !!base?.convertidoDe;
     const n = pedido.quantidade;
     const variacoes: { seed?: number; instrucao?: string }[] = n > 1 ? planejarVariacoes(cap, n) : [{}];
     const modelo = ctx.config.modelo?.trim() || provedor.campos.find((c) => c.chave === "modelo")?.padrao || "";
@@ -165,7 +170,7 @@ export async function executarJobAsset(p: { mesaId: string; uid: string; jobId: 
             aoProgredir: progresso,
           },
         );
-        const { url, caminho } = await enviarPng(Buffer.from(r.png.base64, "base64"));
+        const { url, caminho } = await enviarPng(Buffer.from(r.png.base64, "base64"), privado ? mesaId : undefined);
         const ref = colAssets(mesaId).doc();
         const asset: Asset = semUndefined({
           id: ref.id,
@@ -174,7 +179,8 @@ export async function executarJobAsset(p: { mesaId: string; uid: string; jobId: 
           largura: r.largura,
           altura: r.altura,
           origem: "ia" as const,
-          publico: true,
+          publico: !privado,
+          convertidoDe: base?.convertidoDe,
           tipo: pedido.tipo,
           tags: pedido.tags,
           perspectivaId: pedido.perspectivaId,
@@ -187,7 +193,7 @@ export async function executarJobAsset(p: { mesaId: string; uid: string; jobId: 
         });
         try {
           await ref.set(asset); // da mesa (completo, com prompt e tema)
-          await colPublicos().doc(asset.id).set(semUndefined(paraPublico(asset))); // pública (sem dados privados)
+          if (!privado) await colPublicos().doc(asset.id).set(semUndefined(paraPublico(asset))); // pública (sem dados privados)
         } catch (e) {
           await ref.delete().catch(() => {});
           await adminBucket().file(caminho).delete().catch(() => {});

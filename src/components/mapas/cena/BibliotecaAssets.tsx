@@ -10,7 +10,10 @@ import GerarAsset from "./GerarAsset";
 const campo = "w-full rounded-lg border border-border bg-background px-2 py-1 text-xs text-foreground placeholder:text-muted";
 const btn = "rounded-lg border border-border px-2 py-1 text-xs hover:bg-border/50 disabled:opacity-40";
 
-type Gerador = { base?: Asset; modo?: "variacoes" | "regenerar" } | null;
+type Gerador = { base?: Asset; modo?: "variacoes" | "regenerar"; instrucao?: string } | null;
+
+const INSTRUCAO_COMPLETAR =
+  "Complete this object: it was cut out of a map and parts of it are missing or hidden. Redraw it whole, with the same shape, colors, view and art style.";
 
 export default function BibliotecaAssets({
   mesaId,
@@ -143,6 +146,7 @@ export default function BibliotecaAssets({
               ⋯
             </button>}
             {a.origem === "ia" && <span className="absolute bottom-0.5 left-0.5 rounded bg-violet-600/80 px-1 text-[9px] leading-4 text-white">IA</span>}
+            {a.incompleto && <span className="absolute bottom-0.5 right-0.5 rounded bg-amber-600/90 px-1 text-[9px] leading-4 text-white" title="Cortado ou encoberto no mapa original">incompleto</span>}
             {a.naoRepetivel && <span className="absolute bottom-0.5 right-0.5 rounded bg-amber-600/90 px-1 text-[9px] leading-4 text-white" title="A emenda é visível ao repetir">emenda</span>}
           </div>
         ))}
@@ -152,7 +156,7 @@ export default function BibliotecaAssets({
         <div className="space-y-1.5 rounded-lg border border-border p-2 text-xs">
           <p className="truncate font-medium">{selecionado.nome}</p>
           <p className="text-muted">
-            {TIPOS_ASSET.find((t) => t.tipo === tipoDe(selecionado))?.nome} · {selecionado.origem === "ia" ? "gerado por IA" : "enviado"}
+            {TIPOS_ASSET.find((t) => t.tipo === tipoDe(selecionado))?.nome} · {selecionado.origem === "ia" ? "gerado por IA" : selecionado.convertidoDe ? "recortado de um mapa" : "enviado"}
             {selecionado.temaId ? ` · ${temas.find((t) => t.id === selecionado.temaId)?.nome ?? "tema removido"}` : ""}
           </p>
           <label className="block text-muted">
@@ -165,6 +169,11 @@ export default function BibliotecaAssets({
                 <button className={btn} onClick={() => setGerador({ base: selecionado, modo: "variacoes" })}>Variações</button>
                 <button className={btn} onClick={() => setGerador({ base: selecionado, modo: "regenerar" })}>Regenerar</button>
               </>
+            )}
+            {selecionado.incompleto && (
+              <button className={`${btn} border-amber-600 text-amber-400`} onClick={() => setGerador({ base: selecionado, modo: "regenerar", instrucao: INSTRUCAO_COMPLETAR })} title="Gera uma versão inteira do objeto; a atual fica até você descartá-la">
+                Completar por IA
+              </button>
             )}
             <button className={`${btn} text-red-500`} disabled={ocupado} onClick={() => tentarExcluir(selecionado)}>🗑 Excluir</button>
           </div>
@@ -205,6 +214,7 @@ export default function BibliotecaAssets({
           temaIdInicial={cena.temaId}
           base={gerador.base}
           modoBase={gerador.modo}
+          instrucaoInicial={gerador.instrucao}
           onUsar={(id) => onSelecionar(id)}
           onFechar={() => setGerador(null)}
         />

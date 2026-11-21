@@ -34,11 +34,13 @@ export interface Props {
   /** Regeneração/variação a partir deste asset. */
   base?: Asset;
   modoBase?: "variacoes" | "regenerar";
+  /** Instrução já preenchida (ex.: completar um objeto convertido incompleto). */
+  instrucaoInicial?: string;
   onUsar: (assetId: string) => void;
   onFechar: () => void;
 }
 
-export default function GerarAsset({ mesaId, assets, temas, perspectivaId, temaIdInicial, base, modoBase, onUsar, onFechar }: Props) {
+export default function GerarAsset({ mesaId, assets, temas, perspectivaId, temaIdInicial, base, modoBase, instrucaoInicial, onUsar, onFechar }: Props) {
   const [tipo, setTipo] = useState<TipoAsset>(base ? tipoDe(base) : "sprite");
   const [descricao, setDescricao] = useState(base?.nome ?? "");
   const [nome, setNome] = useState("");
@@ -46,7 +48,7 @@ export default function GerarAsset({ mesaId, assets, temas, perspectivaId, temaI
   const [escalaBase, setEscalaBase] = useState(String(base?.escalaBase ?? 1));
   const [temaId, setTemaId] = useState(base?.temaId ?? temaIdInicial ?? "");
   const [quantidade, setQuantidade] = useState(modoBase === "variacoes" ? "3" : "1");
-  const [instrucao, setInstrucao] = useState("");
+  const [instrucao, setInstrucao] = useState(instrucaoInicial ?? "");
 
   const [uso, setUso] = useState<Uso | null>(null);
   const [fase, setFase] = useState<"form" | "confirmar" | "enviando" | "job">("form");

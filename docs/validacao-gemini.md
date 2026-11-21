@@ -100,3 +100,36 @@ Roteiro: 10 assets do **mesmo tema** (pintura sombria, contorno fino, paleta ter
 5. **Margem e trim:** com a regra "generous empty margin", nenhum sprite encostou nas bordas e o `recortarAoConteudo` ajustou o quadro a cada objeto (resolve a ressalva da change 04).
 6. **Cor-chave por asset (LLM)** escolheu ciano para os que têm flores/roxo e magenta para os demais; nenhum recorte precisou de ajuste de tolerância.
 7. **Texturas:** a verificação de bordas acionou a costura nas duas; o resultado não mostra emenda, mas a mistura em faixa de 30% pode suavizar detalhes nas bordas.
+
+---
+
+# Validação da conversão em cena (change 08, tarefa 1.2)
+
+Status: **rodada em 2026-11-20** (mapa de taverna 1408x768 gerado pelo próprio Gemini, `gemini-3.6-flash` + `gemini-3.1-flash-image`). Resultado: funciona de ponta a ponta, qualidade insuficiente (ver tabela). A implementação segue a decisão do design ("confirmar se o Gemini serve
+como segmentador e como removedor de objeto no fundo"):
+
+- **Segmentador** (`provedores/google-segmentacao.ts`, capacidade `segmentacao`): usa o modelo de LLM do Gemini com visão
+  e o formato de máscaras descrito na doc de *image understanding* (`box_2d` em 0–1000 `[y0, x0, y1, x1]`, `mask` PNG
+  do tamanho da caixa, `label`). Se o modelo devolver só caixas (sem `mask`), o segmento vale pela caixa inteira.
+- **Inpainting**: o provedor de imagem declara `inpainting: "instrucao"` e tem `editar`, então `suportaInpainting` é verdadeiro.
+  Sem máscara nativa, o servidor pinta cada buraco de magenta, pede para preencher só o magenta e **compõe só os pixels do
+  buraco** de volta no original; fora dele o fundo é o original pixel a pixel. Se mais de 20% do buraco continuar magenta,
+  a reconstrução conta como falha e a conversão inteira é desfeita.
+- Provedor de imagem sem inpainting: a conversão é parcial (objetos continuam também no fundo), com aviso.
+
+Roteiro: `node --env-file=.env scripts/validar-conversao.ts caminho/mapa.jpg [maxObjetos]` (opcional: `GEMINI_LLM`,
+`GEMINI_MODELO`). Conferir em `validacao-conversao-saida/`:
+
+| Item | Resultado | Observações |
+|------|-----------|-------------|
+| Segmentação devolve JSON com `box_2d` | OK | Só caixas: 20 objetos certos (lareira, estante, balcão, mesas, barris, banquinhos) em 9 s. |
+| Máscaras por pixel (`mask`) | Não serve | Pedindo máscaras: 1 objeto, ~10 mil tokens, 79 s; PNG vem sem o prefixo data:. O segmentador agora pede só caixas. |
+| Rótulos úteis | OK | Em inglês ("bar counter", "stool"). |
+| Fundo reconstruído sem magenta | OK | 3 chamadas para 12 objetos, ~28 s. |
+| Qualidade do fundo | Fraca | Remendos retangulares visíveis: tábuas em outra direção e tom; o buraco da lareira cobriu parte da parede de pedra. Barris ficaram bons. |
+| Sprites | Retangulares | Sem máscara, o sprite leva o piso e pedaços dos vizinhos (mesa com cantos de banquinho). |
+| "Incompleto" | Exagerado | Com caixas, quase todos encostam em outra caixa e saem marcados. |
+| Fundo fora dos buracos idêntico ao original | Garantido | Composição local, não depende do modelo. |
+
+Se a segmentação do Gemini não servir, cadastre outro segmentador (ex.: SAM hospedado) como novo arquivo em
+`provedores/` e uma linha em `registro.ts`; nada mais muda.
