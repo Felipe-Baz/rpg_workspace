@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef } from "react";
-import { Archive, ArchiveRestore, ArrowDown, ArrowUp, Download, Eye, EyeOff, Pencil, Plus, Power, Puzzle, Trash2, TriangleAlert, Upload } from "lucide-react";
+import { Archive, ArchiveRestore, ArrowDown, ArrowUp, Database, Download, Eye, EyeOff, Pencil, Plus, Power, Puzzle, Trash2, TriangleAlert, Upload } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { arquivarExtensao, definirAtiva, definirVisibilidadeNativa, excluirDaBiblioteca, publicarNaMesa, reordenarExtensoes, salvarNaBiblioteca, useBiblioteca, useExtensoesMesa, useNativasMesa } from "@/lib/extensoes/dados";
 import { nativasDaMesa } from "@/lib/extensoes/nativas";
@@ -12,6 +12,7 @@ import { normalizarManifesto } from "@/lib/extensoes/manifesto";
 import { MAX_PACOTE, criarPacote, lerPacote, nomeDoArquivo } from "@/lib/extensoes/pacote";
 import { PERMISSOES } from "@/lib/extensoes/capacidades";
 import { EVENTOS } from "@/lib/extensoes/eventos";
+import { ESCOPOS } from "@/lib/extensoes/estado";
 import { uid as novoId } from "@/lib/mesas";
 import { useMesaAtual } from "../shell/MesaContext";
 import { confirmar } from "../ui/Dialogos";
@@ -63,7 +64,7 @@ export default function ListaExtensoes() {
     const r = lerPacote(await arquivo.text());
     if (!r.ok) return toast(r.erro, "erro");
     const { titulo, descricao, html, manifesto } = r.pacote;
-    const pede = [...manifesto.permissoes.map((p) => PERMISSOES[p].rotulo), ...manifesto.eventos.map((e) => `reagir a: ${EVENTOS[e].rotulo.toLowerCase()}`), ...resumoEfeitos(manifesto.mesa)];
+    const pede = [...manifesto.permissoes.map((p) => PERMISSOES[p].rotulo), ...manifesto.estado.filter((e) => e !== "compartilhado").map((e) => `guardar dados: ${ESCOPOS[e].rotulo.toLowerCase()}`), ...manifesto.eventos.map((e) => `reagir a: ${EVENTOS[e].rotulo.toLowerCase()}`), ...resumoEfeitos(manifesto.mesa)];
     const ok = await confirmar({
       titulo: "Importar extensão",
       texto: `“${titulo}” vai para a sua biblioteca.\n${pede.length ? `Ela pede: ${pede.join("; ")}.` : "Ela não pede permissões."}\n\nNada é liberado agora: você revisa e aprova as permissões ao instalá-la numa mesa. Importe apenas arquivos de quem você confia.`,
@@ -80,8 +81,9 @@ export default function ListaExtensoes() {
     const manifesto = normalizarManifesto(e.manifesto);
     const pedidas = manifesto.permissoes;
     const efeitosTxt = resumoEfeitos(manifesto.mesa);
-    if ((pedidas.length || manifesto.eventos.length || efeitosTxt.length) && !(await confirmar({ titulo: "Aprovar permissões", texto: textoConsentimento(pedidas, false, manifesto.eventos, efeitosTxt), confirmar: "Aprovar e instalar" }))) return;
-    await publicarNaMesa(mesa.id, { id: e.id, titulo: e.titulo, html: e.html, manifesto, permissoesAprovadas: pedidas });
+    const escopos = manifesto.estado.filter((x) => x !== "compartilhado");
+    if ((pedidas.length || manifesto.eventos.length || efeitosTxt.length || escopos.length) && !(await confirmar({ titulo: "Aprovar permissões", texto: textoConsentimento(pedidas, false, manifesto.eventos, efeitosTxt, escopos), confirmar: "Aprovar e instalar" }))) return;
+    await publicarNaMesa(mesa.id, { id: e.id, titulo: e.titulo, html: e.html, manifesto, permissoesAprovadas: pedidas, estadoAprovado: escopos, estadoInicial: e.estadoInicial });
     toast("Extensão adicionada a esta mesa");
   }
 
@@ -150,6 +152,7 @@ export default function ListaExtensoes() {
                     <button disabled={idx === naMesa.length - 1} onClick={() => mover(e.id, 1)} aria-label={`Descer prioridade de ${e.titulo}`} className="p-0.5 text-muted hover:text-foreground disabled:opacity-30"><ArrowDown size={13} /></button>
                   </div>
                   <button onClick={() => definirAtiva(mesa.id, e.id, !ativa)} aria-pressed={ativa} aria-label={ativa ? `Desativar ${e.titulo}` : `Ativar ${e.titulo}`} title={ativa ? "Desativar (some do menu e desfaz os efeitos na mesa)" : "Ativar"} className={`p-2 ${ativa ? "text-ok" : "text-muted"} hover:text-foreground`}><Power size={15} /></button>
+                  <Link href={`${base}/extensoes/${e.id}#dados`} aria-label={`Dados de ${e.titulo}`} title="Dados guardados pela extensão" className="p-2 text-muted hover:text-foreground"><Database size={15} /></Link>
                   <Link href={`${base}/extensoes/${e.id}/editar`} aria-label={`Editar ${e.titulo}`} className="p-2 text-muted hover:text-foreground"><Pencil size={15} /></Link>
                 </li>
               );

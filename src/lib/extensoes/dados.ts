@@ -8,6 +8,8 @@ import type { Permissao } from "./capacidades";
 import type { ConfigNativas } from "./nativas";
 import type { Manifesto } from "./manifesto";
 import type { MensagemChat } from "./prompt";
+import type { Escopo } from "./estado";
+import { apagarEstado, semearMestre } from "./estado-firestore";
 
 // Biblioteca do mestre: extensoes/{id} com donoUid (privada; reaproveitável em várias mesas).
 // Não fica em usuarios/{uid}/..., área que o cliente nunca acessa (guarda as chaves de IA).
@@ -19,6 +21,8 @@ export type ExtensaoBiblioteca = {
   html: string;
   conversa: MensagemChat[];
   manifesto?: Manifesto; // onde aparece no app; ausente = só a sidebar
+  /** Dados iniciais (JSON em texto) semeados na mesa ao instalar, só se ainda não houver dados. Nunca vão no pacote exportado. */
+  estadoInicial?: { compartilhado?: string; mestre?: string };
   criadoEm: number;
   atualizadoEm: number;
   arquivada: boolean;
@@ -37,6 +41,8 @@ export type ExtensaoMesa = {
   ordem?: number;
   /** O que o MESTRE aprovou ler (o manifesto só diz o que a extensão pede). */
   permissoesAprovadas?: Permissao[];
+  /** Escopos de estado que o MESTRE aprovou (o manifesto só diz o que a extensão pede). As regras do Firestore leem daqui. */
+  estadoAprovado?: Escopo[];
   dadosJson: string; // estado que a extensão salvou via window.RPG.salvar (JSON em texto)
   publicadaEm: number;
   atualizadaEm: number;
@@ -86,18 +92,36 @@ export async function salvarNaBiblioteca(uid: string, e: Omit<ExtensaoBiblioteca
 export const arquivarExtensao = (id: string, arquivada: boolean) => updateDoc(doc(colBiblioteca(), id), { arquivada, atualizadoEm: Date.now() });
 export const excluirDaBiblioteca = (id: string) => deleteDoc(doc(colBiblioteca(), id));
 
-/** Instala (ou atualiza) a extensão na mesa. Reinstalar preserva o estado salvo e a visibilidade. */
-export async function publicarNaMesa(mesaId: string, e: { id: string; titulo: string; html: string; manifesto?: Manifesto; permissoesAprovadas?: Permissao[] }, existente?: ExtensaoMesa) {
+/**
+ * Instala (ou atualiza) a extensão na mesa. Reinstalar preserva o estado salvo e a visibilidade.
+ * `estadoInicial` só semeia o que ainda não existe (nunca sobrescreve dados da mesa).
+ */
+export async function publicarNaMesa(
+  mesaId: string,
+  e: { id: string; titulo: string; html: string; manifesto?: Manifesto; permissoesAprovadas?: Permissao[]; estadoAprovado?: Escopo[]; estadoInicial?: ExtensaoBiblioteca["estadoInicial"] },
+  existente?: ExtensaoMesa,
+) {
   const agora = Date.now();
-  const base = { id: e.id, titulo: validarTitulo(e.titulo) || "Extensão sem nome", html: e.html, ...(e.manifesto ? { manifesto: e.manifesto } : {}), ...(e.permissoesAprovadas ? { permissoesAprovadas: e.permissoesAprovadas } : {}), atualizadaEm: agora };
+  const base = { id: e.id, titulo: validarTitulo(e.titulo) || "Extensão sem nome", html: e.html, ...(e.manifesto ? { manifesto: e.manifesto } : {}), ...(e.permissoesAprovadas ? { permissoesAprovadas: e.permissoesAprovadas } : {}), ...(e.estadoAprovado ? { estadoAprovado: e.estadoAprovado } : {}), atualizadaEm: agora };
+  const inicialCompartilhado = e.estadoInicial?.compartilhado || "";
   await setDoc(
     doc(colMesa(mesaId), e.id),
-    existente ? { ...base } : { ...base, visivelJogadores: false, dadosJson: "", publicadaEm: agora },
+    existente
+      ? { ...base, ...(!existente.dadosJson && inicialCompartilhado ? { dadosJson: inicialCompartilhado } : {}) }
+      : { ...base, visivelJogadores: false, dadosJson: inicialCompartilhado, publicadaEm: agora },
     { merge: true },
   );
+  await semearMestre(mesaId, e.id, e.estadoInicial?.mestre);
 }
 
-export const removerDaMesa = (mesaId: string, id: string) => deleteDoc(doc(colMesa(mesaId), id));
+/** Remove da mesa: primeiro os dados por escopo (estado/), depois a instalação (assim nada fica órfão se a remoção parar no meio). */
+export async function removerDaMesa(mesaId: string, id: string) {
+  await apagarEstado(mesaId, id);
+  await deleteDoc(doc(colMesa(mesaId), id));
+}
+
+/** Aprova/revoga escopos de estado numa instalação (revogar só fecha o acesso; os dados ficam). */
+export const definirEstadoAprovado = (mesaId: string, id: string, estadoAprovado: Escopo[]) => updateDoc(doc(colMesa(mesaId), id), { estadoAprovado });
 export const definirVisibilidade = (mesaId: string, id: string, visivelJogadores: boolean) => updateDoc(doc(colMesa(mesaId), id), { visivelJogadores });
 
 /** Estado da extensão (só o mestre grava). Rejeita acima do limite. */

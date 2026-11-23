@@ -2,6 +2,7 @@
 import { rolar } from "../dados.ts";
 import type { Acao } from "./acoes.ts";
 import { autorizar, type AlvoLeitura, type Pedido, type Permissao } from "./capacidades.ts";
+import type { PedidoEstado } from "./estado.ts";
 
 export const MAX_RESPOSTA = 200_000; // caracteres de JSON por resposta
 const MAX_ITENS = 300;
@@ -65,9 +66,16 @@ export type Leitor = (alvo: AlvoLeitura, args: Record<string, unknown> | null) =
 /** Executa um pedido já validado: confere a permissão aprovada, lê pela fonte e limita a resposta. */
 export type Perguntador = (texto: string) => Promise<unknown>;
 
-export async function atender(pedido: Pedido, aprovadas: readonly Permissao[], ler: Leitor, propor?: Proponente, perguntar?: Perguntador): Promise<unknown> {
+/** Atende `RPG.estado.*` (ler/salvar/listar), com o escopo já validado; ver `atenderEstado` em estado.ts. */
+export type AtendenteEstado = (p: PedidoEstado) => Promise<unknown>;
+
+export async function atender(pedido: Pedido, aprovadas: readonly Permissao[], ler: Leitor, propor?: Proponente, perguntar?: Perguntador, estado?: AtendenteEstado): Promise<unknown> {
   const aut = autorizar(aprovadas, pedido);
   if (!aut.ok) throw new Error(aut.erro);
+  if (pedido.op === "estado") {
+    if (!estado) throw new Error("Esta extensão não pode guardar dados neste contexto.");
+    return estado(pedido.args);
+  }
   if (pedido.op === "perguntar") {
     if (!perguntar) throw new Error("A IA não está disponível neste contexto.");
     return perguntar(pedido.args.texto);

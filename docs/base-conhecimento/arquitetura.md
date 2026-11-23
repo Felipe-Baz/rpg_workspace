@@ -54,7 +54,8 @@ mesas/{mesaId}                       Mesa: nome, sistema, cor, status, donoUid, 
   ├─ missoesImagens/{id}              ilustrações das missões
   ├─ fichas/{id}                      privadas do jogador OU do mestre (mestre:true) liberáveis
   ├─ quadro/{noId}                    quadro de investigação do jogador
-  ├─ extensoes/{id}                   extensões instaladas (cópia do HTML)
+  ├─ extensoes/{id}                   extensões instaladas (cópia do HTML; estadoAprovado)
+  │   └─ estado/{mestre|para_uid|de_uid}  estado por escopo (só mestre / entregue ao jogador / escrito pelo jogador)
   ├─ recursosDados/{registroId}       registros dos tipos de dado criados por extensões (liberado)
   ├─ extensoesPedidos/{pedidoId}      pedidos de jogadores por extensões (mestre aprova/recusa)
   ├─ extensoesLotes/{loteId}          conteúdo criado por extensões (itens + origem), para desfazer

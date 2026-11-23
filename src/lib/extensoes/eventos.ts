@@ -9,7 +9,8 @@ export const EVENTOS = {
   "jogador.entrou": { rotulo: "Jogador entrou na mesa", descricao: "Quando um jogador assume ou cria um personagem na mesa.", permissao: "ler:jogadores" },
   "sessao.registrada": { rotulo: "Sessão registrada", descricao: "Quando uma nova sessão é adicionada à mesa.", permissao: "ler:sessoes" },
   "dados.rolados": { rotulo: "Dados rolados", descricao: "Quando você rola dados no rolador da mesa.", permissao: null },
-} as const satisfies Record<string, { rotulo: string; descricao: string; permissao: Permissao | null }>;
+  "estado.jogadorSalvou": { rotulo: "Jogador gravou dados", descricao: "Quando um jogador grava os próprios dados nesta extensão (escopo doJogador). Só avisa quem e quando; leia o conteúdo com RPG.estado.ler/listar.", permissao: null, escopo: "doJogador" },
+} as const satisfies Record<string, { rotulo: string; descricao: string; permissao: Permissao | null; escopo?: "doJogador" }>;
 
 export type EventoId = keyof typeof EVENTOS;
 export const EVENTO_IDS = Object.keys(EVENTOS) as EventoId[];
@@ -21,6 +22,12 @@ export const normalizarEventos = (bruto: unknown): EventoId[] => (Array.isArray(
 /** Permissão que o mestre precisa ter aprovado para a extensão receber o evento (os dados do evento espelham `ler:*`). */
 export const permissaoDoEvento = (e: EventoId): Permissao | null => EVENTOS[e].permissao;
 
+/** Escopo de estado que precisa estar aprovado para o evento chegar (ex.: `estado.jogadorSalvou` exige `doJogador`). */
+export const escopoDoEvento = (e: EventoId): "doJogador" | null => {
+  const ev = EVENTOS[e];
+  return "escopo" in ev ? ev.escopo : null;
+};
+
 export type EventoEmitido = { evento: EventoId; dados: Record<string, unknown>; origemExtensao?: string };
 
 /** Dados de exemplo para "simular evento" no criador. */
@@ -30,6 +37,7 @@ export const EXEMPLO_EVENTO: Record<EventoId, Record<string, unknown>> = {
   "jogador.entrou": { id: "j5", jogador: "Elisa", personagem: "Nyx, a Ladina" },
   "sessao.registrada": { id: "s3", titulo: "O ritual", data: "2026-11-01" },
   "dados.rolados": { expressao: "d20+5", total: 17, critico: null },
+  "estado.jogadorSalvou": { jogador: "j1", atualizadoEm: 1764000000000 },
 };
 
 // ---------- detecção por diferença ----------
@@ -74,6 +82,21 @@ export function diffRolagens(idsVistos: ReadonlySet<number>, atuais: readonly Ro
     .map((r) => ({ evento: "dados.rolados" as const, dados: { expressao: r.expressao, total: r.total, critico: r.critico ?? null } }));
 }
 
+/**
+ * Gravações de jogadores no escopo `doJogador`: compara `atualizadoEm` por conta. A primeira leitura é só base (quem
+ * chama passa `antes = null`). Contas sem jogador na mesa são ignoradas (a extensão só conhece ids de jogador).
+ */
+export function diffEstadoJogadores(antes: ReadonlyMap<string, number> | null, depois: ReadonlyMap<string, number>, jogadores: readonly { id: string; uid?: string }[]): EventoEmitido[] {
+  if (!antes) return [];
+  const saida: EventoEmitido[] = [];
+  for (const [conta, quando] of depois) {
+    if (antes.get(conta) === quando) continue;
+    const j = jogadores.find((x) => x.uid === conta);
+    if (j) saida.push({ evento: "estado.jogadorSalvou", dados: { jogador: j.id, atualizadoEm: quando } });
+  }
+  return saida;
+}
+
 // ---------- proteção contra laços ----------
 export const MAX_EVENTOS_POR_MINUTO = 10;
 
@@ -93,4 +116,4 @@ export function criarLimitador(maximo = MAX_EVENTOS_POR_MINUTO, janelaMs = 60_00
 
 /** Referência dos eventos para o prompt da IA (gerada do catálogo). */
 export const descricaoEventos = (): string =>
-  EVENTO_IDS.map((e) => `- "${e}": ${EVENTOS[e].descricao} Dados: ${JSON.stringify(EXEMPLO_EVENTO[e])}.${EVENTOS[e].permissao ? ` Exige a permissão "${EVENTOS[e].permissao}".` : ""}`).join("\n");
+  EVENTO_IDS.map((e) => `- "${e}": ${EVENTOS[e].descricao} Dados: ${JSON.stringify(EXEMPLO_EVENTO[e])}.${EVENTOS[e].permissao ? ` Exige a permissão "${EVENTOS[e].permissao}".` : ""}${escopoDoEvento(e) ? ` Exige o escopo de estado "${escopoDoEvento(e)}" no manifesto.` : ""}`).join("\n");

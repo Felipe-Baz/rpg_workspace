@@ -3,6 +3,11 @@
 import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { validarPedido, type Pedido } from "@/lib/extensoes/capacidades";
 import { MAX_DADOS, montarDocumento, type TemaExtensao } from "@/lib/extensoes/documento";
+import { validarPedidoEstado, type Escopo } from "@/lib/extensoes/estado";
+
+/** Assina um escopo em tempo real (`RPG.estado.aoMudar`). Devolve quem cancela. O app valida papel e aprovação. */
+export type AssinarEstado = (escopo: Escopo, jogador: string | null, aoMudar: (dados: unknown) => void) => () => void;
+const MAX_ASSINATURAS = 20;
 
 // Variáveis de tema repassadas à extensão (ela as usa como var(--accent) etc.).
 const VARS = ["--background", "--surface", "--foreground", "--muted", "--accent", "--accent-hover", "--gold", "--border", "--ok", "--warn", "--danger"];
@@ -34,6 +39,9 @@ export default function Sandbox({
   contexto = null,
   registrarEnvio,
   segundoPlano = false,
+  eu = null,
+  gravaveis,
+  assinarEstado,
   titulo,
   className = "",
 }: {
@@ -51,6 +59,12 @@ export default function Sandbox({
   segundoPlano?: boolean;
   /** Onde a extensão foi aberta (missão, ficha): vira window.RPG.contexto. */
   contexto?: unknown;
+  /** Id de jogador de quem usa (`RPG.eu`); null para o mestre. */
+  eu?: string | null;
+  /** Escopos que quem usa pode gravar (`RPG.podeSalvar`). */
+  gravaveis?: readonly string[];
+  /** Atende `RPG.estado.aoMudar`. Sem isso, as assinaturas são ignoradas. */
+  assinarEstado?: AssinarEstado;
   titulo: string;
   className?: string;
 }) {
@@ -58,6 +72,8 @@ export default function Sandbox({
   const tema = useSyncExternalStore(assinarTema, () => document.documentElement.dataset.theme ?? "dark", () => "dark");
   const chavePermissoes = permissoes.join(",");
   const chaveContexto = JSON.stringify(contexto ?? null);
+  const chaveGravaveis = (gravaveis ?? []).join(",");
+  const temGravaveis = gravaveis !== undefined;
 
   // O estado inicial entra só quando o documento é (re)montado; salvar não recarrega o iframe.
   const dadosRef = useRef(dadosJson);
@@ -67,8 +83,30 @@ export default function Sandbox({
     let dados: unknown = null;
     try { dados = dadosRef.current ? JSON.parse(dadosRef.current) : null; } catch {}
     void tema; // recalcula quando o tema muda
-    return montarDocumento(html, { tema: lerTema(), dados, somenteLeitura, permissoes: chavePermissoes ? chavePermissoes.split(",") : [], contexto: JSON.parse(chaveContexto), segundoPlano });
-  }, [html, tema, somenteLeitura, chavePermissoes, chaveContexto, segundoPlano]);
+    return montarDocumento(html, { tema: lerTema(), dados, somenteLeitura, permissoes: chavePermissoes ? chavePermissoes.split(",") : [], contexto: JSON.parse(chaveContexto), segundoPlano, eu, gravaveis: temGravaveis ? (chaveGravaveis ? chaveGravaveis.split(",") : []) : undefined });
+  }, [html, tema, somenteLeitura, chavePermissoes, chaveContexto, segundoPlano, eu, chaveGravaveis, temGravaveis]);
+
+  // Assinaturas em tempo real (RPG.estado.aoMudar): valem enquanto o documento atual existir.
+  const assinarRef = useRef(assinarEstado);
+  useEffect(() => { assinarRef.current = assinarEstado; });
+  useEffect(() => {
+    const canceladores: (() => void)[] = [];
+    function ao(e: MessageEvent) {
+      if (e.source !== ref.current?.contentWindow) return;
+      const d = e.data as { rpg?: string; sid?: unknown; escopo?: unknown; jogador?: unknown } | null;
+      if (d?.rpg !== "assinar" || typeof d.sid !== "number" || !assinarRef.current || canceladores.length >= MAX_ASSINATURAS) return;
+      const p = validarPedidoEstado("assinar", { escopo: d.escopo, jogador: d.jogador });
+      if (!p) return;
+      const sid = d.sid;
+      try {
+        canceladores.push(assinarRef.current(p.escopo, p.jogador, (dados) => ref.current?.contentWindow?.postMessage({ rpg: "estado", sid, dados }, "*")));
+      } catch (erro) {
+        console.warn("extensão: assinatura recusada:", erro instanceof Error ? erro.message : erro);
+      }
+    }
+    window.addEventListener("message", ao);
+    return () => { window.removeEventListener("message", ao); canceladores.forEach((c) => c()); };
+  }, [doc]);
 
   useEffect(() => {
     if (!registrarEnvio) return;

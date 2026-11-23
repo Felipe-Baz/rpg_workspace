@@ -2,6 +2,7 @@
 // Puro. Fonte única: o broker, a validação, a tela de consentimento e o prompt da IA leem daqui.
 import { permissaoDaAcao, validarAcoes, type Acao } from "./acoes.ts";
 import { EVENTOS, type EventoId } from "./eventos.ts";
+import { descricaoEstado, linhasConsentimentoEstado, validarPedidoEstado, type Escopo, type PedidoEstado } from "./estado.ts";
 
 export type PapelCap = "mestre" | "jogador";
 
@@ -65,6 +66,18 @@ const ESCRITAS = {
     descricao: "Cria missões com etapas (a primeira fica visível aos jogadores; as demais, ocultas). Cada criação é mostrada a você antes de gravar.",
     assinatura: "RPG.criar(\"missao\", { titulo, descricao?, categoria?, dificuldade?, etapas?: [texto] })",
   },
+  "alterar:fichas": {
+    tipo: "ficha",
+    rotulo: "Alterar e excluir fichas",
+    descricao: "Pode mudar ou apagar fichas suas que já existem (nome, texto, categoria e para quem estão liberadas), sempre com a sua aprovação e com desfazer. Nunca mexe nas fichas pessoais dos jogadores.",
+    assinatura: 'RPG.alterar("ficha", id, { nome?, texto?, categoria?, liberarPara?: "ninguem"|"todos"|[idDoJogador] }) · RPG.excluir("ficha", id)',
+  },
+  "alterar:missoes": {
+    tipo: "missao",
+    rotulo: "Alterar e excluir missões",
+    descricao: "Pode mudar ou apagar missões que já existem (título, descrição, status, etapas), sempre com a sua aprovação e com desfazer.",
+    assinatura: 'RPG.alterar("missao", id, { titulo?, descricao?, categoria?, dificuldade?, status?: "em_andamento"|"concluida"|"fracassada", etapas?: [{ id?, texto, status?: "concluida"|"atual"|"pendente" }] }) · RPG.excluir("missao", id)',
+  },
 } as const satisfies Record<string, { tipo: string; rotulo: string; descricao: string; assinatura: string }>;
 
 /** Usos: recursos do app que a extensão consome (hoje, a IA do mestre). */
@@ -80,12 +93,12 @@ type Leitura = (typeof LEITURAS)[keyof typeof LEITURAS];
 
 export const PERMISSOES = {
   ...Object.fromEntries(Object.entries(LEITURAS).map(([k, v]) => [k, { ...v, acao: "ler" as const }])),
-  ...Object.fromEntries(Object.entries(ESCRITAS).map(([k, v]) => [k, { ...v, acao: "criar" as const, sensivel: false }])),
+  ...Object.fromEntries(Object.entries(ESCRITAS).map(([k, v]) => [k, { ...v, acao: k.startsWith("alterar:") ? ("alterar" as const) : ("criar" as const), sensivel: false }])),
   ...Object.fromEntries(Object.entries(USOS).map(([k, v]) => [k, { ...v, acao: "usar" as const, sensivel: false }])),
 } as {
   [K in keyof typeof LEITURAS]: (typeof LEITURAS)[K] & { acao: "ler" };
 } & {
-  [K in keyof typeof ESCRITAS]: (typeof ESCRITAS)[K] & { acao: "criar"; sensivel: false };
+  [K in keyof typeof ESCRITAS]: (typeof ESCRITAS)[K] & { acao: K extends `alterar:${string}` ? "alterar" : "criar"; sensivel: false };
 } & {
   [K in keyof typeof USOS]: (typeof USOS)[K] & { acao: "usar"; sensivel: false };
 };
@@ -100,7 +113,10 @@ export type AlvoLeitura = Leitura["alvo"];
 export const ALVOS_LEITURA: readonly AlvoLeitura[] = PERMISSOES_LEITURA.map((p) => LEITURAS[p].alvo);
 
 export const ehPermissao = (p: unknown): p is Permissao => typeof p === "string" && Object.hasOwn(PERMISSOES, p);
-export const escreve = (p: Permissao): boolean => p === "criar:fichas" || p === "criar:missoes";
+export const escreve = (p: Permissao): boolean => PERMISSOES[p].acao === "criar" || PERMISSOES[p].acao === "alterar";
+export const altera = (p: Permissao): boolean => PERMISSOES[p].acao === "alterar";
+/** Verbo curto para listas ("ler fichas", "alterar missões"). */
+export const verboPermissao = (p: Permissao): string => ({ ler: "Ler", criar: "Criar", alterar: "Alterar", usar: "Usar" })[PERMISSOES[p].acao];
 
 /** Remove desconhecidas e repetidas, mantendo a ordem do catálogo. */
 export const normalizarPermissoes = (bruto: unknown): Permissao[] => (Array.isArray(bruto) ? PERMISSAO_IDS.filter((id) => bruto.includes(id)) : []);
@@ -109,7 +125,8 @@ export type Pedido =
   | { id: number; op: "ler"; alvo: AlvoLeitura; args: Record<string, unknown> | null }
   | { id: number; op: "rolar"; alvo: "dados"; args: { expressao: string } }
   | { id: number; op: "propor"; alvo: "acoes"; args: { acoes: Acao[] } }
-  | { id: number; op: "perguntar"; alvo: "ia"; args: { texto: string } };
+  | { id: number; op: "perguntar"; alvo: "ia"; args: { texto: string } }
+  | { id: number; op: "estado"; alvo: "estado"; args: PedidoEstado };
 
 /** Valida a mensagem vinda do iframe. Qualquer coisa fora do formato esperado vira `null`. */
 export function validarPedido(m: unknown): Pedido | null {
@@ -130,12 +147,18 @@ export function validarPedido(m: unknown): Pedido | null {
     const acoes = validarAcoes(objeto.acoes);
     return acoes ? { id, op, alvo, args: { acoes } } : null;
   }
+  // RPG.estado.ler/salvar/listar: `alvo` é a operação ("assinar" é tratado à parte, pelo Sandbox).
+  if (op === "estado" && (alvo === "ler" || alvo === "salvar" || alvo === "listar")) {
+    const p = validarPedidoEstado(alvo, objeto);
+    return p ? { id, op, alvo: "estado", args: p } : null;
+  }
   return null;
 }
 
 /** A extensão só pode o que o MESTRE aprovou na instalação (não o que ela declarou no manifesto). */
 export function autorizar(aprovadas: readonly Permissao[], pedido: Pedido): { ok: true } | { ok: false; erro: string } {
   if (pedido.op === "rolar") return { ok: true }; // sem acesso a dados da mesa
+  if (pedido.op === "estado") return { ok: true }; // escopos de estado: autorizados por `estadoAprovado` (estado.ts)
   if (pedido.op === "perguntar") return aprovadas.includes("usar:ia") ? { ok: true } : { ok: false, erro: "Permissão não concedida: usar:ia. O mestre precisa aprovar esta extensão com essa permissão." };
   if (pedido.op === "propor") {
     const faltando = [...new Set(pedido.args.acoes.map(permissaoDaAcao))].filter((p) => !aprovadas.includes(p));
@@ -149,8 +172,12 @@ export function autorizar(aprovadas: readonly Permissao[], pedido: Pedido): { ok
 }
 
 /** Texto da tela de consentimento (uma linha por permissão pedida). */
-export function textoConsentimento(permissoes: readonly Permissao[], visivelAJogadores: boolean, eventos: readonly EventoId[] = [], efeitos: readonly string[] = []): string {
-  const linhas = permissoes.map((p) => `• ${{ ler: "Ler", criar: "Criar", usar: "Usar" }[PERMISSOES[p].acao]} — ${PERMISSOES[p].rotulo}: ${PERMISSOES[p].descricao}`);
+export function textoConsentimento(permissoes: readonly Permissao[], visivelAJogadores: boolean, eventos: readonly EventoId[] = [], efeitos: readonly string[] = [], escopos: readonly Escopo[] = []): string {
+  const linhas = [...permissoes.map((p) => `• ${verboPermissao(p)} — ${PERMISSOES[p].rotulo}: ${PERMISSOES[p].descricao}`), ...linhasConsentimentoEstado(escopos)];
+  const alteraAlgo = permissoes.some(altera);
+  const avisoAltera = alteraAlgo ? "\n\nMudar ou apagar algo que já existe também passa pela sua aprovação (com o antes → depois) e pode ser desfeito, restaurando a versão anterior." : "";
+  const privados = escopos.some((e) => e !== "compartilhado");
+  const avisoEstado = privados ? "\n\nLembre: o CÓDIGO da extensão é visível a quem a abre. Segredos e gabaritos devem ficar nos dados “Só do mestre”, nunca no código." : "";
   const sensivel = permissoes.some((p) => PERMISSOES[p].sensivel);
   const cria = permissoes.some(escreve);
   const aviso = sensivel
@@ -162,7 +189,7 @@ export function textoConsentimento(permissoes: readonly Permissao[], visivelAJog
   const aviso3 = eventos.length ? `\n\nEla também quer reagir sozinha a: ${eventos.map((e) => EVENTOS[e].rotulo.toLowerCase()).join(", ")}. Isso só acontece enquanto você está com a mesa aberta; qualquer criação continua pedindo a sua aprovação.` : "";
   const aviso4 = cria ? "\n\nSe um jogador usar a extensão e pedir algo, o pedido chega até você e só vira conteúdo se você aprovar." : "";
   const aviso5 = efeitos.length ? `\n\nEla também vai mudar a mesa inteira (enquanto estiver ativa; você pode desativá-la a qualquer momento):\n${efeitos.map((l) => `• ${l}`).join("\n")}` : "";
-  return `Esta extensão quer permissão para:\n${linhas.join("\n")}${aviso}${aviso2}${aviso4}${aviso6}${aviso3}${aviso5}`;
+  return `Esta extensão quer permissão para:\n${linhas.join("\n")}${aviso}${aviso2}${avisoAltera}${aviso4}${aviso6}${aviso3}${aviso5}${avisoEstado}`;
 }
 
 /** Referência da API para o prompt da IA, gerada do catálogo (a IA não inventa chamadas que não existem). */
@@ -174,9 +201,11 @@ export function descricaoApi(): string {
     leituras,
     usos,
     '- await RPG.rolar("2d6+3") → { expressao, total, grupos: [{ rotulo, dados, mantidos, subtotal }], bonus, critico? }  (não exige permissão)',
-    "Escrita. Quando quem usa é o MESTRE: cada pedido abre uma tela de aprovação e a promise só resolve depois que ele aprova (se recusar, REJEITA com \"O mestre recusou\"). Quando quem usa é um JOGADOR: a mesma chamada NÃO cria nada; envia um pedido ao mestre e resolve na hora com { pedido, status: \"pendente\" } (o jogador é avisado quando o mestre decidir):",
+    "Escrita. Quando quem usa é o MESTRE: cada pedido abre uma tela de aprovação e a promise só resolve depois que ele aprova (se recusar, REJEITA com \"O mestre recusou.\"). Quando quem usa é um JOGADOR: a mesma chamada NÃO cria nada; envia um pedido ao mestre e resolve na hora com { pedido, status: \"pendente\" } (o jogador é avisado quando o mestre decidir):",
     escritas,
-    '- await RPG.propor([{ tipo: "ficha", dados: {...} }, { tipo: "missao", dados: {...} }]) → cria várias ações de uma vez, com UMA aprovação (máx. 20). RPG.criar(tipo, dados) é o atalho de uma ação. Ambas resolvem com { lote, criados: [{ tipo, id, nome }], avisos: [texto] }.',
+    '- await RPG.propor([{ tipo: "ficha", dados: {...} }, { tipo: "missao", op: "alterar", id, mudancas: {...} }, { tipo: "ficha", op: "excluir", id }]) → várias ações de uma vez, com UMA aprovação (máx. 20; sem "op" = criar). RPG.criar(tipo, dados), RPG.alterar(tipo, id, mudancas) e RPG.excluir(tipo, id) são atalhos de uma ação. Todas resolvem com { lote, criados: [{ tipo, id, nome }], alterados: [...], excluidos: [...], avisos: [texto] }.',
+    "- Alterar/excluir: use os ids que RPG.ler(\"fichas\"/\"missoes\") devolve. Só fichas do mestre e missões da mesa. Em \"etapas\", mande a lista completa: etapas com id são mantidas/alteradas, sem id são novas, e as que ficarem de fora são removidas.",
+    descricaoEstado(),
     "- window.RPG.contexto: quando a extensão é aberta a partir de uma missão ou ficha (encaixes \"missao.acoes\" e \"ficha.acoes\"), vem { tipo: \"missao\"|\"ficha\", id, ... } com os dados dela; caso contrário é null.",
   ].join("\n");
 }

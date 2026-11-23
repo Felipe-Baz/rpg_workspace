@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Check, Inbox, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { validarAcoes, resumirAcoes } from "@/lib/extensoes/acoes";
-import { aprovarPedido, recusarPedido, usePedidosMestre, type PedidoJogador } from "@/lib/extensoes/pedidos";
+import { concluirPedido, prepararPedido, recusarPedido, usePedidosMestre, type PedidoJogador } from "@/lib/extensoes/pedidos";
+import { confirmar } from "../ui/Dialogos";
 import { useMesaAtual } from "../shell/MesaContext";
 import { toast } from "../ui/Toasts";
 
@@ -30,8 +31,12 @@ export default function PedidosPendentes() {
     setOcupado(p.id);
     try {
       if (aprovar) {
-        await aprovarPedido(mesa, user!.uid, p);
-        toast("Pedido aprovado e criado. Dá para desfazer na tela da extensão.");
+        // O "antes → depois" é calculado agora, com os dados atuais (o item pode ter mudado desde o pedido).
+        const prep = await prepararPedido(mesa, user!.uid, p);
+        if (!prep) return;
+        if (!(await confirmar({ titulo: `Pedido de ${p.nome} por “${p.extTitulo}”`, texto: prep.montado.resumo, confirmar: "Aprovar" }))) return;
+        await concluirPedido(mesa.id, p, prep);
+        toast("Pedido aprovado. Dá para desfazer na tela da extensão.");
       } else {
         await recusarPedido(mesa.id, p.id);
         toast("Pedido recusado");
@@ -54,14 +59,14 @@ export default function PedidosPendentes() {
             <p className="text-sm"><b>{p.nome}</b> pediu, por <span className="text-ext">{p.extTitulo}</span> · <span className="text-muted">{quando(p.criadoEm)}</span></p>
             <p className="mt-2 whitespace-pre-line text-sm text-muted">{resumo(p)}</p>
             <div className="mt-3 flex gap-2">
-              <button disabled={ocupado === p.id} onClick={() => agir(p, true)} className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-white hover:bg-accent-strong disabled:opacity-50"><Check size={14} /> Aprovar e criar</button>
+              <button disabled={ocupado === p.id} onClick={() => agir(p, true)} className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-white hover:bg-accent-strong disabled:opacity-50"><Check size={14} /> Revisar e aprovar</button>
               <button disabled={ocupado === p.id} onClick={() => agir(p, false)} className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm hover:border-danger hover:text-danger disabled:opacity-50"><X size={14} /> Recusar</button>
             </div>
           </li>
         ))}
         {recentes.length > 0 && (
           <li className="px-1 text-xs text-muted">
-            Recentes: {recentes.map((p) => `${p.nome} (${p.status === "aprovado" ? "aprovado" : "recusado"})`).join(" · ")}
+            Recentes: {recentes.map((p) => `${p.nome} (${p.status === "aprovado" ? "aprovado" : p.motivo ? "recusado: não vale mais" : "recusado"})`).join(" · ")}
           </li>
         )}
       </ul>

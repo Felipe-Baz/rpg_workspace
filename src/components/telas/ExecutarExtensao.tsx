@@ -8,8 +8,9 @@ import PainelExtensao from "../extensoes/PainelExtensao";
 import { useMesaAtual } from "../shell/MesaContext";
 import { confirmar } from "../ui/Dialogos";
 import { ListaSkeleton } from "../ui/Skeleton";
-import { PERMISSOES } from "@/lib/extensoes/capacidades";
+import { PERMISSOES, verboPermissao } from "@/lib/extensoes/capacidades";
 import HistoricoExtensao from "../extensoes/HistoricoExtensao";
+import PainelDadosExtensao from "../extensoes/PainelDadosExtensao";
 import Titulo from "./Titulo";
 
 // Roda uma extensão instalada na mesa. Mestre: salva estado, edita, publica. Jogador: só usa (somente leitura).
@@ -30,7 +31,7 @@ export default function ExecutarExtensao({ modo }: { modo: "mestre" | "jogador" 
     );
 
   async function remover() {
-    if (!(await confirmar({ perigo: true, titulo: "Remover da mesa", texto: `"${ext!.titulo}" sai desta mesa e o estado salvo dela é apagado. Ela continua na sua biblioteca.`, confirmar: "Remover" }))) return;
+    if (!(await confirmar({ perigo: true, titulo: "Remover da mesa", texto: `"${ext!.titulo}" sai desta mesa e TODOS os dados que ela guarda aqui são apagados (inclusive os de cada jogador e os só do mestre). Faça um backup em "Dados guardados" antes, se quiser. Ela continua na sua biblioteca.`, confirmar: "Remover" }))) return;
     await removerDaMesa(mesa.id, ext!.id);
     router.push(`${base}/extensoes`);
   }
@@ -39,7 +40,7 @@ export default function ExecutarExtensao({ modo }: { modo: "mestre" | "jogador" 
     <div className="flex h-[calc(100vh-9rem)] min-h-[28rem] flex-col">
       <Titulo
         titulo={ext.titulo}
-        texto={[mestre ? (ext.visivelJogadores ? "Visível para os jogadores." : "Só você vê esta extensão.") : "Extensão criada pelo mestre.", (ext.permissoesAprovadas ?? []).length ? `Permissões: ${(ext.permissoesAprovadas ?? []).map((p) => `${PERMISSOES[p].acao === "ler" ? "ler" : "criar"} ${PERMISSOES[p].rotulo.toLowerCase()}`).join(", ")}.` : ""].filter(Boolean).join(" ")}
+        texto={[mestre ? (ext.visivelJogadores ? "Visível para os jogadores." : "Só você vê esta extensão.") : "Extensão criada pelo mestre.", (ext.permissoesAprovadas ?? []).length ? `Permissões: ${(ext.permissoesAprovadas ?? []).map((p) => PERMISSOES[p].acao === "ler" ? `${verboPermissao(p).toLowerCase()} ${PERMISSOES[p].rotulo.toLowerCase()}` : PERMISSOES[p].rotulo.toLowerCase()).join(", ")}.` : ""].filter(Boolean).join(" ")}
         acao={
           mestre && (
             <div className="flex flex-wrap gap-2 text-sm">
@@ -59,6 +60,7 @@ export default function ExecutarExtensao({ modo }: { modo: "mestre" | "jogador" 
         <PainelExtensao ext={ext} mesaId={mesa.id} mestre={mestre} />
       </div>
       {mestre && <HistoricoExtensao mesaId={mesa.id} extId={ext.id} />}
+      {mestre && <PainelDadosExtensao ext={ext} abertoInicial={typeof window !== "undefined" && window.location.hash === "#dados"} />}
     </div>
   );
 }

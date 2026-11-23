@@ -47,5 +47,5 @@ Next.js 16 (App Router, `cacheComponents` + `partialPrefetching`), React 19, Typ
 ## Estado atual (resumo)
 
 - Mapas com IA: fases 01–08 concluídas (infra, editor, provedores, temas/perspectivas, biblioteca de assets, agente, conversão de imagem em cena e exportação VTT). Specs em `openspec/specs/`.
-- Extensões: Fase E0 feita (Marcas de Pacto como nativa); encaixes `sidebar`, `diario.jogador`, `visao-geral`, `sessao.painel`, `ctrlk`. Broker de dados da mesa, eventos e temas por extensão ainda são **planejamento** (`docs/planejamento/plano-plataforma-de-extensoes.md`).
+- Extensões: fases E0 a E7 feitas (encaixes, leitura de dados pelo broker, criação/alteração/exclusão com aprovação e desfazer, eventos, efeitos na mesa, IA, exportar/importar e estado por escopo com escrita do jogador). Marcas de Pacto continua nativa. Pendente: automação com o app fechado e outros itens em [extensoes](features/extensoes.md#o-que-ainda-é-plano-não-implementado).
 - Redesign de UX (shell com sidebar agrupada, dashboard de mesas, Ctrl+K, toasts/diálogos) em andamento na branch `feature/Melhorar-Design`.

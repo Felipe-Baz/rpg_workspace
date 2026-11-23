@@ -1,9 +1,9 @@
 "use client";
 
 import type { Acao } from "@/lib/extensoes/acoes";
-import { resumirAcoes } from "@/lib/extensoes/acoes";
+import { ehCriacao } from "@/lib/extensoes/acoes";
 import type { Proponente } from "@/lib/extensoes/broker-puro";
-import { executarLote } from "@/lib/extensoes/escrita";
+import { prepararLote } from "@/lib/extensoes/escrita";
 import { enviarPedido } from "@/lib/extensoes/pedidos";
 import type { Mesa } from "@/lib/mesas";
 import { confirmar } from "../ui/Dialogos";
@@ -13,27 +13,32 @@ import { toast } from "../ui/Toasts";
 let fila: Promise<unknown> = Promise.resolve();
 
 /**
- * Cria o "proponente" de uma extensão: mostra ao mestre o que será criado, e só grava se ele aprovar.
- * No ensaio (prévia do criador) a aprovação é pedida do mesmo jeito, mas nada é gravado.
+ * Cria o "proponente" de uma extensão: mostra ao mestre o que será criado, alterado ou apagado (com o antes → depois,
+ * lido na hora) e só grava se ele aprovar. No ensaio (prévia do criador) a aprovação é pedida do mesmo jeito, mas nada é
+ * gravado; com `exemplo`, alterar/excluir atuam sobre os itens fictícios do ensaio.
  */
-export function criarProponente(opcoes: { mesa: Mesa; uid: string; ext: { id: string; titulo: string }; ensaio?: boolean; aoRegistrar?: (detalhe: string, ok: boolean) => void }): Proponente {
-  const { mesa, uid, ext, ensaio } = opcoes;
-  const nomes = Object.fromEntries(mesa.jogadores.map((j) => [j.id, j.personagem || j.nome || "jogador"]));
+export function criarProponente(opcoes: { mesa: Mesa; uid: string; ext: { id: string; titulo: string }; ensaio?: boolean; exemplo?: boolean; aoRegistrar?: (detalhe: string, ok: boolean) => void }): Proponente {
+  const { mesa, uid, ext, ensaio, exemplo } = opcoes;
 
   return (acoes: Acao[]) => {
     const vez = fila.then(async () => {
+      const prep = await prepararLote({ mesa, uid, ext, acoes, ensaio, exemplo });
+      const soCria = acoes.every(ehCriacao);
+      const avisos = prep.montado.avisos.length ? `\n\nAvisos:\n${prep.montado.avisos.map((a) => `• ${a}`).join("\n")}` : "";
       const aprovado = await confirmar({
-        titulo: ensaio ? `Ensaio: “${ext.titulo}” quer criar conteúdo` : `“${ext.titulo}” quer criar conteúdo`,
-        texto: `${resumirAcoes(acoes, nomes)}${ensaio ? "\n\nEnsaio: nada será gravado de verdade." : ""}`,
-        confirmar: ensaio ? "Simular" : "Aprovar e criar",
+        perigo: prep.montado.excluir.length > 0,
+        titulo: `${ensaio ? "Ensaio: " : ""}“${ext.titulo}” quer ${soCria ? "criar conteúdo" : "mudar a mesa"}`,
+        texto: `${prep.montado.resumo}${avisos}${ensaio ? "\n\nEnsaio: nada será gravado de verdade." : ""}`,
+        confirmar: ensaio ? "Simular" : soCria ? "Aprovar e criar" : "Aprovar",
       });
       if (!aprovado) {
         opcoes.aoRegistrar?.("o mestre recusou", false);
-        throw new Error("O mestre recusou a criação.");
+        throw new Error("O mestre recusou.");
       }
-      const r = await executarLote({ mesa, uid, ext, acoes, ensaio });
-      opcoes.aoRegistrar?.(`${r.criados.length} item(ns) ${ensaio ? "simulados" : "criados"}`, true);
-      toast(ensaio ? `Ensaio: ${r.criados.length} item(ns) simulados` : `${r.criados.length} item(ns) criado(s). Dá para desfazer na tela da extensão.`);
+      const r = await prep.executar();
+      const n = r.criados.length + r.alterados.length + r.excluidos.length;
+      opcoes.aoRegistrar?.(`${n} item(ns) ${ensaio ? "simulados" : "gravados"}`, true);
+      toast(ensaio ? `Ensaio: ${n} item(ns) simulados` : `${n} item(ns) gravado(s). Dá para desfazer na tela da extensão.`);
       return r;
     });
     fila = vez.catch(() => undefined);
@@ -42,8 +47,8 @@ export function criarProponente(opcoes: { mesa: Mesa; uid: string; ext: { id: st
 }
 
 /**
- * Jogador: criar não grava nada. Envia um PEDIDO ao mestre (que revê e aprova) e resolve na hora com `{ pedido, status }`.
- * No ensaio (prévia "ver como jogador") nada é enviado.
+ * Jogador: criar/alterar/excluir não grava nada. Envia um PEDIDO ao mestre (que revê e aprova) e resolve na hora com
+ * `{ pedido, status }`. No ensaio (prévia "ver como jogador") nada é enviado.
  */
 export function criarSolicitante(opcoes: { mesa: Mesa; uid: string; ext: { id: string; titulo: string }; ensaio?: boolean }): Proponente {
   const { mesa, uid, ext, ensaio } = opcoes;

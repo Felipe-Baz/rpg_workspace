@@ -8,7 +8,7 @@ import { db } from "../firebase";
 import { uid as novoId, type Mesa } from "../mesas";
 import { validarAcoes, type Acao } from "./acoes";
 import { useLista } from "./dados";
-import { executarLote } from "./escrita";
+import { prepararLote, type LotePreparado } from "./escrita";
 
 export type StatusPedido = "pendente" | "aprovado" | "recusado";
 
@@ -23,6 +23,8 @@ export type PedidoJogador = {
   status: StatusPedido;
   resolvidoEm: number | null;
   lote: string | null;
+  /** Por que foi recusado automaticamente (ex.: o item a alterar não existe mais). */
+  motivo?: string;
 };
 
 export const MAX_PENDENTES_POR_JOGADOR = 5;
@@ -47,12 +49,33 @@ export function useMeusPedidos(mesaId: string, uid: string, habilitado: boolean)
   return { pedidos: itens, carregado };
 }
 
-/** Mestre aprova: revalida (o documento do jogador não é confiável), executa como lote dele e marca o pedido. */
-export async function aprovarPedido(mesa: Mesa, uidMestre: string, p: PedidoJogador): Promise<void> {
+/**
+ * Mestre vai aprovar: revalida (o documento do jogador não é confiável) e monta o lote contra os dados ATUAIS, para a tela
+ * mostrar o "antes → depois" de agora. Se algo deixou de existir (ex.: a ficha foi apagada), o pedido é recusado com o motivo
+ * e o jogador é avisado.
+ */
+export async function prepararPedido(mesa: Mesa, uidMestre: string, p: PedidoJogador): Promise<LotePreparado | null> {
   const acoes = validarAcoes(p.acoes);
   if (!acoes) throw new Error("Este pedido tem dados inválidos e não pode ser aprovado. Recuse-o.");
-  const r = await executarLote({ mesa, uid: uidMestre, ext: { id: p.extId, titulo: p.extTitulo }, acoes });
-  await updateDoc(doc(col(mesa.id), p.id), { status: "aprovado", resolvidoEm: Date.now(), lote: r.lote });
+  try {
+    return await prepararLote({ mesa, uid: uidMestre, ext: { id: p.extId, titulo: p.extTitulo }, acoes });
+  } catch (e) {
+    const motivo = e instanceof Error ? e.message : "O pedido não vale mais.";
+    await updateDoc(doc(col(mesa.id), p.id), { status: "recusado", resolvidoEm: Date.now(), motivo: motivo.slice(0, 200) });
+    throw new Error(`Pedido recusado automaticamente: ${motivo}`);
+  }
+}
+
+/** Grava o lote já preparado (e aprovado pelo mestre) e marca o pedido. */
+export async function concluirPedido(mesaId: string, p: PedidoJogador, preparado: LotePreparado): Promise<void> {
+  const r = await preparado.executar();
+  await updateDoc(doc(col(mesaId), p.id), { status: "aprovado", resolvidoEm: Date.now(), lote: r.lote });
+}
+
+/** Aprova sem tela (atalho): prepara e grava. */
+export async function aprovarPedido(mesa: Mesa, uidMestre: string, p: PedidoJogador): Promise<void> {
+  const prep = await prepararPedido(mesa, uidMestre, p);
+  if (prep) await concluirPedido(mesa.id, p, prep);
 }
 
 export const recusarPedido = (mesaId: string, id: string) => updateDoc(doc(col(mesaId), id), { status: "recusado", resolvidoEm: Date.now() });

@@ -269,6 +269,37 @@ service cloud.firestore {
       match /extensoes/{extId} {
         allow read: if logado() && (mestreMesa() || (membroMesa() && resource.data.get('visivelJogadores', false) == true));
         allow write: if mestreMesa();
+
+        // ===== Estado por escopo (E7) =====
+        // mestre      → só o mestre lê e grava (gabaritos, segredos)
+        // para_{uid}  → o mestre grava; só aquele jogador lê
+        // de_{uid}    → o próprio jogador grava (sem aprovação); o mestre lê e apaga, nunca grava
+        // Para jogadores, tudo exige a extensão visível, ativa e o escopo em `estadoAprovado` (aprovado pelo mestre).
+        function inst() {
+          return get(/databases/$(database)/documents/mesas/$(mesaId)/extensoes/$(extId)).data;
+        }
+        function instAberta() {
+          let i = inst();
+          return i.get('visivelJogadores', false) == true && i.get('ativa', true) != false;
+        }
+        function escopoAprovado(e) {
+          return e in inst().get('estadoAprovado', []);
+        }
+        function docEstadoValido() {
+          return request.resource.data.keys().hasOnly(['json', 'uid', 'atualizadoEm'])
+            && request.resource.data.json is string && request.resource.data.json.size() <= 50000
+            && request.resource.data.atualizadoEm is number;
+        }
+
+        match /estado/{docId} {
+          allow read, delete: if mestreMesa();
+          allow create, update: if mestreMesa() && (docId == 'mestre' || docId.matches('para_.+')) && docEstadoValido();
+          allow get: if membroMesa() && instAberta() && (
+            (docId == 'para_' + request.auth.uid && escopoAprovado('porJogador'))
+            || (docId == 'de_' + request.auth.uid && escopoAprovado('doJogador')));
+          allow create, update: if membroMesa() && docId == 'de_' + request.auth.uid && instAberta() && escopoAprovado('doJogador')
+            && docEstadoValido() && request.resource.data.uid == request.auth.uid;
+        }
       }
 
       // Registros dos tipos de dado criados por extensões: o mestre gerencia; o jogador lê só os liberados.

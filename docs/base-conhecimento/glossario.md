@@ -31,7 +31,7 @@
 | **VTT** | Mesa virtual (Roll20, Foundry…). Exportamos `.dd2vtt`/`.uvtt` (Universal VTT). |
 | **Extensão** | Mini-app em HTML único, executado em iframe isolado. Criada com IA; instalada por mesa. |
 | **Biblioteca (de extensões)** | Extensões do mestre, reaproveitáveis em várias mesas (`extensoes/{id}`). |
-| **Manifesto** | Declara os **encaixes** de uma extensão. |
+| **Manifesto** | Declara os **encaixes** de uma extensão e o que ela pede: permissões, eventos, efeitos na mesa e escopos de estado. |
 | **Permissão (de extensão)** | O que uma extensão pode ler (`ler:jogadores`, `ler:missoes`…). A extensão pede no manifesto; o mestre aprova ao publicar. |
 | **Broker** | Intermediário no app que atende `RPG.ler`/`RPG.rolar` da extensão: valida, confere a permissão aprovada e lê com as credenciais de quem usa. |
 | **Efeitos na mesa** | Mudanças estruturais que uma extensão ativa faz: tema, termos, menu e tipos de recurso (bloco `mesa` do manifesto). |
@@ -43,7 +43,10 @@
 | **Evento (de extensão)** | Mudança na mesa que uma extensão pode ouvir (`missao.concluida`, `ficha.criada`…), detectada por diferença de dados enquanto o mestre está com a mesa aberta. |
 | **Automação** | Extensão rodando em segundo plano (sem tela) para tratar eventos. Nunca com o app fechado. |
 | **Pedido (de jogador)** | Solicitação de criação feita por um jogador via extensão; o mestre aprova ou recusa. |
-| **Lote (de extensão)** | Conjunto de itens que uma extensão criou numa aprovação; recebe `origem` e pode ser desfeito inteiro. |
+| **Lote (de extensão)** | Conjunto de itens que uma extensão criou, alterou ou excluiu numa aprovação; recebe `origem` e pode ser desfeito inteiro (restaura o "antes"). |
+| **Escopo (de estado)** | Onde e para quem uma extensão guarda dados: `compartilhado`, `mestre` (só o mestre), `porJogador` (o mestre entrega a um jogador) e `doJogador` (o jogador grava o seu). Pedido no manifesto, aprovado pelo mestre (`estadoAprovado`). |
+| **Dados iniciais** | JSON que o mestre preenche no criador (`estadoInicial`, na biblioteca) e que é semeado na mesa ao instalar, só se ainda não houver dados. Lugar do gabarito, fora do código. |
+| **Painel Dados** | Tela do mestre com o que uma extensão guarda em cada escopo e por jogador: editar, limpar, backup, restaurar e aprovar escopos. |
 | **Aprovação (de criação)** | Tela em que o mestre vê o que a extensão quer criar e para quem, antes de gravar. |
 | **Modo ensaio** | Prévia do criador com permissões simuladas e dados da mesa ou de exemplo. |
 | **Encaixe (slot)** | Ponto do app onde uma extensão pode aparecer: `sidebar`, `diario.jogador`, `visao-geral`, `sessao.painel`, `ctrlk`. |

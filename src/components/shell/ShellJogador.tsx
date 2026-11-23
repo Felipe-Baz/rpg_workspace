@@ -36,7 +36,7 @@ export default function ShellJogador({ id, children }: { id: string; children: R
     if (antes) {
       for (const p of meusPedidos.pedidos) {
         if (antes.get(p.id) === "pendente" && p.status === "aprovado") toast(`O mestre aprovou seu pedido (${p.extTitulo}).`);
-        if (antes.get(p.id) === "pendente" && p.status === "recusado") toast(`O mestre recusou seu pedido (${p.extTitulo}).`, "info");
+        if (antes.get(p.id) === "pendente" && p.status === "recusado") toast(p.motivo ? `Seu pedido (${p.extTitulo}) não pôde ser aprovado: ${p.motivo}` : `O mestre recusou seu pedido (${p.extTitulo}).`, "info");
       }
     }
     statusVistos.current = new Map(meusPedidos.pedidos.map((p) => [p.id, p.status]));

@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { MAX_ACOES, permissaoDaAcao, resumirAcoes, validarAcao, validarAcoes } from "./acoes.ts";
+import { MAX_ACOES, permissaoDaAcao, resumirAcoes, validarAcao, validarAcoes, type AcaoCriar } from "./acoes.ts";
+const criada = (x: unknown) => validarAcao(x) as AcaoCriar | null;
 import { atender, leitorExemplo } from "./broker-puro.ts";
 import { autorizar, normalizarPermissoes, textoConsentimento, validarPedido } from "./capacidades.ts";
 import { montarDocumentosLote } from "./lote.ts";
@@ -9,20 +10,20 @@ const ficha = (extra: Record<string, unknown> = {}) => ({ tipo: "ficha", dados: 
 const pedidoPropor = (acoes: unknown) => validarPedido({ rpg: "pedido", id: 7, op: "propor", alvo: "acoes", args: { acoes } });
 
 test("ficha: normaliza texto, limites e liberação", () => {
-  const a = validarAcao(ficha({ nome: "  Colar  ", texto: "x".repeat(9000) }))!;
+  const a = criada(ficha({ nome: "  Colar  ", texto: "x".repeat(9000) }))!;
   assert.equal(a.tipo, "ficha");
   assert.equal((a.dados as { nome: string }).nome, "Colar");
   assert.equal((a.dados as { texto: string }).texto.length, 5000);
   assert.equal((a.dados as { liberarPara: unknown }).liberarPara, "ninguem"); // padrão: só o mestre
-  assert.equal((validarAcao(ficha({ liberarPara: "todos" }))!.dados as { liberarPara: unknown }).liberarPara, "todos");
-  assert.deepEqual((validarAcao(ficha({ liberarPara: ["j1", "j1", "j2"] }))!.dados as { liberarPara: unknown }).liberarPara, ["j1", "j2"]);
+  assert.equal((criada(ficha({ liberarPara: "todos" }))!.dados as { liberarPara: unknown }).liberarPara, "todos");
+  assert.deepEqual((criada(ficha({ liberarPara: ["j1", "j1", "j2"] }))!.dados as { liberarPara: unknown }).liberarPara, ["j1", "j2"]);
 });
 
 test("ações inválidas são recusadas", () => {
   for (const ruim of [null, 5, {}, { tipo: "ficha" }, { tipo: "ficha", dados: {} }, ficha({ categoria: "armadilha" }), ficha({ nome: "   " }), ficha({ liberarPara: 5 }),
     ficha({ liberarPara: [1] }), { tipo: "apagar", dados: { nome: "x" } }, { tipo: "missao", dados: { titulo: "" } }, { tipo: "missao", dados: { titulo: "ok", etapas: "x" } },
     { tipo: "missao", dados: { titulo: "ok", etapas: Array(31).fill("a") } }]) {
-    assert.equal(validarAcao(ruim), null, JSON.stringify(ruim));
+    assert.equal(criada(ruim), null, JSON.stringify(ruim));
   }
   assert.equal(validarAcoes([]), null);
   assert.equal(validarAcoes(Array(MAX_ACOES + 1).fill(ficha())), null);
@@ -31,7 +32,7 @@ test("ações inválidas são recusadas", () => {
 });
 
 test("missão: etapas vazias saem e o texto é aparado", () => {
-  const a = validarAcao({ tipo: "missao", dados: { titulo: " A Cripta ", etapas: ["Entrar", "  ", "Achar o relicário"], dificuldade: "Média" } })!;
+  const a = criada({ tipo: "missao", dados: { titulo: " A Cripta ", etapas: ["Entrar", "  ", "Achar o relicário"], dificuldade: "Média" } })!;
   assert.deepEqual((a.dados as { etapas: string[] }).etapas, ["Entrar", "Achar o relicário"]);
   assert.equal((a.dados as { titulo: string }).titulo, "A Cripta");
 });
@@ -79,7 +80,7 @@ test("resumo para aprovação cita nomes, destinatários e que dá para desfazer
 test("lote: marca a origem, converte jogadores em contas e avisa de quem não pode ver", () => {
   let n = 0;
   const r = montarDocumentosLote({
-    acoes: validarAcoes([ficha({ liberarPara: ["j1", "j2", "jx"] }), ficha({ nome: "Anel", liberarPara: "todos" }), { tipo: "missao", dados: { titulo: "A Cripta", etapas: ["Entrar", "Achar", "Sair"] } }])!,
+    acoes: validarAcoes([ficha({ liberarPara: ["j1", "j2", "jx"] }), ficha({ nome: "Anel", liberarPara: "todos" }), { tipo: "missao", dados: { titulo: "A Cripta", etapas: ["Entrar", "Achar", "Sair"] } }])! as AcaoCriar[],
     uidMestre: "mestre1",
     jogadores: [{ id: "j1", nome: "Ana", personagem: "Lia", uid: "uA" }, { id: "j2", nome: "Bruno", personagem: "Torin" }],
     origem: { extensao: "ext1", lote: "L1" },
