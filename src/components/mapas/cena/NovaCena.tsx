@@ -164,7 +164,7 @@ export default function NovaCena({
           />
         </label>
         <p className="text-xs text-muted">A proporção do canvas fica travada depois de criada. O lado maior é limitado a 4096 px.</p>
-        {erro && <p className="text-sm text-red-500">{erro}</p>}
+        {erro && <p className="text-sm text-danger">{erro}</p>}
         <div className="flex justify-end gap-2">
           <button className="rounded-lg border border-border px-3 py-2 text-sm" onClick={onCancelar}>
             Cancelar

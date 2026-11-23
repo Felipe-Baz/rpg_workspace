@@ -81,9 +81,9 @@ export default function TemasMestre({ mesaId, onFechar }: { mesaId: string; onFe
           <h3 className="text-lg font-semibold">{r ? (r.nome ? `Tema: ${r.nome}` : "Novo tema") : "Temas da mesa"}</h3>
           <button className={btn} onClick={r ? () => setR(null) : onFechar}>{r ? "Voltar" : "Fechar"}</button>
         </div>
-        {erro && <p className="text-sm text-red-500">{erro}</p>}
+        {erro && <p className="text-sm text-danger">{erro}</p>}
         {apagar && !r && (
-          <div className="space-y-2 rounded-lg border border-red-500/50 bg-red-500/10 p-3 text-sm">
+          <div className="space-y-2 rounded-lg border border-danger/50 bg-danger/10 p-3 text-sm">
             <p>
               Excluir o tema <strong>{apagar.tema.nome}</strong> apaga também, <strong>sem volta</strong>: {apagar.mapas} mapa(s) de cena que o usam
               (com a cena e a imagem) e {apagar.assets} asset(s) do tema.
@@ -93,7 +93,7 @@ export default function TemasMestre({ mesaId, onFechar }: { mesaId: string; onFe
             <div className="flex justify-end gap-2">
               <button className={btn} onClick={() => setApagar(null)} disabled={apagando}>Cancelar</button>
               <button
-                className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
+                className="rounded-lg bg-danger px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
                 disabled={apagando || confirmacao !== apagar.tema.nome}
                 onClick={excluir}
               >
@@ -123,7 +123,7 @@ export default function TemasMestre({ mesaId, onFechar }: { mesaId: string; onFe
                     <p className="truncate text-xs text-muted">{t.descricao}</p>
                   </div>
                   <button className={btn} onClick={() => setR(doTema(t))}>Editar</button>
-                  <button className={`${btn} text-red-500`} onClick={() => pedirExclusao(t)}>Excluir</button>
+                  <button className={`${btn} text-danger`} onClick={() => pedirExclusao(t)}>Excluir</button>
                 </li>
               ))}
             </ul>
@@ -250,7 +250,7 @@ function EditorTema({ mesaId, inicial, onSalvo }: { mesaId: string; inicial: Ras
         <p className="text-xs text-muted">Sem LLM configurado? Preencha o perfil abaixo à mão. Nada da IA é salvo sem a sua confirmação.</p>
       </section>
 
-      {msg && <p className="text-sm text-green-500">{msg}</p>}
+      {msg && <p className="text-sm text-ok">{msg}</p>}
 
       <section className="space-y-2">
         <h4 className="text-xs uppercase tracking-wider text-muted">Perfil de estilo</h4>
@@ -278,7 +278,7 @@ function EditorTema({ mesaId, inicial, onSalvo }: { mesaId: string; inicial: Ras
         </label>
       </section>
 
-      {erro && <p className="text-sm text-red-500">{erro}</p>}
+      {erro && <p className="text-sm text-danger">{erro}</p>}
       <div className="flex justify-end">
         <button className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50" onClick={salvar} disabled={salvando}>
           {salvando ? "Salvando…" : "Salvar tema"}

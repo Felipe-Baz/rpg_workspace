@@ -1,5 +1,6 @@
 "use client";
 
+import { confirmar } from "@/components/ui/Dialogos";
 import { useState } from "react";
 
 /** Notas em páginas, no estilo do livro de anotações do Minecraft. */
@@ -25,9 +26,9 @@ export default function LivroNotas({
     onChange([...lista, ""]);
     setAtual(lista.length);
   };
-  const remover = () => {
+  const remover = async () => {
     if (lista.length === 1) return onChange([""]);
-    if (lista[i].trim() && !confirm("Apagar esta página?")) return;
+    if (lista[i].trim() && !(await confirmar({ texto: "Esta página tem conteúdo e será apagada.", confirmar: "Apagar", perigo: true }))) return;
     onChange(lista.filter((_, k) => k !== i));
     setAtual(Math.max(0, i - 1));
   };
@@ -61,7 +62,7 @@ export default function LivroNotas({
           <button type="button" className={botao} disabled={desabilitado} onClick={adicionar}>
             + Página
           </button>
-          <button type="button" className={`${botao} hover:text-red-500`} disabled={desabilitado} onClick={remover}>
+          <button type="button" className={`${botao} hover:text-danger`} disabled={desabilitado} onClick={remover}>
             Apagar página
           </button>
         </div>

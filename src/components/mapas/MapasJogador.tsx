@@ -191,7 +191,7 @@ function VisorMapa({
                   onChange(pinos.filter((p) => p.id !== pino.id));
                   setPinoId(null);
                 }}
-                className="text-sm text-muted hover:text-red-500"
+                className="text-sm text-muted hover:text-danger"
               >
                 Remover pino
               </button>

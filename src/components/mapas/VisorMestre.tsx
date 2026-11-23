@@ -1,5 +1,6 @@
 "use client";
 
+import { confirmar } from "@/components/ui/Dialogos";
 import { useEffect, useRef, useState } from "react";
 import { uid } from "@/lib/mesas";
 import { atualizarMapa, type Colecao, type Cobertura, type Mapa, type Ponto, type Zona } from "@/lib/mapas";
@@ -284,11 +285,11 @@ export default function VisorMestre({
                         {aberta ? "Esconder zona" : "Revelar zona"}
                       </button>
                       <button
-                        onClick={() => {
-                          if (!confirm(`Excluir a zona "${z.nome}" e suas formas?`)) return;
+                        onClick={async () => {
+                          if (!(await confirmar({ texto: `Excluir a zona "${z.nome}" e suas formas?`, confirmar: "Excluir", perigo: true }))) return;
                           salvar({ zonas: zonas.filter((x) => x.id !== z.id), cobertas: cobertas.filter((c) => c.zonaId !== z.id) });
                         }}
-                        className="px-1 text-muted hover:text-red-500"
+                        className="px-1 text-muted hover:text-danger"
                         aria-label="Excluir zona"
                       >
                         🗑
@@ -325,7 +326,7 @@ export default function VisorMestre({
                 >
                   {sel.revelada ? "Esconder" : "Revelar"}
                 </button>
-                <button onClick={excluirSel} className={`${btn} hover:text-red-500`}>Excluir (Del)</button>
+                <button onClick={excluirSel} className={`${btn} hover:text-danger`}>Excluir (Del)</button>
               </div>
             </div>
           )}

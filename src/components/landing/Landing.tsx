@@ -114,13 +114,13 @@ export default function Landing() {
         </nav>
       </header>
 
-      <Hero entrada={entrada} logado={!!user} />
+      <Hero entrada={user ? "/mesas" : "/login?modo=criar"} logado={!!user} />
       <Marquee />
       <ComoFunciona />
       <Recursos />
       <DemoMapa />
       <MestreJogador />
-      <CtaFinal entrada={entrada} logado={!!user} />
+      <CtaFinal entrada={user ? "/mesas" : "/login?modo=criar"} logado={!!user} />
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted">
         <p className="font-display tracking-wide">RPG Workspace</p>

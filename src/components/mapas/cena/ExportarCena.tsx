@@ -124,10 +124,10 @@ export default function ExportarCena({
             Foundry, Arkenforge e outros importam este formato. Grid de {plano.celulas.x} × {plano.celulas.y} células, {plano.ppg} px por célula
             ({plano.largura} × {plano.altura} px); {paredes} parede(s) e {luzes} luz(es).
           </p>
-          {plano.aproximado && <p className="text-xs text-amber-500">O formato só tem grid quadrado: a célula vira a largura do hexágono.</p>}
+          {plano.aproximado && <p className="text-xs text-warn">O formato só tem grid quadrado: a célula vira a largura do hexágono.</p>}
           <button className={btn} disabled={ocupado} onClick={vtt}>{ocupado ? "Exportando…" : "Baixar .dd2vtt"}</button>
         </section>
-        {erro && <p className="rounded-lg bg-red-500/10 p-2 text-red-500">{erro}</p>}
+        {erro && <p className="rounded-lg bg-danger/10 p-2 text-danger">{erro}</p>}
       </div>
     </div>
   );

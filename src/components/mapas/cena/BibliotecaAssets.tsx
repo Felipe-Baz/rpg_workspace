@@ -146,8 +146,8 @@ export default function BibliotecaAssets({
               ⋯
             </button>}
             {a.origem === "ia" && <span className="absolute bottom-0.5 left-0.5 rounded bg-accent/80 px-1 text-[9px] leading-4 text-white">IA</span>}
-            {a.incompleto && <span className="absolute bottom-0.5 right-0.5 rounded bg-amber-600/90 px-1 text-[9px] leading-4 text-white" title="Cortado ou encoberto no mapa original">incompleto</span>}
-            {a.naoRepetivel && <span className="absolute bottom-0.5 right-0.5 rounded bg-amber-600/90 px-1 text-[9px] leading-4 text-white" title="A emenda é visível ao repetir">emenda</span>}
+            {a.incompleto && <span className="absolute bottom-0.5 right-0.5 rounded bg-warn/90 px-1 text-[9px] leading-4 text-white" title="Cortado ou encoberto no mapa original">incompleto</span>}
+            {a.naoRepetivel && <span className="absolute bottom-0.5 right-0.5 rounded bg-warn/90 px-1 text-[9px] leading-4 text-white" title="A emenda é visível ao repetir">emenda</span>}
           </div>
         ))}
       </div>
@@ -171,11 +171,11 @@ export default function BibliotecaAssets({
               </>
             )}
             {selecionado.incompleto && (
-              <button className={`${btn} border-amber-600 text-amber-400`} onClick={() => setGerador({ base: selecionado, modo: "regenerar", instrucao: INSTRUCAO_COMPLETAR })} title="Gera uma versão inteira do objeto; a atual fica até você descartá-la">
+              <button className={`${btn} border-warn text-warn`} onClick={() => setGerador({ base: selecionado, modo: "regenerar", instrucao: INSTRUCAO_COMPLETAR })} title="Gera uma versão inteira do objeto; a atual fica até você descartá-la">
                 Completar por IA
               </button>
             )}
-            <button className={`${btn} text-red-500`} disabled={ocupado} onClick={() => tentarExcluir(selecionado)}>🗑 Excluir</button>
+            <button className={`${btn} text-danger`} disabled={ocupado} onClick={() => tentarExcluir(selecionado)}>🗑 Excluir</button>
           </div>
         </div>
       )}
@@ -196,7 +196,7 @@ export default function BibliotecaAssets({
               </select>
             </label>
             <div className="flex gap-2">
-              <button className="rounded-lg bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-500 disabled:opacity-50" disabled={!exclusao.substituto || ocupado} onClick={() => tentarExcluir(exclusao.asset, exclusao.substituto)}>
+              <button className="rounded-lg bg-danger px-3 py-1.5 text-sm text-white hover:bg-danger disabled:opacity-50" disabled={!exclusao.substituto || ocupado} onClick={() => tentarExcluir(exclusao.asset, exclusao.substituto)}>
                 {ocupado ? "Substituindo…" : "Substituir e excluir"}
               </button>
               <button className={btn} onClick={() => setExclusao(null)}>Cancelar</button>

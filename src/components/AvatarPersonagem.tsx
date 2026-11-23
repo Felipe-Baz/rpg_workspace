@@ -80,13 +80,13 @@ export default function AvatarPersonagem({
           <button
             type="button"
             onClick={() => definirFotoPersonagem(mesaId, jogadorId, "").catch(() => setErro("Não foi possível remover."))}
-            className="text-muted hover:text-red-500"
+            className="text-muted hover:text-danger"
           >
             Remover
           </button>
         )}
       </div>
-      {erro && <p role="alert" className="max-w-24 text-center text-[11px] text-red-500">{erro}</p>}
+      {erro && <p role="alert" className="max-w-24 text-center text-[11px] text-danger">{erro}</p>}
     </div>
   );
 }

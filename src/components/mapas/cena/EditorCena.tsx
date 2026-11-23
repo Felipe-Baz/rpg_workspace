@@ -1,5 +1,6 @@
 "use client";
 
+import { confirmar } from "@/components/ui/Dialogos";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { uid } from "@/lib/mesas";
 import { atualizarMapa, type Colecao, type Mapa } from "@/lib/mapas";
@@ -449,8 +450,8 @@ export default function EditorCena({
     }
   }
 
-  const fechar = () => {
-    if (sujo && !confirm("Há alterações não salvas. Descartá-las?")) return;
+  const fechar = async () => {
+    if (sujo && !(await confirmar({ texto: "Há alterações não salvas. Descartá-las?", confirmar: "Descartar", perigo: true }))) return;
     onFechar();
   };
 
@@ -552,7 +553,7 @@ export default function EditorCena({
         </button>
         <button className={btn} onClick={fechar}>Fechar</button>
       </header>
-      {erro && <p className="border-b border-border bg-red-500/10 px-3 py-1 text-sm text-red-500">{erro}</p>}
+      {erro && <p className="border-b border-border bg-danger/10 px-3 py-1 text-sm text-danger">{erro}</p>}
       {exportando && cena && (
         <ExportarCena cena={cena} nome={mapa.nome} exportar={(o) => render.current!.exportar(cena, o)} onFechar={() => setExportando(false)} />
       )}
@@ -641,7 +642,7 @@ export default function EditorCena({
                   <button className={btn} onClick={duplicar} title="Ctrl+D">⧉ Duplicar</button>
                   <button className={btn} onClick={() => rodar({ tipo: "atualizarObjeto", id: sel.id, patch: { z: sel.z + 1 } })}>▲ Frente</button>
                   <button className={btn} onClick={() => rodar({ tipo: "atualizarObjeto", id: sel.id, patch: { z: sel.z - 1 } })}>▼ Trás</button>
-                  <button className={`${btn} text-red-500`} onClick={remover} title="Delete">🗑 Remover</button>
+                  <button className={`${btn} text-danger`} onClick={remover} title="Delete">🗑 Remover</button>
                 </div>
               </>
             )}

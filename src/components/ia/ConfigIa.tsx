@@ -38,7 +38,7 @@ export default function ConfigIa() {
     };
   }, []);
 
-  if (erro) return <p className="text-red-500">{erro}</p>;
+  if (erro) return <p className="text-danger">{erro}</p>;
   if (!est) return <p className="text-muted">Carregando…</p>;
 
   return (
@@ -152,7 +152,7 @@ function Seletor({ est, tipo, titulo, onSalvo }: { est: Estado; tipo: TipoProved
         Credencial {NOME_CRED[p.credencialId] ?? p.credencialId}: {cred?.configurada ? "configurada" : "não configurada"}.
       </p>
       {aviso && !aviso.ok && (
-        <p className="text-sm text-amber-500">
+        <p className="text-sm text-warn">
           {aviso.aviso} {aviso.alternativa}
         </p>
       )}
@@ -165,7 +165,7 @@ function Seletor({ est, tipo, titulo, onSalvo }: { est: Estado; tipo: TipoProved
           Testar conexão
         </button>
       </div>
-      {msg && <p className={`text-sm ${msg.ok ? "text-emerald-500" : "text-red-500"}`}>{msg.texto}</p>}
+      {msg && <p className={`text-sm ${msg.ok ? "text-ok" : "text-danger"}`}>{msg.texto}</p>}
     </section>
   );
 }
@@ -228,7 +228,7 @@ function PainelUso() {
           </div>
         </>
       )}
-      {erro && <p className="text-sm text-red-500">{erro}</p>}
+      {erro && <p className="text-sm text-danger">{erro}</p>}
     </section>
   );
 }

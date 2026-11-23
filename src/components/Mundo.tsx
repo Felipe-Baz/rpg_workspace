@@ -1,5 +1,6 @@
 "use client";
 
+import { confirmar } from "@/components/ui/Dialogos";
 import { useMemo, useRef, useState } from "react";
 import Markdown from "./Markdown";
 import {
@@ -130,8 +131,8 @@ function BlocoView({ bloco }: { bloco: Bloco }) {
       );
     case "destaque":
       return (
-        <aside className="rounded-xl border border-amber-500/40 border-l-4 border-l-amber-500 bg-amber-500/5 p-4">
-          {bloco.titulo && <p className="mb-1 font-semibold text-amber-600 dark:text-amber-400">{bloco.titulo}</p>}
+        <aside className="rounded-xl border border-warn/40 border-l-4 border-l-amber-500 bg-warn/5 p-4">
+          {bloco.titulo && <p className="mb-1 font-semibold text-warn dark:text-warn">{bloco.titulo}</p>}
           <Markdown texto={bloco.texto} />
         </aside>
       );
@@ -328,7 +329,7 @@ function EditorJson({
         {validacao && (
           <div className="space-y-2 rounded-lg bg-border/30 p-3 text-sm">
             {validacao.erro ? (
-              <p className="text-red-500">✕ {validacao.erro}</p>
+              <p className="text-danger">✕ {validacao.erro}</p>
             ) : (
               <>
                 <p className="font-semibold text-green-600">✓ {validacao.titulo}</p>
@@ -337,7 +338,7 @@ function EditorJson({
             )}
           </div>
         )}
-        {erroSalvar && <p className="text-sm text-red-500">{erroSalvar}</p>}
+        {erroSalvar && <p className="text-sm text-danger">{erroSalvar}</p>}
 
         <div className="flex flex-wrap gap-2 border-t border-border pt-3">
           <button onClick={() => baixar(inicial, "mundo.json")} className={botao}>Baixar atual (modelo)</button>
@@ -345,12 +346,12 @@ function EditorJson({
           {personalizado && (
             <button
               onClick={async () => {
-                if (confirm("Descartar o conteúdo importado e voltar ao padrão de Valgreth?")) {
+                if (await confirmar({ texto: "Descartar o conteúdo importado e voltar ao padrão de Valgreth?", confirmar: "Descartar", perigo: true })) {
                   await restaurarMundoPadrao(mesaId);
                   onFechar();
                 }
               }}
-              className={`${botao} text-red-500`}
+              className={`${botao} text-danger`}
             >
               Restaurar padrão
             </button>

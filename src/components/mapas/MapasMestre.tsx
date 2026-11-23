@@ -1,5 +1,6 @@
 "use client";
 
+import { confirmar } from "@/components/ui/Dialogos";
 import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Mesa } from "@/lib/mesas";
@@ -90,7 +91,7 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
       <p className="text-sm text-muted">
         Jogadores só veem {colecao === "mapas" ? "os mapas" : "as imagens"} que você liberar e fazem anotações privadas sobre elas. As imagens são reduzidas automaticamente (~900 KB). Clique numa imagem para abri-la em tela cheia e cobrir áreas ainda não visitadas (os jogadores veem as áreas cobertas).
       </p>
-      {erro && <p className="text-sm text-red-500">{erro}</p>}
+      {erro && <p className="text-sm text-danger">{erro}</p>}
       {carregado && mapas.length === 0 && <p className="text-muted">{t.vazio}</p>}
       <div className="grid gap-4 sm:grid-cols-2">
         {mapas.map((m) => (
@@ -198,11 +199,11 @@ function CartaoMapa({ mesa, mapa, colecao, onEditar, onConverter }: { mesa: Mesa
           </button>
           <button
             onClick={async () => {
-              if (!confirm("Desvincular a cena? O mapa fica só com a imagem atual e a cena é apagada.")) return;
+              if (!(await confirmar({ texto: "Desvincular a cena? O mapa fica só com a imagem atual e a cena é apagada.", confirmar: "Desvincular", perigo: true }))) return;
               await desvincularCena(mesa.id, mapa.id, colecao);
               await excluirCena(mesa.id, mapa.cenaId!);
             }}
-            className="text-muted hover:text-red-500"
+            className="text-muted hover:text-danger"
           >
             Desvincular cena
           </button>
@@ -215,12 +216,12 @@ function CartaoMapa({ mesa, mapa, colecao, onEditar, onConverter }: { mesa: Mesa
       )}
       <button
         onClick={async () => {
-          if (!confirm(`Excluir ${t.item} "${mapa.nome}"?`)) return;
+          if (!(await confirmar({ texto: `Excluir ${t.item} "${mapa.nome}"?`, confirmar: "Excluir", perigo: true }))) return;
           await excluirMapa(mesa.id, mapa.id, colecao);
           if (ehMapaDeCena(mapa)) await excluirCena(mesa.id, mapa.cenaId!);
           await excluirPorUrl(mapa.imagem);
         }}
-        className="text-sm text-muted hover:text-red-500"
+        className="text-sm text-muted hover:text-danger"
       >
         Excluir
       </button>

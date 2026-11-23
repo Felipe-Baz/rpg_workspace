@@ -16,7 +16,7 @@ Ao terminar uma fase e validar no site, arquive com `/opsx:archive <nome>` antes
 ## Como ver as mudanças no site
 
 1. Na raiz do projeto, rode `npm run dev` e abra `http://localhost:3000`.
-2. Entre com a conta do **mestre** e abra uma mesa. A tela do mestre fica em `/mesas/<id>/mestre`.
+2. Entre com a conta do **mestre** e abra uma mesa. A tela do mestre fica em `/mesas/<id>`.
 3. Os mapas ficam na aba **Mapas** (e **Imagens**, que usa o mesmo componente). É ali que quase tudo desta feature aparece.
 4. Para ver o lado do jogador, use outra conta (ou janela anônima) em `/mesas/<id>/jogador`. Libere um mapa para ele pelo cartão do mapa.
 5. Fases com servidor (02 em diante) exigem as variáveis de ambiente descritas em `.env.template` depois de cada change; sem elas, o site avisa em vez de quebrar.

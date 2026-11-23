@@ -182,3 +182,13 @@ button:active:not(:disabled) { transform: scale(0.97); }
   box-shadow: 0 3px 8px rgba(70, 40, 10, 0.45);
   filter: sepia(0.25) contrast(1.02);
 }
+
+/* ===== Acabamento global (Fase 3) ===== */
+::selection { background: color-mix(in srgb, var(--accent) 45%, transparent); }
+:where(a, button, [role="tab"], summary):focus-visible { outline: 2px solid var(--accent-hover); outline-offset: 2px; border-radius: 6px; }
+:where(input, textarea, select):not(.marcas *):focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+:where(input, textarea, select)::placeholder { color: var(--muted); opacity: .7; }
+* { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--muted) 45%, transparent) transparent; }
+/* Conteúdo de mundo (artigos): títulos com a fonte de display */
+.md h1, .md h2 { font-family: var(--font-display), serif; letter-spacing: .03em; }
+.papiro .md h1, .papiro .md h2 { font-family: inherit; letter-spacing: .04em; }

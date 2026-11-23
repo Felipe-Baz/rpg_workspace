@@ -1,5 +1,7 @@
 "use client";
 
+import IconeCategoria from "./IconeCategoria";
+import { confirmar } from "@/components/ui/Dialogos";
 import { useEffect, useRef, useState } from "react";
 import EditorMarkdown from "../EditorMarkdown";
 import Markdown from "../Markdown";
@@ -18,7 +20,6 @@ export default function FichasJogador({
   categoria,
   rotulo,
   singular,
-  icone,
   mesa,
   opinioes,
 }: {
@@ -77,7 +78,7 @@ export default function FichasJogador({
               // eslint-disable-next-line @next/next/no-img-element
               <img src={f.foto} alt={f.nome} className="aspect-square w-full object-cover" />
             ) : (
-              <div className="flex aspect-square w-full items-center justify-center bg-border/30 text-4xl">{icone}</div>
+              <div className="flex aspect-square w-full items-center justify-center bg-border/30"><IconeCategoria categoria={f.categoria} size={44} /></div>
             )}
             <p className="truncate px-3 py-2 text-sm font-medium">
               {!mesa && f.mestre && "👁 "}
@@ -96,7 +97,6 @@ export default function FichasJogador({
           key={aberta.id}
           mesaId={mesaId}
           ficha={aberta}
-          icone={icone}
           mesa={mesa}
           somenteLeitura={aberta.mestre && !mesa}
           opinioes={opinioes}
@@ -110,7 +110,6 @@ export default function FichasJogador({
 function FichaModal({
   mesaId,
   ficha,
-  icone,
   mesa,
   somenteLeitura,
   opinioes,
@@ -119,7 +118,6 @@ function FichaModal({
   opinioes?: Opinioes;
   mesaId: string;
   ficha: Ficha;
-  icone: string;
   mesa?: Mesa;
   somenteLeitura: boolean;
   onFechar: () => void;
@@ -194,8 +192,8 @@ function FichaModal({
               className="h-32 w-32 shrink-0 cursor-zoom-in rounded-lg object-cover"
             />
           ) : (
-            <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-border/30 text-5xl">
-              {icone}
+            <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-border/30">
+              <IconeCategoria categoria={ficha.categoria} size={52} />
             </div>
           )}
           {!somenteLeitura && (
@@ -209,12 +207,12 @@ function FichaModal({
             {ficha.foto && (
               <button
                 onClick={() => atualizarFicha(mesaId, ficha.id, { foto: "" })}
-                className="block text-sm text-muted hover:text-red-500"
+                className="block text-sm text-muted hover:text-danger"
               >
                 Remover foto
               </button>
             )}
-            {erro && <p className="text-sm text-red-500">{erro}</p>}
+            {erro && <p className="text-sm text-danger">{erro}</p>}
             <input ref={input} type="file" accept="image/*" hidden onChange={(e) => trocarFoto(e.target.files?.[0])} />
           </div>
           )}
@@ -300,13 +298,13 @@ function FichaModal({
             {editando ? "Concluir" : "Editar anotações"}
           </button>
           <button
-            onClick={() => {
-              if (confirm(`Excluir "${nome}"?`)) {
+            onClick={async () => {
+              if (await confirmar({ texto: `Excluir "${nome}"?`, confirmar: "Excluir", perigo: true })) {
                 excluirFicha(mesaId, ficha.id);
                 onFechar();
               }
             }}
-            className="text-sm text-muted hover:text-red-500"
+            className="text-sm text-muted hover:text-danger"
           >
             Excluir
           </button>
