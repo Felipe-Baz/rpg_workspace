@@ -1,5 +1,6 @@
 "use client";
 
+import { ListaSkeleton } from "@/components/ui/Skeleton";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
@@ -38,8 +39,8 @@ export default function ConfigIa() {
     };
   }, []);
 
-  if (erro) return <p className="text-red-500">{erro}</p>;
-  if (!est) return <p className="text-muted">Carregando…</p>;
+  if (erro) return <p className="text-danger">{erro}</p>;
+  if (!est) return <ListaSkeleton />;
 
   return (
     <div className="space-y-8">
@@ -152,20 +153,20 @@ function Seletor({ est, tipo, titulo, onSalvo }: { est: Estado; tipo: TipoProved
         Credencial {NOME_CRED[p.credencialId] ?? p.credencialId}: {cred?.configurada ? "configurada" : "não configurada"}.
       </p>
       {aviso && !aviso.ok && (
-        <p className="text-sm text-amber-500">
+        <p className="text-sm text-warn">
           {aviso.aviso} {aviso.alternativa}
         </p>
       )}
 
       <div className="flex flex-wrap gap-2">
-        <button disabled={ocupado} onClick={() => salvar(true)} className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-700 disabled:opacity-50">
+        <button disabled={ocupado} onClick={() => salvar(true)} className="rounded-lg bg-accent px-4 py-2 font-medium text-white hover:bg-accent-strong disabled:opacity-50">
           {p.id === ativoId ? "Salvar" : "Salvar e ativar"}
         </button>
         <button disabled={ocupado || (!cred?.configurada && !valores.apiKey)} onClick={testar} className="rounded-lg border border-border px-4 py-2 font-medium hover:bg-border/50 disabled:opacity-50">
           Testar conexão
         </button>
       </div>
-      {msg && <p className={`text-sm ${msg.ok ? "text-emerald-500" : "text-red-500"}`}>{msg.texto}</p>}
+      {msg && <p className={`text-sm ${msg.ok ? "text-ok" : "text-danger"}`}>{msg.texto}</p>}
     </section>
   );
 }
@@ -228,7 +229,7 @@ function PainelUso() {
           </div>
         </>
       )}
-      {erro && <p className="text-sm text-red-500">{erro}</p>}
+      {erro && <p className="text-sm text-danger">{erro}</p>}
     </section>
   );
 }
@@ -237,7 +238,7 @@ export function CabecalhoIa() {
   return (
     <header className="mb-6 flex items-center justify-between gap-4">
       <h1 className="text-2xl font-bold">Configurações de IA</h1>
-      <Link href="/" className="text-sm text-muted hover:underline">← Voltar</Link>
+      <Link href="/mesas" className="text-sm text-muted hover:underline">← Voltar</Link>
     </header>
   );
 }

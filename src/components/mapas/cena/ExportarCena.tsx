@@ -111,7 +111,7 @@ export default function ExportarCena({
           <div className="flex items-center gap-2">
             Resolução
             {[1, 2].map((k) => (
-              <button key={k} className={`${btn} ${escala === k ? "border-violet-600 bg-violet-600 text-white" : ""}`} onClick={() => setEscala(k)}>{k}x</button>
+              <button key={k} className={`${btn} ${escala === k ? "border-accent bg-accent text-white" : ""}`} onClick={() => setEscala(k)}>{k}x</button>
             ))}
             <span className="text-xs text-muted">{largPng} × {Math.round((largPng * cena.altura) / cena.largura)} px</span>
           </div>
@@ -124,10 +124,10 @@ export default function ExportarCena({
             Foundry, Arkenforge e outros importam este formato. Grid de {plano.celulas.x} × {plano.celulas.y} células, {plano.ppg} px por célula
             ({plano.largura} × {plano.altura} px); {paredes} parede(s) e {luzes} luz(es).
           </p>
-          {plano.aproximado && <p className="text-xs text-amber-500">O formato só tem grid quadrado: a célula vira a largura do hexágono.</p>}
+          {plano.aproximado && <p className="text-xs text-warn">O formato só tem grid quadrado: a célula vira a largura do hexágono.</p>}
           <button className={btn} disabled={ocupado} onClick={vtt}>{ocupado ? "Exportando…" : "Baixar .dd2vtt"}</button>
         </section>
-        {erro && <p className="rounded-lg bg-red-500/10 p-2 text-red-500">{erro}</p>}
+        {erro && <p className="rounded-lg bg-danger/10 p-2 text-danger">{erro}</p>}
       </div>
     </div>
   );

@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/.next-build/
 /out/
 
 # production
@@ -49,3 +50,8 @@ next-env.d.ts
 validacao-gemini-saida/
 validacao-assets-saida/
 validacao-conversao-saida/
+
+# docs privados (lore/spoilers do RPG e rascunhos temporários)
+/docs/rpg-especifico/
+/docs/temp/
+/docs/planejamento/finished/

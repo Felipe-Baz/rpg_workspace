@@ -89,7 +89,7 @@ export default function NovaCena({
             <button
               key={m}
               onClick={() => setModo(m)}
-              className={`flex-1 rounded-lg border px-3 py-2 text-sm ${modo === m ? "border-violet-600 bg-violet-600 text-white" : "border-border"}`}
+              className={`flex-1 rounded-lg border px-3 py-2 text-sm ${modo === m ? "border-accent bg-accent text-white" : "border-border"}`}
             >
               {m === "grid" ? "Com grid" : "Cenário livre"}
             </button>
@@ -134,7 +134,7 @@ export default function NovaCena({
                   key={p.id}
                   type="button"
                   onClick={() => setPerspectiva(p.id)}
-                  className={`overflow-hidden rounded-lg border text-left ${perspectiva === p.id ? "border-violet-600 ring-1 ring-violet-600" : "border-border"}`}
+                  className={`overflow-hidden rounded-lg border text-left ${perspectiva === p.id ? "border-accent ring-1 ring-accent" : "border-border"}`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={p.imagemExemplo} alt={`Exemplo: ${p.nome}`} className="h-20 w-full object-cover" />
@@ -164,12 +164,12 @@ export default function NovaCena({
           />
         </label>
         <p className="text-xs text-muted">A proporção do canvas fica travada depois de criada. O lado maior é limitado a 4096 px.</p>
-        {erro && <p className="text-sm text-red-500">{erro}</p>}
+        {erro && <p className="text-sm text-danger">{erro}</p>}
         <div className="flex justify-end gap-2">
           <button className="rounded-lg border border-border px-3 py-2 text-sm" onClick={onCancelar}>
             Cancelar
           </button>
-          <button className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50" onClick={criar} disabled={criando}>
+          <button className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50" onClick={criar} disabled={criando}>
             {criando ? "Criando…" : "Criar e abrir editor"}
           </button>
         </div>

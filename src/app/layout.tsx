@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cinzel, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import RequireAuth from "@/components/RequireAuth";
+import { DialogosProvider } from "@/components/ui/Dialogos";
+import { ToastHost } from "@/components/ui/Toasts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,6 +16,14 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+});
+
+// Aplica o tema salvo antes da primeira pintura (evita "flash" claro). Padrão: escuro.
+const SCRIPT_TEMA = `try{var t=localStorage.getItem("tema");document.documentElement.dataset.theme=t==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}`;
 
 // RequireAuth renders null until the client-side auth state loads, so page
 // segments are never rendered during validation. Opt out of instant-navigation
@@ -29,12 +39,21 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      data-theme="dark"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           <Suspense fallback={null}>
-            <RequireAuth>{children}</RequireAuth>
+            <DialogosProvider>
+              <a href="#conteudo" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-white">Pular para o conteúdo</a>
+              <RequireAuth>{children}</RequireAuth>
+              <ToastHost />
+            </DialogosProvider>
           </Suspense>
         </AuthProvider>
       </body>

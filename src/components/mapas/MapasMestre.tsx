@@ -1,5 +1,6 @@
 "use client";
 
+import { confirmar } from "@/components/ui/Dialogos";
 import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Mesa } from "@/lib/mesas";
@@ -67,14 +68,14 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
           <button
             onClick={() => input.current?.click()}
             disabled={enviando}
-            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
+            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
           >
             {enviando ? "Enviando…" : t.novo}
           </button>
           {colecao === "mapas" && storageConfigurado() && (
             <button
               onClick={() => setNovaCena(true)}
-              className="rounded-lg border border-violet-600 px-4 py-2 text-sm font-medium text-violet-500 hover:bg-violet-600/10"
+              className="rounded-lg border border-accent px-4 py-2 text-sm font-medium text-accent-hover hover:bg-accent/10"
             >
               + Nova cena
             </button>
@@ -90,7 +91,7 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
       <p className="text-sm text-muted">
         Jogadores só veem {colecao === "mapas" ? "os mapas" : "as imagens"} que você liberar e fazem anotações privadas sobre elas. As imagens são reduzidas automaticamente (~900 KB). Clique numa imagem para abri-la em tela cheia e cobrir áreas ainda não visitadas (os jogadores veem as áreas cobertas).
       </p>
-      {erro && <p className="text-sm text-red-500">{erro}</p>}
+      {erro && <p className="text-sm text-danger">{erro}</p>}
       {carregado && mapas.length === 0 && <p className="text-muted">{t.vazio}</p>}
       <div className="grid gap-4 sm:grid-cols-2">
         {mapas.map((m) => (
@@ -157,7 +158,7 @@ function CartaoMapa({ mesa, mapa, colecao, onEditar, onConverter }: { mesa: Mesa
       <div className="flex justify-center rounded-lg bg-black/60">
         <div onClick={() => setAberto(true)} className="relative cursor-zoom-in leading-[0]" title="Abrir / cobrir salas">
           {ehMapaDeCena(mapa) && (
-            <span className="absolute left-1.5 top-1.5 z-10 rounded bg-violet-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-normal text-white">
+            <span className="absolute left-1.5 top-1.5 z-10 rounded bg-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-normal text-white">
               Cena
             </span>
           )}
@@ -193,34 +194,34 @@ function CartaoMapa({ mesa, mapa, colecao, onEditar, onConverter }: { mesa: Mesa
       </div>
       {ehMapaDeCena(mapa) && (
         <div className="flex gap-3 text-sm">
-          <button onClick={onEditar} className="font-medium text-violet-500 hover:underline">
+          <button onClick={onEditar} className="font-medium text-accent-hover hover:underline">
             Editar cena
           </button>
           <button
             onClick={async () => {
-              if (!confirm("Desvincular a cena? O mapa fica só com a imagem atual e a cena é apagada.")) return;
+              if (!(await confirmar({ texto: "Desvincular a cena? O mapa fica só com a imagem atual e a cena é apagada.", confirmar: "Desvincular", perigo: true }))) return;
               await desvincularCena(mesa.id, mapa.id, colecao);
               await excluirCena(mesa.id, mapa.cenaId!);
             }}
-            className="text-muted hover:text-red-500"
+            className="text-muted hover:text-danger"
           >
             Desvincular cena
           </button>
         </div>
       )}
       {colecao === "mapas" && !ehMapaDeCena(mapa) && storageConfigurado() && (
-        <button onClick={onConverter} className="block text-sm font-medium text-violet-500 hover:underline" title="Cria um novo mapa de cena com os objetos separados; este mapa não muda">
+        <button onClick={onConverter} className="block text-sm font-medium text-accent-hover hover:underline" title="Cria um novo mapa de cena com os objetos separados; este mapa não muda">
           Converter em cena
         </button>
       )}
       <button
         onClick={async () => {
-          if (!confirm(`Excluir ${t.item} "${mapa.nome}"?`)) return;
+          if (!(await confirmar({ texto: `Excluir ${t.item} "${mapa.nome}"?`, confirmar: "Excluir", perigo: true }))) return;
           await excluirMapa(mesa.id, mapa.id, colecao);
           if (ehMapaDeCena(mapa)) await excluirCena(mesa.id, mapa.cenaId!);
           await excluirPorUrl(mapa.imagem);
         }}
-        className="text-sm text-muted hover:text-red-500"
+        className="text-sm text-muted hover:text-danger"
       >
         Excluir
       </button>

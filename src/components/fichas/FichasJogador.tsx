@@ -1,5 +1,9 @@
 "use client";
 
+import { ListaSkeleton } from "@/components/ui/Skeleton";
+import IconeCategoria from "./IconeCategoria";
+import AcoesSlot from "@/components/shell/AcoesSlot";
+import { confirmar } from "@/components/ui/Dialogos";
 import { useEffect, useRef, useState } from "react";
 import EditorMarkdown from "../EditorMarkdown";
 import Markdown from "../Markdown";
@@ -18,7 +22,6 @@ export default function FichasJogador({
   categoria,
   rotulo,
   singular,
-  icone,
   mesa,
   opinioes,
 }: {
@@ -54,7 +57,7 @@ export default function FichasJogador({
         <button
           onClick={nova}
           disabled={criando}
-          className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
         >
           + Cadastrar
         </button>
@@ -64,20 +67,20 @@ export default function FichasJogador({
           ? "🔒 Os jogadores só veem o que você liberar (para todos ou para jogadores específicos)."
           : "🔒 Só você vê o que cadastra aqui. Itens liberados pelo mestre aparecem com 👁."}
       </p>
-      {!carregado && <p className="text-muted">Carregando…</p>}
+      {!carregado && <ListaSkeleton linhas={2} />}
       {carregado && lista.length === 0 && <p className="text-muted">Nada cadastrado ainda.</p>}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
         {lista.map((f) => (
           <button
             key={f.id}
             onClick={() => setAbertaId(f.id)}
-            className="overflow-hidden rounded-xl border border-border bg-card text-left hover:border-violet-500"
+            className="overflow-hidden rounded-xl border border-border bg-card text-left hover:border-accent-hover"
           >
             {f.foto ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={f.foto} alt={f.nome} className="aspect-square w-full object-cover" />
             ) : (
-              <div className="flex aspect-square w-full items-center justify-center bg-border/30 text-4xl">{icone}</div>
+              <div className="flex aspect-square w-full items-center justify-center bg-border/30"><IconeCategoria categoria={f.categoria} size={44} /></div>
             )}
             <p className="truncate px-3 py-2 text-sm font-medium">
               {!mesa && f.mestre && "👁 "}
@@ -96,7 +99,6 @@ export default function FichasJogador({
           key={aberta.id}
           mesaId={mesaId}
           ficha={aberta}
-          icone={icone}
           mesa={mesa}
           somenteLeitura={aberta.mestre && !mesa}
           opinioes={opinioes}
@@ -110,7 +112,6 @@ export default function FichasJogador({
 function FichaModal({
   mesaId,
   ficha,
-  icone,
   mesa,
   somenteLeitura,
   opinioes,
@@ -119,7 +120,6 @@ function FichaModal({
   opinioes?: Opinioes;
   mesaId: string;
   ficha: Ficha;
-  icone: string;
   mesa?: Mesa;
   somenteLeitura: boolean;
   onFechar: () => void;
@@ -194,8 +194,8 @@ function FichaModal({
               className="h-32 w-32 shrink-0 cursor-zoom-in rounded-lg object-cover"
             />
           ) : (
-            <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-border/30 text-5xl">
-              {icone}
+            <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-border/30">
+              <IconeCategoria categoria={ficha.categoria} size={52} />
             </div>
           )}
           {!somenteLeitura && (
@@ -209,12 +209,12 @@ function FichaModal({
             {ficha.foto && (
               <button
                 onClick={() => atualizarFicha(mesaId, ficha.id, { foto: "" })}
-                className="block text-sm text-muted hover:text-red-500"
+                className="block text-sm text-muted hover:text-danger"
               >
                 Remover foto
               </button>
             )}
-            {erro && <p className="text-sm text-red-500">{erro}</p>}
+            {erro && <p className="text-sm text-danger">{erro}</p>}
             <input ref={input} type="file" accept="image/*" hidden onChange={(e) => trocarFoto(e.target.files?.[0])} />
           </div>
           )}
@@ -294,19 +294,22 @@ function FichaModal({
             )}
           </div>
         )}
+        {mesa && !somenteLeitura && (
+          <AcoesSlot nome="ficha.acoes" contexto={{ tipo: "ficha", id: ficha.id, categoria: ficha.categoria, nome: ficha.nome, texto: ficha.texto }} />
+        )}
         {!somenteLeitura && (
         <div className="flex justify-between">
-          <button onClick={() => setEditando((v) => !v)} className="text-sm text-violet-500 hover:underline">
+          <button onClick={() => setEditando((v) => !v)} className="text-sm text-accent-hover hover:underline">
             {editando ? "Concluir" : "Editar anotações"}
           </button>
           <button
-            onClick={() => {
-              if (confirm(`Excluir "${nome}"?`)) {
+            onClick={async () => {
+              if (await confirmar({ texto: `Excluir "${nome}"?`, confirmar: "Excluir", perigo: true })) {
                 excluirFicha(mesaId, ficha.id);
                 onFechar();
               }
             }}
-            className="text-sm text-muted hover:text-red-500"
+            className="text-sm text-muted hover:text-danger"
           >
             Excluir
           </button>

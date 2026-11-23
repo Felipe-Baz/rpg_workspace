@@ -1,5 +1,7 @@
 "use client";
 
+import { ListaSkeleton } from "@/components/ui/Skeleton";
+import { confirmar } from "@/components/ui/Dialogos";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { comprimirImagem } from "@/lib/mapas";
 import { CORES_NOTA, atualizarNo, criarNo, excluirNo, useQuadro, type No, type TipoNo } from "@/lib/quadro";
@@ -130,8 +132,8 @@ export default function QuadroJogador({ mesaId, usuarioUid }: { mesaId: string; 
     else salvar(a.id, { ligacoes: [...a.ligacoes, b.id] });
   }
 
-  function remover(n: No) {
-    if (!confirm("Excluir este elemento do quadro?")) return;
+  async function remover(n: No) {
+    if (!(await confirmar({ texto: "Excluir este elemento do quadro?", confirmar: "Excluir", perigo: true }))) return;
     excluirNo(mesaId, n.id).catch((e) => setErro(e instanceof Error ? e.message : "Falha ao excluir."));
     // Limpa ligações que apontavam para ele.
     nos.filter((o) => o.ligacoes.includes(n.id)).forEach((o) => salvar(o.id, { ligacoes: o.ligacoes.filter((x) => x !== n.id) }));
@@ -146,7 +148,7 @@ export default function QuadroJogador({ mesaId, usuarioUid }: { mesaId: string; 
   const cx = (n: No) => n.x + n.w / 2;
   const cy = (n: No) => n.y + (alturas[n.id] ?? 80) / 2;
 
-  if (!carregado) return <p className="text-muted">Carregando…</p>;
+  if (!carregado) return <ListaSkeleton />;
 
   const botao = "rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium hover:bg-border/50";
 
@@ -165,7 +167,7 @@ export default function QuadroJogador({ mesaId, usuarioUid }: { mesaId: string; 
         </span>
       </div>
 
-      {erro && <p role="alert" className="text-sm text-red-500">{erro}</p>}
+      {erro && <p role="alert" className="text-sm text-danger">{erro}</p>}
       <p className="text-xs text-muted">
         {ligando
           ? "Clique no 🔗 de outro elemento para ligar com uma linha (Esc cancela)."
@@ -290,7 +292,7 @@ function Elemento({
       onPointerDown={(e) => e.stopPropagation()}
       className={`group absolute rounded-md ${
         nota ? "shadow-lg" : no.tipo === "imagem" ? "bg-white p-2 pb-3 shadow-lg" : "border border-dashed border-border bg-card/70"
-      } ${origemLigacao ? "ring-2 ring-red-500" : ""}`}
+      } ${origemLigacao ? "ring-2 ring-danger" : ""}`}
       style={{
         left: no.x,
         top: no.y,

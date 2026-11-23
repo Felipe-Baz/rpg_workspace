@@ -73,20 +73,20 @@ export default function AvatarPersonagem({
         onChange={(e) => enviar(e.target.files?.[0])}
       />
       <div className="flex gap-2 text-[11px]">
-        <button type="button" onClick={() => input.current?.click()} disabled={ocupado} className="text-violet-500 hover:underline">
+        <button type="button" onClick={() => input.current?.click()} disabled={ocupado} className="text-accent-hover hover:underline">
           {ocupado ? "Enviando…" : foto ? "Trocar" : "Foto"}
         </button>
         {foto && !ocupado && (
           <button
             type="button"
             onClick={() => definirFotoPersonagem(mesaId, jogadorId, "").catch(() => setErro("Não foi possível remover."))}
-            className="text-muted hover:text-red-500"
+            className="text-muted hover:text-danger"
           >
             Remover
           </button>
         )}
       </div>
-      {erro && <p role="alert" className="max-w-24 text-center text-[11px] text-red-500">{erro}</p>}
+      {erro && <p role="alert" className="max-w-24 text-center text-[11px] text-danger">{erro}</p>}
     </div>
   );
 }

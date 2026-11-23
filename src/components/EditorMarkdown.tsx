@@ -178,7 +178,7 @@ export default function EditorMarkdown({
               key={m}
               type="button"
               onClick={() => setModo(m)}
-              className={`${botao} capitalize ${modo === m ? "bg-violet-600 text-white hover:bg-violet-600" : ""}`}
+              className={`${botao} capitalize ${modo === m ? "bg-accent text-white hover:bg-accent" : ""}`}
             >
               {m}
             </button>

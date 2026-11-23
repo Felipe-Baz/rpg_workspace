@@ -178,57 +178,74 @@ service cloud.firestore {
         return logado() && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
       }
 
+      // A extensão nativa Marcas de Pacto é EXCLUSIVA da mesa abaixo (mantenha igual a MESA_PADRAO em src/lib/marcas-const.ts;
+      // um teste confere). Em qualquer outra mesa estas coleções ficam fechadas para todos, inclusive o mestre.
+      function mesaDasMarcas() {
+        return mesaId == '5010347d-14e3-49e2-adb9-eb3bc0952013';
+      }
+      // O mestre pode ocultar as Marcas dos jogadores (extensoesNativas/marcas-de-pacto.visivelJogadores == false).
+      function marcasLiberadas() {
+        let p = /databases/$(database)/documents/mesas/$(mesaId)/extensoesNativas/marcas-de-pacto;
+        return !exists(p) || get(p).data.get('visivelJogadores', true) != false;
+      }
+      function marcasMestre() {
+        return mesaDasMarcas() && mestreMesa();
+      }
+      function marcasJogador() {
+        return mesaDasMarcas() && membroMesa() && marcasLiberadas();
+      }
+
       match /players/{uid} {
-        allow read: if mestreMesa() || (membroMesa() && request.auth.uid == uid);
-        allow create, update: if membroMesa() && request.auth.uid == uid
+        allow read: if marcasMestre() || (marcasJogador() && request.auth.uid == uid);
+        allow create, update: if marcasJogador() && request.auth.uid == uid
           && request.resource.data.keys().hasOnly(['joinedAt', 'name']);
-        allow delete: if mestreMesa();
+        allow delete: if marcasMestre();
       }
 
       // Atribuição: só o Mestre escreve; o jogador só lê a própria.
       match /assignments/{uid} {
-        allow get: if mestreMesa() || (membroMesa() && request.auth.uid == uid);
-        allow list: if mestreMesa();
-        allow write: if mestreMesa();
+        allow get: if marcasMestre() || (marcasJogador() && request.auth.uid == uid);
+        allow list: if marcasMestre();
+        allow write: if marcasMestre();
       }
 
       // Anotações: o jogador lê/escreve as próprias (com Marca atribuída); Mestre só lê.
       match /notes/{uid} {
-        allow get: if mestreMesa() || (membroMesa() && request.auth.uid == uid);
-        allow list: if mestreMesa();
-        allow write: if membroMesa() && request.auth.uid == uid
+        allow get: if marcasMestre() || (marcasJogador() && request.auth.uid == uid);
+        allow list: if marcasMestre();
+        allow write: if marcasJogador() && request.auth.uid == uid
           && exists(/databases/$(database)/documents/mesas/$(mesaId)/assignments/$(uid));
       }
 
       // Gabarito: SOMENTE o Mestre. Nunca vai ao cliente de jogador.
       match /lore/{markId} {
-        allow read, write: if mestreMesa();
+        allow read, write: if marcasMestre();
       }
 
       // ----- Enigmas -----
       // Banco completo (com gabarito): SOMENTE o Mestre.
       match /puzzles/{markId} {
-        allow read, write: if mestreMesa();
+        allow read, write: if marcasMestre();
       }
       // Etapas já liberadas ao jogador (sem gabarito): Mestre escreve, o dono lê.
       match /released/{uid} {
-        allow get: if mestreMesa() || (membroMesa() && request.auth.uid == uid);
-        allow list: if mestreMesa();
-        allow write: if mestreMesa();
+        allow get: if marcasMestre() || (marcasJogador() && request.auth.uid == uid);
+        allow list: if marcasMestre();
+        allow write: if marcasMestre();
       }
       // Respostas do jogador: ele escreve, Mestre lê.
       match /puzzleResp/{uid} {
-        allow get: if mestreMesa() || (membroMesa() && request.auth.uid == uid);
-        allow list: if mestreMesa();
-        allow create, update: if membroMesa() && request.auth.uid == uid
+        allow get: if marcasMestre() || (marcasJogador() && request.auth.uid == uid);
+        allow list: if marcasMestre();
+        allow create, update: if marcasJogador() && request.auth.uid == uid
           && exists(/databases/$(database)/documents/mesas/$(mesaId)/assignments/$(uid));
-        allow delete: if mestreMesa();
+        allow delete: if marcasMestre();
       }
       // Veredito (aprovada/recusada): só o Mestre escreve; o jogador lê o próprio.
       match /puzzleStatus/{uid} {
-        allow get: if mestreMesa() || (membroMesa() && request.auth.uid == uid);
-        allow list: if mestreMesa();
-        allow write: if mestreMesa();
+        allow get: if marcasMestre() || (marcasJogador() && request.auth.uid == uid);
+        allow list: if marcasMestre();
+        allow write: if marcasMestre();
       }
 
       // Notas e segredos: somente o mestre.
@@ -247,6 +264,42 @@ service cloud.firestore {
         allow write: if false;
       }
 
+      // Extensões instaladas na mesa (HTML criado com IA, executado em iframe isolado).
+      // O mestre gerencia; o jogador lê só as marcadas como visíveis.
+      match /extensoes/{extId} {
+        allow read: if logado() && (mestreMesa() || (membroMesa() && resource.data.get('visivelJogadores', false) == true));
+        allow write: if mestreMesa();
+      }
+
+      // Registros dos tipos de dado criados por extensões: o mestre gerencia; o jogador lê só os liberados.
+      match /recursosDados/{registroId} {
+        allow read: if mestreMesa() || (membroMesa() && resource.data.liberado == true);
+        allow write: if mestreMesa();
+      }
+
+      // Pedidos de jogadores a extensões: o jogador cria e lê os próprios; o mestre lê, aprova e recusa.
+      match /extensoesPedidos/{pedidoId} {
+        allow read: if mestreMesa() || (membroMesa() && resource.data.de == request.auth.uid);
+        allow create: if membroMesa() && request.resource.data.de == request.auth.uid && request.resource.data.status == 'pendente'
+          && request.resource.data.keys().hasOnly(['id', 'extId', 'extTitulo', 'de', 'nome', 'acoes', 'criadoEm', 'status', 'resolvidoEm', 'lote'])
+          && request.resource.data.acoes is list && request.resource.data.acoes.size() > 0 && request.resource.data.acoes.size() <= 20
+          && request.resource.data.resolvidoEm == null && request.resource.data.lote == null
+          && request.resource.data.nome is string && request.resource.data.nome.size() <= 80;
+        allow update, delete: if mestreMesa();
+      }
+
+      // Lotes de conteúdo criado por extensões (para listar e desfazer): só o mestre.
+      match /extensoesLotes/{loteId} {
+        allow read, write: if mestreMesa();
+      }
+
+      // Escolhas do mestre sobre extensões nativas (ex.: liberar Marcas de Pacto aos jogadores).
+      // Membros leem (para saber o que mostrar); só o mestre grava.
+      match /extensoesNativas/{extId} {
+        allow read: if membroMesa();
+        allow write: if mestreMesa();
+      }
+
       // Jobs de geração de assets: o mestre acompanha (onSnapshot); só o servidor (Admin SDK) escreve.
       match /jobs/{jobId} {
         allow read: if mestreMesa();
@@ -258,6 +311,14 @@ service cloud.firestore {
     // somente pelo servidor (Admin SDK). O cliente nunca lê nem escreve, em especial segredos.
     match /usuarios/{uid}/{document=**} {
       allow read, write: if false;
+    }
+
+    // Biblioteca de extensões do mestre: privada (só o dono lê e escreve).
+    match /extensoes/{extId} {
+      allow read: if logado() && resource.data.donoUid == request.auth.uid;
+      allow create: if logado() && request.resource.data.donoUid == request.auth.uid;
+      allow update, delete: if logado() && resource.data.donoUid == request.auth.uid
+        && request.resource.data.donoUid == request.auth.uid;
     }
 
     // Biblioteca pública: assets gerados por IA, legíveis por qualquer usuário logado.

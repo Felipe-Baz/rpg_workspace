@@ -1,5 +1,8 @@
 "use client";
 
+import { ListaSkeleton } from "@/components/ui/Skeleton";
+import AcoesSlot from "@/components/shell/AcoesSlot";
+import { confirmar, perguntar } from "@/components/ui/Dialogos";
 import { useRef, useState } from "react";
 import EditorMarkdown from "./EditorMarkdown";
 import Markdown from "./Markdown";
@@ -58,7 +61,7 @@ function VisaoJogador({ mesaId }: { mesaId: string }) {
   const [sel, setSel] = useState<string | null>(null);
   const [aba, setAba] = useState<StatusMissao>("em_andamento");
 
-  if (!carregado) return <p className="text-muted">Carregando…</p>;
+  if (!carregado) return <ListaSkeleton />;
   if (missoes.length === 0) return <p className="text-center italic text-muted">O mestre ainda não registrou missões.</p>;
 
   const daAba = missoes.filter((m) => m.status === aba);
@@ -278,9 +281,9 @@ function DetalheMestre({
         <div className="grid gap-2 sm:grid-cols-3">
           <select
             value={missao.categoria}
-            onChange={(e) => {
+            onChange={async (e) => {
               if (e.target.value !== NOVA) return salvar({ categoria: e.target.value });
-              const nome = prompt("Nome da nova categoria:")?.trim();
+              const nome = await perguntar({ titulo: "Nova categoria", rotulo: "Nome da categoria", confirmar: "Criar" });
               if (nome) salvar({ categoria: nome });
             }}
             className={campo}
@@ -372,7 +375,7 @@ function DetalheMestre({
         <Galeria
           imagens={minhas}
           onLegenda={(id, v) => atualizarLegendaImagem(mesaId, id, v)}
-          onExcluir={(id) => confirm("Remover esta imagem?") && excluirImagemMissao(mesaId, id)}
+          onExcluir={async (id) => { if (await confirmar({ texto: "Remover esta imagem?", confirmar: "Remover", perigo: true })) excluirImagemMissao(mesaId, id); }}
         />
       </div>
 
@@ -446,8 +449,16 @@ function DetalheMestre({
         </div>
       </div>
 
+      <AcoesSlot
+        nome="missao.acoes"
+        contexto={{
+          tipo: "missao", id: missao.id, titulo: missao.titulo, status: missao.status, categoria: missao.categoria, dificuldade: missao.dificuldade,
+          descricao: missao.descricaoPublica, etapas: missao.etapas.map((e) => ({ texto: e.texto, status: e.status })),
+        }}
+      />
+
       <button
-        onClick={() => confirm(`Excluir a missão "${missao.titulo}"?`) && excluirMissao(mesaId, missao.id)}
+        onClick={async () => { if (await confirmar({ texto: `Excluir a missão "${missao.titulo}"?`, confirmar: "Excluir", perigo: true })) excluirMissao(mesaId, missao.id); }}
         className="text-sm text-muted hover:text-red-800"
       >
         Excluir missão

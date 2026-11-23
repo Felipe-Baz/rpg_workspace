@@ -5,7 +5,7 @@ import { GOOGLE_BASE, campoGoogleKey, campoModelo } from "./google-comum.ts";
 
 // Modelo padrão confirmado na documentação oficial (família "Nano Banana").
 // O formato de requisição usa generateContent (v1beta); a doc atual descreve também a
-// Interactions API. A confirmação com chave real fica em docs/validacao-gemini.md (tarefa 6.4).
+// Interactions API. A confirmação com chave real fica em docs/planejamento/validacao-gemini.md (tarefa 6.4).
 export const MODELO_IMAGEM_PADRAO = "gemini-3.1-flash-image";
 
 async function chamar(ctx: ContextoProvedor, parts: unknown[]): Promise<ImagemBase64> {

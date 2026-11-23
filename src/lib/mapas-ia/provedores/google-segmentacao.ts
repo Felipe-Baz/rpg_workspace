@@ -6,7 +6,7 @@ import { MODELO_LLM_GOOGLE_PADRAO } from "./google-llm.ts";
 
 // Detecção por visão do Gemini (mesma chave do Google): o modelo devolve JSON com caixa (0–1000, [y0, x0, y1, x1]).
 // Pede SÓ caixas: com máscaras (formato da doc de "image understanding"), o gemini-3.6-flash gastou ~10 mil tokens
-// e 79 s para devolver UM objeto; só com caixas, 20 objetos em 9 s (docs/validacao-gemini.md, change 08).
+// e 79 s para devolver UM objeto; só com caixas, 20 objetos em 9 s (docs/planejamento/validacao-gemini.md, change 08).
 // Se o modelo mandar `mask` mesmo assim, ela é usada.
 
 const MAX_OBJETOS = 30;

@@ -1,5 +1,6 @@
 "use client";
 
+import { confirmar } from "@/components/ui/Dialogos";
 import { useEffect, useRef, useState } from "react";
 import { uid } from "@/lib/mesas";
 import { atualizarMapa, type Colecao, type Cobertura, type Mapa, type Ponto, type Zona } from "@/lib/mapas";
@@ -15,7 +16,7 @@ const FERRAMENTAS: { id: Ferramenta; rotulo: string; dica: string }[] = [
 ];
 
 const btn = "rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/50";
-const btnAtivo = "rounded-lg border border-violet-600 bg-violet-600 px-2.5 py-1.5 text-sm text-white";
+const btnAtivo = "rounded-lg border border-accent bg-accent px-2.5 py-1.5 text-sm text-white";
 
 const clamp = (n: number) => Math.min(1, Math.max(0, n));
 const dist = (a: Ponto, b: Ponto) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -190,7 +191,7 @@ export default function VisorMestre({
                     key={i}
                     style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%` }}
                     className={`absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white ${
-                      i === 0 ? "bg-yellow-400" : "bg-violet-500"
+                      i === 0 ? "bg-yellow-400" : "bg-accent-hover"
                     }`}
                   />
                 ))}
@@ -249,7 +250,7 @@ export default function VisorMestre({
                   salvar({ zonas: [...zonas, z] });
                   setZonaAtiva(z.id);
                 }}
-                className="text-xs text-violet-500 hover:underline"
+                className="text-xs text-accent-hover hover:underline"
               >
                 + Nova zona
               </button>
@@ -284,11 +285,11 @@ export default function VisorMestre({
                         {aberta ? "Esconder zona" : "Revelar zona"}
                       </button>
                       <button
-                        onClick={() => {
-                          if (!confirm(`Excluir a zona "${z.nome}" e suas formas?`)) return;
+                        onClick={async () => {
+                          if (!(await confirmar({ texto: `Excluir a zona "${z.nome}" e suas formas?`, confirmar: "Excluir", perigo: true }))) return;
                           salvar({ zonas: zonas.filter((x) => x.id !== z.id), cobertas: cobertas.filter((c) => c.zonaId !== z.id) });
                         }}
-                        className="px-1 text-muted hover:text-red-500"
+                        className="px-1 text-muted hover:text-danger"
                         aria-label="Excluir zona"
                       >
                         🗑
@@ -325,7 +326,7 @@ export default function VisorMestre({
                 >
                   {sel.revelada ? "Esconder" : "Revelar"}
                 </button>
-                <button onClick={excluirSel} className={`${btn} hover:text-red-500`}>Excluir (Del)</button>
+                <button onClick={excluirSel} className={`${btn} hover:text-danger`}>Excluir (Del)</button>
               </div>
             </div>
           )}

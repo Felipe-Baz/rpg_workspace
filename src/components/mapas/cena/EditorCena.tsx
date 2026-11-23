@@ -1,5 +1,6 @@
 "use client";
 
+import { confirmar } from "@/components/ui/Dialogos";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { uid } from "@/lib/mesas";
 import { atualizarMapa, type Colecao, type Mapa } from "@/lib/mapas";
@@ -31,7 +32,7 @@ import ExportarCena from "./ExportarCena";
 import HistoricoEditor from "./HistoricoEditor";
 
 const btn = "rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/50 disabled:opacity-40";
-const btnAtivo = "rounded-lg border border-violet-600 bg-violet-600 px-2.5 py-1.5 text-sm text-white";
+const btnAtivo = "rounded-lg border border-accent bg-accent px-2.5 py-1.5 text-sm text-white";
 
 type Arraste =
   | { tipo: "mover"; inicio: Cena; id: string; desloc: Pt }
@@ -449,8 +450,8 @@ export default function EditorCena({
     }
   }
 
-  const fechar = () => {
-    if (sujo && !confirm("Há alterações não salvas. Descartá-las?")) return;
+  const fechar = async () => {
+    if (sujo && !(await confirmar({ texto: "Há alterações não salvas. Descartá-las?", confirmar: "Descartar", perigo: true }))) return;
     onFechar();
   };
 
@@ -547,12 +548,12 @@ export default function EditorCena({
         <button className={btn} onClick={() => setExportando(true)} disabled={!pronto || emPrevia}>⇩ Exportar</button>
         <button className={chatAberto ? btnAtivo : btn} onClick={() => setChatAberto(!chatAberto)} title="Criar e editar o mapa conversando com a IA">✦ IA</button>
         <span className="ml-auto text-xs text-muted">{emPrevia ? "Prévia do plano" : sujo ? "Alterações não salvas" : "Salvo"}</span>
-        <button className="rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50" onClick={salvar} disabled={!sujo || salvando || !pronto || emPrevia} title={emPrevia ? "Aplique ou descarte a prévia antes de salvar" : undefined}>
+        <button className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50" onClick={salvar} disabled={!sujo || salvando || !pronto || emPrevia} title={emPrevia ? "Aplique ou descarte a prévia antes de salvar" : undefined}>
           {salvando ? "Salvando…" : "Salvar"}
         </button>
         <button className={btn} onClick={fechar}>Fechar</button>
       </header>
-      {erro && <p className="border-b border-border bg-red-500/10 px-3 py-1 text-sm text-red-500">{erro}</p>}
+      {erro && <p className="border-b border-border bg-danger/10 px-3 py-1 text-sm text-danger">{erro}</p>}
       {exportando && cena && (
         <ExportarCena cena={cena} nome={mapa.nome} exportar={(o) => render.current!.exportar(cena, o)} onFechar={() => setExportando(false)} />
       )}
@@ -604,7 +605,7 @@ export default function EditorCena({
               camadasInv.map((c: Camada) => {
                 const i = cena.camadas.findIndex((x) => x.id === c.id);
                 return (
-                  <div key={c.id} className={`space-y-1 rounded-lg border p-1.5 ${camadaId === c.id ? "border-violet-600" : "border-border"}`}>
+                  <div key={c.id} className={`space-y-1 rounded-lg border p-1.5 ${camadaId === c.id ? "border-accent" : "border-border"}`}>
                     <div className="flex items-center gap-1">
                       <button className="flex-1 truncate text-left text-sm" onClick={() => setCamadaId(c.id)}>{c.nome}</button>
                       <button title="Visível" className={btn} onClick={() => rodar({ tipo: "atualizarCamada", id: c.id, patch: { visivel: !c.visivel } })}>{c.visivel ? "👁" : "—"}</button>
@@ -641,7 +642,7 @@ export default function EditorCena({
                   <button className={btn} onClick={duplicar} title="Ctrl+D">⧉ Duplicar</button>
                   <button className={btn} onClick={() => rodar({ tipo: "atualizarObjeto", id: sel.id, patch: { z: sel.z + 1 } })}>▲ Frente</button>
                   <button className={btn} onClick={() => rodar({ tipo: "atualizarObjeto", id: sel.id, patch: { z: sel.z - 1 } })}>▼ Trás</button>
-                  <button className={`${btn} text-red-500`} onClick={remover} title="Delete">🗑 Remover</button>
+                  <button className={`${btn} text-danger`} onClick={remover} title="Delete">🗑 Remover</button>
                 </div>
               </>
             )}

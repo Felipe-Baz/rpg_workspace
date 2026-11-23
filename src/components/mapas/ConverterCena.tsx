@@ -21,7 +21,7 @@ import { STATUS_ROTULO, jobExpirado } from "@/lib/mapas-ia/assets/jobs";
 import { estimarLote } from "@/lib/mapas-ia/limites";
 
 const btn = "rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/50 disabled:opacity-40";
-const btnPrim = "rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50";
+const btnPrim = "rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50";
 const campo = "w-full min-w-0 rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground";
 
 const CORES: [number, number, number][] = [
@@ -179,7 +179,7 @@ export default function ConverterCena({
         <p className="text-xs text-muted">
           Melhor esforço: a IA sugere os objetos e reconstrói o fundo; você revisa antes. Um <strong>novo</strong> mapa de cena é criado com as mesmas zonas, coberturas e pinos; este mapa não é alterado.
         </p>
-        {erro && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{erro}</p>}
+        {erro && <p className="rounded-lg bg-danger/10 p-2 text-sm text-danger">{erro}</p>}
 
         {fase === "segmentando" && !erro && <p className="text-sm text-muted" aria-live="polite">Procurando objetos no mapa…</p>}
 
@@ -212,7 +212,7 @@ export default function ConverterCena({
                 Juntar selecionados ({sel.size})
               </button>
               <button className={btn} disabled={sel.size === 0} onClick={() => setSel(new Set())}>Limpar seleção</button>
-              <span className={`ml-auto text-sm ${est.excedeLimite ? "text-red-500" : "text-muted"}`}>
+              <span className={`ml-auto text-sm ${est.excedeLimite ? "text-danger" : "text-muted"}`}>
                 {lista.length} de {MAX_OBJETOS_CONVERSAO} objetos aceitos
               </span>
             </div>
@@ -223,7 +223,7 @@ export default function ConverterCena({
                   <input type="checkbox" checked={sel.has(s.id)} onChange={() => alternarSel(s.id)} aria-label={`Selecionar ${s.nome}`} />
                   <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: s.aceito ? corCss(i) : "rgb(120,120,120)" }} />
                   <input className={`${campo} max-w-56 flex-1`} value={s.nome} onChange={(e) => setRev(atualizarSegmento(rev, s.id, { nome: e.target.value }))} aria-label="Nome do objeto" />
-                  <button className={s.aceito ? btn : `${btn} border-emerald-600 text-emerald-400`} onClick={() => setRev(atualizarSegmento(rev, s.id, { aceito: !s.aceito }))}>
+                  <button className={s.aceito ? btn : `${btn} border-emerald-600 text-ok`} onClick={() => setRev(atualizarSegmento(rev, s.id, { aceito: !s.aceito }))}>
                     {s.aceito ? "Descartar" : "Aceitar"}
                   </button>
                   <button className={btn} onClick={() => setRev(dividirSegmento(rev, s.id, uid))} title="Separa partes soltas ou corta ao meio">Dividir</button>
@@ -242,10 +242,10 @@ export default function ConverterCena({
                   {lote && ` Restam ${Math.max(0, dados!.teto - dados!.uso.total)} de ${dados!.teto} no período.`}
                 </p>
               ) : (
-                <p className="text-amber-500">O provedor de imagem ativo não reconstrói o fundo: a conversão será parcial, sem custo de imagem, e os objetos continuam desenhados no fundo.</p>
+                <p className="text-warn">O provedor de imagem ativo não reconstrói o fundo: a conversão será parcial, sem custo de imagem, e os objetos continuam desenhados no fundo.</p>
               )}
-              {est.excedeLimite && <p className="text-red-500">Há mais objetos aceitos que o limite. Descarte ou junte alguns antes de converter.</p>}
-              {lote && !lote.cabeNoTeto && <p className="text-red-500">A conversão passa do teto de gastos da mesa. Aumente o teto ou converta menos objetos.</p>}
+              {est.excedeLimite && <p className="text-danger">Há mais objetos aceitos que o limite. Descarte ou junte alguns antes de converter.</p>}
+              {lote && !lote.cabeNoTeto && <p className="text-danger">A conversão passa do teto de gastos da mesa. Aumente o teto ou converta menos objetos.</p>}
             </div>
 
             <div className="flex justify-end gap-2">
@@ -267,17 +267,17 @@ export default function ConverterCena({
                   {job.etapa && emAndamento ? ` · ${job.etapa}` : ""}
                 </p>
                 <div className="h-2 overflow-hidden rounded bg-border" role="progressbar" aria-valuenow={job.progresso} aria-valuemin={0} aria-valuemax={100}>
-                  <div className="h-full bg-violet-600 transition-all" style={{ width: `${job.status === "falhou" ? 0 : job.progresso}%` }} />
+                  <div className="h-full bg-accent transition-all" style={{ width: `${job.status === "falhou" ? 0 : job.progresso}%` }} />
                 </div>
                 {(job.erro || expirado) && (
-                  <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">
+                  <p className="rounded-lg bg-danger/10 p-2 text-sm text-danger">
                     {job.erro ?? "A conversão parou de responder."} Nenhum mapa novo foi criado e o original não mudou.
                   </p>
                 )}
                 {job.status === "pronto" && job.resultado && (
                   <div className="space-y-2">
-                    <p className="text-sm text-emerald-500">Pronto: {job.resultado.assetIds.length - 1} objeto(s) e o fundo foram para a biblioteca da mesa.</p>
-                    {job.resultado.avisos.map((a) => <p key={a} className="text-sm text-amber-500">{a}</p>)}
+                    <p className="text-sm text-ok">Pronto: {job.resultado.assetIds.length - 1} objeto(s) e o fundo foram para a biblioteca da mesa.</p>
+                    {job.resultado.avisos.map((a) => <p key={a} className="text-sm text-warn">{a}</p>)}
                     <p className="text-xs text-muted">O novo mapa ainda não está liberado para os jogadores.</p>
                     <button className={btnPrim} onClick={() => onConvertido(job.resultado!.mapaId)}>Abrir no editor</button>
                   </div>

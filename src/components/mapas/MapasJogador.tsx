@@ -1,5 +1,6 @@
 "use client";
 
+import { ListaSkeleton } from "@/components/ui/Skeleton";
 import { useState } from "react";
 import EditorMarkdown from "../EditorMarkdown";
 import Markdown from "../Markdown";
@@ -23,7 +24,7 @@ export default function MapasJogador({
   const [sel, setSel] = useState<string | null>(null);
   const mapa = mapas.find((m) => m.id === sel) ?? mapas[0];
 
-  if (!carregado) return <p className="text-muted">Carregando…</p>;
+  if (!carregado) return <ListaSkeleton />;
   if (!mapa) return <p className="text-muted">{colecao === "mapas" ? "Nenhum mapa foi liberado" : "Nenhuma imagem foi liberada"} pelo mestre ainda.</p>;
 
   return (
@@ -34,7 +35,7 @@ export default function MapasJogador({
             key={m.id}
             onClick={() => setSel(m.id)}
             className={`rounded-lg border border-border px-3 py-1.5 text-sm ${
-              m.id === mapa.id ? "bg-violet-600 text-white" : "hover:bg-border/50"
+              m.id === mapa.id ? "bg-accent text-white" : "hover:bg-border/50"
             }`}
           >
             {m.nome || (colecao === "mapas" ? "Mapa" : "Imagem")}
@@ -106,7 +107,7 @@ function VisorMapa({
           onClick={() => setColocando((v) => !v)}
           disabled={desabilitado}
           className={`rounded-lg border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${
-            colocando ? "bg-violet-600 text-white" : "hover:bg-border/50"
+            colocando ? "bg-accent text-white" : "hover:bg-border/50"
           }`}
         >
           {colocando ? "Clique no mapa para fixar o pino…" : "📍 Adicionar pino"}
@@ -183,7 +184,7 @@ function VisorMapa({
               <p className="text-sm text-muted">Sem anotações.</p>
             )}
             <div className="flex justify-between">
-              <button onClick={() => setEditando((v) => !v)} className="text-sm text-violet-500 hover:underline">
+              <button onClick={() => setEditando((v) => !v)} className="text-sm text-accent-hover hover:underline">
                 {editando ? "Concluir" : "Editar anotações"}
               </button>
               <button
@@ -191,7 +192,7 @@ function VisorMapa({
                   onChange(pinos.filter((p) => p.id !== pino.id));
                   setPinoId(null);
                 }}
-                className="text-sm text-muted hover:text-red-500"
+                className="text-sm text-muted hover:text-danger"
               >
                 Remover pino
               </button>

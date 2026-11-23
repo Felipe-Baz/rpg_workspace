@@ -11,7 +11,7 @@ import type { EventoAgente, GeracaoPendente, Passo, Plano } from "@/lib/mapas-ia
 import { estimarLote, type Estimativa } from "@/lib/mapas-ia/limites";
 
 const btn = "rounded-lg border border-border px-2 py-1 text-xs hover:bg-border/50 disabled:opacity-40";
-const btnPrim = "rounded-lg bg-violet-600 px-3 py-1 text-xs font-medium text-white hover:bg-violet-500 disabled:opacity-50";
+const btnPrim = "rounded-lg bg-accent px-3 py-1 text-xs font-medium text-white hover:bg-accent-hover disabled:opacity-50";
 const CHAVE_SO_SUGERIR = "chatIa.soSugerir";
 
 const ehProvisorio = (id: string) => id.startsWith(PREFIXO_PROVISORIO);
@@ -230,7 +230,7 @@ export default function ChatIA({ mesaId, cena, selecao, aplicados, revertidos, p
   const estadoPasso = (m: Extract<Mensagem, { papel: "assistente" }>, p: Passo) =>
     revertidos.has(p.id) ? "revertido" : aplicados.has(p.id) ? "aplicado" : m.descartados.includes(p.id) ? "descartado" : "pendente";
   const ROTULO = { pendente: "Prévia", aplicado: "Aplicado", revertido: "Revertido", descartado: "Descartado" } as const;
-  const COR = { pendente: "text-cyan-400", aplicado: "text-emerald-400", revertido: "text-muted line-through", descartado: "text-muted line-through" } as const;
+  const COR = { pendente: "text-cyan-400", aplicado: "text-ok", revertido: "text-muted line-through", descartado: "text-muted line-through" } as const;
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -250,14 +250,14 @@ export default function ChatIA({ mesaId, cena, selecao, aplicados, revertidos, p
         )}
         {mensagens.map((m, i) =>
           m.papel === "usuario" ? (
-            <p key={i} className="ml-6 whitespace-pre-wrap rounded-lg bg-violet-600/20 px-2 py-1.5">{m.texto}</p>
+            <p key={i} className="ml-6 whitespace-pre-wrap rounded-lg bg-accent/20 px-2 py-1.5">{m.texto}</p>
           ) : m.papel === "erro" ? (
-            <p key={i} className="rounded-lg bg-red-500/10 px-2 py-1.5 text-red-500">{m.texto}</p>
+            <p key={i} className="rounded-lg bg-danger/10 px-2 py-1.5 text-danger">{m.texto}</p>
           ) : (
             <div key={i} className={`space-y-1.5 rounded-lg border border-border p-2 ${i === iUltimo ? "" : "opacity-60"}`}>
               {m.plano.texto && <p className="whitespace-pre-wrap">{m.plano.texto}</p>}
               {m.plano.avisos.map((a) => (
-                <p key={a} className="text-xs text-amber-500">⚠ {a}</p>
+                <p key={a} className="text-xs text-warn">⚠ {a}</p>
               ))}
               {!m.plano.passos.length && <p className="text-xs text-muted">Nenhuma alteração proposta.</p>}
               {m.plano.passos.map((p, k) => {
@@ -272,7 +272,7 @@ export default function ChatIA({ mesaId, cena, selecao, aplicados, revertidos, p
                     <summary className="flex cursor-pointer items-center gap-1.5 text-xs">
                       <span className="font-medium">{k + 1}. {p.titulo}</span>
                       <span className={COR[est]}>{ROTULO[est]}</span>
-                      {p.geracoes.length > 0 && <span className="text-amber-500" title="Gera assets novos">✦{p.geracoes.length}</span>}
+                      {p.geracoes.length > 0 && <span className="text-warn" title="Gera assets novos">✦{p.geracoes.length}</span>}
                       <span className="ml-auto flex gap-1">
                         {i === iUltimo && est === "pendente" && (
                           <>
@@ -291,7 +291,7 @@ export default function ChatIA({ mesaId, cena, selecao, aplicados, revertidos, p
                       ))}
                     </ul>
                     {p.avisos.map((a) => (
-                      <p key={a} className="text-xs text-amber-500">⚠ {a}</p>
+                      <p key={a} className="text-xs text-warn">⚠ {a}</p>
                     ))}
                   </details>
                 );
@@ -321,7 +321,7 @@ export default function ChatIA({ mesaId, cena, selecao, aplicados, revertidos, p
         )}
 
         {confirmacao && (
-          <div className="space-y-1.5 rounded-lg border border-amber-500/60 bg-amber-500/5 p-2 text-xs" role="alertdialog" aria-label="Confirmar geração">
+          <div className="space-y-1.5 rounded-lg border border-warn/60 bg-warn/5 p-2 text-xs" role="alertdialog" aria-label="Confirmar geração">
             <p className="font-medium">Este plano precisa gerar {confirmacao.geracoes.length} asset(s) novo(s):</p>
             <ul className="list-disc pl-4 text-muted">
               {confirmacao.geracoes.map((g) => (
@@ -329,14 +329,14 @@ export default function ChatIA({ mesaId, cena, selecao, aplicados, revertidos, p
               ))}
             </ul>
             {confirmacao.estimativa && (
-              <p className={confirmacao.estimativa.cabeNoTeto ? "text-muted" : "text-red-500"}>
+              <p className={confirmacao.estimativa.cabeNoTeto ? "text-muted" : "text-danger"}>
                 {confirmacao.estimativa.cabeNoTeto
                   ? `Custo: ${confirmacao.estimativa.quantidade} geração(ões). Restam ${confirmacao.estimativa.restanteAposLote} no teto do período depois disso.`
                   : `Excede o teto de gasto (restam menos de ${confirmacao.estimativa.quantidade}). Aumente o teto na tela de IA ou descarte os passos que geram assets.`}
               </p>
             )}
             {!confirmacao.estimativa && !confirmacao.erro && <p className="text-muted">Calculando estimativa…</p>}
-            {confirmacao.erro && <p className="text-amber-500">{confirmacao.erro}</p>}
+            {confirmacao.erro && <p className="text-warn">{confirmacao.erro}</p>}
             {confirmacao.progresso ? (
               <p className="animate-pulse">{confirmacao.progresso}</p>
             ) : (
@@ -353,7 +353,7 @@ export default function ChatIA({ mesaId, cena, selecao, aplicados, revertidos, p
             )}
           </div>
         )}
-        {aviso && <p className="text-xs text-amber-500">{aviso}</p>}
+        {aviso && <p className="text-xs text-warn">{aviso}</p>}
         <div ref={fim} />
       </div>
 

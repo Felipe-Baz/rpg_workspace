@@ -4,6 +4,7 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut as fbSignOut,
@@ -45,6 +46,8 @@ export async function criarConta(nome: string, email: string, senha: string) {
 export const entrarComGoogle = () => signInWithPopup(auth, new GoogleAuthProvider());
 
 export const sair = () => fbSignOut(auth);
+
+export const redefinirSenha = (email: string) => sendPasswordResetEmail(auth, email);
 
 export function mensagemErro(e: unknown): string {
   const code = (e as { code?: string }).code ?? "";

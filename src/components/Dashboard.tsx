@@ -1,272 +1,191 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { KeyRound, Plus, Search, Settings2, Sparkles } from "lucide-react";
 import { sair, useAuth } from "@/lib/auth";
-import {
-  CORES,
-  STATUS_LABEL,
-  criarMesa,
-  entrarPorCodigo,
-  excluirMesa,
-  sairDaMesa,
-  useMesas,
-  type Mesa,
-  type Status,
-} from "@/lib/mesas";
+import { excluirMesa, sairDaMesa, useMesas, type Mesa, type Status } from "@/lib/mesas";
+import ThemeToggle from "./ThemeToggle";
+import CardMesa from "./dashboard/CardMesa";
+import EntrarDialog from "./dashboard/EntrarDialog";
+import NovaMesaWizard from "./dashboard/NovaMesaWizard";
+import { confirmar } from "./ui/Dialogos";
+
+type Aba = "ativas" | "planejando" | "arquivo";
+const ABAS: { id: Aba; rotulo: string; status: Status[] }[] = [
+  { id: "ativas", rotulo: "Ativas", status: ["ativa"] },
+  { id: "planejando", rotulo: "Em planejamento", status: ["planejando"] },
+  { id: "arquivo", rotulo: "Arquivo", status: ["pausada", "encerrada"] },
+];
+
+const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { mesas, pronto } = useMesas();
-  const [abrindo, setAbrindo] = useState(false);
+  const uid = user?.uid ?? "";
+  const [agora] = useState(() => Date.now());
+  const [papel, setPapel] = useState<"mestre" | "jogador" | null>(null);
+  const [aba, setAba] = useState<Aba | null>(null);
+  const [busca, setBusca] = useState("");
+  const [novaMesa, setNovaMesa] = useState(false);
   const [entrando, setEntrando] = useState(false);
 
+  async function remover(mesa: Mesa) {
+    const dono = mesa.donoUid === uid;
+    const ok = await confirmar({
+      perigo: true,
+      titulo: dono ? "Excluir mesa" : "Sair da mesa",
+      texto: dono
+        ? `"${mesa.nome}" será excluída para todos os jogadores. Isso não pode ser desfeito.`
+        : `Você deixará de ver "${mesa.nome}". Poderá voltar com o código de convite.`,
+      confirmar: dono ? "Excluir" : "Sair",
+    });
+    if (ok) await (dono ? excluirMesa(mesa) : sairDaMesa(mesa, uid));
+  }
+
+  const minhas = useMemo(() => mesas.filter((m) => m.donoUid === uid), [mesas, uid]);
+  const jogadas = useMemo(() => mesas.filter((m) => m.donoUid !== uid), [mesas, uid]);
+
+  // Papel padrão: mestre; cai para "jogador" se só joga em mesas de outros.
+  const papelAtivo = papel ?? (minhas.length === 0 && jogadas.length > 0 ? "jogador" : "mestre");
+
+  const contagem = (a: Aba) => minhas.filter((m) => ABAS.find((x) => x.id === a)!.status.includes(m.status)).length;
+  // Aba padrão: "Ativas", ou a primeira que tiver mesa.
+  const abaAtiva: Aba = aba ?? (["ativas", "planejando", "arquivo"] as Aba[]).find((a) => contagem(a) > 0) ?? "ativas";
+
+  const q = norm(busca.trim());
+  const filtra = (m: Mesa) => !q || norm(m.nome).includes(q) || norm(m.sistema).includes(q);
+  const lista =
+    papelAtivo === "mestre"
+      ? minhas.filter((m) => ABAS.find((a) => a.id === abaAtiva)!.status.includes(m.status) && filtra(m))
+      : jogadas.filter(filtra);
+
+  const nome = (user?.displayName || user?.email || "").split(/[ @]/)[0];
+
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-      <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">RPG Workspace</h1>
-          <p className="text-muted">Suas mesas, campanhas e personagens em um só lugar.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted">{user?.displayName || user?.email}</span>
-          <button
-            onClick={() => setEntrando(true)}
-            className="rounded-lg border border-border px-4 py-2 font-medium hover:bg-border/50"
-          >
-            Entrar com código
-          </button>
-          <button
-            onClick={() => setAbrindo(true)}
-            className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-700"
-          >
-            + Nova mesa
-          </button>
-          <Link href="/configuracoes/ia" className="px-2 py-2 text-sm text-muted hover:underline">
-            IA
+    <div className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(ellipse_at_50%_-20%,color-mix(in_srgb,var(--accent)_28%,transparent),transparent_70%)]" />
+
+      <header className="border-b border-border/60 bg-background/70 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+          <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold tracking-wide">
+            <Sparkles size={18} className="text-gold" /> RPG Workspace
           </Link>
-          <button onClick={sair} className="px-2 py-2 text-sm text-muted hover:underline">
-            Sair
-          </button>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Link href="/configuracoes/ia" className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted hover:text-foreground" title="Configurar IA">
+              <Settings2 size={16} /> <span className="hidden sm:inline">IA</span>
+            </Link>
+            <ThemeToggle />
+            <span className="ml-1 hidden text-sm text-muted sm:inline">{user?.displayName || user?.email}</span>
+            <button onClick={sair} className="rounded-lg px-3 py-2 text-sm text-muted hover:text-foreground">Sair</button>
+          </div>
         </div>
       </header>
 
-      {pronto && mesas.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border p-12 text-center">
-          <p className="mb-1 text-lg font-medium">Nenhuma mesa cadastrada</p>
-          <p className="text-muted">Crie sua primeira mesa para começar.</p>
-        </div>
-      ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {mesas.map((m) => (
-            <MesaCard key={m.id} mesa={m} uid={user?.uid ?? ""} />
-          ))}
-        </ul>
-      )}
-
-      {abrindo && user && <NovaMesaDialog uid={user.uid} onClose={() => setAbrindo(false)} />}
-      {entrando && user && <EntrarDialog uid={user.uid} onClose={() => setEntrando(false)} />}
-    </main>
-  );
-}
-
-function MesaCard({ mesa, uid }: { mesa: Mesa; uid: string }) {
-  const mestre = mesa.donoUid === uid;
-  return (
-    <li className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
-      <div className="h-2" style={{ background: mesa.cor }} />
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div>
-          <div className="flex items-start justify-between gap-2">
-            <h2 className="text-lg font-semibold leading-tight">{mesa.nome}</h2>
-            <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs text-muted">
-              {STATUS_LABEL[mesa.status]}
-            </span>
+      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+        <div className="anim-surgir mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="font-display text-3xl font-bold tracking-wide sm:text-4xl">{nome ? `Olá, ${nome}` : "Suas mesas"}</h1>
+            <p className="mt-1 text-muted">Qual mesa você abre hoje?</p>
           </div>
-          <p className="text-sm text-muted">{mesa.sistema || "Sistema não informado"}</p>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setEntrando(true)} className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 font-medium hover:border-accent-hover hover:bg-card">
+              <KeyRound size={16} /> Entrar com código
+            </button>
+            <button onClick={() => setNovaMesa(true)} className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-semibold text-white shadow-lg shadow-accent/25 hover:bg-accent-strong">
+              <Plus size={16} /> Nova mesa
+            </button>
+          </div>
         </div>
-        <p className="line-clamp-3 flex-1 text-sm">{mesa.descricao || "Sem descrição."}</p>
-        <p className="text-xs text-muted">
-          {mesa.jogadores.length} jogador(es) · {mesa.sessoes.length} sessão(ões)
-        </p>
-        {mestre && (
-          <p className="text-xs text-muted">
-            Código de convite: <code className="font-mono font-semibold">{mesa.codigo}</code>
-          </p>
-        )}
-        <div className="flex gap-2">
-          {mestre && (
-            <Link
-              href={`/mesas/${mesa.id}/mestre`}
-              className="flex-1 rounded-lg bg-violet-600 px-3 py-1.5 text-center text-sm font-medium text-white hover:bg-violet-700"
-            >
-              Mestre
-            </Link>
-          )}
-          {mestre && (
-            <Link
-              href={`/mesas/${mesa.id}/marcas`}
-              className="flex-1 rounded-lg border border-border px-3 py-1.5 text-center text-sm font-medium hover:bg-border/50"
-            >
-              Marcas
-            </Link>
-          )}
-          <Link
-            href={`/mesas/${mesa.id}/jogador`}
-            className="flex-1 rounded-lg border border-border px-3 py-1.5 text-center text-sm font-medium hover:bg-border/50"
-          >
-            Jogador
-          </Link>
-          <button
-            onClick={() =>
-              mestre
-                ? confirm(`Excluir "${mesa.nome}" para todos?`) && excluirMesa(mesa)
-                : confirm(`Sair de "${mesa.nome}"?`) && sairDaMesa(mesa, uid)
-            }
-            aria-label={`${mestre ? "Excluir" : "Sair de"} ${mesa.nome}`}
-            title={mestre ? "Excluir mesa" : "Sair da mesa"}
-            className="rounded-lg px-2 text-muted hover:text-red-500"
-          >
-            {mestre ? "✕" : "↩"}
-          </button>
-        </div>
-      </div>
-    </li>
-  );
-}
 
-function NovaMesaDialog({ uid, onClose }: { uid: string; onClose: () => void }) {
-  const [cor, setCor] = useState(CORES[0]);
-
-  function enviar(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const f = new FormData(e.currentTarget);
-    criarMesa(uid, {
-      nome: String(f.get("nome")).trim(),
-      sistema: String(f.get("sistema")).trim(),
-      descricao: String(f.get("descricao")).trim(),
-      status: f.get("status") as Status,
-      cor,
-    });
-    onClose();
-  }
-
-  const campo = "w-full rounded-lg border border-border bg-background px-3 py-2";
-
-  return (
-    <div
-      className="fixed inset-0 z-10 flex items-center justify-center bg-black/50 p-4"
-      onClick={onClose}
-    >
-      <form
-        onSubmit={enviar}
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md space-y-4 rounded-xl border border-border bg-card p-6"
-      >
-        <h2 className="text-xl font-semibold">Nova mesa</h2>
-        <label className="block text-sm">
-          Nome
-          <input name="nome" required autoFocus className={campo} />
-        </label>
-        <label className="block text-sm">
-          Sistema
-          <input name="sistema" placeholder="D&D 5e, Tormenta20, Call of Cthulhu…" className={campo} />
-        </label>
-        <label className="block text-sm">
-          Descrição
-          <textarea name="descricao" rows={3} className={campo} />
-        </label>
-        <label className="block text-sm">
-          Status
-          <select name="status" defaultValue="planejando" className={campo}>
-            {Object.entries(STATUS_LABEL).map(([v, l]) => (
-              <option key={v} value={v}>
-                {l}
-              </option>
+        {/* Papel: o que eu mestro × o que eu jogo */}
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex rounded-full border border-border bg-card p-1" role="tablist" aria-label="Papel">
+            {([["mestre", "Mesas que mestro", minhas.length], ["jogador", "Mesas que jogo", jogadas.length]] as const).map(([id, rotulo, n]) => (
+              <button
+                key={id}
+                role="tab"
+                aria-selected={papelAtivo === id}
+                onClick={() => setPapel(id)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium ${papelAtivo === id ? "bg-accent text-white shadow-md shadow-accent/30" : "text-muted hover:text-foreground"}`}
+              >
+                {rotulo} <span className="ml-1 opacity-70">{n}</span>
+              </button>
             ))}
-          </select>
-        </label>
-        <div className="flex gap-2">
-          {CORES.map((c) => (
-            <button
-              type="button"
-              key={c}
-              onClick={() => setCor(c)}
-              aria-label={`Cor ${c}`}
-              className="h-7 w-7 rounded-full"
-              style={{
-                background: c,
-                outline: c === cor ? "2px solid currentColor" : "none",
-                outlineOffset: 2,
-              }}
+          </div>
+          <label className="relative block w-full sm:w-72">
+            <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar por nome ou sistema…"
+              aria-label="Buscar mesas"
+              className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
-          ))}
+          </label>
         </div>
-        <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 text-muted">
-            Cancelar
-          </button>
-          <button className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-700">
-            Criar
-          </button>
-        </div>
-      </form>
+
+        {papelAtivo === "mestre" && (
+          <div className="mb-6 flex gap-1 border-b border-border" role="tablist">
+            {ABAS.map((a) => (
+              <button
+                key={a.id}
+                role="tab"
+                aria-selected={abaAtiva === a.id}
+                onClick={() => setAba(a.id)}
+                className={`-mb-px flex items-center gap-2 border-b-2 px-4 py-2 text-sm font-medium ${abaAtiva === a.id ? "border-accent text-accent-hover" : "border-transparent text-muted hover:text-foreground"}`}
+              >
+                {a.rotulo}
+                <span className="rounded-full bg-card-2 px-2 py-0.5 text-xs">{contagem(a.id)}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {!pronto ? (
+          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }, (_, i) => <li key={i} className="h-64 animate-pulse rounded-2xl bg-card-2" />)}
+          </ul>
+        ) : lista.length === 0 ? (
+          <Vazio papel={papelAtivo} buscando={!!q} semMesas={mesas.length === 0} onNova={() => setNovaMesa(true)} onEntrar={() => setEntrando(true)} />
+        ) : (
+          <ul key={`${papelAtivo}-${abaAtiva}`} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {lista.map((m, i) => (
+              <CardMesa key={m.id} mesa={m} mestre={m.donoUid === uid} agora={agora} atraso={i * 60} onRemover={() => remover(m)} />
+            ))}
+          </ul>
+        )}
+      </main>
+
+      {novaMesa && user && <NovaMesaWizard uid={user.uid} onClose={() => setNovaMesa(false)} />}
+      {entrando && user && <EntrarDialog uid={user.uid} onClose={() => setEntrando(false)} />}
     </div>
   );
 }
 
-function EntrarDialog({ uid, onClose }: { uid: string; onClose: () => void }) {
-  const [erro, setErro] = useState("");
-  const [ocupado, setOcupado] = useState(false);
-
-  async function enviar(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const codigo = String(new FormData(e.currentTarget).get("codigo"));
-    setErro("");
-    setOcupado(true);
-    try {
-      await entrarPorCodigo(codigo, uid);
-      onClose();
-    } catch (err) {
-      setErro(err instanceof Error ? err.message : "Não foi possível entrar na mesa.");
-      setOcupado(false);
-    }
-  }
-
+function Vazio({ papel, buscando, semMesas, onNova, onEntrar }: { papel: "mestre" | "jogador"; buscando: boolean; semMesas: boolean; onNova: () => void; onEntrar: () => void }) {
   return (
-    <div
-      className="fixed inset-0 z-10 flex items-center justify-center bg-black/50 p-4"
-      onClick={onClose}
-    >
-      <form
-        onSubmit={enviar}
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-card p-6"
-      >
-        <h2 className="text-xl font-semibold">Entrar em uma mesa</h2>
-        <label className="block text-sm">
-          Código de convite
-          <input
-            name="codigo"
-            required
-            autoFocus
-            autoCapitalize="characters"
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 font-mono uppercase"
-          />
-        </label>
-        {erro && <p role="alert" className="text-sm text-red-500">{erro}</p>}
-        <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 text-muted">
-            Cancelar
-          </button>
-          <button
-            disabled={ocupado}
-            className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-700 disabled:opacity-60"
-          >
-            Entrar
-          </button>
-        </div>
-      </form>
+    <div className="anim-surgir rounded-2xl border border-dashed border-border p-12 text-center">
+      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-card-2 text-gold" style={{ animation: "flutuar 5s ease-in-out infinite" }}>
+        <Sparkles size={26} />
+      </div>
+      {buscando ? (
+        <p className="text-lg font-medium">Nenhuma mesa encontrada para essa busca.</p>
+      ) : semMesas ? (
+        <>
+          <p className="font-display text-xl">Sua aventura começa aqui</p>
+          <p className="mx-auto mt-1 max-w-sm text-muted">Crie a primeira mesa como mestre ou entre na de um amigo com um código de convite.</p>
+          <div className="mt-5 flex justify-center gap-2">
+            <button onClick={onNova} className="rounded-lg bg-accent px-4 py-2 font-semibold text-white hover:bg-accent-strong">Criar mesa</button>
+            <button onClick={onEntrar} className="rounded-lg border border-border px-4 py-2 hover:bg-card">Tenho um código</button>
+          </div>
+        </>
+      ) : papel === "jogador" ? (
+        <p className="text-muted">Você ainda não joga em nenhuma mesa. Peça o código de convite ao seu mestre.</p>
+      ) : (
+        <p className="text-muted">Nenhuma mesa nesta aba.</p>
+      )}
     </div>
   );
 }

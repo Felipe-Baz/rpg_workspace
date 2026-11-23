@@ -79,4 +79,4 @@ for (const [n, d] of filtro ? [] : texturas) {
     console.error(n, "FALHOU:", (e as Error).message);
   }
 }
-console.log(`Pronto. Abra ${OUT}/ e preencha docs/validacao-gemini.md.`);
+console.log(`Pronto. Abra ${OUT}/ e preencha docs/planejamento/validacao-gemini.md.`);
