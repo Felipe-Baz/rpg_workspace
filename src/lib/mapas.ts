@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, deleteDoc, doc, onSnapshot, query, setDoc, updateDoc, where, type Query } from "firebase/firestore";
+import { collection, deleteDoc, deleteField, doc, onSnapshot, query, setDoc, updateDoc, where, type Query } from "firebase/firestore";
 import { db } from "./firebase";
 import { uid as novoId, useDocSincronizado } from "./mesas";
 
@@ -16,6 +16,8 @@ export type Mapa = {
   liberadoPara: string[]; // uids com acesso individual
   zonas?: Zona[]; // agrupamentos de coberturas (ex.: um cômodo)
   cobertas?: Cobertura[]; // áreas pretas sobre o mapa; vale para mestre e jogadores
+  origem?: "imagem" | "cena"; // ausente = imagem. "cena": `imagem` é o render da cena `cenaId`
+  cenaId?: string; // mesas/{id}/cenas/{cenaId}; remover deixa um mapa de imagem válido
 };
 
 // Pontos em fração (0–1) da imagem. Objetos {x,y}: o Firestore não aceita arrays aninhados.
@@ -106,10 +108,21 @@ export function useMapasJogador(mesaId: string, usuarioUid: string, habilitado: 
   );
 }
 
-export async function criarMapa(mesaId: string, nome: string, imagem: string, colecao: Colecao = "mapas") {
-  const mapa: Mapa = { id: novoId(), nome, imagem, criadoEm: Date.now(), todos: false, liberadoPara: [] };
+export async function criarMapa(
+  mesaId: string,
+  nome: string,
+  imagem: string,
+  colecao: Colecao = "mapas",
+  extra: Partial<Pick<Mapa, "id" | "origem" | "cenaId">> = {},
+) {
+  const mapa: Mapa = { id: novoId(), nome, imagem, criadoEm: Date.now(), todos: false, liberadoPara: [], ...extra };
   await setDoc(doc(col(mesaId, colecao), mapa.id), mapa);
+  return mapa;
 }
+
+/** Remove a ligação com a cena: o mapa segue com o último render, como mapa de imagem. */
+export const desvincularCena = (mesaId: string, mapaId: string, colecao: Colecao = "mapas") =>
+  updateDoc(doc(col(mesaId, colecao), mapaId), { origem: deleteField(), cenaId: deleteField() });
 
 export const atualizarMapa = (mesaId: string, mapaId: string, patch: Partial<Mapa>, colecao: Colecao = "mapas") =>
   updateDoc(doc(col(mesaId, colecao), mapaId), patch);

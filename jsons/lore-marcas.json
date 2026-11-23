@@ -1,0 +1,1290 @@
+{
+  "eco-vazio": {
+    "sold": "a dor e o medo — os primeiros avisos de que um corpo está em perigo.",
+    "passivaNome": "Mentira do Corpo",
+    "passiva": "o Marcado sente, instantaneamente, quando alguém mente sobre sentir dor, medo ou estar ferido/doente — inclusive quando é ele mesmo se enganando. Ótimo para interrogatórios e investigação; não ajuda a acertar golpes.",
+    "fardo": "o Marcado não sente dor física nem o instinto de autopreservação que ela carrega. Ele não sabe, por conta própria, quando está gravemente ferido — o mestre deve ocultar o HP real sempre que estiver abaixo da metade, revelando só descrições vagas.",
+    "habilidadeNome": "Última Vontade",
+    "habilidade": "ao chegar a 0 HP, continua agindo por 1 turno extra, mas sofre um dano permanente real (perda de um sentido, de um dedo, de parte da visão) escolhido com o mestre. Usos limitados por descanso longo (cresce com os Círculos).",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Descobre, em pesadelo ou pelo relato de uma testemunha, a primeira vez que quase morreu sem notar.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca de propósito uma situação de quase-morte só para sentir o vazio de novo.",
+        "mudanca": "Vantagem em resistência a medo/dor; Fardo: passa a se sentir mal em ambientes seguros demais."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Acumula 3 ferimentos graves sem buscar cura, por puro orgulho.",
+        "mudanca": "Imune a penalidades de dor por ferimento grave; Fardo: cicatrizes aparecem sem causa aparente."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde deliberadamente de um aliado o quão ferido está.",
+        "mudanca": "+1 uso de Última Vontade por descanso longo; Fardo: aliados passam a desconfiar quando ele diz \"estou bem\"."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Última Vontade motivado por vingança, não necessidade.",
+        "mudanca": "Última Vontade causa dano extra no primeiro ataque daquele turno; Fardo: o dano permanente sofrido ao usá-la aumenta."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Deboca ou desmente, na cara de um clérigo/sábio, o aviso de que a Marca é perigosa.",
+        "mudanca": "Última Vontade dura 2 turnos em vez de 1; Fardo: curandeiros religiosos recusam atendê-lo."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Desfere um golpe fatal sem nunca saber quão perto esteve de morrer na troca.",
+        "mudanca": "Última Vontade passa a 1x por descanso curto; Fardo: dor física e emocional se confundem — testes sociais de empatia ficam prejudicados."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Mente abertamente para um aliado sobre seu estado, e esse aliado se machuca por acreditar nele.",
+        "mudanca": "Usa Última Vontade sem nenhuma penalidade de ação; Fardo: sua palavra sobre o próprio estado deixa de valer qualquer coisa."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Deixa um aliado ser gravemente ferido o protegendo, porque nunca avisou que estava morrendo.",
+        "mudanca": "Uma vez na campanha, continua agindo mesmo após a \"morte\" ser confirmada, por 1 cena; Fardo final: ninguém — nem o mestre revela ao jogador — consegue ter certeza se ele está mesmo morto até o tempo passar."
+      }
+    ],
+    "remocao": "existe, guardado por um culto que venera o sofrimento como prova de fé, um \"Espelho da Primeira Dor\". O Marcado precisa reencenar, consciente e sem anestesia ritual, o exato momento em que perdeu a dor (estabelecido na origem do personagem) diante do espelho — e sentir de verdade aquela dor específica, sem desviar o olhar. Fugir ou mentir sobre o momento invalida a tentativa."
+  },
+  "maos-que-lembram": {
+    "sold": "a memória contínua de rostos, nomes e do próprio passado.",
+    "passivaNome": "Idade das Coisas",
+    "passiva": "ao examinar um objeto, local ou documento, sabe instintivamente sua \"história\" (idade aproximada, se foi usado numa cena violenta, se pertenceu a alguém importante). Ótimo para investigação; não ajuda em combate.",
+    "fardo": "esquece rostos e nomes de quem não viu nas últimas 24 horas. Desvantagem em testes sociais que dependam de reconhecer alguém, lembrar um favor ou citar um encontro anterior.",
+    "habilidadeNome": "Memória Emprestada",
+    "habilidade": "1x por descanso longo, toma a perícia de alguém morto que tocou, por 1 minuto — mas esquece em troca um fato real já estabelecido do próprio passado (cada vez mais importante a cada Círculo).",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Sente uma lembrança intrusiva, que não é sua, ao tocar por acaso o pertence de um morto.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca de propósito tocar pertences de mortos só para sentir ser outra pessoa.",
+        "mudanca": "Vantagem extra em perícias já usadas antes; Fardo: começa a confundir memórias emprestadas com as próprias."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Memória Emprestada três vezes na mesma semana de jogo.",
+        "mudanca": "Pode manter a memória emprestada por 10 minutos; Fardo: aliados notam \"brancos\" de memória maiores e mais frequentes."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Guarda para si, sem contar a ninguém, algo importante que \"lembrou\" de um morto.",
+        "mudanca": "Pode emprestar duas perícias ao mesmo tempo; Fardo: esquece fatos cada vez mais centrais da própria vida."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa uma perícia emprestada para ferir alguém que o próprio morto protegeria.",
+        "mudanca": "A perícia emprestada vem com um bônus de \"posse\" (ex.: ataque extra se o morto era lutador); Fardo: pesadelos recorrentes com memórias de estranhos mortos."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Nega, diante de um sábio/sacerdote da memória, que esquecer seja uma maldição.",
+        "mudanca": "Pode emprestar perícia de alguém que nunca tocou, apenas visitando sua cova; Fardo: comunidades de fé passam a rejeitá-lo."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Mata alguém e, no mesmo instante, toma deliberadamente sua última memória/perícia.",
+        "mudanca": "Pode emprestar temporariamente uma característica de classe simples de um morto, não só perícia; Fardo: episódios visíveis de \"ser outra pessoa\" por minutos inteiros."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Usa uma memória emprestada para se passar por alguém e enganar um NPC importante.",
+        "mudanca": "Emprestar memórias passa a ser instantâneo; Fardo: perde certeza de qual memória é genuinamente sua."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Esquece, de forma definitiva, um aliado vivo logo após ele arriscar a vida por ele.",
+        "mudanca": "Pode guardar uma memória emprestada permanentemente; Fardo final: cada memória guardada apaga, para sempre, um fato real de quem ele é — risco genuíno de deixar de ser \"ele mesmo\"."
+      }
+    ],
+    "remocao": "em um \"Arquivo de Cinzas\" nas ruínas de uma biblioteca queimada, o Marcado precisa reconstruir — por pistas reais espalhadas em sessões anteriores, sem magia de adivinhação — o nome completo e a história de UM morto específico cuja memória tomou, e devolvê-la em voz alta no local certo."
+  },
+  "sangue-que-nega": {
+    "sold": "a conexão com a vida — a cicatrização natural e a aceitação instintiva de criaturas vivas.",
+    "passivaNome": "Idade da Ferida",
+    "passiva": "sente a \"idade da vida\" de qualquer ferida ou doença à vista — há quanto tempo um corpo está doente, quando um cadáver morreu, se uma planta foi envenenada. Útil para investigação e cura alheia; não dá bônus de combate.",
+    "fardo": "feridas não cicatrizam por conta própria fora de magia ou cuidados médicos reais. Animais, crianças e criaturas não-adestradas o evitam por instinto.",
+    "habilidadeNome": "Dívida de Sangue",
+    "habilidade": "drena HP de um ser vivo adjacente para curar a si mesmo, 1x por descanso curto, crescendo em alcance e potência — mas cada uso deixa uma marca ambiental rastreável (plantas murchas, gado doente).",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Descobre que uma ferida sua \"sugou\" a cura de uma planta próxima, sem querer.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Se machuca de propósito só para testar o limite da própria drenagem.",
+        "mudanca": "Dívida de Sangue ganha mais alcance (curto); Fardo: ansiedade física por drenar aumenta fora de combate."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Drena a vida de um animal inocente por puro desperdício ou curiosidade.",
+        "mudanca": "Cura uma quantidade maior por uso; Fardo: marcas ambientais ficam mais visíveis e duram mais."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Recusa compartilhar a cura obtida com um aliado ferido, guardando a vantagem.",
+        "mudanca": "Pode drenar à distância limitada; Fardo: vilarejos próximos começam a associá-lo a fenômenos estranhos."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Drena um inimigo já rendido ou desarmado, por prazer e não necessidade.",
+        "mudanca": "Drenagem converte parte do dano causado em combate diretamente em cura; Fardo: inimigos que percebem passam a tratá-lo como ameaça prioritária."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Nega abertamente, para um curandeiro de fé, que seu sangue seja antinatural.",
+        "mudanca": "Pode drenar em uma pequena área ao redor; Fardo: perde o controle fino de quem exatamente é drenado nessa área."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Drena um ser vivo até a morte só para testar o próprio limite.",
+        "mudanca": "Absorve/reduz dano significativo em combate; Fardo: a presença dele passa a adoecer plantas e pequenos animais mesmo sem uso ativo."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge estar curado para um aliado enquanto secretamente ainda drena o ambiente ao redor dele.",
+        "mudanca": "A drenagem passivo-ambiental se torna praticamente invisível a testes comuns; Fardo: comunidades inteiras podem recusar sua entrada ao perceberem o padrão."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Drena, mesmo que por acidente, um aliado que confiava nele para se curar.",
+        "mudanca": "Pode, uma vez por sessão, estabilizar-se à beira da morte drenando qualquer vida próxima, aliado ou não; Fardo final: ele se torna, permanentemente, um risco físico para quem ama — a drenagem passa a agir sozinha perto de feridos."
+      }
+    ],
+    "remocao": "em um \"Bosque que Não Morre\", o Marcado precisa encontrar a única criatura viva ainda imune à sua Marca (uma pista a ser plantada pelo mestre) e deixar-se ferir por ela sem se curar de volta, completando um ciclo de dar sem tomar."
+  },
+  "voz-perdida": {
+    "sold": "o próprio nome verdadeiro e a liberdade de mentir.",
+    "passivaNome": "Ouvido para a Falsidade",
+    "passiva": "sabe sempre quando alguém mais está mentindo abertamente em voz alta perto dele, sem precisar de teste. Excelente para negociação e intriga; não ajuda a vencer lutas.",
+    "fardo": "não consegue mentir de forma direta e consciente — uma mentira explícita causa dor leve e perceptível a quem ouve, denunciando-o.",
+    "habilidadeNome": "Comando",
+    "habilidade": "Palavra de Comando curta que força obediência literal por 1 rodada, 1x por descanso longo — ao custo de afonia temporária crescente a cada uso.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Ao tentar mentir pela primeira vez depois da Marca, sente a própria voz \"quebrar\".",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca situações sociais só para testar o limite da própria verdade.",
+        "mudanca": "Afirmações em que crê ganham peso mágico leve (vantagem em persuasão/intimidação baseada nelas); Fardo: começa a sentir desconforto físico ao omitir informação."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa a verdade de forma cruel repetidamente só para ver o efeito nas pessoas.",
+        "mudanca": "Comando ganha mais alcance; Fardo: afonia após o uso dura mais tempo."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Guarda uma verdade que salvaria um aliado, por vantagem pessoal.",
+        "mudanca": "Pode usar Comando em alvos que não o veem diretamente (só ouvem); Fardo: reputação de \"o que não pode mentir\" começa a ser usada contra ele politicamente."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Comando contra alguém só por raiva, não necessidade.",
+        "mudanca": "Comando pode afetar dois alvos ao mesmo tempo; Fardo: a afonia passa a vir acompanhada de dor na garganta."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Desafia abertamente um clérigo/sábio que alertou sobre o perigo dos nomes verdadeiros.",
+        "mudanca": "Comando passa a 1x por descanso curto; Fardo: comunidades religiosas o tratam como um presságio."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa Comando para forçar alguém a se ferir ou ferir outro.",
+        "mudanca": "Comando pode impor uma ordem levemente mais complexa (uma frase curta, não só uma palavra); Fardo: perde a capacidade de sequer omitir — tudo que diz tende a sair verdadeiro demais."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Usa a verdade como arma de manipulação tão refinada que tecnicamente nunca mentiu, mas destrói alguém.",
+        "mudanca": "Pode extrair uma verdade escondida de alguém ao usar Comando; Fardo: ele mesmo não consegue mais distinguir quando está sendo manipulador ou só \"sincero\"."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Diz, por acidente ou não, o próprio nome verdadeiro em voz alta perto de algo que o caçava.",
+        "mudanca": "Uma vez por sessão, pode dizer o Nome Verdadeiro de uma criatura (descoberto em jogo) para impor um efeito poderoso; Fardo final: cada uso atrai a atenção de algo que também perdeu seu nome na Guerra dos Deuses — e que agora sabe onde ele está."
+      }
+    ],
+    "remocao": "no \"Poço das Vozes Caladas\", onde nomes verdadeiros perdidos na Guerra dos Deuses ecoam, o Marcado precisa descobrir seu próprio nome verdadeiro (um arco de investigação por si só) e gritá-lo dentro do poço, aceitando ouvir a resposta de volta sem fugir."
+  },
+  "reflexo-partido": {
+    "sold": "a própria imagem — o reconhecimento contínuo de que ele existe para o mundo.",
+    "passivaNome": "Eco Refletido",
+    "passiva": "olhando para uma superfície reflexiva, pode revisitar brevemente um eco visual de algo que aconteceu recentemente naquele local. Ótimo para investigação; inútil em combate direto.",
+    "fardo": "não tem reflexo em espelhos, água quieta ou metal polido; NPCs que não o veem por mais de um dia tendem a esquecê-lo gradualmente.",
+    "habilidadeNome": "O Que Não Fica",
+    "habilidade": "desaparece completamente da percepção de uma cena por até 1 minuto, 1x por descanso longo — ao custo de dificuldade em distinguir o que é real depois.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Nota, ao acaso, que alguém esqueceu completamente de tê-lo visto minutos antes.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca de propósito testar o próprio desaparecimento social.",
+        "mudanca": "1x por descanso curto, fica quase imperceptível por 1 rodada; Fardo: sente um vazio incômodo quando é lembrado com clareza por alguém."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa a ausência para escapar de uma responsabilidade real, repetidamente.",
+        "mudanca": "Pode atravessar superfícies reflexivas próximas; Fardo: cada travessia apaga uma pequena lembrança física sua do local de origem."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Deixa um aliado levar a culpa por algo que ele fez, já que \"ninguém lembra\" dele ali.",
+        "mudanca": "A travessia entre reflexos passa a ter mais usos por sessão; Fardo: aliados próximos começam a esquecer detalhes dele com mais frequência."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa o poder para espionar ou ferir alguém que confiava nele.",
+        "mudanca": "O Que Não Fica ganha mais controle (pode escolher quem ainda o percebe); Fardo: pesadelos sobre \"não existir\" se tornam recorrentes."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Nega, diante de um estudioso de identidade/alma, que isso seja perigoso.",
+        "mudanca": "Pode levar um pequeno objeto com ele através da ausência; Fardo: estudiosos e cultos de identidade passam a procurá-lo com interesse perigoso."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa o desaparecimento para cometer um ato irreversível sem testemunhas.",
+        "mudanca": "O Que Não Fica dura até 10 minutos; Fardo: ele próprio começa a perder pequenos períodos de memória sobre o que fez enquanto ausente."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Se passa por \"nunca ter estado\" em um crime que de fato cometeu.",
+        "mudanca": "Pode levar uma pessoa pequena com ele através da ausência; Fardo: sua existência social vira cada vez mais rumor do que fato concreto."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Desaparece num momento crítico para um aliado que precisava dele, por covardia ou cálculo.",
+        "mudanca": "Pode escolher permanecer \"ausente\" de forma seletiva por uma cena inteira, uma vez por sessão; Fardo final: corre o risco real de, um dia, simplesmente não ser lembrado por ninguém — nem pelos próprios aliados, em retrospecto."
+      }
+    ],
+    "remocao": "exige um \"Ritual do Retrato Verdadeiro\" — ser pintado ou esculpido por alguém que genuinamente se importa com ele (nunca um artista contratado), enquanto conta em voz alta e sem omissão a verdade completa de como obteve a Marca. Se a obra captar seu reflexo corretamente pela primeira vez, o vínculo quebra."
+  },
+  "juramento-cinzento": {
+    "sold": "a possibilidade de ser perdoado por uma convicção pessoal quebrada — um voto tribal, uma fé abandonada, uma causa traída. Não exige ser Paladino: qualquer personagem com uma convicção central que ele mesmo rompeu serve.",
+    "passivaNome": "Olho para a Hipocrisia",
+    "passiva": "percebe instantaneamente quando um discurso de fé ou convicção é hipócrita — quando quem fala não crê no que prega. Ótimo para intriga política e religiosa; não ajuda em combate.",
+    "fardo": "solo consagrado, símbolos sagrados e bênçãos reagem mal a ele; cura mágica lançada por outra pessoa é sempre um pouco menos eficaz nele.",
+    "habilidadeNome": "Terra Queimada",
+    "habilidade": "impõe medo/fraqueza intensos em alguém que invoque fé ou convicção, 1x por descanso curto — ao custo de ficar incapaz de receber qualquer cura mágica por um período crescente após o uso.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Visita um local sagrado e sente o próprio corpo reagir mal, sem entender por quê.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca deliberadamente lugares sagrados só para testar o limite da própria rejeição.",
+        "mudanca": "Vantagem em intimidação contra devotos; Fardo: o desconforto em solo sagrado se torna dor leve."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Profana pequenos símbolos de fé repetidamente, por desprezo.",
+        "mudanca": "Pode impor Medo uma vez por descanso curto; Fardo: curandeiros começam a reconhecer e recusar atendê-lo."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Recusa ajuda de um clérigo por orgulho, mesmo precisando.",
+        "mudanca": "Terra Queimada afeta uma área pequena, não só um alvo; Fardo: a ineficácia de cura recebida aumenta."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Terra Queimada contra alguém inocente, só por raiva da própria situação.",
+        "mudanca": "Terra Queimada pode afetar múltiplos alvos na área; Fardo: a incapacidade de receber cura mágica dura mais tempo após o uso."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate e humilha publicamente um devoto que o alertou sobre o perigo da Marca.",
+        "mudanca": "Pode usar Terra Queimada 1x por descanso curto sem gastar o uso anterior; Fardo: templos começam a recusar sua entrada abertamente."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Destrói algo sagrado de valor genuíno para outra pessoa.",
+        "mudanca": "Pode \"apagar\" temporariamente uma proteção/bênção mágica ativa em uma área; Fardo: símbolos sagrados genuínos próximos a ele racham ou perdem brilho."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge fé ou conversão para manipular uma comunidade religiosa.",
+        "mudanca": "O efeito de apagar proteções passa a afetar também efeitos mais fortes; Fardo: ele se torna conhecido como presságio de desgraça perto de locais sagrados."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "É rejeitado abertamente, em praça pública, por uma figura de fé que ele um dia respeitou.",
+        "mudanca": "Torna-se, por 1 cena por sessão, um pequeno antípoda do sagrado — qualquer bênção ativa na área falha; Fardo final: perde por completo a capacidade de se beneficiar de qualquer cura mágica, divina ou arcana, vinda de outra pessoa."
+      }
+    ],
+    "remocao": "exige retornar ao exato local da convicção quebrada e reconstruir, com as próprias mãos e sem magia, algo que simbolize o que foi quebrado — um gesto físico de reparação pública, testemunhado por alguém que ele traiu ou abandonou. Usar magia para acelerar o gesto invalida a tentativa."
+  },
+  "segundo-pacto": {
+    "sold": "a autonomia da própria vontade dentro de qualquer poder emprestado — um deus, uma linhagem, um patrono, não importa a fonte original. A Marca se infiltrou como um segundo \"comprador\" dentro desse poder.",
+    "passivaNome": "Sexto Sentido Sobrenatural",
+    "passiva": "sente a presença de outras entidades, pactos ou poderes sobrenaturais próximos — sem detalhes, só que \"tem algo ali\". Ótimo para investigar ameaças sobrenaturais; não ajuda em combate direto.",
+    "fardo": "ouve ocasionalmente uma segunda voz com agenda própria; uma habilidade importante de sua fonte de poder falha ou sai distorcida sem aviso, 1x por sessão a critério do mestre.",
+    "habilidadeNome": "Voz Alheia",
+    "habilidade": "invoca o Segundo Pacto para repetir ou amplificar um efeito recém-usado, 1x por descanso curto — ao custo de, quando a mesa decidir, ceder uma ação inteira ao controle do mestre.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Percebe, por acaso, que um pensamento que teve não era seu.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca deliberadamente provocar a segunda voz só para ver o que ela diz.",
+        "mudanca": "Voz Alheia fica disponível; Fardo: a segunda voz passa a comentar decisões em voz alta na cabeça dele, cada vez mais."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa poder emprestado repetidamente sem descanso adequado, só por ganância.",
+        "mudanca": "Voz Alheia pode ser usada mesmo sem descanso completo; Fardo: a falha/distorção de habilidades se torna mais frequente."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Recusa compartilhar o poder/vantagem obtida com o grupo.",
+        "mudanca": "Ganha um poder temático extra escolhido com a mesa, 1x por descanso longo; Fardo: a segunda voz começa a influenciar pequenas decisões sociais dele."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Voz Alheia por puro desejo de destruição, sem necessidade tática.",
+        "mudanca": "Voz Alheia amplifica também efeitos de área; Fardo: episódios de perda de controle passam a durar mais que uma ação."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Ridiculariza ou nega publicamente, diante de um estudioso arcano, a existência de pactos duplos.",
+        "mudanca": "Pode usar Voz Alheia 1x por descanso curto sem gastar o uso principal; Fardo: estudiosos arcanos passam a vigiá-lo ou cobiçá-lo."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Deixa a Voz Alheia agir através dele contra sua vontade e causar dano real a alguém.",
+        "mudanca": "O poder temático extra se torna mais forte (equivalente a um efeito de nível alto); Fardo: a perda de controle passa a poder durar uma rodada inteira."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Manipula um aliado fazendo-o pensar que foi ele mesmo, e não a segunda voz, quem decidiu algo.",
+        "mudanca": "Pode garantir um efeito de alto impacto 1x por sessão; Fardo: os olhos dele mudam de cor visivelmente quando a segunda voz \"segura o contrato\"."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Perde uma rodada inteira de controle do próprio corpo em um momento crítico para o grupo.",
+        "mudanca": "O efeito de alto impacto passa a poder ser reativado em emergências reais; Fardo final: seu Patrono original passa a tratá-lo como um ativo instável, podendo cobrar a dívida do pacto original antes do previsto."
+      }
+    ],
+    "remocao": "exige encontrar e confrontar a entidade original que vendeu o Segundo Pacto — distinta de qualquer patrono que o personagem já tenha — em seu próprio domínio, e vencer uma negociação ou duelo específico nos termos dela, não nos do Marcado: um puzzle de barganha, não de combate puro."
+  },
+  "pagina-que-esquece": {
+    "sold": "a confiabilidade da própria mente como ferramenta de aprendizado e registro — aplica-se a qualquer tipo de registro de conhecimento: um grimório, um diário de caça, notas de investigação, não só magia.",
+    "passivaNome": "Olho para a Falsificação",
+    "passiva": "ao reler qualquer anotação, mapa ou registro (seu ou de outra pessoa), sabe instintivamente se algo ali foi alterado ou é mentira. Ótimo para investigação e pesquisa de lore; não ajuda em combate.",
+    "fardo": "seus próprios registros mudam sutilmente sem ele notar; sempre há risco de uma informação própria estar sutilmente errada.",
+    "habilidadeNome": "Letra Alheia",
+    "habilidade": "relembra instantaneamente uma informação, fórmula ou truque que nunca aprendeu de fato, 1x por descanso longo — ao custo de perder acesso temporário a algo que já sabia.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Nota uma letra estranha no próprio material de estudo pela primeira vez.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca aprender algo além da própria capacidade só pela sede de saber mais rápido.",
+        "mudanca": "Letra Alheia fica disponível; Fardo: pequenas inconsistências no próprio material aparecem com mais frequência."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa conhecimento \"emprestado\" repetidamente sem verificar se é real.",
+        "mudanca": "Pode usar Letra Alheia 1x por descanso curto além do uso principal; Fardo: o risco de informação própria errada aumenta."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de um colega de estudo uma descoberta importante, por vantagem pessoal.",
+        "mudanca": "Pode emprestar algo levemente acima do próprio nível normal; Fardo: perde acesso a algo já sabido por mais tempo após o uso."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa uma informação emprestada para causar dano real a alguém que confiava nela.",
+        "mudanca": "Letra Alheia pode ser usada em combate para um efeito pontual de dano; Fardo: períodos curtos de \"tempo perdido\" começam a aparecer."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate e humilha um erudito que alertou sobre o perigo do atalho.",
+        "mudanca": "Pode emprestar conhecimento de uma fonte que nunca visitou, só ouviu falar; Fardo: estudiosos e bibliotecas passam a negar acesso a ele."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Toma uma decisão irreversível baseada numa \"memória\" que nunca foi sua de verdade, e dá errado.",
+        "mudanca": "Letra Alheia passa a permitir algo bem acima do próprio nível, 1x por descanso longo; Fardo: os períodos de tempo perdido passam a incluir ações que ele não lembra de ter feito."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Deixa um aliado agir com base numa informação que ele sabia ser potencialmente falsa.",
+        "mudanca": "Pode usar Letra Alheia duas vezes entre descansos longos; Fardo: ele mesmo não consegue mais confiar em nenhuma memória recente sem confirmação externa."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Perde uma cena inteira de memória e descobre depois que fez algo grave nela.",
+        "mudanca": "Uma vez por sessão, pode conjurar/usar um efeito de alto impacto muito além do seu nível normal, \"como se outra versão dele soubesse fazer aquilo\"; Fardo final: ao final de cada uso desse poder, não lembra do que fez — depende dos outros jogadores para reconstruir."
+      }
+    ],
+    "remocao": "exige localizar a fonte original do conhecimento \"roubado\" pela Marca (uma biblioteca, uma mente, um espírito específico) e devolver ativamente algo de valor equivalente — não ouro, mas conhecimento genuíno e irrepetível que só o Marcado possui — selando a dívida por troca justa, não por força."
+  },
+  "sono-roubado": {
+    "sold": "o sono tranquilo e os sonhos como refúgio.",
+    "passivaNome": "Sonhos Alheios",
+    "passiva": "pode entrar brevemente em sonhos de quem dorme perto dele e colher uma imagem ou sensação vaga relevante (não controla, só observa). Ótimo para investigação onírica; não ajuda em combate.",
+    "fardo": "nunca descansa de verdade — descansos longos não removem exaustão acumulada normalmente; precisa de um método alternativo (ritual, substância, ajuda de outro Marcado) para realmente se recuperar.",
+    "habilidadeNome": "Vigília Forçada",
+    "habilidade": "força a si mesmo (ou, com consequência maior, um aliado) a ficar acordado e funcional por muito mais tempo que o normal, 1x por descanso longo — ao custo de um nível de exaustão real ao final do efeito.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Acorda de um sonho que não era seu e percebe que viu algo real acontecendo em outro lugar.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca dormir perto de estranhos de propósito só para espiar os sonhos deles.",
+        "mudanca": "Alcance de entrada em sonhos aumenta; Fardo: a exaustão acumulada começa a se tornar perceptível."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Entra em sonhos repetidamente na mesma noite, exaurindo-se.",
+        "mudanca": "Pode permanecer mais tempo dentro de um sonho; Fardo: visões de sonhos alheios começam a invadir sua vigília."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Guarda para si uma informação útil roubada de um sonho, sem avisar o grupo.",
+        "mudanca": "Pode entrar em sonhos de mais de uma pessoa na mesma noite; Fardo: a exaustão sem alívio normal se acumula mais rápido."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa uma informação de sonho para manipular ou ferir quem sonhou.",
+        "mudanca": "Pode implantar uma sugestão sutil (não controle) em um sonho; Fardo: passa a ter pesadelos recorrentes próprios, intensos."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um onirismante/sábio dos sonhos, negando que isso seja perigoso.",
+        "mudanca": "Vigília Forçada pode ser usada 1x por descanso curto; Fardo: sábios dos sonhos passam a vigiá-lo ou evitá-lo."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Invade um sonho e causa dano psicológico real a quem dormia.",
+        "mudanca": "Pode entrar em sonhos à distância, sem precisar dormir perto; Fardo: começa a confundir sonhos alheios com a própria realidade em vigília."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge para alguém que sonhou algo que na verdade colheu da mente dele.",
+        "mudanca": "Pode esconder completamente sua presença dentro de um sonho; Fardo: a confusão entre sonho e realidade se torna visível a aliados."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Entra no sonho de um aliado próximo no momento mais vulnerável dele e usa contra ele.",
+        "mudanca": "Pode, uma vez por sessão, ler um sonho inteiro com clareza total; Fardo final: ele próprio deixa de conseguir distinguir, ao acordar, se viveu algo ou apenas sonhou."
+      }
+    ],
+    "remocao": "existe um \"Relicário do Sono Primeiro\" guardado em algum santuário onírico. O Marcado precisa dormir literalmente dentro do relicário e reviver, sem fugir da emoção, a última noite de sono tranquilo que teve antes da Marca."
+  },
+  "fome-eterna": {
+    "sold": "a saciedade — a sensação de \"já basta\".",
+    "passivaNome": "Faro da Fome",
+    "passiva": "sente instintivamente quando algo (uma pessoa, uma terra, um culto) está consumido pela própria ganância ou fome de poder. Ótimo para identificar hipocrisia e ameaças gulosas; não ajuda em combate.",
+    "fardo": "fome constante e literal; sem comer quantidades anormalmente grandes com frequência, sofre desvantagem em testes de concentração e conjuração.",
+    "habilidadeNome": "Devorar",
+    "habilidade": "consome algo significativo (parte de uma criatura abatida, um item mágico menor, uma relíquia) para um surto de poder temporário, 1x por descanso longo — ao custo de destruir permanentemente o que foi consumido e sofrer fome ainda maior depois.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Percebe que comeu um prato inteiro sem lembrar de ter sentido fome real antes.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca refeições cada vez mais extravagantes só pela sensação, não necessidade.",
+        "mudanca": "Devorar fica disponível; Fardo: a fome entre refeições se torna mais debilitante."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Devora algo (criatura, item) só por curiosidade do efeito, sem necessidade tática.",
+        "mudanca": "O surto de poder de Devorar dura mais; Fardo: impulsos de consumir coisas inadequadas começam a surgir."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Recusa dividir comida ou recursos escassos com o grupo, mesmo tendo o suficiente.",
+        "mudanca": "O surto de poder concede um efeito extra baseado no que foi consumido; Fardo: aliados notam o comportamento alimentar cada vez mais errático."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Devora algo de valor sentimental de um aliado, por raiva ou impulso.",
+        "mudanca": "Devorar pode ser usado 1x por descanso curto; Fardo: a fome pós-uso vem acompanhada de dor física real."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um erudito/monge do jejum, negando que a fome seja um perigo espiritual.",
+        "mudanca": "Pode devorar itens mágicos maiores com efeito proporcional; Fardo: comunidades religiosas de moderação o rejeitam."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Devora parte de um inimigo vivo ou recém-morto para obter vantagem tática.",
+        "mudanca": "O surto de poder passa a conceder resistência a dano por uma cena; Fardo: impulsos de devorar passam a ocorrer mesmo fora de combate."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge estar satisfeito/sob controle enquanto secretamente já devorou algo que não devia.",
+        "mudanca": "Pode devorar sem destruir completamente o item (preservando parte do valor); Fardo: aliados começam a esconder itens e comida dele por precaução."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Devora, em desespero, algo de valor insubstituível para o próprio grupo.",
+        "mudanca": "Pode devorar algo vivo para um efeito de alto impacto, uma vez por sessão; Fardo final: a fome se torna permanentemente visível e incontrolável diante de qualquer coisa de valor — mágico, sentimental ou vivo."
+      }
+    ],
+    "remocao": "requer jejuar completamente, sem exceções, por um número de dias determinado pelo mestre dentro de um local sagrado ligado à moderação, resistindo a visões de tentação cada vez mais pessoais. Falhar o jejum uma vez reinicia a contagem."
+  },
+  "coracao-de-ferro": {
+    "sold": "a capacidade de se apegar emocionalmente a alguém novo.",
+    "passivaNome": "Olho Frio",
+    "passiva": "é imune a leitura de intenção baseada em emoção forte e percebe quando alguém está sendo emocionalmente manipulado diante dele. Ótimo para negociações e proteger aliados de manipulação; não ajuda em combate.",
+    "fardo": "não consegue formar vínculos emocionais novos genuínos (vínculos antigos, de antes da Marca, continuam intactos); NPCs sentem a frieza e reagem com desconfiança ou distância em interações prolongadas.",
+    "habilidadeNome": "Desligar",
+    "habilidade": "suprime completamente qualquer emoção (medo, dor emocional, hesitação) por uma cena, 1x por descanso longo — ao custo de, ao terminar, sentir tudo de volta de uma vez, com uma consequência narrativa real (colapso emocional, decisão impulsiva).",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Percebe que não sentiu nada diante de algo que deveria tê-lo abalado.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca situações emocionalmente intensas só para testar se ainda sente algo.",
+        "mudanca": "Desligar fica disponível; Fardo: o colapso emocional pós-uso começa a se manifestar."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Desligar repetidamente mesmo em situações de baixo risco.",
+        "mudanca": "Desligar dura mais tempo por cena; Fardo: a frieza entre usos se torna perceptível por qualquer um."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de aliados que não sente mais certas coisas, por vergonha ou vantagem.",
+        "mudanca": "Pode estender Desligar a um aliado próximo por consentimento; Fardo: os vínculos antigos começam a se desgastar pela distância constante."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa a frieza para manipular ou ferir alguém emocionalmente vulnerável.",
+        "mudanca": "Desligar passa a suprimir também efeitos mágicos leves de medo/encantamento; Fardo: o colapso pós-uso se torna imprevisível e mais intenso."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um sábio emocional/curandeiro, negando que isso seja uma perda real.",
+        "mudanca": "Pode usar Desligar 1x por descanso curto; Fardo: curandeiros emocionais passam a evitá-lo ou temê-lo."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Machuca deliberadamente alguém que tentava se aproximar dele, só para testar o limite da própria frieza.",
+        "mudanca": "Desligar protege também contra efeitos mágicos de medo/encantamento mais fortes; Fardo: a frieza se torna permanente entre usos, não só temporária."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge sentir algo que não sente para manter uma relação útil.",
+        "mudanca": "Pode escolher parecer emocionalmente presente mesmo com Desligar ativo; Fardo: ele mesmo perde a certeza de quando está fingindo e quando sente de verdade."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Percebe, tarde demais, que perdeu a capacidade de notar quando um vínculo antigo estava se afastando dele de verdade.",
+        "mudanca": "Pode suprimir emoção de um grupo inteiro por uma cena crítica, uma vez por sessão; Fardo final: os vínculos antigos (os únicos que ainda sente) correm risco real de se romperem de forma definitiva."
+      }
+    ],
+    "remocao": "exige reencontrar alguém de um vínculo antigo (anterior à Marca) e, sem usar Desligar ou qualquer suporte mágico, atravessar uma conversa genuinamente vulnerável e difícil com essa pessoa até o fim. Fugir da conversa a qualquer momento invalida a tentativa."
+  },
+  "maos-manchadas": {
+    "sold": "a inocência — a capacidade de não carregar visivelmente o peso do que fez.",
+    "passivaNome": "Olho da Culpa",
+    "passiva": "vê, como uma mancha sutil, o peso de culpa genuína em qualquer pessoa, incluindo NPCs mentindo sobre remorso. Ótimo para investigação moral e julgamento de NPCs; não ajuda em combate.",
+    "fardo": "após qualquer ato de violência significativo, manchas visíveis (sangue que não lava, sombras na pele) aparecem em suas mãos por um tempo — qualquer pessoa pode perceber e julgá-lo por isso, mesmo sem saber detalhes.",
+    "habilidadeNome": "Golpe de Peso",
+    "habilidade": "canaliza o peso acumulado de culpa em um único ataque devastador, 1x por descanso curto — ao custo de tornar as manchas daquele ato permanentes e visíveis para sempre naquela parte do corpo.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Nota, após um combate comum, uma mancha que não devia estar lá.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca situações violentas só para ver até onde a mancha se espalha.",
+        "mudanca": "Golpe de Peso fica disponível; Fardo: as manchas temporárias duram mais tempo."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Golpe de Peso repetidamente mesmo quando não é necessário.",
+        "mudanca": "Golpe de Peso causa mais dano; Fardo: as manchas começam a se espalhar além das mãos."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde as próprias manchas de um aliado que perguntou diretamente sobre elas.",
+        "mudanca": "Pode usar Golpe de Peso 1x por descanso curto adicional; Fardo: esconder as manchas se torna mais difícil — elas aparecem mesmo sob roupas/luvas."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Golpe de Peso motivado puramente por vingança pessoal.",
+        "mudanca": "Golpe de Peso ignora parte da resistência do alvo; Fardo: as manchas permanentes começam a aparecer com mais frequência."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um moralista/sacerdote, negando que a culpa deva pesar sobre ele.",
+        "mudanca": "Pode converter a culpa acumulada em um efeito de curto alcance (sem gastar Golpe de Peso); Fardo: comunidades passam a reconhecê-lo pelo padrão de manchas."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Comete um ato de violência desproporcional só para testar o limite da própria mancha.",
+        "mudanca": "Golpe de Peso pode afetar uma pequena área; Fardo: as manchas permanentes começam a doer fisicamente ao serem tocadas."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Esconde de uma comunidade inteira o que suas mãos realmente fizeram.",
+        "mudanca": "Pode disfarçar temporariamente as próprias manchas de qualquer observador comum; Fardo: quem o conhece bem percebe o disfarce e passa a desconfiar ainda mais."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Mancha, de forma permanente e visível, as mãos ao ferir gravemente alguém que confiava nele.",
+        "mudanca": "Golpe de Peso pode ser usado em área contra múltiplos inimigos, uma vez por sessão; Fardo final: as manchas cobrem partes visíveis o bastante do corpo para que estranhos o reconheçam como perigoso à primeira vista."
+      }
+    ],
+    "remocao": "exige confessar, em voz alta e com detalhes verdadeiros, cada ato que gerou uma mancha permanente, diante de alguém diretamente afetado por pelo menos um desses atos — e aceitar o julgamento dessa pessoa, qualquer que seja, sem tentar influenciá-lo."
+  },
+  "tempo-perdido": {
+    "sold": "a percepção linear e confiável do tempo.",
+    "passivaNome": "Eco Temporal",
+    "passiva": "ao tocar um local com história marcante, sente um lampejo de quando algo importante aconteceu ali (não o quê, só quando). Ótimo para investigação histórica; não ajuda em combate.",
+    "fardo": "sofre \"saltos\" involuntários de percepção — minutos que parecem segundos, ou o oposto — e pode perder a noção de quanto tempo realmente passou em momentos de estresse (o mestre pode legitimamente mentir sobre quanto tempo passou numa cena).",
+    "habilidadeNome": "Segundo Instante",
+    "habilidade": "revive os últimos segundos antes de um erro crítico e tenta de novo (refaz uma rolagem recente), 1x por descanso longo — ao custo de envelhecer visivelmente um pouco a cada uso, de forma permanente.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Percebe, ao comparar com testemunhas, que viveu um momento \"duas vezes\" sem notar.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca situações de risco só para testar o limite do próprio Segundo Instante.",
+        "mudanca": "Segundo Instante fica disponível; Fardo: os saltos de percepção temporal começam a ocorrer fora de momentos de estresse."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Segundo Instante repetidamente na mesma sessão sem necessidade real.",
+        "mudanca": "Pode refazer uma rolagem de outra pessoa, com consentimento; Fardo: o envelhecimento por uso se torna mais perceptível."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de um aliado que poderia ter evitado um erro dele, guardando a vantagem para si.",
+        "mudanca": "Pode usar Segundo Instante 1x por descanso curto; Fardo: os saltos de percepção passam a ocorrer também em combate."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Segundo Instante para desfazer uma consequência de um ato de raiva, sem aprender nada com ela.",
+        "mudanca": "Pode \"ver\" brevemente o resultado de uma ação antes de executá-la; Fardo: o envelhecimento se acelera de forma visível."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um sábio do tempo, negando que alterar o próprio passado recente tenha custo.",
+        "mudanca": "Segundo Instante pode refazer uma rolagem de até 1 minuto atrás, não só a mais recente; Fardo: sábios do tempo passam a vigiá-lo com interesse perigoso."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa Segundo Instante para refazer um golpe fatal, ignorando a primeira morte que causou.",
+        "mudanca": "Pode usar Segundo Instante sem limite de usos por sessão, uma vez por combate; Fardo: começa a perder, de forma real, pedaços de tempo vivido — \"idade perdida\" sem lembrança."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge para o grupo que uma decisão \"deu certo da primeira vez\", escondendo que já havia refeito.",
+        "mudanca": "Pode refazer uma cena inteira, não só uma rolagem, uma vez por descanso longo; Fardo: perde a certeza de quantas vezes já refez a própria vida recente."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Refaz um instante às custas de um aliado perceber, horrorizado, que aquilo já tinha acontecido diferente.",
+        "mudanca": "Pode, uma vez por sessão, \"ver\" brevemente uma versão alternativa de uma decisão antes de tomá-la de verdade; Fardo final: corre o risco real de perder completamente a noção de quanto tempo já viveu, envelhecendo de forma imprevisível e visível."
+      }
+    ],
+    "remocao": "existe um \"Relógio que Não Anda\" em algum ponto de poder temporal errático de Valgreth. O Marcado precisa permanecer parado diante dele por um período real determinado pelo mestre, sem usar Segundo Instante nem qualquer magia, deixando o tempo \"se realinhar\" sem atalhos."
+  },
+  "fera-interior": {
+    "sold": "o controle total sobre os próprios instintos mais básicos.",
+    "passivaNome": "Línguas do Instinto",
+    "passiva": "entende a intenção básica de animais e criaturas instintivas (fome, medo, território — não diálogo completo). Ótimo para rastreamento e diplomacia com bestas; não ajuda em combate direto.",
+    "fardo": "periodicamente (a critério do mestre, em momentos de estresse ou cheiro de sangue) sofre impulsos involuntários — atacar o mais próximo, fugir, devorar algo impróprio — que o jogador deve interpretar, não escolher livremente.",
+    "habilidadeNome": "Fúria da Fera",
+    "habilidade": "libera o instinto completamente por uma cena, ganhando força e velocidade bestiais, 1x por descanso longo — ao custo de perder o controle narrativo do personagem para o mestre durante parte do efeito.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Percebe, ao se olhar no espelho após um momento de estresse, um olhar que não reconhece como seu.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca situações de perigo só para sentir o instinto acordar.",
+        "mudanca": "Fúria da Fera fica disponível; Fardo: os impulsos involuntários começam a surgir."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Fúria da Fera repetidamente mesmo sem necessidade de combate.",
+        "mudanca": "Fúria da Fera dura mais tempo; Fardo: os impulsos passam a ocorrer com mais frequência."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de aliados que teve um impulso violento contra eles, por vergonha.",
+        "mudanca": "Fúria da Fera concede resistência a dano físico; Fardo: os impulsos ficam mais difíceis de esconder dos outros."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Ataca alguém durante um impulso involuntário, causando dano real a um aliado.",
+        "mudanca": "Pode manter mais controle narrativo durante a Fúria; Fardo: os impulsos passam a poder ocorrer mesmo fora de momentos de estresse óbvio."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um guardião da natureza, negando que perder o controle instintivo seja perigoso.",
+        "mudanca": "Fúria da Fera pode ser usada 1x por descanso curto; Fardo: guardiões da natureza passam a vigiá-lo com desconfiança."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Devora ou mutila algo (inimigo, criatura) de forma desproporcional durante a Fúria.",
+        "mudanca": "Fúria da Fera concede um ataque extra por rodada; Fardo: os impulsos involuntários ficam mais intensos e difíceis de resistir."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge estar em controle total diante do grupo enquanto luta internamente contra o instinto.",
+        "mudanca": "Pode escolher manter aparência \"normal\" durante parte da Fúria; Fardo: aliados próximos percebem a diferença e começam a temer os momentos de estresse dele."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Fere gravemente um aliado durante um impulso involuntário, sem conseguir se conter a tempo.",
+        "mudanca": "Pode, uma vez por sessão, canalizar a Fera como escudo protetor para o grupo, sem perder controle; Fardo final: existe risco real e contínuo de um impulso descontrolado ferir gravemente quem ele ama."
+      }
+    ],
+    "remocao": "exige encontrar e domar — não matar — uma besta específica que incorpora o próprio instinto perdido, uma criatura real no mundo construída como espelho do personagem, sem usar violência no processo, apenas paciência e tempo."
+  },
+  "silencio-divino": {
+    "sold": "a capacidade de ser ouvido por qualquer força divina — não a fé em si, mas o simples fato de poder ser notado por deuses, vivos ou fragmentados.",
+    "passivaNome": "Surdo aos Deuses",
+    "passiva": "sente instantaneamente quando uma magia ou efeito tem origem divina genuína, distinguindo-a de arcana ou natural. Ótimo para identificar ameaças/bênçãos de origem divina; não ajuda em combate.",
+    "fardo": "é invisível a qualquer forma de divinação, bênção ou maldição divina direcionada a ele — isso inclui bênçãos que o ajudariam; magia de cura divina de outra pessoa nele funciona pela metade do valor normal.",
+    "habilidadeNome": "Vácuo Sagrado",
+    "habilidade": "cria uma pequena área onde toda magia divina, de qualquer lado, simplesmente não funciona por 1 rodada, 1x por descanso longo — ao custo de ficar com desvantagem em qualquer teste de resistência mágica durante o efeito.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Percebe, ao visitar um templo, que uma bênção geral simplesmente não o atingiu.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca cerimônias religiosas só para testar o próprio silêncio divino.",
+        "mudanca": "Vácuo Sagrado fica disponível; Fardo: a ineficácia de cura divina nele se torna mais perceptível."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Vácuo Sagrado repetidamente mesmo sem necessidade tática.",
+        "mudanca": "Vácuo Sagrado dura mais rodadas; Fardo: a área de ineficácia divina ao redor dele cresce mesmo sem uso ativo."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de um aliado clérigo que sua cura nele é menos eficaz, por orgulho.",
+        "mudanca": "Pode escolher poupar um alvo específico dentro do Vácuo Sagrado; Fardo: a cura divina recebida se torna ainda mais fraca."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Vácuo Sagrado para sabotar a cura de um aliado durante uma discussão, por raiva.",
+        "mudanca": "Vácuo Sagrado afeta uma área maior; Fardo: passa a ser notado por entidades que também \"não são ouvidas\"."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate publicamente um clérigo, provando com a própria existência que os deuses \"não ouvem todo mundo\".",
+        "mudanca": "Pode usar Vácuo Sagrado 1x por descanso curto; Fardo: comunidades de fé passam a evitá-lo ou temê-lo abertamente."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa Vácuo Sagrado durante um combate para anular uma bênção que salvaria a vida de alguém.",
+        "mudanca": "Vácuo Sagrado passa a anular também efeitos divinos de alto nível; Fardo: a ineficácia divina nele se torna total e permanente."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge receber uma bênção/maldição divina que na verdade não o atingiu, para manipular uma situação.",
+        "mudanca": "Pode criar o Vácuo Sagrado de forma instantânea, como reação; Fardo: entidades que notam seu \"silêncio\" começam a se aproximar dele por interesse."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Cria Vácuo Sagrado no momento exato em que um aliado mais precisava de uma bênção de emergência.",
+        "mudanca": "Vácuo Sagrado pode, uma vez por sessão, anular uma intervenção divina direta de grande escala; Fardo final: torna-se um ponto de interesse perigoso para o que restou da Guerra dos Deuses."
+      }
+    ],
+    "remocao": "requer reconstruir, com as próprias mãos, um pequeno santuário dedicado a um fragmento divino esquecido (não um deus ativo) e realizar ali, sozinho e sem magia de auxílio, uma oferenda genuína de algo que ele valoriza, na esperança de ser finalmente \"ouvido\" uma última vez."
+  },
+  "sombra-viva": {
+    "sold": "o controle total sobre a própria sombra, que ganhou uma vontade parcial e separada.",
+    "passivaNome": "Olhos na Sombra",
+    "passiva": "projeta brevemente a visão através da própria sombra para espiar ao redor de um canto ou obstáculo próximo. Ótimo para reconhecimento; não ajuda em combate direto.",
+    "fardo": "a sombra às vezes se move de forma independente e sutilmente errada (atrasada, na direção errada, maior do que deveria) — qualquer observador atento pode notar algo errado nele, prejudicando testes de furtividade quando alguém está especificamente procurando por anomalias.",
+    "habilidadeNome": "Segundo Passo",
+    "habilidade": "destaca a sombra do próprio corpo para agir como um agente independente por até 1 minuto, 1x por descanso longo — ao custo de ficar sem sombra alguma durante o efeito, visível e vulnerável de um jeito estranho e notável.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Nota que sua sombra se moveu antes dele, por uma fração de segundo.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca escuridão de propósito só para \"conversar\" com a própria sombra.",
+        "mudanca": "Segundo Passo fica disponível; Fardo: a sombra começa a discordar visivelmente de seus movimentos em momentos aleatórios."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Segundo Passo repetidamente na mesma noite sem necessidade.",
+        "mudanca": "Segundo Passo ganha mais alcance de separação do corpo; Fardo: a autonomia da sombra aumenta mesmo fora do uso ativo."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Deixa a sombra agir sozinha para espionar um aliado, por desconfiança pessoal.",
+        "mudanca": "A sombra pode carregar um pequeno objeto durante o Segundo Passo; Fardo: aliados notam a sombra \"errada\" com mais frequência."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa a sombra para assustar ou prejudicar alguém por puro rancor.",
+        "mudanca": "Segundo Passo pode durar mais tempo; Fardo: a sombra passa a agir de forma sutilmente hostil mesmo fora do uso ativo."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um estudioso do oculto, negando que uma sombra separada seja perigosa.",
+        "mudanca": "Pode usar Segundo Passo 1x por descanso curto; Fardo: estudiosos do oculto passam a procurá-lo com interesse perigoso."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa a sombra para sabotar algo de forma irreversível e perigosa durante o Segundo Passo.",
+        "mudanca": "A sombra pode agir por uma cena inteira com certa autonomia útil; Fardo: risco real dela agir contra a vontade dele em um momento crítico."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Usa a sombra para criar um álibi falso, parecendo estar em dois lugares ao mesmo tempo.",
+        "mudanca": "Pode controlar a sombra e o próprio corpo simultaneamente por curtos períodos; Fardo: a sombra começa a \"discordar\" dele em público, de forma visível."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "A sombra age sozinha, sem seu consentimento, contra um aliado próximo.",
+        "mudanca": "Pode, uma vez por sessão, enviar a sombra para agir de forma totalmente independente e útil, mesmo à distância; Fardo final: a sombra se torna, de fato, uma segunda vontade dentro dele, podendo agir contra seus próprios interesses sem aviso."
+      }
+    ],
+    "remocao": "exige enfrentar a própria sombra em um confronto simbólico real — um duelo, um enigma, uma negociação — dentro de um local de escuridão absoluta. Vencer, perder ou empatar têm consequências diferentes, mas a sombra precisa ser genuinamente confrontada, nunca ignorada."
+  },
+  "preco-justo": {
+    "sold": "o senso de \"o suficiente\" — a capacidade de recusar uma barganha vantajosa.",
+    "passivaNome": "Olho do Valor",
+    "passiva": "sabe instantaneamente o valor real (não o preço pedido) de qualquer item, informação ou favor oferecido. Excelente para negociação e evitar fraudes; não ajuda em combate.",
+    "fardo": "não consegue recusar uma barganha genuinamente justa que lhe seja oferecida diretamente — se os termos forem equilibrados (a critério do mestre), ele é compelido a aceitar, mesmo quando isso é estrategicamente ruim.",
+    "habilidadeNome": "Contrato Vinculante",
+    "habilidade": "força um acordo verbal com alguém a se tornar magicamente vinculante por uma cena, com consequência real para quem o quebrar, 1x por descanso longo — ao custo de ficar igualmente vinculado aos próprios termos, sem exceção.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Percebe que aceitou um acordo ruim sem conseguir entender por que não resistiu.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca negociações só para testar o limite da própria compulsão.",
+        "mudanca": "Contrato Vinculante fica disponível; Fardo: a compulsão de aceitar acordos justos se torna mais perceptível para quem o conhece."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Fecha acordos desnecessários repetidamente, só pela sensação de \"trocar\".",
+        "mudanca": "Contrato Vinculante ganha consequências mais severas para quem o quebra; Fardo: a compulsão passa a afetar também acordos pequenos e triviais."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Usa Contrato Vinculante para garantir vantagem pessoal em um acordo com um aliado.",
+        "mudanca": "Pode vincular mais de duas partes ao mesmo tempo; Fardo: aliados próximos começam a desconfiar de qualquer \"acordo\" que ele proponha."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Força um Contrato Vinculante contra alguém por puro rancor, não necessidade.",
+        "mudanca": "Contrato Vinculante pode incluir consequências físicas reais, não só mágicas; Fardo: a compulsão de aceitar acordos justos passa a valer mesmo contra inimigos declarados."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um mercador/sábio da barganha, negando que isso seja uma maldição.",
+        "mudanca": "Pode usar Contrato Vinculante 1x por descanso curto; Fardo: mercadores e negociadores experientes passam a estruturar propostas especificamente para prendê-lo."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa os termos de um contrato para justificar um ato violento que de outra forma recusaria.",
+        "mudanca": "Contrato Vinculante pode forçar uma consequência imediata, não só ao quebrar o acordo depois; Fardo: a compulsão se torna pública e amplamente conhecida como vulnerabilidade."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Estrutura um acordo tecnicamente \"justo\" que na prática engana a outra parte.",
+        "mudanca": "Pode disfarçar os termos reais de um Contrato Vinculante sem tecnicamente mentir; Fardo: sua própria capacidade de perceber manipulação em acordos complexos diminui."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "É forçado a aceitar um acordo genuinamente justo oferecido por um inimigo, contra os interesses do próprio grupo.",
+        "mudanca": "Pode, uma vez por sessão, forçar um Contrato Vinculante em larga escala (afetando um grupo ou facção inteira); Fardo final: adversários inteligentes passam a usar propostas \"justas\" como arma principal contra ele e seu grupo."
+      }
+    ],
+    "remocao": "exige localizar quem ofereceu o primeiro \"acordo justo\" que a Marca não deixou recusar e negociar — sem usar Contrato Vinculante — um acordo final genuinamente desvantajoso para o Marcado, aceito por livre e consciente escolha, não por compulsão."
+  },
+  "pele-de-vidro": {
+    "sold": "a confiabilidade da própria resistência física — ele sabe exatamente onde as coisas (e ele mesmo) vão quebrar, ao custo de às vezes quebrar também.",
+    "passivaNome": "Ponto de Ruptura",
+    "passiva": "ao examinar qualquer estrutura, objeto ou criatura, identifica instantaneamente seu ponto mais fraco. Ótimo para investigação de armadilhas, arquitetura e fraquezas de criaturas; não garante acerto ou dano em combate.",
+    "fardo": "periodicamente (critério do mestre, após dano significativo) sofre uma rachadura real e temporária em sua própria resistência — uma janela em que fica anormalmente vulnerável a um tipo específico de dano, sem saber exatamente quando vai acontecer.",
+    "habilidadeNome": "Golpe de Ruptura",
+    "habilidade": "concentra o conhecimento do ponto de ruptura em um único golpe devastador contra uma estrutura, objeto ou criatura, 1x por descanso curto — ao custo de arriscar quebrar a si mesmo da mesma forma (sofre o mesmo tipo de dano causado, em menor escala).",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Percebe, após um golpe simples, que algo rachou nele que não devia.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca golpear estruturas/objetos frágeis só para sentir a ruptura.",
+        "mudanca": "Golpe de Ruptura fica disponível; Fardo: as janelas de vulnerabilidade começam a surgir com mais frequência."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Golpe de Ruptura repetidamente sem necessidade tática real.",
+        "mudanca": "Golpe de Ruptura causa mais dano; Fardo: as rachaduras passam a deixar marcas visíveis temporárias na pele."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de um aliado que está mais vulnerável do que parece, por orgulho.",
+        "mudanca": "Golpe de Ruptura ignora parte da resistência do alvo; Fardo: as janelas de vulnerabilidade se tornam mais previsíveis para observadores atentos."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Golpe de Ruptura contra algo de valor sentimental de outra pessoa, por rancor.",
+        "mudanca": "Pode usar Golpe de Ruptura 1x por descanso curto adicional; Fardo: o dano de retorno sofrido ao usá-lo aumenta."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um ferreiro/sábio da matéria, negando que sua própria fragilidade seja um risco real.",
+        "mudanca": "Golpe de Ruptura pode afetar uma pequena área; Fardo: ferreiros e artesãos passam a reconhecer e temer o padrão de rachaduras."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa Golpe de Ruptura de forma desproporcional contra um inimigo já neutralizado.",
+        "mudanca": "Pode usar Golpe de Ruptura sem sofrer o próprio dano de retorno uma vez por descanso longo; Fardo: as rachaduras visíveis se tornam permanentes em partes do corpo."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge estar ileso enquanto esconde uma rachadura ativa e perigosa.",
+        "mudanca": "Golpe de Ruptura pode ser desencadeado como reação a um ataque; Fardo: inimigos recorrentes começam a explorar deliberadamente suas janelas de vulnerabilidade."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Sofre uma rachadura crítica no momento exato em que protegia um aliado, falhando em protegê-lo.",
+        "mudanca": "Pode, uma vez por sessão, usar Golpe de Ruptura para destruir algo de importância estratégica massiva (uma estrutura, uma barreira) sem risco de retorno; Fardo final: seu próprio corpo se torna visivelmente rachado e frágil, um alvo óbvio para qualquer inimigo que preste atenção."
+      }
+    ],
+    "remocao": "exige encontrar um \"Forjador de Primeira Pedra\" — um artesão ou espírito capaz de reparar o que é conceitualmente quebrado — e participar pessoalmente do próprio \"reparo\": um processo doloroso e literal sobre o próprio corpo, exigindo que o Marcado permaneça consciente e quieto durante todo o ritual."
+  },
+  "ultimo-suspiro": {
+    "sold": "a certeza de uma morte natural — ele está, de alguma forma, em dívida com a própria morte, e isso o liga ao que já morreu.",
+    "passivaNome": "Sussurro dos Mortos",
+    "passiva": "sente a presença de mortos recentes (poucos dias) em um raio curto, e capta uma impressão vaga da causa da morte. Ótimo para investigação de crimes e tragédias; não ajuda em combate.",
+    "fardo": "mortos-vivos e espíritos percebem nele algo familiar e são anormalmente atraídos ou agressivos em sua direção; ele também é mais difícil de estabilizar quando caído (testes para estabilizá-lo têm desvantagem).",
+    "habilidadeNome": "Empréstimo dos Mortos",
+    "habilidade": "canaliza brevemente a força de um morto próximo e recente para um surto de poder físico ou mágico, 1x por descanso longo — ao custo de ficar marcado como \"em dívida\" com a morte por um tempo, tornando-se temporariamente mais vulnerável a efeitos de necromancia e mortos-vivos.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Sente, por acaso, a presença de um morto recente antes de qualquer pista física confirmar.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca locais de morte recente só para sentir a presença novamente.",
+        "mudanca": "Empréstimo dos Mortos fica disponível; Fardo: mortos-vivos comuns começam a notá-lo em distâncias maiores."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Empréstimo dos Mortos repetidamente mesmo sem necessidade tática.",
+        "mudanca": "Empréstimo dos Mortos ganha mais alcance; Fardo: a vulnerabilidade pós-uso a necromancia dura mais tempo."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de um aliado que sente a morte dele se aproximando, por medo ou vantagem.",
+        "mudanca": "Pode canalizar mortos mais antigos, não só recentes; Fardo: a dificuldade de ser estabilizado quando caído aumenta."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Empréstimo dos Mortos de um morto que o próprio Marcado ajudou a matar, por vingança.",
+        "mudanca": "O surto de poder concede um efeito extra baseado em como o morto morreu; Fardo: espíritos hostis passam a procurá-lo ativamente."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um sacerdote da vida, negando que sua ligação com a morte seja perigosa.",
+        "mudanca": "Pode usar Empréstimo dos Mortos 1x por descanso curto; Fardo: sacerdotes da vida passam a evitá-lo ou tentar exorcizá-lo."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa Empréstimo dos Mortos de forma agressiva contra um moribundo ainda vivo, acelerando sua morte.",
+        "mudanca": "Pode canalizar brevemente uma habilidade específica que o morto tinha em vida; Fardo: mortos-vivos passam a tratá-lo como um dos seus em certas circunstâncias."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge para um enlutado que pode \"falar\" com seu morto, quando na verdade só sente uma presença vaga.",
+        "mudanca": "Pode manter o Empréstimo ativo por uma cena inteira; Fardo: a linha entre ele e os mortos que canaliza começa a se borrar perceptivelmente."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Sente a morte se aproximando de um aliado e não avisa a tempo, por medo de parecer amaldiçoado.",
+        "mudanca": "Pode, uma vez por sessão, canalizar múltiplos mortos recentes ao mesmo tempo para um efeito massivo; Fardo final: sua própria vulnerabilidade a ser \"levado\" por morte súbita ou necromancia se torna permanente e severa."
+      }
+    ],
+    "remocao": "exige encontrar e dar descanso adequado — um enterro, um ritual, uma verdade revelada — a um morto específico cuja presença ainda o persegue, o primeiro morto que sentiu, sem usar Empréstimo dos Mortos nesse morto em particular."
+  },
+  "coro-silencioso": {
+    "sold": "a solidão da própria alma — ele vendeu a certeza de que sua dor é só sua, e agora carrega ecos fracos do fardo de outros Marcados.",
+    "passivaNome": "Eco Compartilhado",
+    "passiva": "sente, vagamente, quando outro Marcado próximo está perto de um grande avanço ou colapso de sua própria Marca, sem saber detalhes. Ótimo para dar ganchos de interpretação ao grupo; não ajuda em combate.",
+    "fardo": "ocasionalmente sente, por empréstimo involuntário, fragmentos do Fardo de outro Marcado próximo (a dor de outro, o medo de outro, a culpa de outro) — o mestre pode impor temporariamente uma versão leve do Fardo de um colega nele, sem aviso.",
+    "habilidadeNome": "Peso Compartilhado",
+    "habilidade": "absorve voluntariamente, por uma cena, parte do Fardo ativo de outro Marcado, aliviando-o, 1x por descanso longo — ao custo de sofrer esse Fardo emprestado em dobro durante o efeito.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Sente, por acidente, um fragmento da dor/medo de um aliado Marcado sem motivo aparente.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca deliberadamente se aproximar de outros Marcados só para sentir os ecos deles.",
+        "mudanca": "Peso Compartilhado fica disponível; Fardo: os ecos involuntários passam a ocorrer com mais frequência."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Peso Compartilhado repetidamente, mesmo quando o aliado não pediu ajuda.",
+        "mudanca": "Pode usar Peso Compartilhado em mais de um aliado por cena; Fardo: a dificuldade de distinguir sentimentos próprios dos emprestados aumenta."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de um aliado que sentiu o fardo dele, por não saber como lidar com isso.",
+        "mudanca": "Peso Compartilhado alivia uma porção maior do fardo emprestado; Fardo: os ecos involuntários passam a incluir fragmentos de Fardos mais graves."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa o conhecimento de um fardo alheio para manipular ou pressionar esse aliado.",
+        "mudanca": "Pode usar Peso Compartilhado 1x por descanso curto; Fardo: o fardo emprestado em dobro passa a durar além da cena em que foi usado."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate o próprio conceito de Marcas conectadas diante de um estudioso, negando que isso seja perigoso.",
+        "mudanca": "Pode absorver fardo de um Marcado mesmo à distância moderada; Fardo: estudiosos de pactos passam a se interessar perigosamente por ele."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Absorve o fardo de um aliado no meio de um combate, prejudicando sua própria performance de forma grave.",
+        "mudanca": "Pode escolher absorver apenas parte específica de um fardo (mais controle sobre o efeito); Fardo: risco real de reter permanentemente um fragmento pequeno de um fardo alheio."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge não sentir nada do fardo de um aliado para evitar se envolver.",
+        "mudanca": "Pode usar Peso Compartilhado sem que o aliado perceba, se preferir; Fardo: a confusão entre fardos próprios e emprestados se torna visível para quem o observa de perto."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Absorve, no pior momento possível, um fardo tão grande de outro Marcado que falha em proteger a si mesmo ou ao grupo.",
+        "mudanca": "Pode, uma vez por sessão, absorver temporariamente parte do Fardo de TODOS os Marcados próximos ao mesmo tempo, aliviando o grupo inteiro numa cena crítica; Fardo final: corre o risco real de herdar permanentemente um fragmento pequeno do Fardo de outro Marcado, mesmo que esse outro remova sua própria Marca depois."
+      }
+    ],
+    "remocao": "exige reunir, ao mesmo tempo e no mesmo lugar, todos os outros Marcados cujos ecos ele já carregou, e passar por um ritual coletivo de \"separação\" em que cada um devolve conscientemente, em voz alta, o fragmento que pertence ao outro. A remoção falha se qualquer um dos Marcados envolvidos não estiver genuinamente dispondo a participar."
+  },
+  "fio-partido": {
+    "sold": "a fronteira entre o próprio corpo e a própria magia. Ele vendeu a separação — agora pode fundir lâmina e feitiço num único golpe, mas às vezes um dos dois \"trava\" e simplesmente desaparece de seu alcance por um tempo.",
+    "passivaNome": "Faro do Encantamento",
+    "passiva": "ao examinar uma arma, item ou criatura, sabe instintivamente se o encantamento nela é genuíno, falso ou instável. Ótimo para identificar itens mágicos fraudados, armadilhas arcanas e impostores; não ajuda a acertar golpes.",
+    "fardo": "depois de usar a Habilidade abaixo, um dos dois lados dele — a lâmina ou a magia — \"trava\" até o próximo descanso (sorteie ou deixe o mestre decidir): ou ele perde o acesso a toda conjuração, ou suas mãos simplesmente não conseguem empunhar uma arma com firmeza o bastante para lutar. Ele nunca sabe de antemão qual metade vai faltar na próxima cena.",
+    "habilidadeNome": "Investida Arcana",
+    "habilidade": "funde um ataque corpo a corpo com uma magia (truque ou de 1º círculo) na mesma ação, somando o dano da magia ao da arma num único golpe devastador, 1x por descanso curto — ao custo de um \"retorno arcano\" real (dano a si mesmo que ignora resistências) e do Fardo acima: metade do seu kit fica bloqueada até descansar.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Descobre, ao comparar ferimentos com um aliado, que um de seus golpes recentes carregava frio ou fogo que ele não lançou conscientemente.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca combates desnecessários só para sentir a fusão entre lâmina e feitiço de novo.",
+        "mudanca": "Investida Arcana fica disponível; Fardo: o \"travamento\" pós-uso começa a ocorrer."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Investida Arcana repetidamente na mesma sessão sem necessidade tática real.",
+        "mudanca": "O dano da magia fundida aumenta; Fardo: o retorno arcano causa mais dano a si mesmo."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de um aliado que está com a magia ou a lâmina travada, por orgulho, e luta em desvantagem escondida.",
+        "mudanca": "Pode escolher qual metade (lâmina ou magia) trava, em vez de sortear; Fardo: o travamento passa a durar até o fim do dia, não só até o próximo descanso curto."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Investida Arcana motivado por vingança pessoal, não necessidade.",
+        "mudanca": "Investida Arcana pode fundir também um truque de dano em área; Fardo: o retorno arcano passa a deixar uma marca física visível (queimadura, cicatriz de gelo) a cada uso."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um arcanista/ferreiro mágico, negando que fundir corpo e magia tenha qualquer custo real.",
+        "mudanca": "Pode usar Investida Arcana 1x por descanso curto adicional; Fardo: arcanistas experientes passam a reconhecer e temer o padrão de \"fio partido\" nele."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa Investida Arcana contra um inimigo já neutralizado só para testar o limite do próprio poder.",
+        "mudanca": "Investida Arcana pode fundir uma magia de 2º círculo, não só truques e 1º círculo; Fardo: o travamento passa a afetar também uma perícia-chave associada ao lado bloqueado."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge para o grupo que está em plena forma enquanto esconde que metade do próprio kit está bloqueada.",
+        "mudanca": "Pode usar Investida Arcana sem sofrer o retorno arcano uma vez por descanso longo; Fardo: a mentira sobre seu próprio estado começa a custar a confiança de aliados quando descoberta."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Usa Investida Arcana no momento exato em que o grupo mais precisava dele inteiro, e o travamento subsequente o deixa incapaz de ajudar na cena seguinte, decisiva.",
+        "mudanca": "Pode, uma vez por sessão, fundir lâmina e magia num golpe que ignora o Fardo por completo; Fardo final: existe o risco real e crescente de que, um dia, as duas metades travem ao mesmo tempo — deixando-o, por uma cena inteira, sem lâmina e sem magia."
+      }
+    ],
+    "remocao": "exige um duelo ritual num \"Forjador de Dois Fios\" — um local ou entidade que testa exatamente a separação perdida. O Marcado precisa, na mesma provação, acertar um golpe de arma perfeito sem nenhuma magia envolvida E lançar uma magia completa sem tocar em nenhuma arma, cada um em sua própria tentativa isolada — provando que ainda consegue ser só espada ou só feitiço, um de cada vez, antes que a fusão se torne permanente e irreversível."
+  },
+  "dado-virado": {
+    "sold": "a previsibilidade do próprio destino. Ele vendeu a certeza de que o mesmo esforço gera o mesmo resultado — agora a sorte decide, de forma amplificada, a favor ou contra ele, sem que ele controle qual.",
+    "passivaNome": "Sopro da Sorte",
+    "passiva": "sente instintivamente quando um evento próximo (um jogo, uma decisão, um resultado) foi determinado por pura sorte em vez de mérito — identifica dados viciados, jogos trapaceados e resultados \"forçados demais para serem naturais\". Ótimo para apostas, negociação e investigação; não ajuda a acertar golpes.",
+    "fardo": "sempre que rola um 1 natural em qualquer teste, ataque ou salvaguarda, algo pequeno e imprevisível vira contra ele (uma \"reviravolta\" determinada pelo mestre) — nunca sabe de antemão o quê, só que vai doer de algum jeito, mecânico ou narrativo.",
+    "habilidadeNome": "Virar o Dado",
+    "habilidade": "força a repetição de qualquer rolagem de d20 (própria ou de outra pessoa) a até curta distância, 1x por descanso curto — ao custo de uma reviravolta de destino garantida e imediata (não precisa de 1 natural), cujo efeito o jogador não escolhe nem conhece até acontecer.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Percebe, ao perder algo importante num jogo de azar, que o dado \"deveria\" ter caído diferente.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca jogos de azar e apostas de propósito só para testar o próprio poder sobre a sorte.",
+        "mudanca": "Virar o Dado fica disponível; Fardo: a reviravolta de destino em 1 natural começa a ocorrer."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Virar o Dado repetidamente na mesma sessão sem necessidade real.",
+        "mudanca": "Pode também virar um dado de dano, não só de teste; Fardo: a reviravolta em 1 natural passa a poder afetar também aliados próximos, não só ele."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de um aliado que poderia ter ajudado usando Virar o Dado, guardando a vantagem só para si.",
+        "mudanca": "Pode usar Virar o Dado 1x por descanso curto adicional; Fardo: a reviravolta de destino em 1 natural se torna mais severa e duradoura."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Virar o Dado para azarar um inimigo por puro rancor, não necessidade tática.",
+        "mudanca": "Virar o Dado pode ser usado como reação, revertendo um dado já rolado; Fardo: cada uso aumenta a chance de uma reviravolta ocorrer logo depois, mesmo sem rolar 1."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate um oráculo/sábio do destino, negando que manipular a sorte tenha qualquer preço real.",
+        "mudanca": "Virar o Dado pode afetar dois dados na mesma rolagem; Fardo: oráculos e adivinhos passam a notá-lo como uma anomalia perigosa no tecido do destino."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa Virar o Dado para transformar um golpe fraco em fatal contra um inimigo já praticamente derrotado.",
+        "mudanca": "Virar o Dado pode garantir um resultado máximo, não só rerolar, 1x por descanso longo; Fardo: a reviravolta de destino em 1 natural passa a poder afetar todos presentes na cena."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Usa a Marca de forma dissimulada para fazer sua sorte parecer \"normal\", enganando quem joga contra ele.",
+        "mudanca": "Pode usar Virar o Dado sem que ninguém perceba a intervenção; Fardo: o destino começa a \"cobrar\" dele em momentos que ele não escolhe, fora de combate."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Usa Virar o Dado no momento decisivo e a reviravolta subsequente atinge, catastroficamente, um aliado em vez dele.",
+        "mudanca": "Pode, uma vez por sessão, virar o destino de uma cena inteira a seu favor (todos os dados relevantes); Fardo final: todo 1 natural rolado por ele ou por qualquer aliado próximo passa a arriscar uma reviravolta grave — a sorte dele se tornou instável para todo o grupo, não só para ele."
+      }
+    ],
+    "remocao": "existe uma \"Mesa do Árbitro Imparcial\", guardada por uma entidade ou relíquia que encarna o acaso puro e sem favoritismo. O Marcado precisa jogar contra ela um jogo de pura sorte, sem usar magia nem a própria Marca, aceitando o resultado — vitória ou derrota — exatamente como ele vier, sem tentar influenciá-lo de forma alguma."
+  },
+  "rosto-roubado": {
+    "sold": "o rosto que era inquestionavelmente seu — a certeza de que, por baixo de qualquer disfarce, existe um \"ele mesmo\" real e fixo. O que comprou essa Marca não quis sua alma de uma vez só; quis o direito de nunca ter certeza de qual rosto é o original.",
+    "passivaNome": "Olho da Máscara",
+    "passiva": "percebe instantaneamente quando a identidade que alguém apresenta — nome, cargo, reputação, até um disfarce mágico — é falsa, roubada ou incompleta. Ótimo para desmascarar impostores, falsificadores e intrigas de corte; não ajuda a acertar golpes.",
+    "fardo": "quando está sendo genuinamente ele mesmo — sem disfarce, sem alias, sem máscara nenhuma — soa menos convincente do que quando finge ser qualquer outra pessoa. Testes sociais em que precisa ser levado a sério *como si mesmo* (não como alguém que finge ser) sofrem desvantagem. Cada vez mais, ele mesmo não tem certeza de quais hábitos, gostos e tiques são genuinamente seus ou só sobras de rostos que já usou.",
+    "habilidadeNome": "Pele Alheia",
+    "habilidade": "por uma cena, assume não só a aparência mas a identidade social completa de uma pessoa real que já estudou, tocou ou imitou de perto — fala com a autoridade dela, e NPCs o aceitam como ela mesmo sob escrutínio moderado (mais robusto que um simples disfarce, que cai diante de quem conhece a pessoa bem ou de magia de detecção simples). 1x por descanso longo — ao custo de uma consequência real e deixada para trás: quando o efeito termina, algo do que ele fez ou disse sob aquele rosto recai sobre a pessoa verdadeira, prejudicando a reputação ou a vida dela por algo que ela nunca fez.",
+    "circles": [
+      {
+        "circulo": "I — Limbo",
+        "gatilho": "Percebe, ao se apresentar com o próprio nome verdadeiro a um estranho, que a própria voz soou menos convincente do que quando finge ser outra pessoa.",
+        "mudanca": "A Marca desperta; ganha a Passiva."
+      },
+      {
+        "circulo": "II — Luxúria",
+        "gatilho": "Busca assumir identidades emprestadas só pelo prazer de ser outra pessoa, mesmo sem necessidade real.",
+        "mudanca": "Pele Alheia fica disponível; Fardo: o desconforto de ser \"só ele mesmo\" começa a ser perceptível por quem o conhece bem."
+      },
+      {
+        "circulo": "III — Gula",
+        "gatilho": "Usa Pele Alheia repetidamente na mesma semana de jogo, por puro vício na sensação de ser outra pessoa.",
+        "mudanca": "Pele Alheia passa a durar uma cena inteira, não só um encontro; Fardo: a consequência deixada sobre a pessoa real se torna mais severa."
+      },
+      {
+        "circulo": "IV — Avareza",
+        "gatilho": "Esconde de um aliado que uma identidade roubada causou um problema real para a pessoa verdadeira.",
+        "mudanca": "Pode usar Pele Alheia 1x por descanso curto adicional; Fardo: começa a esquecer pequenos detalhes genuinamente seus — um gosto, um hábito — substituídos por tiques de rostos emprestados."
+      },
+      {
+        "circulo": "V — Ira",
+        "gatilho": "Usa Pele Alheia para se vingar de alguém escondido atrás do rosto de outra pessoa, sem que ela jamais saiba.",
+        "mudanca": "Pele Alheia passa a enganar também magias simples de detecção; Fardo: a consequência deixada na pessoa copiada passa a ser física ou social grave, não só reputacional."
+      },
+      {
+        "circulo": "VI — Heresia",
+        "gatilho": "Debate abertamente um estudioso de identidade/alma, negando que usar o rosto alheio tenha qualquer preço real.",
+        "mudanca": "Pode manter duas identidades emprestadas \"guardadas\", prontas para uso imediato; Fardo: estudiosos de identidade e alma passam a notá-lo como uma anomalia perigosa."
+      },
+      {
+        "circulo": "VII — Violência",
+        "gatilho": "Usa Pele Alheia para cometer um ato irreversível e violento sob o rosto de outra pessoa, deixando-a culpada no lugar dele.",
+        "mudanca": "Pele Alheia engana até quem conhece intimamente a pessoa copiada; Fardo: começa a genuinamente esquecer, por períodos crescentes, qual rosto é o seu original."
+      },
+      {
+        "circulo": "VIII — Fraude",
+        "gatilho": "Finge para o próprio grupo ser ele mesmo quando na verdade ainda está sob o efeito de Pele Alheia.",
+        "mudanca": "Pode usar Pele Alheia sem deixar a consequência de costume na pessoa copiada, uma vez por descanso longo; Fardo: a linha entre suas identidades emprestadas e seu \"eu\" original começa a desaparecer até para ele mesmo."
+      },
+      {
+        "circulo": "IX — Traição",
+        "gatilho": "Usa Pele Alheia para trair um aliado próximo, que só percebe a traição tarde demais, ao reconhecer o rosto verdadeiro por trás da máscara.",
+        "mudanca": "Pode, uma vez por sessão, assumir a identidade de alguém que nunca conheceu pessoalmente — só ouviu descrever; Fardo final: corre o risco real e crescente de, um dia, não conseguir mais voltar a ser \"ele mesmo\" — de ficar permanentemente preso dentro de um rosto que não é o seu."
+      }
+    ],
+    "remocao": "existe, nos becos de algum entreposto de Valgreth, um \"Mercado das Máscaras\" — onde identidades roubadas são negociadas como mercadoria. O Marcado precisa voltar lá e comprar de volta, a um preço real e pessoal (nunca ouro), a própria primeira identidade que a Marca o fez roubar — e conduzir toda a negociação com o próprio rosto verdadeiro exposto, sem usar Pele Alheia ou qualquer disfarce em nenhum momento, provando que ainda consegue ser só ele mesmo quando mais importa."
+  }
+}

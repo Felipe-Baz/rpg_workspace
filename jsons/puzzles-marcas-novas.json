@@ -1,0 +1,202 @@
+{
+  "dado-virado": {
+    "titulo": "O Árbitro Imparcial",
+    "etapas": [
+      {
+        "titulo": "Sorte demais para ser sorte",
+        "texto": "Você ganhou três rodadas seguidas e, na quarta, perdeu tudo — e ninguém no salão se espantou. Uma apostadora velha murmura: \"Dado que cai demais pra um lado já foi virado por alguém.\"",
+        "pergunta": "O que você vendeu?",
+        "resposta": "A previsibilidade do próprio destino.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "AJSIN F UWJANXNGNQNIFIJ IT RJZ IJXYNST. T VZJ T RJXRT JXKTWHT OF SFT LFWFSYJ RFNX?",
+          "deslocamento": 5,
+          "solucao": "previsibilidade|a previsibilidade",
+          "dica": "Uma palavra longa: a garantia de que o mesmo esforço dá o mesmo resultado."
+        },
+        "revelacao": "A previsibilidade. Agora a sorte decide por você, para o bem ou para o mal."
+      },
+      {
+        "titulo": "Onde o acaso não tem lado",
+        "texto": "\"Existe uma mesa onde ninguém trapaceia\", diz a apostadora. \"Nem o dono. Nem o diabo.\"",
+        "pergunta": "Que lugar é esse?",
+        "resposta": "A Mesa do Árbitro Imparcial.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "fumaça",
+              "x": 14,
+              "y": 20
+            },
+            {
+              "t": "MESA",
+              "x": 22,
+              "y": 42
+            },
+            {
+              "t": "ficha",
+              "x": 70,
+              "y": 16
+            },
+            {
+              "t": "DO",
+              "x": 52,
+              "y": 60
+            },
+            {
+              "t": "dados",
+              "x": 80,
+              "y": 46
+            },
+            {
+              "t": "ARBITRO",
+              "x": 50,
+              "y": 82
+            },
+            {
+              "t": "sal",
+              "x": 12,
+              "y": 78
+            }
+          ],
+          "solucao": "mesa do arbitro|mesa do arbitro imparcial|arbitro",
+          "dica": "As palavras maiores e mais claras formam o nome do lugar."
+        },
+        "revelacao": "A Mesa do Árbitro Imparcial."
+      },
+      {
+        "titulo": "Aceitar o resultado",
+        "texto": "\"Jogue. Sem magia, sem a Marca. E aceite o que vier — vitória ou derrota — sem tentar mexer em nada.\"",
+        "pergunta": "Como se passa pela prova?",
+        "resposta": "Jogar contra o Árbitro um jogo de pura sorte, sem magia nem a Marca, aceitando o resultado como vier.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "O dado vai rolar. A Marca coça para virá-lo.",
+              "opcoes": [
+                "Virar o dado só um pouquinho",
+                "Deixar o dado cair sozinho",
+                "Pedir a um aliado que observe de perto"
+              ]
+            },
+            {
+              "fala": "Deu azar. O Árbitro espera sua reação.",
+              "opcoes": [
+                "Exigir uma nova rodada",
+                "Aceitar a derrota",
+                "Culpar a Marca"
+              ]
+            }
+          ],
+          "solucao": "1,1",
+          "dica": "Nenhuma interferência — nem na vitória, nem na derrota."
+        },
+        "revelacao": "Pura sorte, aceita como veio."
+      }
+    ],
+    "ambiente": "dado-virado"
+  },
+  "rosto-roubado": {
+    "titulo": "O Mercado das Máscaras",
+    "etapas": [
+      {
+        "titulo": "Mais convincente como outro",
+        "texto": "Diante de um estranho, você disse seu próprio nome — e ele hesitou. Com o nome de outro, acreditaram em você de primeira. Um falsificador sorri: \"Rosto que vive emprestado esquece qual era o seu.\"",
+        "pergunta": "O que você vendeu?",
+        "resposta": "O rosto que era inquestionavelmente seu.",
+        "mecanica": {
+          "tipo": "cifra",
+          "modo": "cesar",
+          "cifrado": "YHQGL R PHX URVWR. TXDO GHOHV DLQGD H R RULJLQDO?",
+          "deslocamento": 3,
+          "solucao": "rosto|o rosto|meu rosto",
+          "dica": "Uma palavra de seis letras: a primeira coisa que alguém vê."
+        },
+        "revelacao": "O rosto. E a certeza de qual deles é o original."
+      },
+      {
+        "titulo": "Onde identidades se compram",
+        "texto": "Nos becos de Valgreth, diz o falsificador, \"nomes e rostos são vendidos como pão — e o preço nunca é ouro\".",
+        "pergunta": "Que lugar é esse?",
+        "resposta": "O Mercado das Máscaras.",
+        "mecanica": {
+          "tipo": "lanterna",
+          "palavras": [
+            {
+              "t": "beco",
+              "x": 12,
+              "y": 22
+            },
+            {
+              "t": "MERCADO",
+              "x": 18,
+              "y": 44
+            },
+            {
+              "t": "véu",
+              "x": 68,
+              "y": 16
+            },
+            {
+              "t": "DAS",
+              "x": 52,
+              "y": 60
+            },
+            {
+              "t": "cera",
+              "x": 82,
+              "y": 44
+            },
+            {
+              "t": "MASCARAS",
+              "x": 50,
+              "y": 82
+            },
+            {
+              "t": "fio",
+              "x": 12,
+              "y": 78
+            }
+          ],
+          "solucao": "mercado das mascaras|mercado",
+          "dica": "As palavras maiores e mais claras formam o nome do lugar."
+        },
+        "revelacao": "O Mercado das Máscaras."
+      },
+      {
+        "titulo": "Comprar o primeiro rosto",
+        "texto": "\"Volte lá. Compre de volta a primeira identidade que roubou — com algo seu, nunca ouro — e negocie de cara limpa.\"",
+        "pergunta": "Como se passa pela prova?",
+        "resposta": "Comprar de volta, a um preço pessoal, a primeira identidade roubada, negociando com o próprio rosto exposto, sem Pele Alheia nem disfarce.",
+        "mecanica": {
+          "tipo": "escolha",
+          "rodadas": [
+            {
+              "fala": "O mascareiro pede o preço da primeira máscara. Como você se apresenta?",
+              "opcoes": [
+                "Sob o rosto de um nobre",
+                "Com o próprio rosto, sem disfarce",
+                "Com uma máscara de cera comum"
+              ]
+            },
+            {
+              "fala": "Ele não aceita ouro. O que você oferece?",
+              "opcoes": [
+                "Uma bolsa cheia de moedas",
+                "Algo pessoal, que lhe faria falta",
+                "Uma ameaça velada"
+              ]
+            }
+          ],
+          "solucao": "1,1",
+          "dica": "A prova é ser só você mesmo, e pagar com algo seu."
+        },
+        "revelacao": "O próprio rosto, e um preço de verdade."
+      }
+    ],
+    "ambiente": "rosto-roubado"
+  }
+}

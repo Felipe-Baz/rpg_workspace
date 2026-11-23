@@ -42,6 +42,9 @@ export default function Dashboard() {
           >
             + Nova mesa
           </button>
+          <Link href="/configuracoes/ia" className="px-2 py-2 text-sm text-muted hover:underline">
+            IA
+          </Link>
           <button onClick={sair} className="px-2 py-2 text-sm text-muted hover:underline">
             Sair
           </button>

@@ -1,0 +1,34 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function logado() { return request.auth != null; }
+    function mesa(mesaId) {
+      return firestore.get(/databases/(default)/documents/mesas/$(mesaId)).data;
+    }
+    function membro(mesaId) {
+      return logado() && request.auth.uid in mesa(mesaId).membros;
+    }
+    function mestre(mesaId) {
+      return logado() && mesa(mesaId).donoUid == request.auth.uid;
+    }
+
+    // Biblioteca pública de assets de IA: leitura para qualquer usuário logado; escrita só pelo servidor.
+    match /publico/{tipo}/{arquivo=**} {
+      allow read: if logado();
+      allow write: if false;
+    }
+
+    // Arquivos da mesa (mapas, assets, refs, cenas): membros leem; só o mestre escreve (até 15 MB, imagens).
+    // A ocultação de mapas não liberados fica no Firestore (a URL só chega a quem lê o documento).
+    match /mesas/{mesaId}/{tipo}/{arquivo=**} {
+      allow read: if membro(mesaId);
+      allow write: if mestre(mesaId)
+        && (request.method == 'delete'
+            || (request.resource.size <= 15 * 1024 * 1024
+                && (request.resource.contentType.matches('image/.*')
+                    // JSON de cenas grandes (acima do limite do Firestore)
+                    || (tipo == 'cenas' && request.resource.contentType == 'application/json'))));
+    }
+  }
+}
