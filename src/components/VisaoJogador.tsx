@@ -34,7 +34,7 @@ export default function VisaoJogador({ id }: { id: string }) {
   if (!mesa)
     return (
       <main className="p-8">
-        Mesa não encontrada. <Link href="/" className="underline">Voltar</Link>
+        Mesa não encontrada. <Link href="/mesas" className="underline">Voltar</Link>
       </main>
     );
 
@@ -55,7 +55,7 @@ export default function VisaoJogador({ id }: { id: string }) {
   return (
     <main className={`mx-auto w-full space-y-8 px-4 py-8 sm:px-6 ${aba === "quadro" ? "max-w-6xl" : "max-w-3xl"}`}>
       <nav className="flex items-center justify-between text-sm">
-        <Link href="/" className="text-muted hover:underline">← Dashboard</Link>
+        <Link href="/mesas" className="text-muted hover:underline">← Dashboard</Link>
         {mesa.donoUid === user?.uid ? (
           <Link href={`/mesas/${mesa.id}/mestre`} className="text-muted hover:underline">
           Ver como mestre →
@@ -134,7 +134,7 @@ export default function VisaoJogador({ id }: { id: string }) {
                     <p className="font-medium">
                       {j.personagem || "Personagem sem nome"}
                       {j.uid && j.uid === user?.uid && (
-                        <span className="ml-2 rounded-full bg-violet-600 px-2 py-0.5 text-xs text-white">você</span>
+                        <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-xs text-white">você</span>
                       )}
                     </p>
                     <p className="text-sm text-muted">{j.nome || "—"}</p>
@@ -215,7 +215,7 @@ function EscolherPersonagem({ mesa, uid, nomeConta }: { mesa: Mesa; uid: string;
   return (
     <main className="mx-auto w-full max-w-xl space-y-8 px-4 py-8 sm:px-6">
       <nav className="text-sm">
-        <Link href="/" className="text-muted hover:underline">← Dashboard</Link>
+        <Link href="/mesas" className="text-muted hover:underline">← Dashboard</Link>
       </nav>
       <header className="space-y-1 border-l-4 pl-4" style={{ borderColor: mesa.cor }}>
         <h1 className="text-2xl font-bold">{mesa.nome}</h1>
@@ -256,7 +256,7 @@ function EscolherPersonagem({ mesa, uid, nomeConta }: { mesa: Mesa; uid: string;
         </label>
         <button
           disabled={ocupado}
-          className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-700 disabled:opacity-60"
+          className="rounded-lg bg-accent px-4 py-2 font-medium text-white hover:bg-accent-strong disabled:opacity-60"
         >
           Criar personagem
         </button>

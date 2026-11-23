@@ -47,7 +47,7 @@ export default function VisaoMestre({ id }: { id: string }) {
     return (
       <main className="p-8">
         Mesa não encontrada ou você não é o mestre dela.{" "}
-        <Link href="/" className="underline">Voltar</Link>
+        <Link href="/mesas" className="underline">Voltar</Link>
       </main>
     );
 
@@ -59,7 +59,7 @@ export default function VisaoMestre({ id }: { id: string }) {
   return (
     <main className="mx-auto w-full max-w-4xl space-y-8 px-4 py-8 sm:px-6">
       <nav className="flex items-center justify-between text-sm">
-        <Link href="/" className="text-muted hover:underline">← Dashboard</Link>
+        <Link href="/mesas" className="text-muted hover:underline">← Dashboard</Link>
         <div className="flex gap-4">
           <Link href={`/mesas/${mesa.id}/marcas`} className="text-muted hover:underline">
             Marcas de Pacto
@@ -71,7 +71,7 @@ export default function VisaoMestre({ id }: { id: string }) {
       </nav>
 
       <header className="space-y-3 border-l-4 pl-4" style={{ borderColor: mesa.cor }}>
-        <span className="text-xs font-semibold uppercase tracking-wider text-violet-500">
+        <span className="text-xs font-semibold uppercase tracking-wider text-accent-hover">
           Visão do mestre · convite: <code className="font-mono">{mesa.codigo}</code>
         </span>
         <input
@@ -181,7 +181,7 @@ export default function VisaoMestre({ id }: { id: string }) {
         ))}
         <button
           onClick={() => set({ jogadores: [...mesa.jogadores, { id: uid(), nome: "", personagem: "" }] })}
-          className="text-sm text-violet-500 hover:underline"
+          className="text-sm text-accent-hover hover:underline"
         >
           + Adicionar jogador
         </button>
@@ -242,7 +242,7 @@ export default function VisaoMestre({ id }: { id: string }) {
               ],
             })
           }
-          className="text-sm text-violet-500 hover:underline"
+          className="text-sm text-accent-hover hover:underline"
         >
           + Adicionar sessão
         </button>

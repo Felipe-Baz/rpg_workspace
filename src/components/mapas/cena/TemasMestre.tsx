@@ -106,7 +106,7 @@ export default function TemasMestre({ mesaId, onFechar }: { mesaId: string; onFe
           <EditorTema mesaId={mesaId} inicial={r} onSalvo={() => setR(null)} />
         ) : (
           <>
-            <button className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500" onClick={() => setR(vazio())}>
+            <button className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover" onClick={() => setR(vazio())}>
               + Novo tema
             </button>
             {temas.length === 0 && <p className="text-sm text-muted">Nenhum tema ainda. Um tema define a identidade visual dos mapas da mesa.</p>}
@@ -280,7 +280,7 @@ function EditorTema({ mesaId, inicial, onSalvo }: { mesaId: string; inicial: Ras
 
       {erro && <p className="text-sm text-red-500">{erro}</p>}
       <div className="flex justify-end">
-        <button className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50" onClick={salvar} disabled={salvando}>
+        <button className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50" onClick={salvar} disabled={salvando}>
           {salvando ? "Salvando…" : "Salvar tema"}
         </button>
       </div>

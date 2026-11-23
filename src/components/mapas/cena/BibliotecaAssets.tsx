@@ -89,12 +89,12 @@ export default function BibliotecaAssets({
     <div className="space-y-2">
       <div className="flex gap-1">
         <button className={`${btn} flex-1`} onClick={onUpload} disabled={enviando}>{enviando ? "Enviando…" : "+ Enviar PNG"}</button>
-        <button className={`${btn} flex-1 border-violet-600 text-violet-300`} onClick={() => setGerador({})} disabled={!cena}>✨ Gerar</button>
+        <button className={`${btn} flex-1 border-accent text-accent-soft`} onClick={() => setGerador({})} disabled={!cena}>✨ Gerar</button>
       </div>
 
       <div className="grid grid-cols-2 gap-1" role="tablist" aria-label="Biblioteca">
         {([["mesa", "Da mesa"], ["publica", "Pública (IA)"]] as const).map(([k, rot]) => (
-          <button key={k} role="tab" aria-selected={escopo === k} className={`${btn} ${escopo === k ? "border-violet-600 bg-violet-600 text-white" : ""}`} onClick={() => { setEscopo(k); setDetalhe(null); }}>{rot}</button>
+          <button key={k} role="tab" aria-selected={escopo === k} className={`${btn} ${escopo === k ? "border-accent bg-accent text-white" : ""}`} onClick={() => { setEscopo(k); setDetalhe(null); }}>{rot}</button>
         ))}
       </div>
       {escopo === "publica" && <p className="text-xs text-muted">Assets gerados por IA em qualquer mesa. Ao escolher um, ele vem para a biblioteca desta mesa. PNGs enviados nunca são públicos.</p>}
@@ -119,7 +119,7 @@ export default function BibliotecaAssets({
       {visiveis.length === 0 && <p className="text-xs text-muted">{(escopo === "mesa" ? assets : publicos).length === 0 ? "A biblioteca está vazia." : "Nenhum asset com esses filtros."}</p>}
       <div className="grid grid-cols-3 gap-1.5 md:grid-cols-2">
         {visiveis.map((a) => (
-          <div key={a.id} className={`relative rounded-lg border p-1 ${assetSel === a.id ? "border-violet-600 bg-violet-600/20" : "border-border"}`}>
+          <div key={a.id} className={`relative rounded-lg border p-1 ${assetSel === a.id ? "border-accent bg-accent/20" : "border-border"}`}>
             <button
               className="block w-full"
               onClick={async () => {
@@ -145,7 +145,7 @@ export default function BibliotecaAssets({
             >
               ⋯
             </button>}
-            {a.origem === "ia" && <span className="absolute bottom-0.5 left-0.5 rounded bg-violet-600/80 px-1 text-[9px] leading-4 text-white">IA</span>}
+            {a.origem === "ia" && <span className="absolute bottom-0.5 left-0.5 rounded bg-accent/80 px-1 text-[9px] leading-4 text-white">IA</span>}
             {a.incompleto && <span className="absolute bottom-0.5 right-0.5 rounded bg-amber-600/90 px-1 text-[9px] leading-4 text-white" title="Cortado ou encoberto no mapa original">incompleto</span>}
             {a.naoRepetivel && <span className="absolute bottom-0.5 right-0.5 rounded bg-amber-600/90 px-1 text-[9px] leading-4 text-white" title="A emenda é visível ao repetir">emenda</span>}
           </div>

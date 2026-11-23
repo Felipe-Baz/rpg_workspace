@@ -1,7 +1,7 @@
-import Dashboard from "@/components/Dashboard";
+import Landing from "@/components/landing/Landing";
 
 export const instant = false;
 
 export default function Page() {
-  return <Dashboard />;
+  return <Landing />;
 }

@@ -54,7 +54,7 @@ export default function FichasJogador({
         <button
           onClick={nova}
           disabled={criando}
-          className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
         >
           + Cadastrar
         </button>
@@ -71,7 +71,7 @@ export default function FichasJogador({
           <button
             key={f.id}
             onClick={() => setAbertaId(f.id)}
-            className="overflow-hidden rounded-xl border border-border bg-card text-left hover:border-violet-500"
+            className="overflow-hidden rounded-xl border border-border bg-card text-left hover:border-accent-hover"
           >
             {f.foto ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -296,7 +296,7 @@ function FichaModal({
         )}
         {!somenteLeitura && (
         <div className="flex justify-between">
-          <button onClick={() => setEditando((v) => !v)} className="text-sm text-violet-500 hover:underline">
+          <button onClick={() => setEditando((v) => !v)} className="text-sm text-accent-hover hover:underline">
             {editando ? "Concluir" : "Editar anotações"}
           </button>
           <button

@@ -22,7 +22,7 @@ export default function Mundo({ mesaId, ehMestre }: { mesaId: string; ehMestre: 
 
   return (
     <div className="space-y-6">
-      <header className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-violet-600/20 via-card to-amber-500/10 p-6 sm:p-8">
+      <header className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-accent/20 via-card to-amber-500/10 p-6 sm:p-8">
         <div className="pointer-events-none absolute -right-6 -top-8 select-none text-[9rem] leading-none opacity-[0.07]">📜</div>
         <div className="relative space-y-3">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -33,7 +33,7 @@ export default function Mundo({ mesaId, ehMestre }: { mesaId: string; ehMestre: 
             {ehMestre && (
               <button
                 onClick={() => setEditando(true)}
-                className="shrink-0 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500"
+                className="shrink-0 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover"
               >
                 ⬆ Importar JSON
               </button>
@@ -59,8 +59,8 @@ export default function Mundo({ mesaId, ehMestre }: { mesaId: string; ehMestre: 
                 aria-current={ativa}
                 className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition ${
                   ativa
-                    ? "border-violet-500 bg-violet-500/10 text-violet-500"
-                    : "border-border bg-card text-foreground hover:border-violet-500/60"
+                    ? "border-accent-hover bg-accent-hover/10 text-accent-hover"
+                    : "border-border bg-card text-foreground hover:border-accent-hover/60"
                 }`}
               >
                 <span className="text-lg">{s.icone ?? "•"}</span>
@@ -89,7 +89,7 @@ function SecaoView({ secao }: { secao: Secao }) {
   return (
     <section className="space-y-6">
       <div className="flex items-center gap-3">
-        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/15 text-2xl">
+        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-hover/15 text-2xl">
           {secao.icone ?? "📖"}
         </span>
         <div>
@@ -112,8 +112,8 @@ const COLUNAS = {
 
 function Titulo({ titulo }: { titulo?: string }) {
   return titulo ? (
-    <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-violet-500">
-      <span className="h-px w-4 bg-violet-500/60" />
+    <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-accent-hover">
+      <span className="h-px w-4 bg-accent-hover/60" />
       {titulo}
     </h4>
   ) : null;
@@ -153,7 +153,7 @@ function BlocoView({ bloco }: { bloco: Bloco }) {
           <Titulo titulo={bloco.titulo} />
           <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full min-w-[32rem] text-left text-sm">
-              <thead className="bg-violet-500/10 text-xs uppercase tracking-wider text-violet-500">
+              <thead className="bg-accent-hover/10 text-xs uppercase tracking-wider text-accent-hover">
                 <tr>
                   {bloco.colunas.map((c, i) => (
                     <th key={i} className="px-3 py-2 font-semibold">{c}</th>
@@ -180,10 +180,10 @@ function BlocoView({ bloco }: { bloco: Bloco }) {
 
 function Cartao({ item }: { item: ItemCartao }) {
   return (
-    <article className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition hover:border-violet-500/50">
+    <article className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition hover:border-accent-hover/50">
       <div className="flex items-start gap-3">
         {item.icone && (
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 text-xl">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-hover/10 text-xl">
             {item.icone}
           </span>
         )}
@@ -195,7 +195,7 @@ function Cartao({ item }: { item: ItemCartao }) {
       {item.tags && item.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {item.tags.map((t, i) => (
-            <span key={i} className="rounded-full bg-violet-500/10 px-2 py-0.5 text-xs font-medium text-violet-500">
+            <span key={i} className="rounded-full bg-accent-hover/10 px-2 py-0.5 text-xs font-medium text-accent-hover">
               {t}
             </span>
           ))}
@@ -319,7 +319,7 @@ function EditorJson({
 
         <button
           onClick={() => arquivo.current?.click()}
-          className="rounded-xl border-2 border-dashed border-border px-4 py-6 text-sm hover:border-violet-500"
+          className="rounded-xl border-2 border-dashed border-border px-4 py-6 text-sm hover:border-accent-hover"
         >
           {nomeArquivo ? `📄 ${nomeArquivo} — escolher outro` : "📂 Escolher arquivo .json"}
         </button>
@@ -363,7 +363,7 @@ function EditorJson({
           <button
             onClick={salvar}
             disabled={!validacao || !!validacao.erro || salvando}
-            className="rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
+            className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
           >
             {salvando ? "Importando…" : "Importar"}
           </button>

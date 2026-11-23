@@ -73,7 +73,7 @@ export default function AvatarPersonagem({
         onChange={(e) => enviar(e.target.files?.[0])}
       />
       <div className="flex gap-2 text-[11px]">
-        <button type="button" onClick={() => input.current?.click()} disabled={ocupado} className="text-violet-500 hover:underline">
+        <button type="button" onClick={() => input.current?.click()} disabled={ocupado} className="text-accent-hover hover:underline">
           {ocupado ? "Enviando…" : foto ? "Trocar" : "Foto"}
         </button>
         {foto && !ocupado && (

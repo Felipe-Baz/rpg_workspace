@@ -111,7 +111,7 @@ export default function ExportarCena({
           <div className="flex items-center gap-2">
             Resolução
             {[1, 2].map((k) => (
-              <button key={k} className={`${btn} ${escala === k ? "border-violet-600 bg-violet-600 text-white" : ""}`} onClick={() => setEscala(k)}>{k}x</button>
+              <button key={k} className={`${btn} ${escala === k ? "border-accent bg-accent text-white" : ""}`} onClick={() => setEscala(k)}>{k}x</button>
             ))}
             <span className="text-xs text-muted">{largPng} × {Math.round((largPng * cena.altura) / cena.largura)} px</span>
           </div>

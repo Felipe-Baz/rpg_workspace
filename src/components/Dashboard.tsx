@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import ThemeToggle from "./ThemeToggle";
 import { sair, useAuth } from "@/lib/auth";
 import {
   CORES,
@@ -38,10 +39,11 @@ export default function Dashboard() {
           </button>
           <button
             onClick={() => setAbrindo(true)}
-            className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-700"
+            className="rounded-lg bg-accent px-4 py-2 font-medium text-white hover:bg-accent-strong"
           >
             + Nova mesa
           </button>
+          <ThemeToggle />
           <Link href="/configuracoes/ia" className="px-2 py-2 text-sm text-muted hover:underline">
             IA
           </Link>
@@ -98,7 +100,7 @@ function MesaCard({ mesa, uid }: { mesa: Mesa; uid: string }) {
           {mestre && (
             <Link
               href={`/mesas/${mesa.id}/mestre`}
-              className="flex-1 rounded-lg bg-violet-600 px-3 py-1.5 text-center text-sm font-medium text-white hover:bg-violet-700"
+              className="flex-1 rounded-lg bg-accent px-3 py-1.5 text-center text-sm font-medium text-white hover:bg-accent-strong"
             >
               Mestre
             </Link>
@@ -206,7 +208,7 @@ function NovaMesaDialog({ uid, onClose }: { uid: string; onClose: () => void }) 
           <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 text-muted">
             Cancelar
           </button>
-          <button className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-700">
+          <button className="rounded-lg bg-accent px-4 py-2 font-medium text-white hover:bg-accent-strong">
             Criar
           </button>
         </div>
@@ -261,7 +263,7 @@ function EntrarDialog({ uid, onClose }: { uid: string; onClose: () => void }) {
           </button>
           <button
             disabled={ocupado}
-            className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-700 disabled:opacity-60"
+            className="rounded-lg bg-accent px-4 py-2 font-medium text-white hover:bg-accent-strong disabled:opacity-60"
           >
             Entrar
           </button>

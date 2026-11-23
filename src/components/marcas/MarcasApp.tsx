@@ -27,7 +27,7 @@ export default function MarcasApp({ mesaId }: { mesaId: string }) {
         </div>
         <div className="flex items-center gap-3 text-sm">
           <span className="dim">{nome}{souMestre ? " · Mestre" : ""}</span>
-          <Link href="/" className="btn ghost">Mesas</Link>
+          <Link href="/mesas" className="btn ghost">Mesas</Link>
           <button className="btn ghost" onClick={() => sair()}>Sair</button>
         </div>
       </header>

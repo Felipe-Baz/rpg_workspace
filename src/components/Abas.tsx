@@ -18,7 +18,7 @@ export default function Abas<T extends string>({
           aria-selected={a.id === ativa}
           onClick={() => onChange(a.id)}
           className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium ${
-            a.id === ativa ? "border-violet-500 text-violet-500" : "border-transparent text-muted hover:text-foreground"
+            a.id === ativa ? "border-accent-hover text-accent-hover" : "border-transparent text-muted hover:text-foreground"
           }`}
         >
           {a.rotulo}

@@ -67,14 +67,14 @@ export default function MapasMestre({ mesa, colecao = "mapas" }: { mesa: Mesa; c
           <button
             onClick={() => input.current?.click()}
             disabled={enviando}
-            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
+            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
           >
             {enviando ? "Enviando…" : t.novo}
           </button>
           {colecao === "mapas" && storageConfigurado() && (
             <button
               onClick={() => setNovaCena(true)}
-              className="rounded-lg border border-violet-600 px-4 py-2 text-sm font-medium text-violet-500 hover:bg-violet-600/10"
+              className="rounded-lg border border-accent px-4 py-2 text-sm font-medium text-accent-hover hover:bg-accent/10"
             >
               + Nova cena
             </button>
@@ -157,7 +157,7 @@ function CartaoMapa({ mesa, mapa, colecao, onEditar, onConverter }: { mesa: Mesa
       <div className="flex justify-center rounded-lg bg-black/60">
         <div onClick={() => setAberto(true)} className="relative cursor-zoom-in leading-[0]" title="Abrir / cobrir salas">
           {ehMapaDeCena(mapa) && (
-            <span className="absolute left-1.5 top-1.5 z-10 rounded bg-violet-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-normal text-white">
+            <span className="absolute left-1.5 top-1.5 z-10 rounded bg-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-normal text-white">
               Cena
             </span>
           )}
@@ -193,7 +193,7 @@ function CartaoMapa({ mesa, mapa, colecao, onEditar, onConverter }: { mesa: Mesa
       </div>
       {ehMapaDeCena(mapa) && (
         <div className="flex gap-3 text-sm">
-          <button onClick={onEditar} className="font-medium text-violet-500 hover:underline">
+          <button onClick={onEditar} className="font-medium text-accent-hover hover:underline">
             Editar cena
           </button>
           <button
@@ -209,7 +209,7 @@ function CartaoMapa({ mesa, mapa, colecao, onEditar, onConverter }: { mesa: Mesa
         </div>
       )}
       {colecao === "mapas" && !ehMapaDeCena(mapa) && storageConfigurado() && (
-        <button onClick={onConverter} className="block text-sm font-medium text-violet-500 hover:underline" title="Cria um novo mapa de cena com os objetos separados; este mapa não muda">
+        <button onClick={onConverter} className="block text-sm font-medium text-accent-hover hover:underline" title="Cria um novo mapa de cena com os objetos separados; este mapa não muda">
           Converter em cena
         </button>
       )}

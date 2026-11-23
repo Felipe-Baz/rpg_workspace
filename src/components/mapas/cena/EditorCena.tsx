@@ -31,7 +31,7 @@ import ExportarCena from "./ExportarCena";
 import HistoricoEditor from "./HistoricoEditor";
 
 const btn = "rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/50 disabled:opacity-40";
-const btnAtivo = "rounded-lg border border-violet-600 bg-violet-600 px-2.5 py-1.5 text-sm text-white";
+const btnAtivo = "rounded-lg border border-accent bg-accent px-2.5 py-1.5 text-sm text-white";
 
 type Arraste =
   | { tipo: "mover"; inicio: Cena; id: string; desloc: Pt }
@@ -547,7 +547,7 @@ export default function EditorCena({
         <button className={btn} onClick={() => setExportando(true)} disabled={!pronto || emPrevia}>⇩ Exportar</button>
         <button className={chatAberto ? btnAtivo : btn} onClick={() => setChatAberto(!chatAberto)} title="Criar e editar o mapa conversando com a IA">✦ IA</button>
         <span className="ml-auto text-xs text-muted">{emPrevia ? "Prévia do plano" : sujo ? "Alterações não salvas" : "Salvo"}</span>
-        <button className="rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50" onClick={salvar} disabled={!sujo || salvando || !pronto || emPrevia} title={emPrevia ? "Aplique ou descarte a prévia antes de salvar" : undefined}>
+        <button className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50" onClick={salvar} disabled={!sujo || salvando || !pronto || emPrevia} title={emPrevia ? "Aplique ou descarte a prévia antes de salvar" : undefined}>
           {salvando ? "Salvando…" : "Salvar"}
         </button>
         <button className={btn} onClick={fechar}>Fechar</button>
@@ -604,7 +604,7 @@ export default function EditorCena({
               camadasInv.map((c: Camada) => {
                 const i = cena.camadas.findIndex((x) => x.id === c.id);
                 return (
-                  <div key={c.id} className={`space-y-1 rounded-lg border p-1.5 ${camadaId === c.id ? "border-violet-600" : "border-border"}`}>
+                  <div key={c.id} className={`space-y-1 rounded-lg border p-1.5 ${camadaId === c.id ? "border-accent" : "border-border"}`}>
                     <div className="flex items-center gap-1">
                       <button className="flex-1 truncate text-left text-sm" onClick={() => setCamadaId(c.id)}>{c.nome}</button>
                       <button title="Visível" className={btn} onClick={() => rodar({ tipo: "atualizarCamada", id: c.id, patch: { visivel: !c.visivel } })}>{c.visivel ? "👁" : "—"}</button>

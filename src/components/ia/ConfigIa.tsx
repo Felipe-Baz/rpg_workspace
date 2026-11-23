@@ -158,7 +158,7 @@ function Seletor({ est, tipo, titulo, onSalvo }: { est: Estado; tipo: TipoProved
       )}
 
       <div className="flex flex-wrap gap-2">
-        <button disabled={ocupado} onClick={() => salvar(true)} className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-700 disabled:opacity-50">
+        <button disabled={ocupado} onClick={() => salvar(true)} className="rounded-lg bg-accent px-4 py-2 font-medium text-white hover:bg-accent-strong disabled:opacity-50">
           {p.id === ativoId ? "Salvar" : "Salvar e ativar"}
         </button>
         <button disabled={ocupado || (!cred?.configurada && !valores.apiKey)} onClick={testar} className="rounded-lg border border-border px-4 py-2 font-medium hover:bg-border/50 disabled:opacity-50">
@@ -237,7 +237,7 @@ export function CabecalhoIa() {
   return (
     <header className="mb-6 flex items-center justify-between gap-4">
       <h1 className="text-2xl font-bold">Configurações de IA</h1>
-      <Link href="/" className="text-sm text-muted hover:underline">← Voltar</Link>
+      <Link href="/mesas" className="text-sm text-muted hover:underline">← Voltar</Link>
     </header>
   );
 }

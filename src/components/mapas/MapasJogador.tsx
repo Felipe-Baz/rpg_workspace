@@ -34,7 +34,7 @@ export default function MapasJogador({
             key={m.id}
             onClick={() => setSel(m.id)}
             className={`rounded-lg border border-border px-3 py-1.5 text-sm ${
-              m.id === mapa.id ? "bg-violet-600 text-white" : "hover:bg-border/50"
+              m.id === mapa.id ? "bg-accent text-white" : "hover:bg-border/50"
             }`}
           >
             {m.nome || (colecao === "mapas" ? "Mapa" : "Imagem")}
@@ -106,7 +106,7 @@ function VisorMapa({
           onClick={() => setColocando((v) => !v)}
           disabled={desabilitado}
           className={`rounded-lg border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${
-            colocando ? "bg-violet-600 text-white" : "hover:bg-border/50"
+            colocando ? "bg-accent text-white" : "hover:bg-border/50"
           }`}
         >
           {colocando ? "Clique no mapa para fixar o pino…" : "📍 Adicionar pino"}
@@ -183,7 +183,7 @@ function VisorMapa({
               <p className="text-sm text-muted">Sem anotações.</p>
             )}
             <div className="flex justify-between">
-              <button onClick={() => setEditando((v) => !v)} className="text-sm text-violet-500 hover:underline">
+              <button onClick={() => setEditando((v) => !v)} className="text-sm text-accent-hover hover:underline">
                 {editando ? "Concluir" : "Editar anotações"}
               </button>
               <button

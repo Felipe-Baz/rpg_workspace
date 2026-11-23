@@ -11,11 +11,11 @@ import type { Tema } from "@/lib/mapas-ia/temas/tipos";
 
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted";
 const btn = "rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-border/50 disabled:opacity-40";
-const btnPrim = "rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50";
+const btnPrim = "rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50";
 
 const COR_STATUS: Record<StatusJob, string> = {
   "na-fila": "bg-border text-foreground",
-  gerando: "bg-violet-600/30 text-violet-300",
+  gerando: "bg-accent/30 text-accent-soft",
   pronto: "bg-emerald-600/30 text-emerald-300",
   falhou: "bg-red-600/30 text-red-300",
 };
@@ -150,7 +150,7 @@ export default function GerarAsset({ mesaId, assets, temas, perspectivaId, temaI
                   <input className={campo} value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="ex.: barril de madeira" maxLength={500} />
                 </label>
                 {sugestoes.length > 0 && (
-                  <div className="space-y-1 rounded-lg border border-violet-600/60 bg-violet-600/10 p-2">
+                  <div className="space-y-1 rounded-lg border border-accent/60 bg-accent/10 p-2">
                     <p className="text-xs">Já existe na biblioteca. Reutilize em vez de gerar:</p>
                     <div className="flex flex-wrap gap-2">
                       {sugestoes.map(({ asset }) => (
@@ -239,7 +239,7 @@ export default function GerarAsset({ mesaId, assets, temas, perspectivaId, temaI
                   {job.etapa && emAndamento && <span className="text-xs text-muted">{job.etapa}</span>}
                 </div>
                 <div className="h-2 overflow-hidden rounded bg-border" role="progressbar" aria-valuenow={job.progresso} aria-valuemin={0} aria-valuemax={100}>
-                  <div className="h-full bg-violet-600 transition-all" style={{ width: `${job.status === "falhou" ? 0 : job.progresso}%` }} />
+                  <div className="h-full bg-accent transition-all" style={{ width: `${job.status === "falhou" ? 0 : job.progresso}%` }} />
                 </div>
                 {expirado && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">A geração parou de responder. Tente de novo; nada foi cobrado além das imagens já salvas.</p>}
                 {job.erro && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{job.erro}</p>}

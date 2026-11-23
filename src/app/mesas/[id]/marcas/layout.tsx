@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { Cinzel, EB_Garamond } from "next/font/google";
+import { EB_Garamond } from "next/font/google";
 import "@/app/marcas/marcas.css";
 
-const cinzel = Cinzel({ variable: "--font-cinzel", subsets: ["latin"] });
 const garamond = EB_Garamond({ variable: "--font-garamond", subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -11,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function MarcasLayout({ children }: LayoutProps<"/mesas/[id]/marcas">) {
-  return <div className={`marcas ${cinzel.variable} ${garamond.variable}`}>{children}</div>;
+  return <div className={`marcas ${garamond.variable}`}>{children}</div>;
 }

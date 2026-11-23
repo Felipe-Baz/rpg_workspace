@@ -21,7 +21,7 @@ import { STATUS_ROTULO, jobExpirado } from "@/lib/mapas-ia/assets/jobs";
 import { estimarLote } from "@/lib/mapas-ia/limites";
 
 const btn = "rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/50 disabled:opacity-40";
-const btnPrim = "rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50";
+const btnPrim = "rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50";
 const campo = "w-full min-w-0 rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground";
 
 const CORES: [number, number, number][] = [
@@ -267,7 +267,7 @@ export default function ConverterCena({
                   {job.etapa && emAndamento ? ` · ${job.etapa}` : ""}
                 </p>
                 <div className="h-2 overflow-hidden rounded bg-border" role="progressbar" aria-valuenow={job.progresso} aria-valuemin={0} aria-valuemax={100}>
-                  <div className="h-full bg-violet-600 transition-all" style={{ width: `${job.status === "falhou" ? 0 : job.progresso}%` }} />
+                  <div className="h-full bg-accent transition-all" style={{ width: `${job.status === "falhou" ? 0 : job.progresso}%` }} />
                 </div>
                 {(job.erro || expirado) && (
                   <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">

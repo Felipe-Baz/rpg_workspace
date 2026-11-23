@@ -15,7 +15,7 @@ const FERRAMENTAS: { id: Ferramenta; rotulo: string; dica: string }[] = [
 ];
 
 const btn = "rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/50";
-const btnAtivo = "rounded-lg border border-violet-600 bg-violet-600 px-2.5 py-1.5 text-sm text-white";
+const btnAtivo = "rounded-lg border border-accent bg-accent px-2.5 py-1.5 text-sm text-white";
 
 const clamp = (n: number) => Math.min(1, Math.max(0, n));
 const dist = (a: Ponto, b: Ponto) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -190,7 +190,7 @@ export default function VisorMestre({
                     key={i}
                     style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%` }}
                     className={`absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white ${
-                      i === 0 ? "bg-yellow-400" : "bg-violet-500"
+                      i === 0 ? "bg-yellow-400" : "bg-accent-hover"
                     }`}
                   />
                 ))}
@@ -249,7 +249,7 @@ export default function VisorMestre({
                   salvar({ zonas: [...zonas, z] });
                   setZonaAtiva(z.id);
                 }}
-                className="text-xs text-violet-500 hover:underline"
+                className="text-xs text-accent-hover hover:underline"
               >
                 + Nova zona
               </button>

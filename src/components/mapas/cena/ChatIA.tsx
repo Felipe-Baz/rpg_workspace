@@ -11,7 +11,7 @@ import type { EventoAgente, GeracaoPendente, Passo, Plano } from "@/lib/mapas-ia
 import { estimarLote, type Estimativa } from "@/lib/mapas-ia/limites";
 
 const btn = "rounded-lg border border-border px-2 py-1 text-xs hover:bg-border/50 disabled:opacity-40";
-const btnPrim = "rounded-lg bg-violet-600 px-3 py-1 text-xs font-medium text-white hover:bg-violet-500 disabled:opacity-50";
+const btnPrim = "rounded-lg bg-accent px-3 py-1 text-xs font-medium text-white hover:bg-accent-hover disabled:opacity-50";
 const CHAVE_SO_SUGERIR = "chatIa.soSugerir";
 
 const ehProvisorio = (id: string) => id.startsWith(PREFIXO_PROVISORIO);
@@ -250,7 +250,7 @@ export default function ChatIA({ mesaId, cena, selecao, aplicados, revertidos, p
         )}
         {mensagens.map((m, i) =>
           m.papel === "usuario" ? (
-            <p key={i} className="ml-6 whitespace-pre-wrap rounded-lg bg-violet-600/20 px-2 py-1.5">{m.texto}</p>
+            <p key={i} className="ml-6 whitespace-pre-wrap rounded-lg bg-accent/20 px-2 py-1.5">{m.texto}</p>
           ) : m.papel === "erro" ? (
             <p key={i} className="rounded-lg bg-red-500/10 px-2 py-1.5 text-red-500">{m.texto}</p>
           ) : (
