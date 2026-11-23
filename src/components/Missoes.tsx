@@ -1,5 +1,6 @@
 "use client";
 
+import { ListaSkeleton } from "@/components/ui/Skeleton";
 import { confirmar, perguntar } from "@/components/ui/Dialogos";
 import { useRef, useState } from "react";
 import EditorMarkdown from "./EditorMarkdown";
@@ -59,7 +60,7 @@ function VisaoJogador({ mesaId }: { mesaId: string }) {
   const [sel, setSel] = useState<string | null>(null);
   const [aba, setAba] = useState<StatusMissao>("em_andamento");
 
-  if (!carregado) return <p className="text-muted">Carregando…</p>;
+  if (!carregado) return <ListaSkeleton />;
   if (missoes.length === 0) return <p className="text-center italic text-muted">O mestre ainda não registrou missões.</p>;
 
   const daAba = missoes.filter((m) => m.status === aba);

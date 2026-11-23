@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Check, Circle } from "lucide-react";
 import { STATUS_LABEL } from "@/lib/mesas";
 import { useMesaAtual } from "../shell/MesaContext";
+import Slot from "../shell/Slot";
 import { gruposNav } from "../shell/navegacao";
 
 function formatarData(d: string) {
@@ -70,6 +71,8 @@ export default function VisaoGeral() {
           </ul>
         </section>
       </div>
+
+      <Slot nome="visao-geral" />
 
       <section>
         <h2 className="mb-3 font-semibold">Atalhos</h2>

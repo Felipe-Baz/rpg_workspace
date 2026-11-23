@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CornerDownLeft, Dices, FileText, Map as MapIcon, Search, Table2 } from "lucide-react";
+import { CornerDownLeft, Dices, FileText, Puzzle, Map as MapIcon, Search, Table2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { CATEGORIAS, useFichas } from "@/lib/fichas";
 import { useMapasJogador, useMapasMestre } from "@/lib/mapas";
 import type { Mesa } from "@/lib/mesas";
+import { encaixeDe } from "@/lib/extensoes/manifesto";
+import { useExtensoesContexto } from "./ExtensoesContext";
 import type { ItemNav } from "./navegacao";
 
 type Resultado = { id: string; grupo: string; rotulo: string; detalhe?: string; icone: React.ReactNode; executar: () => void };
@@ -38,11 +40,16 @@ export default function PaletaComandos({ mesa, modo, base, itens, outrasMesas, o
   const imagens = useMapasMestre(mesa.id, mestre, "imagens");
   const imagensJ = useMapasJogador(mesa.id, uid, !mestre, "imagens");
 
+  const { extensoes } = useExtensoesContexto();
   const ir = (href: string) => () => { router.push(href); onFechar(); };
 
   const todos = useMemo<Resultado[]>(() => {
     const r: Resultado[] = [];
     itens.forEach((i) => r.push({ id: `nav:${i.href}`, grupo: "Ir para", rotulo: i.rotulo, icone: <i.icone size={16} />, executar: ir(i.href) }));
+    extensoes.forEach((e) => {
+      const enc = encaixeDe(e.manifesto, "ctrlk", modo);
+      if (enc) r.push({ id: `ext:${e.id}`, grupo: "Extensões", rotulo: enc.rotulo || e.titulo, icone: <Puzzle size={16} />, executar: ir(`${base}/extensoes/${e.id}`) });
+    });
     r.push({ id: "acao:dados", grupo: "Ações", rotulo: "Abrir rolador de dados", icone: <Dices size={16} />, executar: () => { onFechar(); onRolador(); } });
     outrasMesas.forEach((m) => r.push({ id: `mesa:${m.id}`, grupo: "Trocar de mesa", rotulo: m.nome || "Sem nome", detalhe: m.sistema, icone: <Table2 size={16} />, executar: ir(modo === "jogador" ? `/mesas/${m.id}/jogador` : `/mesas/${m.id}`) }));
     fichas.forEach((f) => {
@@ -53,11 +60,11 @@ export default function PaletaComandos({ mesa, modo, base, itens, outrasMesas, o
     [...(mestre ? imagens.mapas : imagensJ.mapas)].forEach((m) => r.push({ id: `img:${m.id}`, grupo: "Imagens", rotulo: m.nome || "Imagem", icone: <MapIcon size={16} />, executar: ir(`${base}/imagens`) }));
     return r;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itens, outrasMesas, fichas, mapas.mapas, mapasJ.mapas, imagens.mapas, imagensJ.mapas, mestre, base, modo]);
+  }, [itens, extensoes, outrasMesas, fichas, mapas.mapas, mapasJ.mapas, imagens.mapas, imagensJ.mapas, mestre, base, modo]);
 
   const filtrados = useMemo(() => {
     const t = norm(q.trim());
-    const lista = t ? todos.filter((x) => norm(`${x.rotulo} ${x.detalhe ?? ""} ${x.grupo}`).includes(t)) : todos.filter((x) => x.grupo === "Ir para" || x.grupo === "Ações");
+    const lista = t ? todos.filter((x) => norm(`${x.rotulo} ${x.detalhe ?? ""} ${x.grupo}`).includes(t)) : todos.filter((x) => x.grupo === "Ir para" || x.grupo === "Ações" || x.grupo === "Extensões");
     return lista.slice(0, 40);
   }, [q, todos]);
 

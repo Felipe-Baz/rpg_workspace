@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Swords } from "lucide-react";
+import { Puzzle, Swords } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useExtensoesMesa, useNativasMesa } from "@/lib/extensoes/dados";
+import { encaixeDe } from "@/lib/extensoes/manifesto";
 import { useMesas } from "@/lib/mesas";
 import EscolherPersonagem from "../telas/EscolherPersonagem";
 import ShellBase, { Carregando } from "./ShellBase";
-import { gruposNavJogador } from "./navegacao";
+import { itensNativos, gruposNavJogador } from "./navegacao";
 import { useNovidades } from "./useNovidades";
 
 // Visão do jogador: mesmo motor visual, navegação enxuta (só o que o mestre libera).
@@ -16,6 +18,8 @@ export default function ShellJogador({ id, children }: { id: string; children: R
   const mesa = mesas.find((m) => m.id === id);
   const base = `/mesas/${id}/jogador`;
   const { badges, avisos } = useNovidades(id, user?.uid ?? "", base);
+  const { extensoes } = useExtensoesMesa(id, false, !!mesa && !!user);
+  const nativas = useNativasMesa(id, !!mesa && !!user);
 
   if (!pronto) return <Carregando />;
   if (!mesa || !user)
@@ -30,12 +34,20 @@ export default function ShellJogador({ id, children }: { id: string; children: R
   if (!souMestre && !mesa.jogadores.some((j) => j.uid === user.uid))
     return <EscolherPersonagem mesa={mesa} uid={user.uid} nomeConta={user.displayName || user.email || ""} />;
 
-  const { inicio, grupos } = gruposNavJogador(base);
+  const { inicio, grupos } = gruposNavJogador(
+    base,
+    [...itensNativos(id, "jogador", nativas.config, souMestre), ...extensoes.flatMap((e) => {
+      const enc = encaixeDe(e.manifesto, "sidebar", "jogador");
+      return enc ? [{ href: `${base}/extensoes/${e.id}`, rotulo: enc.rotulo || e.titulo, icone: Puzzle, ext: true }] : [];
+    })],
+  );
   return (
     <ShellBase
       mesa={mesa}
       modo="jogador"
       inicio={inicio}
+      extensoes={extensoes}
+      nativas={{ config: nativas.config, prontas: nativas.carregado, souMestre }}
       grupos={grupos}
       badges={badges}
       avisos={avisos}

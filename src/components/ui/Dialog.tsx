@@ -21,7 +21,16 @@ export default function Dialog({
     const anterior = document.activeElement as HTMLElement | null;
     const primeiro = ref.current?.querySelector<HTMLElement>("input, textarea, select, button[data-foco]");
     primeiro?.focus();
-    const tecla = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const tecla = (e: KeyboardEvent) => {
+      if (e.key === "Escape") return onClose();
+      if (e.key !== "Tab" || !ref.current) return;
+      // Prende o foco dentro do diálogo (Tab / Shift+Tab circulam entre os controles).
+      const focaveis = ref.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focaveis.length) return;
+      const [a, z] = [focaveis[0], focaveis[focaveis.length - 1]];
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
+      else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
+    };
     document.addEventListener("keydown", tecla);
     return () => { document.removeEventListener("keydown", tecla); anterior?.focus?.(); };
   }, [onClose]);

@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import RequireAuth from "@/components/RequireAuth";
 import { DialogosProvider } from "@/components/ui/Dialogos";
+import { ToastHost } from "@/components/ui/Toasts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,7 +50,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <AuthProvider>
           <Suspense fallback={null}>
             <DialogosProvider>
+              <a href="#conteudo" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-white">Pular para o conteúdo</a>
               <RequireAuth>{children}</RequireAuth>
+              <ToastHost />
             </DialogosProvider>
           </Suspense>
         </AuthProvider>

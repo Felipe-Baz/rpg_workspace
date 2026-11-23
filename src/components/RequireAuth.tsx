@@ -1,5 +1,6 @@
 "use client";
 
+import { TelaCarregando } from "./ui/Skeleton";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
@@ -18,6 +19,6 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
   }, [carregando, user, publica, router]);
 
   if (publica) return <>{children}</>;
-  if (carregando || !user) return null;
+  if (carregando || !user) return <TelaCarregando />;
   return <>{children}</>;
 }

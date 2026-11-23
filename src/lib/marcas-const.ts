@@ -1,1 +1,1 @@
-export const MESA_PADRAO = "10f09b33-8004-4ab8-97f5-bd4122a85e67";
+export const MESA_PADRAO = "5010347d-14e3-49e2-adb9-eb3bc0952013"; // mesa "O Juramento de Cinzas": única que tem as Marcas de Pacto

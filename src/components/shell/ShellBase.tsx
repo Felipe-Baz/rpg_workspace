@@ -9,6 +9,9 @@ import { STATUS_LABEL, useMesas, type Mesa } from "@/lib/mesas";
 import ThemeToggle from "../ThemeToggle";
 import PainelDados from "../sessao/PainelDados";
 import PaletaComandos from "./PaletaComandos";
+import type { ExtensaoMesa } from "@/lib/extensoes/dados";
+import type { ConfigNativas } from "@/lib/extensoes/nativas";
+import { ExtensoesProvider } from "./ExtensoesContext";
 import { MesaProvider } from "./MesaContext";
 import type { GrupoNav, ItemNav } from "./navegacao";
 
@@ -34,6 +37,8 @@ type Props = {
   inicio: ItemNav;
   grupos: GrupoNav[];
   rodape: ItemNav[];
+  nativas?: { config: ConfigNativas; prontas: boolean; souMestre: boolean }; // escolhas do mestre sobre as extensões nativas
+  extensoes?: ExtensaoMesa[]; // extensões instaladas (já filtradas pelo papel), para os encaixes
   destaque?: ItemNav; // ação principal da sidebar (ex.: Iniciar sessão)
   badges?: Record<string, number>; // href → novidades não vistas
   avisos?: Aviso[]; // lista do sino
@@ -41,7 +46,7 @@ type Props = {
 };
 
 // Casca visual do workspace (sidebar agrupada + topbar), usada pela visão do mestre e do jogador.
-export default function ShellBase({ mesa, modo, inicio, grupos, rodape, destaque, badges = {}, avisos = [], children }: Props) {
+export default function ShellBase({ mesa, modo, inicio, grupos, rodape, extensoes = [], nativas = { config: {}, prontas: true, souMestre: modo === "mestre" }, destaque, badges = {}, avisos = [], children }: Props) {
   const { user } = useAuth();
   const { mesas } = useMesas();
   const pathname = usePathname();
@@ -67,6 +72,7 @@ export default function ShellBase({ mesa, modo, inicio, grupos, rodape, destaque
 
   return (
     <MesaProvider value={mesa}>
+      <ExtensoesProvider value={{ extensoes, papel: modo, base: inicio.href, nativas: nativas.config, nativasProntas: nativas.prontas, souMestre: nativas.souMestre }}>
       <div className="flex min-h-screen">
         {aberto && <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden" onClick={fechar} />}
 
@@ -102,10 +108,10 @@ export default function ShellBase({ mesa, modo, inicio, grupos, rodape, destaque
                     <LinkNav key={i.href} item={i} pathname={pathname} recolhida={recolhida} badge={badges[i.href]} onClick={fechar} />
                   ))}
                   {modo === "mestre" && g.titulo === "Extensões" && (
-                    <button disabled title="Em breve: crie ferramentas próprias conversando com a IA" className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted/60">
+                    <Link href={`${inicio.href}/extensoes/criar`} onClick={fechar} title={recolhida ? "Criar extensão" : undefined} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-ext hover:bg-ext/10">
                       <Plus size={18} className="shrink-0" />
-                      {!recolhida && <span>Criar extensão <span className="ml-1 rounded bg-card-2 px-1.5 py-0.5 text-[10px]">em breve</span></span>}
-                    </button>
+                      {!recolhida && <span>Criar extensão</span>}
+                    </Link>
                   )}
                 </div>
               </div>
@@ -174,7 +180,7 @@ export default function ShellBase({ mesa, modo, inicio, grupos, rodape, destaque
             </div>
           </header>
 
-          <main key={pathname} className="anim-surgir mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-8">{children}</main>
+          <main id="conteudo" tabIndex={-1} key={pathname} className={`anim-surgir mx-auto w-full flex-1 px-4 py-8 sm:px-8 ${pathname.endsWith("/marcas") ? "max-w-7xl" : "max-w-5xl"}`}>{children}</main>
         </div>
       </div>
       {/* Rolador de dados flutuante (disponível em qualquer tela da mesa) */}
@@ -209,6 +215,7 @@ export default function ShellBase({ mesa, modo, inicio, grupos, rodape, destaque
           onRolador={() => setRolador(true)}
         />
       )}
+      </ExtensoesProvider>
     </MesaProvider>
   );
 }

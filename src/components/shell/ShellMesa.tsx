@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Eye, Flame, Settings } from "lucide-react";
+import { Eye, Flame, Puzzle, Settings } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useExtensoesMesa, useNativasMesa } from "@/lib/extensoes/dados";
+import { encaixeDe } from "@/lib/extensoes/manifesto";
 import { useMesas } from "@/lib/mesas";
 import ShellBase, { Carregando } from "./ShellBase";
-import { gruposNav } from "./navegacao";
+import { itensNativos, gruposNav } from "./navegacao";
 
 // Visão do mestre: exige ser o dono da mesa.
 export { Carregando } from "./ShellBase";
@@ -14,6 +16,9 @@ export default function ShellMesa({ id, children }: { id: string; children: Reac
   const { user } = useAuth();
   const { mesas, pronto } = useMesas();
   const mesa = mesas.find((m) => m.id === id);
+  const ehMestre = !!mesa && mesa.donoUid === user?.uid;
+  const { extensoes } = useExtensoesMesa(id, true, ehMestre);
+  const nativas = useNativasMesa(id, ehMestre);
 
   if (!pronto) return <Carregando />;
   if (!mesa || mesa.donoUid !== user?.uid)
@@ -29,12 +34,20 @@ export default function ShellMesa({ id, children }: { id: string; children: Reac
     );
 
   const base = `/mesas/${mesa.id}`;
-  const { inicio, grupos } = gruposNav(base);
+  const { inicio, grupos } = gruposNav(
+    base,
+    [...itensNativos(id), ...extensoes.flatMap((e) => {
+      const enc = encaixeDe(e.manifesto, "sidebar", "mestre");
+      return enc ? [{ href: `${base}/extensoes/${e.id}`, rotulo: enc.rotulo || e.titulo, icone: Puzzle, ext: true }] : [];
+    })],
+  );
   return (
     <ShellBase
       mesa={mesa}
       modo="mestre"
       inicio={inicio}
+      extensoes={extensoes}
+      nativas={{ config: nativas.config, prontas: nativas.carregado, souMestre: true }}
       destaque={{ href: `${base}/sessao`, rotulo: "Iniciar sessão", icone: Flame }}
       grupos={grupos}
       rodape={[

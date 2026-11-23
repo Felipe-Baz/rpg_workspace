@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "../ui/Toasts";
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { CORES, STATUS_LABEL, atualizarMesa, type Status } from "@/lib/mesas";
@@ -15,6 +16,7 @@ export default function TelaConfiguracoes() {
     try {
       await navigator.clipboard.writeText(mesa.codigo);
       setCopiado(true);
+      toast("Código de convite copiado");
       setTimeout(() => setCopiado(false), 1800);
     } catch {}
   }

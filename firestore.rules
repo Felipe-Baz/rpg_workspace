@@ -247,6 +247,20 @@ service cloud.firestore {
         allow write: if false;
       }
 
+      // Extensões instaladas na mesa (HTML criado com IA, executado em iframe isolado).
+      // O mestre gerencia; o jogador lê só as marcadas como visíveis.
+      match /extensoes/{extId} {
+        allow read: if logado() && (mestreMesa() || (membroMesa() && resource.data.get('visivelJogadores', false) == true));
+        allow write: if mestreMesa();
+      }
+
+      // Escolhas do mestre sobre extensões nativas (ex.: liberar Marcas de Pacto aos jogadores).
+      // Membros leem (para saber o que mostrar); só o mestre grava.
+      match /extensoesNativas/{extId} {
+        allow read: if membroMesa();
+        allow write: if mestreMesa();
+      }
+
       // Jobs de geração de assets: o mestre acompanha (onSnapshot); só o servidor (Admin SDK) escreve.
       match /jobs/{jobId} {
         allow read: if mestreMesa();
@@ -258,6 +272,14 @@ service cloud.firestore {
     // somente pelo servidor (Admin SDK). O cliente nunca lê nem escreve, em especial segredos.
     match /usuarios/{uid}/{document=**} {
       allow read, write: if false;
+    }
+
+    // Biblioteca de extensões do mestre: privada (só o dono lê e escreve).
+    match /extensoes/{extId} {
+      allow read: if logado() && resource.data.donoUid == request.auth.uid;
+      allow create: if logado() && request.resource.data.donoUid == request.auth.uid;
+      allow update, delete: if logado() && resource.data.donoUid == request.auth.uid
+        && request.resource.data.donoUid == request.auth.uid;
     }
 
     // Biblioteca pública: assets gerados por IA, legíveis por qualquer usuário logado.

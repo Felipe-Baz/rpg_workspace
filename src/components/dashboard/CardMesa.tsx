@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "../ui/Toasts";
 import Link from "next/link";
 import { useState } from "react";
 import { Check, Copy, Eye, LogOut, MoreHorizontal, Trash2, Users } from "lucide-react";
@@ -36,7 +37,7 @@ export default function CardMesa({ mesa, mestre, agora, atraso, onRemover }: { m
       : "border-solid opacity-70 saturate-50 hover:opacity-100 hover:saturate-100";
 
   async function copiar() {
-    try { await navigator.clipboard.writeText(mesa.codigo); setCopiado(true); setTimeout(() => setCopiado(false), 1600); } catch {}
+    try { await navigator.clipboard.writeText(mesa.codigo); setCopiado(true); toast("Código de convite copiado"); setTimeout(() => setCopiado(false), 1600); } catch {}
   }
 
   return (

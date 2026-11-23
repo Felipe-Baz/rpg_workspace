@@ -1,14 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { Cinzel, EB_Garamond } from "next/font/google";
-import "@/app/marcas/marcas.css";
 import { useAuth } from "@/lib/auth";
 import { registrarJogador, useMesaMarcas } from "@/lib/marcas";
+import MarcasFrame from "./MarcasFrame";
 import VisaoJogadorMarca from "./VisaoJogadorMarca";
-
-const cinzel = Cinzel({ variable: "--font-cinzel", subsets: ["latin"] });
-const garamond = EB_Garamond({ variable: "--font-garamond", subsets: ["latin"] });
 
 /** Seção de Marcas de Pacto embutida na visão do jogador (tema escuro isolado em `.marcas`). */
 export default function MarcasSecao({ mesaId }: { mesaId: string }) {
@@ -26,10 +22,7 @@ export default function MarcasSecao({ mesaId }: { mesaId: string }) {
   return (
     <section className="space-y-3">
       <h2 className="text-xl font-semibold">Marcas de Pacto</h2>
-      <div
-        className={`marcas ${cinzel.variable} ${garamond.variable} rounded-xl p-4 sm:p-6`}
-        style={{ minHeight: 0 }}
-      >
+      <MarcasFrame>
         {!pronto ? (
           <p className="dim">Consultando os registros…</p>
         ) : !existe ? (
@@ -42,7 +35,7 @@ export default function MarcasSecao({ mesaId }: { mesaId: string }) {
         ) : (
           <VisaoJogadorMarca mesaId={mesaId} uid={uid} />
         )}
-      </div>
+      </MarcasFrame>
     </section>
   );
 }

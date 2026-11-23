@@ -38,7 +38,7 @@ export default function PainelDados({ mesaId, compacto = false }: { mesaId: stri
       >
         {ultimo ? (
           <>
-            <span className={`font-display text-5xl font-bold ${ultimo.critico === "acerto" ? "text-gold" : ultimo.critico === "falha" ? "text-danger" : ""}`}>{ultimo.total}</span>
+            <span className={`anim-dado font-display text-5xl font-bold ${ultimo.critico === "acerto" ? "text-gold" : ultimo.critico === "falha" ? "text-danger" : ""}`}>{ultimo.total}</span>
             <span className="mt-1 text-xs text-muted">
               {ultimo.expressao}
               {ultimo.critico === "acerto" && " · crítico!"}

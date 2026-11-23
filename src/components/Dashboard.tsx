@@ -9,7 +9,7 @@ import ThemeToggle from "./ThemeToggle";
 import CardMesa from "./dashboard/CardMesa";
 import EntrarDialog from "./dashboard/EntrarDialog";
 import NovaMesaWizard from "./dashboard/NovaMesaWizard";
-import ConfirmDialog from "./ui/ConfirmDialog";
+import { confirmar } from "./ui/Dialogos";
 
 type Aba = "ativas" | "planejando" | "arquivo";
 const ABAS: { id: Aba; rotulo: string; status: Status[] }[] = [
@@ -30,7 +30,19 @@ export default function Dashboard() {
   const [busca, setBusca] = useState("");
   const [novaMesa, setNovaMesa] = useState(false);
   const [entrando, setEntrando] = useState(false);
-  const [confirmar, setConfirmar] = useState<{ mesa: Mesa; dono: boolean } | null>(null);
+
+  async function remover(mesa: Mesa) {
+    const dono = mesa.donoUid === uid;
+    const ok = await confirmar({
+      perigo: true,
+      titulo: dono ? "Excluir mesa" : "Sair da mesa",
+      texto: dono
+        ? `"${mesa.nome}" será excluída para todos os jogadores. Isso não pode ser desfeito.`
+        : `Você deixará de ver "${mesa.nome}". Poderá voltar com o código de convite.`,
+      confirmar: dono ? "Excluir" : "Sair",
+    });
+    if (ok) await (dono ? excluirMesa(mesa) : sairDaMesa(mesa, uid));
+  }
 
   const minhas = useMemo(() => mesas.filter((m) => m.donoUid === uid), [mesas, uid]);
   const jogadas = useMemo(() => mesas.filter((m) => m.donoUid !== uid), [mesas, uid]);
@@ -140,7 +152,7 @@ export default function Dashboard() {
         ) : (
           <ul key={`${papelAtivo}-${abaAtiva}`} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {lista.map((m, i) => (
-              <CardMesa key={m.id} mesa={m} mestre={m.donoUid === uid} agora={agora} atraso={i * 60} onRemover={() => setConfirmar({ mesa: m, dono: m.donoUid === uid })} />
+              <CardMesa key={m.id} mesa={m} mestre={m.donoUid === uid} agora={agora} atraso={i * 60} onRemover={() => remover(m)} />
             ))}
           </ul>
         )}
@@ -148,16 +160,6 @@ export default function Dashboard() {
 
       {novaMesa && user && <NovaMesaWizard uid={user.uid} onClose={() => setNovaMesa(false)} />}
       {entrando && user && <EntrarDialog uid={user.uid} onClose={() => setEntrando(false)} />}
-      {confirmar && (
-        <ConfirmDialog
-          perigo
-          titulo={confirmar.dono ? "Excluir mesa" : "Sair da mesa"}
-          texto={confirmar.dono ? `"${confirmar.mesa.nome}" será excluída para todos os jogadores. Isso não pode ser desfeito.` : `Você deixará de ver "${confirmar.mesa.nome}". Poderá voltar com o código de convite.`}
-          confirmar={confirmar.dono ? "Excluir" : "Sair"}
-          onConfirm={() => (confirmar.dono ? excluirMesa(confirmar.mesa) : sairDaMesa(confirmar.mesa, uid))}
-          onClose={() => setConfirmar(null)}
-        />
-      )}
     </div>
   );
 }

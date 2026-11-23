@@ -1,5 +1,6 @@
 "use client";
 
+import { ListaSkeleton } from "@/components/ui/Skeleton";
 import IconeCategoria from "./IconeCategoria";
 import { confirmar } from "@/components/ui/Dialogos";
 import { useEffect, useRef, useState } from "react";
@@ -65,7 +66,7 @@ export default function FichasJogador({
           ? "🔒 Os jogadores só veem o que você liberar (para todos ou para jogadores específicos)."
           : "🔒 Só você vê o que cadastra aqui. Itens liberados pelo mestre aparecem com 👁."}
       </p>
-      {!carregado && <p className="text-muted">Carregando…</p>}
+      {!carregado && <ListaSkeleton linhas={2} />}
       {carregado && lista.length === 0 && <p className="text-muted">Nada cadastrado ainda.</p>}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
         {lista.map((f) => (

@@ -8,7 +8,10 @@ import EditorMarkdown from "../EditorMarkdown";
 import LivroNotas from "../LivroNotas";
 import Markdown from "../Markdown";
 import MarcasSecao from "../marcas/MarcasSecao";
+import { nativaVisivel } from "@/lib/extensoes/nativas";
+import { useExtensoesContexto } from "../shell/ExtensoesContext";
 import { useMesaAtual } from "../shell/MesaContext";
+import Slot from "../shell/Slot";
 
 function formatarData(d: string) {
   if (!d) return "Sem data";
@@ -20,6 +23,7 @@ function formatarData(d: string) {
 export default function DiarioJogador() {
   const { user } = useAuth();
   const mesa = useMesaAtual();
+  const { nativas, souMestre } = useExtensoesContexto();
   const { notas, notasJogadores, carregado, definirNota, definirNotaJogador } = useAnotacoes(mesa.id, user?.uid ?? "", !!user);
   const sessoes = [...mesa.sessoes].sort((a, b) => b.data.localeCompare(a.data));
 
@@ -68,7 +72,10 @@ export default function DiarioJogador() {
         )}
       </section>
 
-      <MarcasSecao mesaId={mesa.id} />
+      {/* Encaixe "diário do jogador" da extensão nativa Marcas de Pacto (só na mesa autorizada) */}
+      {nativaVisivel(mesa.id, "marcas-de-pacto", souMestre ? "mestre" : "jogador", nativas) && <MarcasSecao mesaId={mesa.id} />}
+
+      <Slot nome="diario.jogador" />
 
       <section className="space-y-3">
         <h2 className="font-display text-xl font-semibold tracking-wide">Diário de sessões</h2>

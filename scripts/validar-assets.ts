@@ -87,4 +87,4 @@ for (const [nome, tipo, descricao] of itens.filter(([n]) => !filtro || filtro.in
   }
 }
 if (!filtro) writeFileSync(`${OUT}/resumo.json`, JSON.stringify(resumo, null, 2));
-console.log(`Pronto. Abra ${OUT}/ e registre os achados em docs/validacao-gemini.md.`);
+console.log(`Pronto. Abra ${OUT}/ e registre os achados em docs/planejamento/validacao-gemini.md.`);

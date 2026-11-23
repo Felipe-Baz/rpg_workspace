@@ -32,7 +32,8 @@ export default function Brasas({ quantidade = 60 }: { quantidade?: number }) {
       w = canvas!.clientWidth; h = canvas!.clientHeight;
       canvas!.width = w * dpr; canvas!.height = h * dpr;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ps = Array.from({ length: quantidade }, () => nova(Math.random() * h));
+      const n = w < 640 ? Math.ceil(quantidade / 2) : quantidade;
+      ps = Array.from({ length: n }, () => nova(Math.random() * h));
     }
 
     function quadro(t: number) {

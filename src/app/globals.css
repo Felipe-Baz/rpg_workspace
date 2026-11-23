@@ -192,3 +192,9 @@ button:active:not(:disabled) { transform: scale(0.97); }
 /* Conteúdo de mundo (artigos): títulos com a fonte de display */
 .md h1, .md h2 { font-family: var(--font-display), serif; letter-spacing: .03em; }
 .papiro .md h1, .papiro .md h2 { font-family: inherit; letter-spacing: .04em; }
+
+/* ===== Fase 6: animações temáticas ===== */
+@keyframes dado { 0% { transform: rotateX(-540deg) rotateZ(-20deg) scale(.4); opacity: 0; } 60% { transform: rotateX(20deg) scale(1.15); opacity: 1; } 100% { transform: none; } }
+@keyframes cintilar { 0%, 100% { filter: drop-shadow(0 0 0 transparent); } 50% { filter: drop-shadow(0 0 14px var(--gold)); } }
+.anim-dado { display: inline-block; animation: dado .6s var(--ease) both; }
+.text-gold.anim-dado { animation: dado .6s var(--ease) both, cintilar 1.6s ease-in-out .6s infinite; }

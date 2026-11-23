@@ -1,5 +1,6 @@
 "use client";
 
+import { ListaSkeleton } from "@/components/ui/Skeleton";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
@@ -39,7 +40,7 @@ export default function ConfigIa() {
   }, []);
 
   if (erro) return <p className="text-danger">{erro}</p>;
-  if (!est) return <p className="text-muted">Carregando…</p>;
+  if (!est) return <ListaSkeleton />;
 
   return (
     <div className="space-y-8">

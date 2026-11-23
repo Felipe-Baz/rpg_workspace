@@ -1,5 +1,6 @@
 "use client";
 
+import { ListaSkeleton } from "@/components/ui/Skeleton";
 import { confirmar } from "@/components/ui/Dialogos";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { comprimirImagem } from "@/lib/mapas";
@@ -147,7 +148,7 @@ export default function QuadroJogador({ mesaId, usuarioUid }: { mesaId: string; 
   const cx = (n: No) => n.x + n.w / 2;
   const cy = (n: No) => n.y + (alturas[n.id] ?? 80) / 2;
 
-  if (!carregado) return <p className="text-muted">Carregando…</p>;
+  if (!carregado) return <ListaSkeleton />;
 
   const botao = "rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium hover:bg-border/50";
 

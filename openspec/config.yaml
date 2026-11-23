@@ -15,7 +15,7 @@ context: |
   - Só Firestore hoje: sem Storage e sem rotas de servidor.
 
   Feature em andamento: "Mapas com IA" (branch `feature/mapas-ia`, isolada da produção).
-  Visão geral e ordem das fases: `docs/mapas-ia-guia-de-fases.md` e `spec-mapas-ia.md`.
+  Visão geral e ordem das fases: `docs/temp/mapas-ia-guia-de-fases.md` e `docs/planejamento/spec-mapas-ia.md`.
   As changes são numeradas e devem ser implementadas na ordem:
   02 infra-storage-servidor, 03 mapas-cena-editor-manual, 04 provedores-ia-config,
   05 temas-e-perspectivas, 06 biblioteca-assets-ia, 07 agente-criador-mapas,

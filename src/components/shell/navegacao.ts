@@ -1,5 +1,6 @@
-import { BookMarked, BookOpenText, Boxes, Calendar, Crown, Image as ImageIcon, LayoutDashboard, Lock, Map as MapIcon, PenLine, Scroll, type LucideIcon } from "lucide-react";
+import { BookMarked, BookOpenText, Boxes, Calendar, Crown, Image as ImageIcon, LayoutDashboard, Lock, Map as MapIcon, PenLine, Puzzle, Scroll, type LucideIcon } from "lucide-react";
 import { CATEGORIAS } from "@/lib/fichas";
+import { nativasVisiveis, type ConfigNativas } from "@/lib/extensoes/nativas";
 import { ICONES_FICHA } from "../fichas/IconeCategoria";
 
 export type ItemNav = { href: string; rotulo: string; icone: LucideIcon; ext?: boolean; troca?: boolean }; // troca = link para a outra visão (nunca "ativo")
@@ -7,7 +8,7 @@ export type GrupoNav = { titulo: string; itens: ItemNav[] };
 
 
 // Sidebar agrupada por categoria (Mundo / Jogo / Extensões). `base` = /mesas/{id}.
-export function gruposNav(base: string): { inicio: ItemNav; grupos: GrupoNav[] } {
+export function gruposNav(base: string, extensoes: ItemNav[] = []): { inicio: ItemNav; grupos: GrupoNav[] } {
   return {
     inicio: { href: base, rotulo: "Visão geral", icone: LayoutDashboard },
     grupos: [
@@ -31,14 +32,17 @@ export function gruposNav(base: string): { inicio: ItemNav; grupos: GrupoNav[] }
       },
       {
         titulo: "Extensões",
-        itens: [{ href: `${base}/marcas`, rotulo: "Marcas de Pacto", icone: Boxes, ext: true }],
+        itens: [
+          ...extensoes,
+          { href: `${base}/extensoes`, rotulo: "Gerenciar extensões", icone: Puzzle },
+        ],
       },
     ],
   };
 }
 
 // Visão do jogador: só o que o mestre libera. `base` = /mesas/{id}/jogador.
-export function gruposNavJogador(base: string): { inicio: ItemNav; grupos: GrupoNav[] } {
+export function gruposNavJogador(base: string, extensoes: ItemNav[] = []): { inicio: ItemNav; grupos: GrupoNav[] } {
   return {
     inicio: { href: base, rotulo: "Meu diário", icone: BookMarked },
     grupos: [
@@ -58,6 +62,20 @@ export function gruposNavJogador(base: string): { inicio: ItemNav; grupos: Grupo
           ...CATEGORIAS.map((c) => ({ href: `${base}/fichas/${c.id}`, rotulo: c.rotulo, icone: ICONES_FICHA[c.id] ?? Boxes })),
         ],
       },
+      ...(extensoes.length ? [{ titulo: "Extensões", itens: extensoes }] : []),
     ],
   };
+}
+
+/**
+ * Encaixe "sidebar": itens das extensões nativas desta mesa. `rota` define o shell do link; o mestre vê sempre
+ * (`verTudo`), o jogador só o que o mestre liberou (Marcas de Pacto nasce privada).
+ */
+export function itensNativos(mesaId: string, rota: "mestre" | "jogador" = "mestre", config: ConfigNativas = {}, verTudo = rota === "mestre"): ItemNav[] {
+  return nativasVisiveis(mesaId, verTudo ? "mestre" : "jogador", config).map((n) => ({
+    href: rota === "jogador" ? `/mesas/${mesaId}/jogador/${n.rota}` : `/mesas/${mesaId}/${n.rota}`,
+    rotulo: n.titulo,
+    icone: Boxes,
+    ext: true,
+  }));
 }

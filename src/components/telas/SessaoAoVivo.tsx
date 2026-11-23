@@ -10,6 +10,7 @@ import Cronometro from "../sessao/Cronometro";
 import Iniciativa from "../sessao/Iniciativa";
 import PainelDados from "../sessao/PainelDados";
 import { useMesaAtual } from "../shell/MesaContext";
+import Slot from "../shell/Slot";
 import Titulo, { campo } from "./Titulo";
 
 const Painel = ({ titulo, children, className = "" }: { titulo: string; children: React.ReactNode; className?: string }) => (
@@ -76,6 +77,7 @@ export default function SessaoAoVivo() {
         <div className="space-y-4">
           <Painel titulo="Dados"><PainelDados mesaId={mesa.id} /></Painel>
           <Painel titulo="Duração"><Cronometro /></Painel>
+          <Slot nome="sessao.painel" />
           <Painel titulo="Atalhos">
             <div className="grid grid-cols-2 gap-2">
               {atalhos.map((a) => (
