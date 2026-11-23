@@ -8,7 +8,7 @@ export default function TelaMundo() {
   const mesa = useMesaAtual();
   return (
     <>
-      <Titulo titulo="Mundo" texto="Artigos e lore da campanha." />
+      <Titulo termo="mundo" titulo="Mundo" texto="Artigos e lore da campanha." />
       <Mundo mesaId={mesa.id} ehMestre />
     </>
   );

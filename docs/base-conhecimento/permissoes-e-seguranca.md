@@ -16,8 +16,12 @@ A barreira real é **Firestore Rules + Storage Rules + rotas de servidor**. A in
 | Fichas do mestre (`mestre:true`) | lê/escreve | lê só se `todos` ou `liberadoPara` contém o uid | Liberação seletiva |
 | Diário (`anotacoes/{uid}`), pinos, quadro | nada | só o próprio dono | Material privado do jogador |
 | Extensões instaladas | gerencia | lê só as `visivelJogadores` | Mestre decide o que aparece |
+| Registros de tipos de dado: `recursosDados/{id}` | lê e grava tudo | lê só `liberado == true` | O mestre libera cada registro |
+| Pedidos de jogadores: `extensoesPedidos/{id}` | lê todos; aprova/recusa/apaga | cria e lê só os próprios (`de == uid`, `status: pendente`) | O jogador nunca grava conteúdo direto; o pedido é revalidado pelo mestre ao aprovar |
+| Lotes criados por extensões: `extensoesLotes/{id}` | lê e grava | nada | Histórico para listar e desfazer |
 | Extensões nativas: `extensoesNativas/{id}` | grava | lê (para saber o que mostrar) | Mestre pode ocultar as Marcas de Pacto dos jogadores; sem registro = visível |
 | `uso`, `usoRegistros`, `jobs` | lê | nada | Só o servidor escreve (Admin SDK) |
+| Marcas (todas as coleções) | só na mesa `MESA_PADRAO` | só na mesa `MESA_PADRAO` e se o mestre não ocultou | Exclusividade e ocultação impostas pelas regras do Firestore |
 | Marcas: `lore`, `puzzles` | só ele | nada | Gabarito nunca vai ao cliente de jogador |
 | Marcas: `assignments`, `released`, `puzzleStatus` | escreve | lê o próprio | Mestre controla a progressão |
 | Marcas: `notes`, `puzzleResp` | lê | escreve o próprio (precisa ter Marca atribuída) | Jogador responde, mestre avalia |
@@ -46,8 +50,13 @@ Fora de `mesas`:
 
 - Iframe com `sandbox`, **CSP sem rede**, comunicação só por `postMessage`; sem acesso a cookies, storage, Firebase ou DOM do app.
 - Limites: HTML ≤ 150 KB, estado salvo ≤ 50 KB, título ≤ 80 caracteres.
-- **Leitura de dados da mesa pelo broker:** a extensão só lê o que o **mestre aprovou** (`permissoesAprovadas`) e, mesmo assim, apenas o que a **conta de quem usa** já pode ler (jogador não recebe dados de mestre). Pedidos são validados, limitados (20/s, 200 mil caracteres) e atendidos só ao próprio iframe. Esta fase **não grava** dados da mesa. Os dados privados que a extensão guardar em `RPG.salvar` ficam visíveis a quem a usa, e o consentimento avisa disso.
-- Extensões **nativas** são bloqueadas **na interface** por mesa e, para o jogador, pela opção de ocultar do mestre (`extensoesNativas`; padrão visível). O painel de gerenciamento das Marcas é só do mestre. As regras do Firestore ainda não impedem um membro de outra mesa de gravar nas coleções das Marcas se chamar o Firestore à mão (blindagem planejada, ver plano de extensões).
+- **Efeitos na mesa:** tema só aceita tokens conhecidos com cor hexadecimal (nunca CSS livre); rótulos são limpos de marcação; contraste mínimo 4,5:1 entre texto e fundo; Início/Extensões/Configurações não se ocultam; o kill switch (`ativa`) desfaz tudo. A extensão não altera tema ou menu por script, só pelo manifesto que o mestre aprova.
+- **IA na extensão:** `POST /api/ia/extensao-llm` exige token, ser membro da mesa, extensão ativa com `usar:ia` aprovada (e liberada, se o chamador for jogador); usa a chave do **mestre**; limite diário atômico por mesa; pergunta/resposta com tamanho máximo. A chave nunca chega ao navegador.
+- **Importação de extensões:** o arquivo só traz código e manifesto, é validado e normalizado, e **não traz aprovações, estado, dono nem visibilidade**; o código roda no mesmo iframe isolado e as permissões continuam dependendo da aprovação do mestre.
+- **Pedidos de jogador:** as regras exigem formato fixo (`hasOnly`), 1 a 20 ações, `status` pendente, nome ≤ 80.
+- **Eventos:** só a visão do mestre executa automações, só com a mesa aberta, e cada evento exige a permissão `ler:*` aprovada; limite de 10 eventos/min por extensão e sem retorno ao autor do evento.
+- **Leitura de dados da mesa pelo broker:** a extensão só lê o que o **mestre aprovou** (`permissoesAprovadas`) e, mesmo assim, apenas o que a **conta de quem usa** já pode ler (jogador não recebe dados de mestre). Pedidos são validados, limitados (20/s, 200 mil caracteres) e atendidos só ao próprio iframe. A **escrita** (`criar:fichas`, `criar:missoes`) é só do mestre: o jogador nunca cria conteúdo por extensão; cada pedido exige a **aprovação explícita** do mestre numa tela com o resumo, grava em lote atômico com `origem` e é desfazível. Os dados privados que a extensão guardar em `RPG.salvar` ficam visíveis a quem a usa, e o consentimento avisa disso.
+- Extensões **nativas** são bloqueadas **na interface** por mesa e, para o jogador, pela opção de ocultar do mestre (`extensoesNativas`; padrão visível). O painel de gerenciamento das Marcas é só do mestre. A exclusividade e a ocultação das Marcas são **impostas pelas regras do Firestore** (funções `mesaDasMarcas`, `marcasLiberadas`, `marcasMestre`, `marcasJogador`), não só pela interface; o id da mesa nas regras é conferido por teste contra `MESA_PADRAO`.
 
 ## Spoilers e conteúdo sensível
 

@@ -23,7 +23,7 @@ Mostrar que extensões podem alterar a experiência da mesa por inteiro (tema so
 - Em qualquer outra mesa: some da sidebar e do diário e a rota mostra "Extensão indisponível".
 - O painel de gerenciamento é só do mestre: a rota `/mesas/{id}/marcas` exige ser o dono, e o gabarito (`lore`, `puzzles`) nunca chega ao cliente do jogador (regras do Firestore).
 - Gabarito jamais vai ao cliente de jogador (regras do Firestore).
-- Limite conhecido: o bloqueio por mesa e pela liberação é de **interface**; as regras das coleções das Marcas ainda deixam qualquer membro ler/gravar o que já permitiam (ver [extensoes](extensoes.md)).
+- O bloqueio vale no **servidor** (regras do Firestore): as coleções das Marcas só existem na mesa autorizada (`mesaDasMarcas`) e, para jogadores, só enquanto o mestre não as ocultar (`marcasLiberadas`). Em qualquer outra mesa ficam fechadas até para o mestre. O id da mesa nas regras precisa ser igual a `MESA_PADRAO` (há teste).
 
 ## Onde está no código
 `src/lib/marcas.ts`, `marcas-data.ts`, `marcas-const.ts`, `puzzle-util.ts`, `src/lib/extensoes/nativas.ts`, `src/components/marcas/*` (MarcasApp, PainelMestre, VisaoJogadorMarca, Enigmas*), `src/components/telas/TelaMarcas.tsx`, `scripts/gerar-lore.py`.

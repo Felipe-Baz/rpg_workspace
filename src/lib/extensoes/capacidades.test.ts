@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PERMISSAO_IDS, PERMISSOES, autorizar, descricaoApi, normalizarPermissoes, textoConsentimento, validarPedido } from "./capacidades.ts";
+import { ALVOS_LEITURA, PERMISSAO_IDS, PERMISSOES, PERMISSOES_LEITURA, autorizar, descricaoApi, normalizarPermissoes, textoConsentimento, validarPedido } from "./capacidades.ts";
 import { DADOS_EXEMPLO, MAX_RESPOSTA, atender, leitorExemplo, limitar } from "./broker-puro.ts";
 import { normalizarManifesto } from "./manifesto.ts";
 import { montarDocumento } from "./documento.ts";
@@ -30,7 +30,7 @@ test("só lê o que o mestre aprovou", () => {
 });
 
 test("cada permissão tem um alvo único e todos os alvos têm leitura de exemplo", () => {
-  const alvos = PERMISSAO_IDS.map((p) => PERMISSOES[p].alvo);
+  const alvos = [...ALVOS_LEITURA];
   assert.equal(new Set(alvos).size, alvos.length);
   for (const a of alvos) assert.ok(a in DADOS_EXEMPLO, a);
 });
@@ -79,7 +79,8 @@ test("consentimento lista as permissões e avisa sobre dados privados", () => {
 
 test("o prompt documenta cada chamada do catálogo e pede as permissões no manifesto", () => {
   const p = montarPedidoExtensao([{ papel: "usuario", texto: "oi" }]);
-  for (const id of PERMISSAO_IDS) assert.match(p.sistema!, new RegExp(`RPG\\.ler\\("${PERMISSOES[id].alvo}"\\)`));
+  for (const id of PERMISSOES_LEITURA) assert.ok(p.sistema!.includes(`RPG.ler("${PERMISSOES[id].alvo}")`), id);
+  for (const id of PERMISSAO_IDS) assert.ok(p.sistema!.includes(`"${id}"`), id);
   assert.match(p.sistema!, /"permissoes"/);
   assert.match(descricaoApi(), /RPG\.rolar/);
 });

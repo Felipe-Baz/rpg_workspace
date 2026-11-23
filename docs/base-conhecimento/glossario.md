@@ -34,6 +34,17 @@
 | **Manifesto** | Declara os **encaixes** de uma extensão. |
 | **Permissão (de extensão)** | O que uma extensão pode ler (`ler:jogadores`, `ler:missoes`…). A extensão pede no manifesto; o mestre aprova ao publicar. |
 | **Broker** | Intermediário no app que atende `RPG.ler`/`RPG.rolar` da extensão: valida, confere a permissão aprovada e lê com as credenciais de quem usa. |
+| **Efeitos na mesa** | Mudanças estruturais que uma extensão ativa faz: tema, termos, menu e tipos de recurso (bloco `mesa` do manifesto). |
+| **Tipo de recurso** | Tipo de dado criado por extensão (ex.: Facções) com campos definidos; o app gera lista, formulário e busca. |
+| **Prioridade (de extensões)** | Ordem em que os efeitos são combinados; a última vence conflitos. |
+| **Kill switch (`ativa`)** | Desligar uma extensão na mesa sem apagá-la: some do menu, dos encaixes, dos eventos e dos efeitos. |
+| **Pacote de extensão** | Arquivo `.rpgext.json` com o código e o manifesto de uma extensão, para compartilhar. Não leva dados nem aprovações. |
+| **Limite diário de IA (extensões)** | Quantas perguntas à IA do mestre as extensões podem fazer por dia em uma mesa (`tetoIaExtensoes`, padrão 100). |
+| **Evento (de extensão)** | Mudança na mesa que uma extensão pode ouvir (`missao.concluida`, `ficha.criada`…), detectada por diferença de dados enquanto o mestre está com a mesa aberta. |
+| **Automação** | Extensão rodando em segundo plano (sem tela) para tratar eventos. Nunca com o app fechado. |
+| **Pedido (de jogador)** | Solicitação de criação feita por um jogador via extensão; o mestre aprova ou recusa. |
+| **Lote (de extensão)** | Conjunto de itens que uma extensão criou numa aprovação; recebe `origem` e pode ser desfeito inteiro. |
+| **Aprovação (de criação)** | Tela em que o mestre vê o que a extensão quer criar e para quem, antes de gravar. |
 | **Modo ensaio** | Prévia do criador com permissões simuladas e dados da mesa ou de exemplo. |
 | **Encaixe (slot)** | Ponto do app onde uma extensão pode aparecer: `sidebar`, `diario.jogador`, `visao-geral`, `sessao.painel`, `ctrlk`. |
 | **Extensão nativa** | Módulo React que o app entrega, exclusivo de certas mesas (hoje, Marcas de Pacto). O mestre pode ocultá-la dos jogadores. |

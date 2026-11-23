@@ -13,7 +13,7 @@ export default function TelaSessoes() {
 
   return (
     <>
-      <Titulo titulo="Sessões" texto="Registre cada sessão: resumo público para os jogadores e notas secretas só para você." />
+      <Titulo termo="sessoes" titulo="Sessões" texto="Registre cada sessão: resumo público para os jogadores e notas secretas só para você." />
       <section className="space-y-4">
         {mesa.sessoes.length === 0 && (
           <p className="rounded-xl border border-dashed border-border p-8 text-center text-muted">Nenhuma sessão registrada.</p>

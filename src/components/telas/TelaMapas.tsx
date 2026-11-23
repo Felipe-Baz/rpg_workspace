@@ -8,7 +8,7 @@ export default function TelaMapas() {
   const mesa = useMesaAtual();
   return (
     <>
-      <Titulo titulo="Mapas" texto="Cenas, mapas de imagem e criação com IA." />
+      <Titulo termo="mapas" titulo="Mapas" texto="Cenas, mapas de imagem e criação com IA." />
       <MapasMestre mesa={mesa} />
     </>
   );

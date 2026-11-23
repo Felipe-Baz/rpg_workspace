@@ -10,7 +10,7 @@ import { MUNDO_PADRAO } from "@/content/valgreth";
 import { db } from "../firebase";
 import { lerMundoJson } from "../mundo";
 import type { Mesa } from "../mesas";
-import { atender, leitorExemplo, type Leitor } from "./broker-puro";
+import { atender, leitorExemplo, type Leitor, type Perguntador, type Proponente } from "./broker-puro";
 import type { Pedido, Permissao } from "./capacidades";
 
 export type FonteDados = "real" | "exemplo";
@@ -104,13 +104,17 @@ export function criarBroker(opcoes: {
   aprovadas: readonly Permissao[];
   fonte?: FonteDados;
   aoRegistrar?: (r: RegistroChamada) => void;
+  /** Quem trata criações: para o mestre, aprova e grava; para o jogador, envia um pedido ao mestre. */
+  propor?: Proponente;
+  /** Pergunta à IA do mestre (servidor, com limite diário). No ensaio, uma resposta fixa. */
+  perguntar?: Perguntador;
 }) {
   const leitor = opcoes.fonte === "exemplo" ? leitorExemplo : leitorReal(opcoes.mesa, opcoes.papel, opcoes.uid);
   return async (pedido: Pedido): Promise<unknown> => {
     const registro = (ok: boolean, detalhe: string) => opcoes.aoRegistrar?.({ quando: Date.now(), op: pedido.op, alvo: pedido.alvo, ok, detalhe });
     try {
-      const r = await atender(pedido, opcoes.aprovadas, leitor);
-      const n = r && typeof r === "object" && "total" in r ? ` · ${(r as { total: number }).total} itens` : "";
+      const r = await atender(pedido, opcoes.aprovadas, leitor, opcoes.propor, opcoes.perguntar);
+      const n = r && typeof r === "object" && "total" in r ? ` · ${(r as { total: number }).total} itens` : r && typeof r === "object" && "criados" in r ? ` · ${(r as { criados: unknown[] }).criados.length} criado(s)` : "";
       registro(true, `ok${n}`);
       return r;
     } catch (e) {

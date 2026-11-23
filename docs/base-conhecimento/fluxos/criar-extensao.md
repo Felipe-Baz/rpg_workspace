@@ -15,6 +15,14 @@ Extensões → Criar → Chat + prévia → Manifesto (encaixes + permissões) �
 7. **Uso:** o mestre abre a extensão, e `RPG.salvar` persiste o estado (≤ 50 KB). O jogador a usa em **somente leitura**.
 8. **Editar depois:** `/extensoes/{extId}/editar` reabre o chat com o histórico. **Arquivar** a tira da lista; **excluir da biblioteca** não remove cópias já instaladas em mesas.
 
+**Criar conteúdo (E3):** uma extensão com `criar:fichas`/`criar:missoes` aprovadas pode propor criações (ex.: "Gerar tesouro" aberto a partir de uma missão, que lê o nº de jogadores e cria as joias como fichas de item). Cada pedido abre uma **aprovação** com o resumo; ao aprovar, grava em lote. Em "O que esta extensão criou" (tela da extensão) o mestre **desfaz o lote**.
+
+**Automação (E4):** o manifesto pode ouvir eventos (missão concluída, ficha criada, jogador entrou, sessão registrada, dados rolados); a extensão roda em segundo plano **só com a mesa aberta pelo mestre**. **Jogadores:** ao usar uma extensão que "cria", o jogador envia um **pedido**; o mestre aprova ou recusa em Extensões > Pedidos dos jogadores.
+
+**Mudar a mesa (E5):** o mestre pede "deixe a mesa mais sombria, chame NPCs de Contatos e crie Facções"; a IA propõe o bloco `mesa`. Na aba "Onde aparece" o mestre vê o que será mudado e pode remover; ao publicar aprova. Em Extensões ele **liga/desliga** cada extensão e define a **prioridade** quando duas mexem na mesma coisa.
+
+**Compartilhar (E6):** "Exportar" gera um arquivo `.rpgext.json` (código + manifesto, sem dados); outro mestre usa "Importar arquivo" e aprova as permissões ao instalar numa mesa dele. **IA na extensão:** com `usar:ia` aprovada, a extensão pode fazer perguntas à IA do mestre, limitadas por dia e por mesa.
+
 **Reuso:** em outra mesa, a lista de Extensões mostra a biblioteca do mestre e permite instalar nela uma cópia (`publicarNaMesa`), repetindo a aprovação de permissões.
 
 Detalhes e limites: [extensoes](../features/extensoes.md).

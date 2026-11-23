@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Eye, Flame, Puzzle, Settings } from "lucide-react";
+import { Eye, Flame, Layers, Puzzle, Settings } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { useExtensoesMesa, useNativasMesa } from "@/lib/extensoes/dados";
-import { encaixeDe } from "@/lib/extensoes/manifesto";
+import { combinarEfeitos } from "@/lib/extensoes/efeitos";
+import { encaixeDe, normalizarManifesto } from "@/lib/extensoes/manifesto";
+import { usePedidosMestre } from "@/lib/extensoes/pedidos";
+import { toast } from "../ui/Toasts";
 import { useMesas } from "@/lib/mesas";
 import ShellBase, { Carregando } from "./ShellBase";
 import { itensNativos, gruposNav } from "./navegacao";
@@ -17,8 +21,20 @@ export default function ShellMesa({ id, children }: { id: string; children: Reac
   const { mesas, pronto } = useMesas();
   const mesa = mesas.find((m) => m.id === id);
   const ehMestre = !!mesa && mesa.donoUid === user?.uid;
-  const { extensoes } = useExtensoesMesa(id, true, ehMestre);
+  const { extensoes: todasExt } = useExtensoesMesa(id, true, ehMestre);
   const nativas = useNativasMesa(id, ehMestre);
+  // Desativadas (kill switch) não aparecem em lugar nenhum e não têm efeitos.
+  const extensoes = todasExt.filter((e) => e.ativa !== false);
+  const efeitos = combinarEfeitos(extensoes.map((e) => ({ id: e.id, titulo: e.titulo, efeitos: normalizarManifesto(e.manifesto).mesa })));
+  const { pedidos, carregado: pedidosOk } = usePedidosMestre(id, ehMestre);
+  const pendentes = pedidos.filter((p) => p.status === "pendente").length;
+  // Avisa quando chega um pedido novo de jogador (a primeira leitura é só a base).
+  const vistos = useRef<number | null>(null);
+  useEffect(() => {
+    if (!pedidosOk) return;
+    if (vistos.current !== null && pendentes > vistos.current) toast("Um jogador fez um pedido por uma extensão. Veja em Extensões.", "info");
+    vistos.current = pendentes;
+  }, [pendentes, pedidosOk]);
 
   if (!pronto) return <Carregando />;
   if (!mesa || mesa.donoUid !== user?.uid)
@@ -39,7 +55,7 @@ export default function ShellMesa({ id, children }: { id: string; children: Reac
     [...itensNativos(id), ...extensoes.flatMap((e) => {
       const enc = encaixeDe(e.manifesto, "sidebar", "mestre");
       return enc ? [{ href: `${base}/extensoes/${e.id}`, rotulo: enc.rotulo || e.titulo, icone: Puzzle, ext: true }] : [];
-    })],
+    }), ...efeitos.recursos.map((r) => ({ href: `${base}/recursos/${r.extId}/${r.id}`, rotulo: r.plural, icone: Layers, ext: true }))],
   );
   return (
     <ShellBase
@@ -47,6 +63,8 @@ export default function ShellMesa({ id, children }: { id: string; children: Reac
       modo="mestre"
       inicio={inicio}
       extensoes={extensoes}
+      efeitos={efeitos}
+      badges={pendentes ? { [`${base}/extensoes`]: pendentes } : {}}
       nativas={{ config: nativas.config, prontas: nativas.carregado, souMestre: true }}
       destaque={{ href: `${base}/sessao`, rotulo: "Iniciar sessão", icone: Flame }}
       grupos={grupos}

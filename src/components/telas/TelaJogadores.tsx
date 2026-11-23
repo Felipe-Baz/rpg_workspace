@@ -13,7 +13,7 @@ export default function TelaJogadores() {
 
   return (
     <>
-      <Titulo titulo="Jogadores" texto="Quem joga na mesa e as suas notas secretas sobre cada um." />
+      <Titulo termo="jogadores" titulo="Jogadores" texto="Quem joga na mesa e as suas notas secretas sobre cada um." />
       <section className="space-y-5">
         {mesa.jogadores.length === 0 && (
           <p className="rounded-xl border border-dashed border-border p-8 text-center text-muted">

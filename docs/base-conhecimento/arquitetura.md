@@ -55,6 +55,9 @@ mesas/{mesaId}                       Mesa: nome, sistema, cor, status, donoUid, 
   ├─ fichas/{id}                      privadas do jogador OU do mestre (mestre:true) liberáveis
   ├─ quadro/{noId}                    quadro de investigação do jogador
   ├─ extensoes/{id}                   extensões instaladas (cópia do HTML)
+  ├─ recursosDados/{registroId}       registros dos tipos de dado criados por extensões (liberado)
+  ├─ extensoesPedidos/{pedidoId}      pedidos de jogadores por extensões (mestre aprova/recusa)
+  ├─ extensoesLotes/{loteId}          conteúdo criado por extensões (itens + origem), para desfazer
   ├─ extensoesNativas/{idNativa}      liberação de extensões nativas aos jogadores (mestre grava, membros leem)
   └─ Marcas: players, assignments, notes, lore, puzzles, released, puzzleResp, puzzleStatus
 convites/{codigo}                    código → mesa (get por código exato; sem listar)
@@ -93,6 +96,7 @@ Todas exigem `Authorization: Bearer <ID token>` (`verificarToken`) e, para açõ
 | `segmentar` | Detecta objetos de um mapa de imagem (máscaras sugeridas). |
 | `inpaint` | Reconstrói o fundo e recorta sprites para a conversão em cena. |
 | `extensao` | Gera/edita o HTML de uma extensão. |
+| `extensao-llm` | Pergunta feita POR uma extensão (`RPG.perguntar`) à IA do mestre, com permissão aprovada e limite diário por mesa. |
 | `saude` | Diagnóstico de configuração. |
 
 ## Segredos e chaves

@@ -3,7 +3,7 @@ import { CATEGORIAS } from "@/lib/fichas";
 import { nativasVisiveis, type ConfigNativas } from "@/lib/extensoes/nativas";
 import { ICONES_FICHA } from "../fichas/IconeCategoria";
 
-export type ItemNav = { href: string; rotulo: string; icone: LucideIcon; ext?: boolean; troca?: boolean }; // troca = link para a outra visão (nunca "ativo")
+export type ItemNav = { href: string; rotulo: string; icone: LucideIcon; ext?: boolean; troca?: boolean; chave?: string }; // troca = link para a outra visão (nunca "ativo")
 export type GrupoNav = { titulo: string; itens: ItemNav[] };
 
 
@@ -15,19 +15,19 @@ export function gruposNav(base: string, extensoes: ItemNav[] = []): { inicio: It
       {
         titulo: "Mundo",
         itens: [
-          { href: `${base}/mapas`, rotulo: "Mapas", icone: MapIcon },
-          { href: `${base}/imagens`, rotulo: "Imagens", icone: ImageIcon },
-          { href: `${base}/mundo`, rotulo: "Mundo", icone: BookOpenText },
+          { chave: "mapas", href: `${base}/mapas`, rotulo: "Mapas", icone: MapIcon },
+          { chave: "imagens", href: `${base}/imagens`, rotulo: "Imagens", icone: ImageIcon },
+          { chave: "mundo", href: `${base}/mundo`, rotulo: "Mundo", icone: BookOpenText },
         ],
       },
       {
         titulo: "Jogo",
         itens: [
-          { href: `${base}/missoes`, rotulo: "Missões", icone: Scroll },
-          ...CATEGORIAS.map((c) => ({ href: `${base}/fichas/${c.id}`, rotulo: c.rotulo, icone: ICONES_FICHA[c.id] ?? Boxes })),
-          { href: `${base}/jogadores`, rotulo: "Jogadores", icone: Crown },
-          { href: `${base}/sessoes`, rotulo: "Sessões", icone: Calendar },
-          { href: `${base}/segredos`, rotulo: "Segredos", icone: Lock },
+          { chave: "missoes", href: `${base}/missoes`, rotulo: "Missões", icone: Scroll },
+          ...CATEGORIAS.map((c) => ({ chave: `fichas.${c.id}`, href: `${base}/fichas/${c.id}`, rotulo: c.rotulo, icone: ICONES_FICHA[c.id] ?? Boxes })),
+          { chave: "jogadores", href: `${base}/jogadores`, rotulo: "Jogadores", icone: Crown },
+          { chave: "sessoes", href: `${base}/sessoes`, rotulo: "Sessões", icone: Calendar },
+          { chave: "segredos", href: `${base}/segredos`, rotulo: "Segredos", icone: Lock },
         ],
       },
       {
@@ -49,17 +49,17 @@ export function gruposNavJogador(base: string, extensoes: ItemNav[] = []): { ini
       {
         titulo: "Mundo",
         itens: [
-          { href: `${base}/mapas`, rotulo: "Mapas", icone: MapIcon },
-          { href: `${base}/imagens`, rotulo: "Imagens", icone: ImageIcon },
-          { href: `${base}/mundo`, rotulo: "Mundo", icone: BookOpenText },
-          { href: `${base}/quadro`, rotulo: "Quadro", icone: PenLine },
+          { chave: "mapas", href: `${base}/mapas`, rotulo: "Mapas", icone: MapIcon },
+          { chave: "imagens", href: `${base}/imagens`, rotulo: "Imagens", icone: ImageIcon },
+          { chave: "mundo", href: `${base}/mundo`, rotulo: "Mundo", icone: BookOpenText },
+          { chave: "quadro", href: `${base}/quadro`, rotulo: "Quadro", icone: PenLine },
         ],
       },
       {
         titulo: "Jogo",
         itens: [
-          { href: `${base}/missoes`, rotulo: "Missões", icone: Scroll },
-          ...CATEGORIAS.map((c) => ({ href: `${base}/fichas/${c.id}`, rotulo: c.rotulo, icone: ICONES_FICHA[c.id] ?? Boxes })),
+          { chave: "missoes", href: `${base}/missoes`, rotulo: "Missões", icone: Scroll },
+          ...CATEGORIAS.map((c) => ({ chave: `fichas.${c.id}`, href: `${base}/fichas/${c.id}`, rotulo: c.rotulo, icone: ICONES_FICHA[c.id] ?? Boxes })),
         ],
       },
       ...(extensoes.length ? [{ titulo: "Extensões", itens: extensoes }] : []),

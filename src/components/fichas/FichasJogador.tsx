@@ -2,6 +2,7 @@
 
 import { ListaSkeleton } from "@/components/ui/Skeleton";
 import IconeCategoria from "./IconeCategoria";
+import AcoesSlot from "@/components/shell/AcoesSlot";
 import { confirmar } from "@/components/ui/Dialogos";
 import { useEffect, useRef, useState } from "react";
 import EditorMarkdown from "../EditorMarkdown";
@@ -292,6 +293,9 @@ function FichaModal({
               <p className="text-sm text-muted">Nenhuma opinião ainda.</p>
             )}
           </div>
+        )}
+        {mesa && !somenteLeitura && (
+          <AcoesSlot nome="ficha.acoes" contexto={{ tipo: "ficha", id: ficha.id, categoria: ficha.categoria, nome: ficha.nome, texto: ficha.texto }} />
         )}
         {!somenteLeitura && (
         <div className="flex justify-between">

@@ -7,9 +7,11 @@ import { ArrowLeftRight, Bell, ChevronDown, Dices, Search, X as Fechar, Chevrons
 import { sair, useAuth } from "@/lib/auth";
 import { STATUS_LABEL, useMesas, type Mesa } from "@/lib/mesas";
 import ThemeToggle from "../ThemeToggle";
+import AutomacoesHost from "../extensoes/AutomacoesHost";
 import PainelDados from "../sessao/PainelDados";
 import PaletaComandos from "./PaletaComandos";
 import type { ExtensaoMesa } from "@/lib/extensoes/dados";
+import { variaveisDoTema, type EfeitosCombinados } from "@/lib/extensoes/efeitos";
 import type { ConfigNativas } from "@/lib/extensoes/nativas";
 import { ExtensoesProvider } from "./ExtensoesContext";
 import { MesaProvider } from "./MesaContext";
@@ -29,6 +31,32 @@ function alternarRecolhida() {
 
 const ativo = (pathname: string, href: string, exato: boolean) => (exato ? pathname === href : pathname === href || pathname.startsWith(`${href}/`));
 
+import { combinarEfeitos } from "@/lib/extensoes/efeitos";
+const SEM_EFEITOS = combinarEfeitos([]);
+
+/**
+ * Aplica o tema da mesa nas variáveis CSS da página enquanto o usuário está nela (e só nela).
+ * Reaplica ao trocar entre tema claro e escuro; ao sair, devolve o tema padrão.
+ */
+function useTemaDaMesa(tema: EfeitosCombinados["tema"]) {
+  const chave = JSON.stringify(tema);
+  useEffect(() => {
+    const raiz = document.documentElement;
+    const t = JSON.parse(chave) as EfeitosCombinados["tema"];
+    let aplicadas: string[] = [];
+    const limpar = () => { aplicadas.forEach((v) => raiz.style.removeProperty(v)); aplicadas = []; };
+    const aplicar = () => {
+      limpar();
+      const modo = raiz.dataset.theme === "light" ? "claro" : "escuro";
+      for (const [k, v] of variaveisDoTema(t[modo])) { raiz.style.setProperty(k, v); aplicadas.push(k); }
+    };
+    aplicar();
+    const o = new MutationObserver(aplicar);
+    o.observe(raiz, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => { o.disconnect(); limpar(); };
+  }, [chave]);
+}
+
 export type Aviso = { texto: string; href: string };
 
 type Props = {
@@ -38,7 +66,8 @@ type Props = {
   grupos: GrupoNav[];
   rodape: ItemNav[];
   nativas?: { config: ConfigNativas; prontas: boolean; souMestre: boolean }; // escolhas do mestre sobre as extensões nativas
-  extensoes?: ExtensaoMesa[]; // extensões instaladas (já filtradas pelo papel), para os encaixes
+  extensoes?: ExtensaoMesa[];
+  efeitos?: EfeitosCombinados; // tema, termos, menu e tipos de dado vindos das extensões ativas // extensões instaladas (já filtradas pelo papel), para os encaixes
   destaque?: ItemNav; // ação principal da sidebar (ex.: Iniciar sessão)
   badges?: Record<string, number>; // href → novidades não vistas
   avisos?: Aviso[]; // lista do sino
@@ -46,7 +75,7 @@ type Props = {
 };
 
 // Casca visual do workspace (sidebar agrupada + topbar), usada pela visão do mestre e do jogador.
-export default function ShellBase({ mesa, modo, inicio, grupos, rodape, extensoes = [], nativas = { config: {}, prontas: true, souMestre: modo === "mestre" }, destaque, badges = {}, avisos = [], children }: Props) {
+export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, rodape, extensoes = [], efeitos = SEM_EFEITOS, nativas = { config: {}, prontas: true, souMestre: modo === "mestre" }, destaque, badges = {}, avisos = [], children }: Props) {
   const { user } = useAuth();
   const { mesas } = useMesas();
   const pathname = usePathname();
@@ -65,6 +94,17 @@ export default function ShellBase({ mesa, modo, inicio, grupos, rodape, extensoe
   }, []);
   const recolhida = useSyncExternalStore(assinarRecolhida, lerRecolhida, () => false);
 
+    // Menu da mesa: extensões podem ocultar ferramentas e trocar nomes (Início, Extensões e Configurações são protegidos).
+  const grupos = gruposBrutos
+    .map((g) => ({
+      ...g,
+      itens: g.itens
+        .filter((i) => !(i.chave && efeitos.ocultar.has(i.chave as never)))
+        .map((i) => ((i.chave && efeitos.termos[i.chave as never]) ? { ...i, rotulo: efeitos.termos[i.chave as never] as string } : i)),
+    }))
+    .filter((g) => g.itens.length > 0);
+  useTemaDaMesa(efeitos.tema);
+
   const todos: ItemNav[] = [inicio, ...(destaque ? [destaque] : []), ...grupos.flatMap((g) => g.itens), ...rodape];
   const atual = todos.find((i) => ativo(pathname, i.href, i.href === inicio.href));
   const rotuloAtual = atual?.rotulo ?? "";
@@ -72,7 +112,7 @@ export default function ShellBase({ mesa, modo, inicio, grupos, rodape, extensoe
 
   return (
     <MesaProvider value={mesa}>
-      <ExtensoesProvider value={{ extensoes, papel: modo, base: inicio.href, nativas: nativas.config, nativasProntas: nativas.prontas, souMestre: nativas.souMestre }}>
+      <ExtensoesProvider value={{ extensoes, papel: modo, base: inicio.href, nativas: nativas.config, nativasProntas: nativas.prontas, souMestre: nativas.souMestre, efeitos }}>
       <div className="flex min-h-screen">
         {aberto && <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden" onClick={fechar} />}
 
@@ -203,6 +243,8 @@ export default function ShellBase({ mesa, modo, inicio, grupos, rodape, extensoe
           <Dices size={22} />
         </button>
       </div>
+
+      {modo === "mestre" && <AutomacoesHost />}
 
       {paleta && (
         <PaletaComandos

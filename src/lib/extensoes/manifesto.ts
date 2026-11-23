@@ -2,6 +2,8 @@
 // Fonte única dos encaixes: a UI, a validação e o prompt da IA leem daqui.
 
 import { normalizarPermissoes, type Permissao } from "./capacidades.ts";
+import { efeitosVazios, normalizarEfeitos, type EfeitosMesa } from "./efeitos.ts";
+import { normalizarEventos, type EventoId } from "./eventos.ts";
 
 export type Papel = "mestre" | "jogador";
 
@@ -10,6 +12,8 @@ export const SLOTS = {
   "diario.jogador": { rotulo: "Meu diário (jogador)", descricao: "Seção dentro do Meu diário do jogador.", papeis: ["jogador"] },
   "visao-geral": { rotulo: "Visão geral da mesa", descricao: "Cartão na Visão geral do mestre.", papeis: ["mestre"] },
   "sessao.painel": { rotulo: "Sessão ao vivo", descricao: "Painel na tela de Sessão ao vivo do mestre.", papeis: ["mestre"] },
+  "missao.acoes": { rotulo: "Ação dentro de uma missão", descricao: "Botão em cada missão (do mestre) que abre a extensão com o contexto da missão em window.RPG.contexto.", papeis: ["mestre"] },
+  "ficha.acoes": { rotulo: "Ação dentro de uma ficha", descricao: "Botão em cada ficha (do mestre) que abre a extensão com o contexto da ficha em window.RPG.contexto.", papeis: ["mestre"] },
   ctrlk: { rotulo: "Busca (Ctrl+K)", descricao: "Comando na busca global que abre a extensão.", papeis: ["mestre", "jogador"] },
 } as const satisfies Record<string, { rotulo: string; descricao: string; papeis: readonly Papel[] }>;
 
@@ -17,6 +21,8 @@ export type SlotId = keyof typeof SLOTS;
 export const SLOT_IDS = Object.keys(SLOTS) as SlotId[];
 /** Encaixes que exibem o painel dentro de outra tela (os demais só levam à tela da extensão). */
 export const SLOTS_INLINE: readonly SlotId[] = ["diario.jogador", "visao-geral", "sessao.painel"];
+/** Encaixes que abrem a extensão num diálogo com o contexto do item (missão, ficha). */
+export const SLOTS_ACAO: readonly SlotId[] = ["missao.acoes", "ficha.acoes"];
 
 export type Encaixe = {
   slot: SlotId;
@@ -26,7 +32,9 @@ export type Encaixe = {
 };
 
 /** `permissoes` = o que a extensão PEDE; só vale o que o mestre aprovar ao instalar (ver capacidades.ts). */
-export type Manifesto = { versao: 1; encaixes: Encaixe[]; permissoes: Permissao[] };
+/** `eventos` = o que a extensão quer ouvir (automação; só roda com a mesa aberta pelo mestre). */
+/** `mesa` = efeitos sobre a mesa inteira (tema, termos, menu, tipos de dado); só valem com a extensão ativa. */
+export type Manifesto = { versao: 1; encaixes: Encaixe[]; permissoes: Permissao[]; eventos: EventoId[]; mesa: EfeitosMesa };
 
 export const ALTURA_PADRAO = 360;
 const ALTURA_MIN = 160;
@@ -36,7 +44,7 @@ const MAX_ROTULO = 40;
 const ehSlot = (s: unknown): s is SlotId => typeof s === "string" && Object.hasOwn(SLOTS, s);
 
 /** Manifesto das extensões antigas (e novas sem manifesto): só o item na sidebar, como sempre foi. */
-export const manifestoPadrao = (): Manifesto => ({ versao: 1, permissoes: [], encaixes: [{ slot: "sidebar", rotulo: "", papeis: ["mestre", "jogador"], altura: ALTURA_PADRAO }] });
+export const manifestoPadrao = (): Manifesto => ({ versao: 1, permissoes: [], eventos: [], mesa: efeitosVazios(), encaixes: [{ slot: "sidebar", rotulo: "", papeis: ["mestre", "jogador"], altura: ALTURA_PADRAO }] });
 
 /**
  * Normaliza qualquer valor para um manifesto válido: descarta slots desconhecidos, repetidos,
@@ -45,7 +53,9 @@ export const manifestoPadrao = (): Manifesto => ({ versao: 1, permissoes: [], en
 export function normalizarManifesto(bruto: unknown): Manifesto {
   const lista = bruto && typeof bruto === "object" ? (bruto as { encaixes?: unknown }).encaixes : undefined;
   const permissoes = normalizarPermissoes(bruto && typeof bruto === "object" ? (bruto as { permissoes?: unknown }).permissoes : undefined);
-  if (!Array.isArray(lista)) return { ...manifestoPadrao(), permissoes };
+  const eventos = normalizarEventos(bruto && typeof bruto === "object" ? (bruto as { eventos?: unknown }).eventos : undefined);
+  const mesa = normalizarEfeitos(bruto && typeof bruto === "object" ? (bruto as { mesa?: unknown }).mesa : undefined);
+  if (!Array.isArray(lista)) return { ...manifestoPadrao(), permissoes, eventos, mesa };
 
   const vistos = new Set<SlotId>();
   const encaixes: Encaixe[] = [];
@@ -65,7 +75,7 @@ export function normalizarManifesto(bruto: unknown): Manifesto {
       altura: typeof altura === "number" && Number.isFinite(altura) ? Math.round(Math.min(ALTURA_MAX, Math.max(ALTURA_MIN, altura))) : ALTURA_PADRAO,
     });
   }
-  return { versao: 1, encaixes, permissoes };
+  return { versao: 1, encaixes, permissoes, eventos, mesa };
 }
 
 /** Encaixe da extensão neste slot visível para o papel, se houver. */

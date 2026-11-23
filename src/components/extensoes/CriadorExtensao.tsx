@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Code2, Eye, LayoutTemplate, Loader2, Save, Send, Sparkles, Undo2, Upload, WandSparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { criarBroker, type FonteDados, type RegistroChamada } from "@/lib/extensoes/broker";
-import { PERMISSAO_IDS, PERMISSOES, textoConsentimento, type Permissao } from "@/lib/extensoes/capacidades";
+import { PERMISSAO_IDS, PERMISSOES, escreve, textoConsentimento, type Permissao } from "@/lib/extensoes/capacidades";
 import { MAX_TITULO } from "@/lib/extensoes/documento";
 import { publicarNaMesa, salvarNaBiblioteca, useBiblioteca, useExtensoesMesa, type ExtensaoBiblioteca } from "@/lib/extensoes/dados";
 import { ALTURA_PADRAO, SLOTS, SLOTS_INLINE, SLOT_IDS, alternarEncaixe, normalizarManifesto, type Manifesto } from "@/lib/extensoes/manifesto";
@@ -15,6 +15,9 @@ import { chamarIa } from "@/lib/ia-cliente";
 import { uid as novoId } from "@/lib/mesas";
 import { useMesaAtual } from "../shell/MesaContext";
 import { confirmar } from "../ui/Dialogos";
+import { efeitosVazios, resumoEfeitos } from "@/lib/extensoes/efeitos";
+import { EVENTO_IDS, EVENTOS, EXEMPLO_EVENTO, type EventoId } from "@/lib/extensoes/eventos";
+import { criarProponente, criarSolicitante } from "./proponente";
 import { ListaSkeleton } from "../ui/Skeleton";
 import { toast } from "../ui/Toasts";
 import Sandbox from "./Sandbox";
@@ -62,6 +65,9 @@ function Editor({ extId, inicial: existente }: { extId?: string; inicial?: Exten
   const [comoJogador, setComoJogador] = useState(false);
   const [fonte, setFonte] = useState<FonteDados>("real"); // modo ensaio: dados reais da mesa ou de exemplo
   const [chamadas, setChamadas] = useState<RegistroChamada[]>([]);
+  const enviarPrevia = useRef<((msg: unknown) => void) | null>(null);
+  const registrarPrevia = useCallback((f: ((msg: unknown) => void) | null) => { enviarPrevia.current = f; }, []);
+  const simularEvento = (e: EventoId) => enviarPrevia.current?.({ rpg: "evento", evento: e, dados: EXEMPLO_EVENTO[e] });
   const [ocupado, setOcupado] = useState(false);
   const fim = useRef<HTMLDivElement>(null);
 
@@ -121,8 +127,11 @@ function Editor({ extId, inicial: existente }: { extId?: string; inicial?: Exten
     // O mestre aprova o que a extensão pode ler; vale o que ele aprovar aqui, não o que a IA declarou.
     const pedidas: Permissao[] = manifesto.permissoes;
     const jaAprovadas = instalada?.permissoesAprovadas ?? [];
-    if (publicar && pedidas.some((p) => !jaAprovadas.includes(p))) {
-      const ok = await confirmar({ titulo: "Aprovar permissões", texto: textoConsentimento(pedidas, instalada?.visivelJogadores ?? false), confirmar: "Aprovar e publicar" });
+    const eventosNovos = manifesto.eventos.length > 0 && JSON.stringify(manifesto.eventos) !== JSON.stringify(normalizarManifesto(instalada?.manifesto).eventos);
+    const efeitosTxt = resumoEfeitos(manifesto.mesa);
+    const efeitosNovos = efeitosTxt.length > 0 && JSON.stringify(manifesto.mesa) !== JSON.stringify(normalizarManifesto(instalada?.manifesto).mesa);
+    if (publicar && (pedidas.some((p) => !jaAprovadas.includes(p)) || eventosNovos || efeitosNovos)) {
+      const ok = await confirmar({ titulo: "Aprovar permissões", texto: textoConsentimento(pedidas, instalada?.visivelJogadores ?? false, manifesto.eventos, efeitosTxt), confirmar: "Aprovar e publicar" });
       if (!ok) return;
     }
     setOcupado(true);
@@ -149,9 +158,17 @@ function Editor({ extId, inicial: existente }: { extId?: string; inicial?: Exten
 
   // Prévia: a extensão recebe as permissões que PEDE (simuladas); o registro mostra o que ela leu.
   const aoPedidoPrevia = useMemo(
-    () => criarBroker({ mesa, papel: comoJogador ? "jogador" : "mestre", uid: user?.uid ?? "", aprovadas: manifesto.permissoes, fonte, aoRegistrar: (r) => setChamadas((l) => [...l.slice(-19), r]) }),
-    [mesa, comoJogador, user?.uid, manifesto.permissoes, fonte, setChamadas],
+    () => criarBroker({ mesa, papel: comoJogador ? "jogador" : "mestre", uid: user?.uid ?? "", aprovadas: manifesto.permissoes, fonte, aoRegistrar: (r) => setChamadas((l) => [...l.slice(-19), r]), perguntar: async () => ({ texto: "(Resposta de exemplo da IA: no ensaio nada é enviado à IA nem consome o limite.)" }), propor: comoJogador ? criarSolicitante({ mesa, uid: user?.uid ?? "", ext: { id, titulo: titulo || "Extensão sem nome" }, ensaio: true }) : criarProponente({ mesa, uid: user?.uid ?? "", ext: { id, titulo: titulo || "Extensão sem nome" }, ensaio: true }) }),
+    [mesa, comoJogador, user?.uid, manifesto.permissoes, fonte, setChamadas, id, titulo],
   );
+
+  // Encaixes de ação (missão/ficha) abrem a extensão com o item em RPG.contexto; na prévia usamos um item de exemplo.
+  const contextoPrevia = useMemo(() => {
+    const enc = manifesto.encaixes.map((e) => e.slot);
+    if (enc.includes("missao.acoes")) return { tipo: "missao", id: "m1", titulo: "A Cripta Esquecida", status: "em_andamento", categoria: "Principal", dificuldade: "Média", descricao: "Recuperar o relicário do abade.", etapas: [{ texto: "Entrar na cripta", status: "concluida" }, { texto: "Achar o relicário", status: "atual" }] };
+    if (enc.includes("ficha.acoes")) return { tipo: "ficha", id: "f1", categoria: "npc", nome: "Osric, o mercador", texto: "Dono da loja do mercado." };
+    return null;
+  }, [manifesto.encaixes]);
 
   const atualizada = !!instalada && !!html && (instalada.html !== html || JSON.stringify(normalizarManifesto(instalada.manifesto)) !== JSON.stringify(manifesto));
 
@@ -238,8 +255,11 @@ function Editor({ extId, inicial: existente }: { extId?: string; inicial?: Exten
             ) : aba === "previa" ? (
               <div className="flex h-full flex-col gap-2">
                 <div className="min-h-0 flex-1">
-                  <Sandbox key={fonte} html={html} somenteLeitura={comoJogador} aoPedido={aoPedidoPrevia} permissoes={manifesto.permissoes} titulo={titulo || "Prévia da extensão"} />
+                  <Sandbox key={fonte} html={html} somenteLeitura={comoJogador} aoPedido={aoPedidoPrevia} permissoes={manifesto.permissoes} contexto={contextoPrevia} registrarEnvio={registrarPrevia} titulo={titulo || "Prévia da extensão"} />
                 </div>
+                {manifesto.eventos.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 text-xs"><span className="text-muted">Simular evento:</span>{manifesto.eventos.map((e) => <button key={e} onClick={() => simularEvento(e)} className="rounded-lg border border-border px-2.5 py-1 hover:border-accent-hover">{EVENTOS[e].rotulo}</button>)}</div>
+                )}
                 {manifesto.permissoes.length > 0 && <RegistroChamadas permissoes={manifesto.permissoes} chamadas={chamadas} fonte={fonte} />}
               </div>
             ) : (
@@ -286,7 +306,7 @@ function PainelEncaixes({ manifesto, onChange }: { manifesto: Manifesto; onChang
         })}
       </ul>
       <h3 className="mt-8 font-display text-lg">O que ela pode ler</h3>
-      <p className="mb-4 text-sm text-muted">Dados da mesa que a extensão consulta. Ao publicar, você revisa e aprova; sem aprovação ela não lê nada. Esta versão só lê dados, não altera nada.</p>
+      <p className="mb-4 text-sm text-muted">O que a extensão pode ler e criar na mesa. Ao publicar, você revisa e aprova; sem aprovação ela não acessa nada. Para criar conteúdo, cada pedido ainda abre uma tela de aprovação, e dá para desfazer em lote.</p>
       <ul className="space-y-2">
         {PERMISSAO_IDS.map((p) => {
           const ligada = manifesto.permissoes.includes(p);
@@ -295,8 +315,37 @@ function PainelEncaixes({ manifesto, onChange }: { manifesto: Manifesto; onChang
               <label className="flex cursor-pointer items-start gap-3">
                 <input type="checkbox" checked={ligada} onChange={(e) => onChange({ ...manifesto, permissoes: PERMISSAO_IDS.filter((x) => (x === p ? e.target.checked : manifesto.permissoes.includes(x))) })} className="mt-1" />
                 <span>
-                  <span className="block font-medium">{PERMISSOES[p].rotulo} {PERMISSOES[p].sensivel && <span className="ml-1 rounded border border-warn/50 px-1.5 text-[10px] font-normal text-warn">dados privados</span>}</span>
+                  <span className="block font-medium">{PERMISSOES[p].rotulo} {PERMISSOES[p].sensivel && <span className="ml-1 rounded border border-warn/50 px-1.5 text-[10px] font-normal text-warn">dados privados</span>} {escreve(p) && <span className="ml-1 rounded border border-danger/50 px-1.5 text-[10px] font-normal text-danger">cria conteúdo</span>}</span>
                   <span className="block text-sm text-muted">{PERMISSOES[p].descricao}</span>
+                </span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+      <h3 className="mt-8 font-display text-lg">O que ela muda na mesa</h3>
+      <p className="mb-3 text-sm text-muted">Aparência, nomes, menu e tipos de dado. Só valem depois de publicar, enquanto a extensão estiver ativa, e você revisa tudo ao publicar. Peça ajustes pelo chat.</p>
+      {resumoEfeitos(manifesto.mesa).length === 0 ? (
+        <p className="text-sm text-muted">Nada: esta extensão não muda a mesa.</p>
+      ) : (
+        <div className="rounded-xl border border-gold/40 bg-card p-3 text-sm">
+          <ul className="list-disc space-y-1 pl-5">{resumoEfeitos(manifesto.mesa).map((l) => <li key={l}>{l}</li>)}</ul>
+          <button onClick={() => onChange({ ...manifesto, mesa: efeitosVazios() })} className="mt-3 rounded-lg border border-border px-3 py-1 text-muted hover:border-danger hover:text-danger">Remover estes efeitos</button>
+        </div>
+      )}
+
+      <h3 className="mt-8 font-display text-lg">Quando reagir sozinha</h3>
+      <p className="mb-4 text-sm text-muted">Automação: a extensão recebe estes eventos mesmo fechada, mas só enquanto você está com a mesa aberta. Ela precisa da permissão de leitura correspondente, e criar algo ainda pede a sua aprovação.</p>
+      <ul className="space-y-2">
+        {EVENTO_IDS.map((ev) => {
+          const ligado = manifesto.eventos.includes(ev);
+          return (
+            <li key={ev} className={`rounded-xl border p-3 ${ligado ? "border-accent/50 bg-accent/5" : "border-border"}`}>
+              <label className="flex cursor-pointer items-start gap-3">
+                <input type="checkbox" checked={ligado} onChange={(e) => onChange({ ...manifesto, eventos: EVENTO_IDS.filter((x) => (x === ev ? e.target.checked : manifesto.eventos.includes(x))) })} className="mt-1" />
+                <span>
+                  <span className="block font-medium">{EVENTOS[ev].rotulo}</span>
+                  <span className="block text-sm text-muted">{EVENTOS[ev].descricao}</span>
                 </span>
               </label>
             </li>
@@ -312,7 +361,7 @@ function PainelEncaixes({ manifesto, onChange }: { manifesto: Manifesto; onChang
 function RegistroChamadas({ permissoes, chamadas, fonte }: { permissoes: Permissao[]; chamadas: RegistroChamada[]; fonte: FonteDados }) {
   return (
     <details className="rounded-xl border border-border bg-card px-3 py-2 text-xs">
-      <summary className="cursor-pointer text-muted">Prévia com permissões simuladas ({permissoes.map((p) => PERMISSOES[p].rotulo).join(", ")}) · dados {fonte === "real" ? "da mesa" : "de exemplo"} · {chamadas.length} chamada(s)</summary>
+      <summary className="cursor-pointer text-muted">Prévia com permissões simuladas ({permissoes.map((p) => PERMISSOES[p].rotulo).join(", ")}); criações são ensaiadas, nada é gravado · dados {fonte === "real" ? "da mesa" : "de exemplo"} · {chamadas.length} chamada(s)</summary>
       <ul className="mt-2 max-h-32 space-y-1 overflow-y-auto font-mono">
         {chamadas.length === 0 && <li className="text-muted">Nenhuma chamada ainda.</li>}
         {chamadas.map((c, i) => (

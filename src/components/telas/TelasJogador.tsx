@@ -10,6 +10,7 @@ import MapasJogador from "../mapas/MapasJogador";
 import Missoes from "../Missoes";
 import Mundo from "../Mundo";
 import QuadroJogador from "../quadro/QuadroJogador";
+import { useExtensoesContexto } from "../shell/ExtensoesContext";
 import { useMesaAtual } from "../shell/MesaContext";
 import Titulo from "./Titulo";
 
@@ -19,7 +20,7 @@ export function MapasJ() {
   const mesa = useMesaAtual();
   return (
     <>
-      <Titulo titulo="Mapas" texto="Os mapas que o mestre liberou para você. Marque pinos e escreva notas privadas." />
+      <Titulo termo="mapas" titulo="Mapas" texto="Os mapas que o mestre liberou para você. Marque pinos e escreva notas privadas." />
       {user && <MapasJogador mesaId={mesa.id} usuarioUid={user.uid} />}
     </>
   );
@@ -30,7 +31,7 @@ export function ImagensJ() {
   const mesa = useMesaAtual();
   return (
     <>
-      <Titulo titulo="Imagens" texto="Ilustrações e handouts liberados pelo mestre." />
+      <Titulo termo="imagens" titulo="Imagens" texto="Ilustrações e handouts liberados pelo mestre." />
       {user && <MapasJogador mesaId={mesa.id} usuarioUid={user.uid} colecao="imagens" />}
     </>
   );
@@ -40,7 +41,7 @@ export function MundoJ() {
   const mesa = useMesaAtual();
   return (
     <>
-      <Titulo titulo="Mundo" texto="O que o seu personagem conhece do mundo." />
+      <Titulo termo="mundo" titulo="Mundo" texto="O que o seu personagem conhece do mundo." />
       <Mundo mesaId={mesa.id} ehMestre={false} />
     </>
   );
@@ -50,7 +51,7 @@ export function MissoesJ() {
   const mesa = useMesaAtual();
   return (
     <>
-      <Titulo titulo="Missões" texto="O diário de missões do grupo." />
+      <Titulo termo="missoes" titulo="Missões" texto="O diário de missões do grupo." />
       <Missoes mesaId={mesa.id} ehMestre={false} />
     </>
   );
@@ -61,7 +62,7 @@ export function QuadroJ() {
   const mesa = useMesaAtual();
   return (
     <>
-      <Titulo titulo="Quadro" texto="Seu quadro de investigação, só seu." />
+      <Titulo termo="quadro" titulo="Quadro" texto="Seu quadro de investigação, só seu." />
       {user && <QuadroJogador mesaId={mesa.id} usuarioUid={user.uid} />}
     </>
   );
@@ -71,6 +72,7 @@ export function FichasJ() {
   const { user } = useAuth();
   const mesa = useMesaAtual();
   const { categoria } = useParams<{ categoria: string }>();
+  const { efeitos } = useExtensoesContexto();
   const c = CATEGORIAS.find((x) => x.id === categoria);
   const { opinioes, carregado, definirOpiniao } = useAnotacoes(mesa.id, user?.uid ?? "", !!user);
 
@@ -87,7 +89,7 @@ export function FichasJ() {
       mesaId={mesa.id}
       usuarioUid={user.uid}
       categoria={c.id}
-      rotulo={c.rotulo}
+      rotulo={efeitos.termos[`fichas.${c.id}` as never] ?? c.rotulo}
       singular={c.singular}
       icone={c.icone}
       opinioes={{ valores: opinioes, carregado, definir: definirOpiniao }}

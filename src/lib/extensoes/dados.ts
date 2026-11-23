@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, deleteDoc, doc, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { collection, deleteDoc, doc, onSnapshot, query, setDoc, updateDoc, where, writeBatch } from "firebase/firestore";
 import { db } from "../firebase";
 import { MAX_DADOS, validarTitulo } from "./documento";
 import type { Permissao } from "./capacidades";
@@ -31,6 +31,10 @@ export type ExtensaoMesa = {
   html: string;
   visivelJogadores: boolean;
   manifesto?: Manifesto;
+  /** Desativada = sem menu, encaixes, eventos nem efeitos (kill switch); ausente = ativa. */
+  ativa?: boolean;
+  /** Prioridade entre extensões da mesa (menor = antes; a última vence conflitos). Ausente = ordem de publicação. */
+  ordem?: number;
   /** O que o MESTRE aprovou ler (o manifesto só diz o que a extensão pede). */
   permissoesAprovadas?: Permissao[];
   dadosJson: string; // estado que a extensão salvou via window.RPG.salvar (JSON em texto)
@@ -41,7 +45,7 @@ export type ExtensaoMesa = {
 const colBiblioteca = () => collection(db, "extensoes");
 const colMesa = (mesaId: string) => collection(db, "mesas", mesaId, "extensoes");
 
-function useLista<T>(consulta: (() => ReturnType<typeof query>) | null, chave: string) {
+export function useLista<T>(consulta: (() => ReturnType<typeof query>) | null, chave: string) {
   const [estado, setEstado] = useState<{ chave: string; itens: T[] } | null>(null);
   useEffect(() => {
     if (!consulta) return;
@@ -70,7 +74,7 @@ export function useExtensoesMesa(mesaId: string, comoMestre: boolean, habilitado
     habilitado && mesaId ? () => (comoMestre ? query(colMesa(mesaId)) : query(colMesa(mesaId), where("visivelJogadores", "==", true))) : null,
     `mesa:${mesaId}:${comoMestre}:${habilitado}`,
   );
-  return { extensoes: [...itens].sort((a, b) => a.publicadaEm - b.publicadaEm), carregado };
+  return { extensoes: [...itens].sort((a, b) => (a.ordem ?? a.publicadaEm) - (b.ordem ?? b.publicadaEm)), carregado };
 }
 
 export async function salvarNaBiblioteca(uid: string, e: Omit<ExtensaoBiblioteca, "atualizadoEm"> & { atualizadoEm?: number }) {
@@ -115,3 +119,13 @@ export function useNativasMesa(mesaId: string, habilitado = true) {
 
 export const definirVisibilidadeNativa = (mesaId: string, id: string, visivelJogadores: boolean) =>
   setDoc(doc(db, "mesas", mesaId, "extensoesNativas", id), { id, visivelJogadores }, { merge: true });
+
+/** Liga/desliga a extensão nesta mesa sem apagá-la (kill switch). */
+export const definirAtiva = (mesaId: string, id: string, ativa: boolean) => updateDoc(doc(colMesa(mesaId), id), { ativa });
+
+/** Grava a prioridade: `idsEmOrdem` do primeiro (menor prioridade) ao último (vence os conflitos). */
+export async function reordenarExtensoes(mesaId: string, idsEmOrdem: readonly string[]) {
+  const b = writeBatch(db);
+  idsEmOrdem.forEach((id, i) => b.update(doc(colMesa(mesaId), id), { ordem: i }));
+  await b.commit();
+}

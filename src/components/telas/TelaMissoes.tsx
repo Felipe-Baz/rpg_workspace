@@ -8,7 +8,7 @@ export default function TelaMissoes() {
   const mesa = useMesaAtual();
   return (
     <>
-      <Titulo titulo="Missões" texto="O diário de missões da campanha." />
+      <Titulo termo="missoes" titulo="Missões" texto="O diário de missões da campanha." />
       <Missoes mesaId={mesa.id} ehMestre />
     </>
   );

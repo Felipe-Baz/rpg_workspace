@@ -31,6 +31,9 @@ export default function Sandbox({
   onSalvar,
   aoPedido,
   permissoes = [],
+  contexto = null,
+  registrarEnvio,
+  segundoPlano = false,
   titulo,
   className = "",
 }: {
@@ -42,12 +45,19 @@ export default function Sandbox({
   aoPedido?: (pedido: Pedido) => Promise<unknown>;
   /** Permissões aprovadas (apenas informativas para a extensão: `RPG.permissoes`). */
   permissoes?: readonly string[];
+  /** Recebe uma função para enviar mensagens ao iframe (eventos da mesa). Chamada com `null` ao desmontar. */
+  registrarEnvio?: (enviar: ((msg: unknown) => void) | null) => void;
+  /** Roda sem tela, só para ouvir eventos (automação). */
+  segundoPlano?: boolean;
+  /** Onde a extensão foi aberta (missão, ficha): vira window.RPG.contexto. */
+  contexto?: unknown;
   titulo: string;
   className?: string;
 }) {
   const ref = useRef<HTMLIFrameElement>(null);
   const tema = useSyncExternalStore(assinarTema, () => document.documentElement.dataset.theme ?? "dark", () => "dark");
   const chavePermissoes = permissoes.join(",");
+  const chaveContexto = JSON.stringify(contexto ?? null);
 
   // O estado inicial entra só quando o documento é (re)montado; salvar não recarrega o iframe.
   const dadosRef = useRef(dadosJson);
@@ -57,8 +67,14 @@ export default function Sandbox({
     let dados: unknown = null;
     try { dados = dadosRef.current ? JSON.parse(dadosRef.current) : null; } catch {}
     void tema; // recalcula quando o tema muda
-    return montarDocumento(html, { tema: lerTema(), dados, somenteLeitura, permissoes: chavePermissoes ? chavePermissoes.split(",") : [] });
-  }, [html, tema, somenteLeitura, chavePermissoes]);
+    return montarDocumento(html, { tema: lerTema(), dados, somenteLeitura, permissoes: chavePermissoes ? chavePermissoes.split(",") : [], contexto: JSON.parse(chaveContexto), segundoPlano });
+  }, [html, tema, somenteLeitura, chavePermissoes, chaveContexto, segundoPlano]);
+
+  useEffect(() => {
+    if (!registrarEnvio) return;
+    registrarEnvio((msg) => ref.current?.contentWindow?.postMessage(msg, "*"));
+    return () => registrarEnvio(null);
+  }, [registrarEnvio, doc]);
 
   // Mensagens do iframe: salvar estado (mestre) e pedidos de dados (com limite de taxa).
   useEffect(() => {

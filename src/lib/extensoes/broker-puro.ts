@@ -1,5 +1,6 @@
 // Parte pura do broker: dados de exemplo (modo ensaio), reduções de dados e limites. Sem Firebase.
 import { rolar } from "../dados.ts";
+import type { Acao } from "./acoes.ts";
 import { autorizar, type AlvoLeitura, type Pedido, type Permissao } from "./capacidades.ts";
 
 export const MAX_RESPOSTA = 200_000; // caracteres de JSON por resposta
@@ -56,12 +57,25 @@ export function limitar<T>(valor: T): T {
   return reduzido;
 }
 
+/** Recebe as ações já validadas e autorizadas; mostra a aprovação ao mestre e grava (ou simula, no ensaio). */
+export type Proponente = (acoes: Acao[]) => Promise<unknown>;
+
 export type Leitor = (alvo: AlvoLeitura, args: Record<string, unknown> | null) => Promise<unknown>;
 
 /** Executa um pedido já validado: confere a permissão aprovada, lê pela fonte e limita a resposta. */
-export async function atender(pedido: Pedido, aprovadas: readonly Permissao[], ler: Leitor): Promise<unknown> {
+export type Perguntador = (texto: string) => Promise<unknown>;
+
+export async function atender(pedido: Pedido, aprovadas: readonly Permissao[], ler: Leitor, propor?: Proponente, perguntar?: Perguntador): Promise<unknown> {
   const aut = autorizar(aprovadas, pedido);
   if (!aut.ok) throw new Error(aut.erro);
+  if (pedido.op === "perguntar") {
+    if (!perguntar) throw new Error("A IA não está disponível neste contexto.");
+    return perguntar(pedido.args.texto);
+  }
+  if (pedido.op === "propor") {
+    if (!propor) throw new Error("Não é possível criar conteúdo neste contexto.");
+    return propor(pedido.args.acoes);
+  }
   if (pedido.op === "rolar") {
     const r = rolar(pedido.args.expressao);
     if (!r) throw new Error("Expressão de dados inválida. Exemplos: d20, 2d6+3, 4d6kh3.");

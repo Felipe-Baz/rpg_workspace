@@ -8,7 +8,7 @@ export default function TelaImagens() {
   const mesa = useMesaAtual();
   return (
     <>
-      <Titulo titulo="Imagens" texto="Ilustrações e handouts para mostrar aos jogadores." />
+      <Titulo termo="imagens" titulo="Imagens" texto="Ilustrações e handouts para mostrar aos jogadores." />
       <MapasMestre mesa={mesa} colecao="imagens" />
     </>
   );
