@@ -4,7 +4,7 @@
 // A leitura do arquivo (pdf-lib) fica em `lerCamposPdf`; `fichaDeCampos` é puro e testável.
 
 import {
-  ATRIBUTOS, FICHA_VAZIA, PERICIAS, bonusProficiencia, modificador, normalizar,
+  ATRIBUTOS, FICHA_VAZIA, PERICIAS, bonusProficiencia, classeDeTexto, modificador, modoDe, nomeClasse, normalizar,
   type Ataque, type Atributo, type FichaDnd, type Magia, type PericiaId,
 } from "./dnd5e.ts";
 
@@ -127,7 +127,9 @@ export function fichaDeCampos(c: CamposPdf, novoId: () => string, base?: Partial
   // identificação
   f.nome = texto(c, "t0") || texto(c, "t84");
   const cn = lerClasseNivel(texto(c, "t8"));
-  f.classe = cn.classe; f.nivel = cn.nivel;
+  f.classe = classeDeTexto(cn.classe); f.nivel = cn.nivel;
+  // texto que não é só o nome da classe (multiclasse, subclasse escrita junto) fica em "subclasse" para não se perder
+  if (cn.classe && nomeClasse(f.classe).toLowerCase() !== cn.classe.trim().toLowerCase()) f.subclasse = cn.classe;
   f.antecedente = texto(c, "t9"); f.raca = texto(c, "t13"); f.alinhamento = texto(c, "t12");
   f.xp = Math.max(0, inteiro(texto(c, "t11")) ?? 0);
   const insp = texto(c, "t26").toLowerCase();
@@ -185,7 +187,8 @@ export function fichaDeCampos(c: CamposPdf, novoId: () => string, base?: Partial
       const nome = texto(c, `t${t}`);
       if (!nome) continue;
       const m: Magia = {
-        id: novoId(), nome, nivel, preparada: nivel === 0 || (p !== null && marcado(c, `c${p}`)),
+        // classes de magias conhecidas não têm "preparar": tudo que está na ficha está ativo
+        id: novoId(), nome, nivel, ativa: nivel === 0 || modoDe(f.classe) === "conhecidas" || (p !== null && marcado(c, `c${p}`)),
         escola: "", tempo: "1 ação", alcance: "", componentes: "", duracao: "", descricao: "", tipo: "nenhum", dano: "", salvaguarda: "des",
       };
       f.magias.push(m);
@@ -206,7 +209,7 @@ export function fichaDeCampos(c: CamposPdf, novoId: () => string, base?: Partial
   const org = texto(c, "t18"), aliados = texto(c, "t209");
   f.notas = junta(texto(c, "t5") && `Ataques e conjuração (anotações):\n${texto(c, "t5")}`, (org || aliados) && `Aliados e organizações${org ? ` (${org})` : ""}:\n${aliados}`.trim());
 
-  const resumo = `${f.nome || "Personagem sem nome"}${f.classe ? `, ${f.classe}` : ""} nível ${f.nivel}: ${f.ataques.length} ataque(s), ${f.magias.length} magia(s).`;
+  const resumo = `${f.nome || "Personagem sem nome"}${f.classe ? `, ${nomeClasse(f.classe)}` : ""} nível ${f.nivel}: ${f.ataques.length} ataque(s), ${f.magias.length} magia(s).`;
   return { ficha: f, resumo };
 }
 

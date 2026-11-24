@@ -13,10 +13,11 @@ O jogador precisa de um lugar próprio para registrar o que viveu, sem o mestre 
 - Hook: `useAnotacoes(mesaId, uid, habilitado)` com salvamento por debounce.
 
 ## Regras e limites
-- Só o dono lê/escreve (e precisa ser membro). Nem o mestre lê.
+- Só o dono escreve (e precisa ser membro). O **mestre lê** (regras do Firestore), mas nunca escreve.
+- **Ver como jogador:** na visão do jogador, o mestre escolhe um jogador (seletor "Ver como", guardado em `sessionStorage` por mesa). As telas passam a usar o uid desse jogador (`useUidJogador`), em modo somente leitura nas anotações; serve para testar o as-is e ler o diário, pinos e quadro dele. Fichas privadas do jogador (`mestre:false`) continuam ilegíveis ao mestre.
 
 ## Onde está no código
-`src/lib/mesas.ts` (`useAnotacoes`), `src/components/telas/DiarioJogador.tsx`, `src/app/mesas/[id]/jogador/page.tsx`.
+`src/lib/mesas.ts` (`useAnotacoes`), `src/components/shell/VisaoJogadorContext.tsx`, `ShellJogador.tsx`, `src/components/telas/DiarioJogador.tsx`, `src/app/mesas/[id]/jogador/page.tsx`.
 
 ## Relações
 [sessoes-e-segredos](sessoes-e-segredos.md), [fichas](fichas.md), [extensoes](extensoes.md).

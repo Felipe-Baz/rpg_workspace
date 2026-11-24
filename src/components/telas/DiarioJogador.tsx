@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/lib/auth";
+import { useUidJogador } from "../shell/VisaoJogadorContext";
 import { STATUS_LABEL, paginasDe, useAnotacoes } from "@/lib/mesas";
 import AvatarPersonagem from "../AvatarPersonagem";
 import EditorMarkdown from "../EditorMarkdown";
@@ -21,10 +21,10 @@ function formatarData(d: string) {
 
 // Tela inicial do jogador: apresentação da mesa, grupo, Marcas e diário de sessões com anotações privadas.
 export default function DiarioJogador() {
-  const { user } = useAuth();
+  const { uid, vendoComo } = useUidJogador();
   const mesa = useMesaAtual();
   const { nativas, souMestre } = useExtensoesContexto();
-  const { notas, notasJogadores, carregado, definirNota, definirNotaJogador } = useAnotacoes(mesa.id, user?.uid ?? "", !!user);
+  const { notas, notasJogadores, carregado, definirNota, definirNotaJogador } = useAnotacoes(mesa.id, uid, !!uid, vendoComo);
   const sessoes = [...mesa.sessoes].sort((a, b) => b.data.localeCompare(a.data));
 
   return (
@@ -48,16 +48,16 @@ export default function DiarioJogador() {
             {mesa.jogadores.map((j) => (
               <li key={j.id} className="rounded-xl border border-border bg-card p-3">
                 <div className="flex items-start gap-3">
-                  <AvatarPersonagem mesaId={mesa.id} jogadorId={j.id} foto={j.foto} nome={j.personagem || j.nome} editavel={j.uid === user?.uid} />
+                  <AvatarPersonagem mesaId={mesa.id} jogadorId={j.id} foto={j.foto} nome={j.personagem || j.nome} editavel={j.uid === uid} />
                   <div className="min-w-0">
                     <p className="font-medium">
                       {j.personagem || "Personagem sem nome"}
-                      {j.uid && j.uid === user?.uid && <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-xs text-white">você</span>}
+                      {j.uid && j.uid === uid && <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-xs text-white">você</span>}
                     </p>
                     <p className="text-sm text-muted">{j.nome || "—"}</p>
                   </div>
                 </div>
-                {j.uid !== user?.uid && (
+                {j.uid !== uid && (
                   <LivroNotas
                     className="mt-2"
                     paginas={paginasDe(notasJogadores[j.id])}

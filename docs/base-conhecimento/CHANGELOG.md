@@ -4,6 +4,11 @@ Registro curto de **mudanças de comportamento** que alteraram esta base (mais r
 
 Se uma alteração de código **não** afeta nenhuma feature, fluxo, regra de acesso, modelo de dados ou rota, registre mesmo assim com `sem impacto na base` (isso marca a revisão como feita).
 
+- 2026-11-24: ficha D&D 5e: classe vira um dropdown único com as 12 classes (some "classe conjuradora"); magias podem ser cadastradas sem limite e o limite passa a valer só para as **ativas** (`ativa`); após o descanso longo o jogador é perguntado se quer trocar truques/magias ativos (painel `TrocaMagias`). Páginas: `features/ficha-dnd5e.md`.
+- 2026-11-24: correção de ordem de hooks em `FichaDnd5e.tsx` (erro "Rendered more hooks"); comportamento já documentado: sem impacto na base.
+- 2026-11-24: ficha D&D 5e: classe conjuradora (dropdown) define limites de truques, magias preparadas e lista/grimório (não editáveis, só "Ajustes especiais"); botão "Conjurar" gasta espaço de magia (círculo maior permitido). Páginas: `features/ficha-dnd5e.md`.
+- 2026-11-24: ajustes de lint no "Ver como" (inicialização do estado, variável não usada); a documentação já cobre o comportamento: sem impacto na base.
+- 2026-11-24: mestre pode "Ver como" qualquer jogador na visão do jogador (somente leitura) e ler as anotações, pinos e quadro dele; regras do Firestore liberam leitura ao mestre. Páginas: `permissoes-e-seguranca.md`, `features/diario-do-jogador.md`.
 - 2026-11-24: ficha D&D 5e ganhou "Importar PDF": lê o formulário oficial "D&D 5ed - Ficha Editável" preenchido (no navegador, `pdf-lib`) e preenche atributos, perícias, ataques, magias, inventário e textos. Páginas: `features/ficha-dnd5e.md`.
 - 2026-11-24: ajuste de texto/escape na ajuda de formato do Mundo (`Mundo.tsx`); a documentação já cobre o comportamento: sem impacto na base.
 - 2026-11-24: importação do Mundo: explicação do formato na janela e link público `/mcp/ia/mundo-json.txt` com instruções para uma IA gerar o JSON. Páginas: `features/mundo.md`.

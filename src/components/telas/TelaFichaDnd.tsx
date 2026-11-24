@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/lib/auth";
+import { useUidJogador } from "../shell/VisaoJogadorContext";
 import { ehDnd5e } from "@/lib/dnd5e";
 import FichaDnd5e from "../dnd/FichaDnd5e";
 import { useMesaAtual } from "../shell/MesaContext";
@@ -13,16 +13,16 @@ const Aviso = ({ children }: { children: React.ReactNode }) => (
 
 /** Ficha do próprio jogador (ou do mestre, quando ele joga). */
 export function FichaDndJogador() {
-  const { user } = useAuth();
+  const { uid } = useUidJogador();
   const mesa = useMesaAtual();
-  const meu = mesa.jogadores.find((j) => j.uid === user?.uid);
+  const meu = mesa.jogadores.find((j) => j.uid === uid);
   return (
     <>
       <Titulo titulo="Minha ficha" texto="Ficha de D&D 5e. Tudo é salvo automaticamente e só você e o mestre veem." />
       {!ehDnd5e(mesa.sistema) ? (
         <Aviso>Esta mesa não usa D&D 5e, então a ficha automatizada não está disponível.</Aviso>
-      ) : user ? (
-        <FichaDnd5e mesaId={mesa.id} donoUid={user.uid} nomePadrao={meu?.personagem} />
+      ) : uid ? (
+        <FichaDnd5e mesaId={mesa.id} donoUid={uid} nomePadrao={meu?.personagem} />
       ) : null}
     </>
   );

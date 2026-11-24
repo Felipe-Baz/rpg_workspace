@@ -96,3 +96,76 @@ test("descanso curto gasta 1 dado de vida e restaura todos os espaços", () => {
   assert.equal(descansoCurto(ficha({ dadosVidaTotal: 1, dadosVidaUsados: 1 })).dadosVidaUsados, 1);
   assert.equal(curar(ficha({ pv: 5, pvMax: 8, morteFalhas: 2 }), 10).pv, 8);
 });
+
+import { alternarMagia, circulosDisponiveis, classeDeTexto, conjurar, contagemMagias, definirClasse, espacosDaClasse, limitesMagia, type Magia } from "./dnd5e.ts";
+
+const magia = (p: Partial<Magia> = {}): Magia => ({ id: "m", nome: "x", nivel: 1, ativa: true, escola: "", tempo: "", alcance: "", componentes: "", duracao: "", descricao: "", tipo: "nenhum", dano: "", salvaguarda: "des", ...p });
+
+test("limites do mago: truques e magias ativas pela Inteligência", () => {
+  const f = definirClasse(ficha({ nivel: 5, atributos: { ...FICHA_VAZIA.atributos, int: 16 } }), "mago");
+  assert.deepEqual(limitesMagia(f), { truques: 4, magias: 8 });
+  assert.equal(f.atrConjuracao, "int");
+  assert.deepEqual(f.espacos.slice(0, 3).map((e) => e.total), [4, 3, 2]);
+});
+
+test("limites de classes de magias conhecidas e preparadas", () => {
+  assert.deepEqual(limitesMagia(definirClasse(ficha({ nivel: 3 }), "feiticeiro")), { truques: 4, magias: 4 });
+  assert.deepEqual(limitesMagia(definirClasse(ficha({ nivel: 1 }), "patrulheiro")), { truques: 0, magias: 0 });
+  const pal = definirClasse(ficha({ nivel: 5, atributos: { ...FICHA_VAZIA.atributos, car: 14 } }), "paladino");
+  assert.equal(limitesMagia(pal)!.magias, 4); // 2 (metade do nível) + 2 (Car)
+  assert.equal(limitesMagia(ficha()), null);
+  assert.equal(limitesMagia(definirClasse(ficha(), "guerreiro")), null); // classe sem conjuração: sem limites
+});
+
+test("ajustes especiais somam aos limites da classe", () => {
+  const f = { ...definirClasse(ficha({ nivel: 1 }), "mago"), ajusteLimites: { truques: 1, magias: 2 } };
+  assert.deepEqual(limitesMagia(f), { truques: 4, magias: 3 });
+});
+
+test("espaços de pacto do bruxo ficam todos no mesmo círculo", () => {
+  assert.deepEqual(espacosDaClasse("bruxo", 5), [0, 0, 2, 0, 0, 0, 0, 0, 0]);
+  assert.deepEqual(espacosDaClasse("bruxo", 17), [0, 0, 0, 0, 4, 0, 0, 0, 0]);
+});
+
+test("o limite vale só para as ativas: cadastrar além do limite é livre", () => {
+  const f = definirClasse(ficha({ nivel: 1, magias: [magia({ id: "a" }), magia({ id: "b" }), magia({ id: "c", ativa: false }), magia({ id: "t", nivel: 0 })] }), "feiticeiro");
+  const c = contagemMagias(f);
+  assert.equal(c.magias, 2);
+  assert.equal(c.totalMagias, 3);
+  assert.equal(c.magiasCheio, true); // feiticeiro nível 1 conhece 2 magias
+  assert.equal(c.truquesCheio, false); // 1 de 4 truques
+});
+
+test("alternar: não ativa além do limite, mas desativar libera vaga", () => {
+  let f = definirClasse(ficha({ nivel: 1, magias: [magia({ id: "a" }), magia({ id: "b" }), magia({ id: "c", ativa: false })] }), "feiticeiro");
+  assert.equal(alternarMagia(f, "c"), f); // cheio (2/2)
+  f = alternarMagia(f, "a");
+  assert.equal(f.magias.find((m) => m.id === "a")!.ativa, false);
+  f = alternarMagia(f, "c");
+  assert.equal(f.magias.find((m) => m.id === "c")!.ativa, true);
+});
+
+test("conjurar gasta espaço, aceita círculo maior e ignora truque e magia inativa", () => {
+  let f = definirClasse(ficha({ nivel: 3 }), "mago"); // [4,2]
+  assert.deepEqual(circulosDisponiveis(f, 1), [1, 2]);
+  f = conjurar(f, magia({ nivel: 1 }), 2);
+  assert.equal(f.espacos[1].usados, 1);
+  assert.equal(conjurar(f, magia({ nivel: 0 }), 1), f);
+  assert.equal(conjurar(f, magia({ nivel: 1, ativa: false }), 1), f);
+  assert.equal(conjurar(f, magia({ nivel: 2 }), 1), f); // círculo menor que a magia
+  const sem = { ...f, espacos: f.espacos.map((e) => ({ ...e, usados: e.total })) };
+  assert.equal(conjurar(sem, magia({ nivel: 1 }), 1), sem);
+});
+
+test("classeDeTexto e migração de fichas antigas (classe em texto, classeConj, preparada)", () => {
+  assert.equal(classeDeTexto("Mago 5"), "mago");
+  assert.equal(classeDeTexto("Clérigo"), "clerigo");
+  assert.equal(classeDeTexto("Guerreiro 3 / Ladino 2"), "guerreiro");
+  assert.equal(classeDeTexto("Artífice"), "");
+  const a = normalizar({ classe: "Mago 5" as never, magias: [{ ...magia({ nivel: 1 }), ativa: undefined as never, preparada: false } as never] });
+  assert.equal(a.classe, "mago");
+  assert.equal(a.subclasse, "Mago 5");
+  assert.equal(a.magias[0].ativa, false);
+  const b = normalizar({ classe: "qualquer", classeConj: "bardo" } as never);
+  assert.equal(b.classe, "bardo");
+});

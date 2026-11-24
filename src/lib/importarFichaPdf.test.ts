@@ -55,7 +55,7 @@ const campos: CamposPdf = {
 test("fichaDeCampos preenche identificação, atributos e combate", () => {
   const { ficha: f } = fichaDeCampos(campos, id);
   assert.equal(f.nome, "Elora");
-  assert.equal(f.classe, "Mago");
+  assert.equal(f.classe, "mago");
   assert.equal(f.nivel, 5);
   assert.equal(f.xp, 6500);
   assert.equal(f.inspiracao, true);
@@ -114,11 +114,11 @@ test("magias, espaços e moedas", () => {
   const por = (nome: string) => f.magias.find((m) => m.nome === nome)!;
   assert.equal(por("Prestidigitação").nivel, 0);
   assert.equal(por("Mísseis Mágicos").nivel, 1);
-  assert.equal(por("Mísseis Mágicos").preparada, true);
-  assert.equal(por("Escudo Arcano").preparada, false);
+  assert.equal(por("Mísseis Mágicos").ativa, true);
+  assert.equal(por("Escudo Arcano").ativa, false);
   assert.equal(por("Invisibilidade").nivel, 2);
   assert.equal(por("Bola de Fogo").nivel, 3);
-  assert.equal(por("Bola de Fogo").preparada, true);
+  assert.equal(por("Bola de Fogo").ativa, true);
   assert.equal(f.magias.length, 5);
   assert.deepEqual(f.moedas, { pc: 5, pp: 0, pe: 0, po: 120, pl: 2 });
 });

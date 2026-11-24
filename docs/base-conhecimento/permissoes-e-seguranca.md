@@ -14,7 +14,7 @@ A barreira real é **Firestore Rules + Storage Rules + rotas de servidor**. A in
 | Missões do mestre | só ele | nada | Etapas pendentes e notas nunca vazam |
 | Fichas do jogador (`mestre:false`) | **não** lê | dono lê/escreve; não liberável | Privacidade do jogador |
 | Fichas do mestre (`mestre:true`) | lê/escreve | lê só se `todos` ou `liberadoPara` contém o uid | Liberação seletiva |
-| Diário (`anotacoes/{uid}`), pinos, quadro | nada | só o próprio dono | Material privado do jogador |
+| Diário (`anotacoes/{uid}`), pinos, quadro | **lê** (nunca escreve) | só o próprio dono | O mestre lê as anotações e usa "Ver como" jogador; escrever continua só do dono |
 | Extensões instaladas | gerencia | lê só as `visivelJogadores` | Mestre decide o que aparece |
 | Estado por escopo: `extensoes/{extId}/estado/mestre` | lê e grava | nada | Gabaritos e segredos da extensão |
 | `extensoes/{extId}/estado/para_{uid}` | lê e grava | só o dono (`uid`) lê, com a extensão visível, ativa e `porJogador` em `estadoAprovado` | Conteúdo entregue a um jogador; jogador nunca lista a subcoleção |

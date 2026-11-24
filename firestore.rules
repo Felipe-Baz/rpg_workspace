@@ -43,9 +43,12 @@ service cloud.firestore {
       allow delete: if logado() && resource.data.donoUid == request.auth.uid;
 
       // Diário do jogador: privado, só o próprio dono (e membro da mesa).
+      // O mestre também lê (nunca escreve), para a visão "ver como jogador".
       match /anotacoes/{donoId} {
         allow read, write: if logado() && request.auth.uid == donoId
           && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
+        allow read: if logado()
+          && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
       }
 
       // Mapas: o mestre escreve; o jogador lê só os liberados (para todos ou para ele).
@@ -118,6 +121,8 @@ service cloud.firestore {
       match /pinos/{donoId} {
         allow read, write: if logado() && request.auth.uid == donoId
           && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
+        allow read: if logado()
+          && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
       }
 
       // Fichas (NPCs, inimigos, pessoas importantes, itens).
@@ -161,6 +166,8 @@ service cloud.firestore {
 
       // Quadro de investigação: elementos privados do jogador que os criou.
       match /quadro/{noId} {
+        allow read: if logado()
+          && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid;
         allow read, delete: if logado() && resource.data.donoUid == request.auth.uid
           && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros;
         allow create: if logado() && request.resource.data.donoUid == request.auth.uid

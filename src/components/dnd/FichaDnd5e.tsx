@@ -6,11 +6,12 @@ import { uid } from "@/lib/mesas";
 import { useFichaPersonagem } from "@/lib/fichaPersonagem";
 import {
   ATRIBUTOS, ATRIBUTO_NOME, PERICIAS, bonusAtaqueMagia, bonusIniciativa, bonusPericia, bonusProficiencia, bonusSalvaguarda, cdMagia,
-  MAX_DESCANSOS_CURTOS, comSinal, curar, temDadoVida, descansoCurto, descansoLongo, podeDescansoCurto, testeDadoVida, espacosPorNivel, modDe, percepcaoPassiva, pesoTotal, testeAtaque, testeAtaqueMagia, testeAtributo,
+  MAX_DESCANSOS_CURTOS, comSinal, contagemMagias, CLASSES, alternarMagia, circulosDisponiveis, conjurar, definirClasse, limitesMagia, magiaPronta, nomeClasse, type ClasseId, curar, temDadoVida, descansoCurto, descansoLongo, podeDescansoCurto, testeDadoVida, espacosPorNivel, modDe, percepcaoPassiva, pesoTotal, testeAtaque, testeAtaqueMagia, testeAtributo,
   testeDano, testeDanoMagia, testeIniciativa, testePericia, testeSalvaguarda, type Atributo, type Ataque, type FichaDnd, type Item, type Magia, type NivelProf, type Teste,
 } from "@/lib/dnd5e";
 import LivroHistoria from "./LivroHistoria";
 import PainelRolagem from "./PainelRolagem";
+import TrocaMagias from "./TrocaMagias";
 
 const campo = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
 const cartao = "rounded-2xl border border-border bg-card p-4";
@@ -51,8 +52,11 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
   const [rolando, setRolando] = useState<{ t: Teste; seq: number } | null>(null);
   const [valorPv, setValorPv] = useState(1);
   const [novaMagia, setNovaMagia] = useState(0);
+  const [circuloConj, setCirculoConj] = useState<Record<string, number>>({});
   const [importacao, setImportacao] = useState<{ ok: boolean; texto: string } | null>(null);
   const [importando, setImportando] = useState(false);
+  // após o descanso longo: "perguntar" se quer trocar as magias ativas, "trocar" com o painel aberto
+  const [trocaMagias, setTrocaMagias] = useState<"perguntar" | "trocar" | null>(null);
 
   if (!carregado) return <p className="py-10 text-center text-muted">Abrindo a ficha…</p>;
 
@@ -69,6 +73,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
   const setAtaque = (id: string, p: Partial<Ataque>) => set({ ataques: f.ataques.map((a) => (a.id === id ? { ...a, ...p } : a)) });
   const setItem = (id: string, p: Partial<Item>) => set({ itens: f.itens.map((i) => (i.id === id ? { ...i, ...p } : i)) });
   const setMagia = (id: string, p: Partial<Magia>) => set({ magias: f.magias.map((m) => (m.id === id ? { ...m, ...p } : m)) });
+  const cont = contagemMagias(f);
   const setEspaco = (i: number, p: Partial<{ total: number; usados: number }>) =>
     set({ espacos: f.espacos.map((e, k) => (k === i ? { ...e, ...p } : e)) });
 
@@ -114,7 +119,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
             <Star size={14} className={f.inspiracao ? "fill-gold" : ""} /> Inspiração
           </button>
           <button
-            onClick={() => set(descansoLongo(f))}
+            onClick={() => { set(descansoLongo(f)); if (limitesMagia(f) && f.magias.length > 0) setTrocaMagias("perguntar"); }}
             title="Recupera tudo: PV, espaços de magia, dados de vida e descansos curtos"
             className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-muted hover:border-gold hover:text-gold"
           >
@@ -150,7 +155,23 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
           <p role="status" className={`relative mt-3 text-sm ${importacao.ok ? "text-gold" : "text-red-400"}`}>{importacao.texto}</p>
         )}
         <div className="relative mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-          {([["classe", "Classe"], ["subclasse", "Subclasse"], ["raca", "Raça"], ["antecedente", "Antecedente"], ["alinhamento", "Alinhamento"]] as const).map(([k, r]) => (
+          <label className="text-[11px] uppercase tracking-wider text-muted">
+            Classe
+            <select
+              value={f.classe}
+              onChange={(e) => {
+                const id = e.target.value as ClasseId | "";
+                const novo = definirClasse(f, id);
+                if (id !== f.classe && limitesMagia(novo) && !window.confirm(`Definir a classe como ${nomeClasse(id)}? Isso ajusta o atributo de conjuração e os espaços de magia ao nível ${f.nivel} e passa a limitar as magias ativas.`)) return;
+                set(novo);
+              }}
+              className={`${campo} mt-0.5 normal-case tracking-normal text-foreground`}
+            >
+              <option value="">Escolha…</option>
+              {CLASSES.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+            </select>
+          </label>
+          {([["subclasse", "Subclasse"], ["raca", "Raça"], ["antecedente", "Antecedente"], ["alinhamento", "Alinhamento"]] as const).map(([k, r]) => (
             <label key={k} className="text-[11px] uppercase tracking-wider text-muted">
               {r}
               <input value={f[k]} onChange={(e) => set({ [k]: e.target.value })} className={`${campo} mt-0.5 normal-case tracking-normal text-foreground`} />
@@ -449,6 +470,29 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
 
               <div className={cartao}>
                 <h2 className={titulo}>Truques e magias</h2>
+                {cont.lim ? (
+                  <div className="mb-3 space-y-1 text-xs text-muted">
+                    <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                      <span>Truques ativos <strong className={cont.truques > cont.lim.truques ? "text-danger" : cont.truquesCheio ? "text-gold" : "text-foreground"}>{cont.truques}/{cont.lim.truques}</strong></span>
+                      <span>Magias ativas <strong className={cont.magias > cont.lim.magias ? "text-danger" : cont.magiasCheio ? "text-gold" : "text-foreground"}>{cont.magias}/{cont.lim.magias}</strong></span>
+                      <button onClick={() => setTrocaMagias("trocar")} className="ml-auto text-accent-hover hover:underline">Trocar magias ativas</button>
+                    </p>
+                    <p>Cadastre quantas magias quiser: o limite da classe e do nível vale só para as <strong>ativas</strong>. Só magias ativas podem ser conjuradas. A troca é feita no descanso longo.</p>
+                    <details>
+                      <summary className="cursor-pointer hover:text-foreground">Ajustes especiais (itens mágicos, talentos)</summary>
+                      <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] uppercase tracking-wider">
+                        {([["truques", "Truques"], ["magias", "Magias"]] as const).map(([k, r]) => (
+                          <label key={k}>{r} (±)
+                            <Num valor={f.ajusteLimites[k]} onChange={(n) => set({ ajusteLimites: { ...f.ajusteLimites, [k]: n } })} className="mt-0.5" />
+                          </label>
+                        ))}
+                      </div>
+                      <p className="mt-1">Some ou subtraia só quando algo raro mudar o limite da classe.</p>
+                    </details>
+                  </div>
+                ) : (
+                  <p className="mb-3 text-xs text-muted">Escolha uma classe conjuradora no cabeçalho para aplicar os limites de truques e magias ativas.</p>
+                )}
                 {f.magias.length === 0 && <p className="mb-3 text-sm text-muted">Nenhuma magia ainda.</p>}
                 {Array.from({ length: 10 }, (_, nv) => nv).map((nv) => {
                   const lista = f.magias.filter((m) => m.nivel === nv);
@@ -460,8 +504,38 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                         {lista.map((m) => (
                           <li key={m.id} className="rounded-xl border border-border bg-background/50 p-2.5">
                             <div className="flex flex-wrap items-center gap-2">
-                              {nv > 0 && <input type="checkbox" checked={m.preparada} onChange={(e) => setMagia(m.id, { preparada: e.target.checked })} aria-label="Preparada" title="Preparada" />}
+                              {cont.lim && (() => {
+                                const cheio = nv === 0 ? cont.truquesCheio : cont.magiasCheio;
+                                return (
+                                  <input
+                                    type="checkbox"
+                                    checked={m.ativa}
+                                    disabled={!m.ativa && cheio}
+                                    onChange={() => set(alternarMagia(f, m.id))}
+                                    aria-label="Ativa"
+                                    title={!m.ativa && cheio ? "Limite de ativas atingido: desative outra primeiro" : m.ativa ? "Ativa (clique para desativar)" : "Inativa (clique para ativar)"}
+                                  />
+                                );
+                              })()}
                               <input value={m.nome} onChange={(e) => setMagia(m.id, { nome: e.target.value })} placeholder="Nome da magia" className={`${campo} min-w-40 flex-1`} />
+                              {nv > 0 && (() => {
+                                const circulos = circulosDisponiveis(f, nv);
+                                const pronta = magiaPronta(f, m);
+                                const escolhido = circulos.includes(circuloConj[m.id]) ? circuloConj[m.id] : circulos[0];
+                                const motivo = !pronta ? "Ative a magia para conjurá-la" : !circulos.length ? "Sem espaços de magia disponíveis" : "";
+                                return (
+                                  <span className="flex items-center gap-1">
+                                    {circulos.length > 1 && (
+                                      <select value={escolhido} onChange={(e) => setCirculoConj({ ...circuloConj, [m.id]: Number(e.target.value) })} aria-label="Círculo do espaço a gastar" className={`${campo} !w-auto !py-0.5 !text-xs`}>
+                                        {circulos.map((c) => <option key={c} value={c}>{c}º{c > nv ? " (maior)" : ""}</option>)}
+                                      </select>
+                                    )}
+                                    <button disabled={!!motivo} title={motivo || `Gasta 1 espaço do ${escolhido}º círculo`} onClick={() => set(conjurar(f, m, escolhido))} className={`${botaoRolar} disabled:cursor-not-allowed disabled:opacity-40`}>
+                                      Conjurar
+                                    </button>
+                                  </span>
+                                );
+                              })()}
                               {m.tipo === "ataque" && <button onClick={() => rolar(testeAtaqueMagia(f, m))} className={botaoRolar}>Ataque {comSinal(bonusAtaqueMagia(f))}</button>}
                               {m.tipo === "salvaguarda" && <span className="text-xs text-muted">CD <strong className="text-gold">{cdMagia(f)}</strong> · {ATRIBUTO_NOME[m.salvaguarda]}</span>}
                               {m.dano.trim() && <button onClick={() => rolar(testeDanoMagia(m))} className={botaoRolar}>Dano {m.dano}</button>}
@@ -506,7 +580,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                     {Array.from({ length: 9 }, (_, i) => <option key={i} value={i + 1}>{i + 1}º círculo</option>)}
                   </select>
                   <button
-                    onClick={() => set({ magias: [...f.magias, { id: uid(), nome: "", nivel: novaMagia, preparada: novaMagia === 0, escola: "", tempo: "1 ação", alcance: "", componentes: "", duracao: "", descricao: "", tipo: "nenhum", dano: "", salvaguarda: "des" }] })}
+                    title={(novaMagia === 0 ? cont.truquesCheio : cont.magiasCheio) ? "Limite de ativas atingido: a nova entra como inativa" : undefined}
+                    onClick={() => set({ magias: [...f.magias, { id: uid(), nome: "", nivel: novaMagia, ativa: !(novaMagia === 0 ? cont.truquesCheio : cont.magiasCheio), escola: "", tempo: "1 ação", alcance: "", componentes: "", duracao: "", descricao: "", tipo: "nenhum", dano: "", salvaguarda: "des" }] })}
                     className="text-accent-hover hover:underline"
                   >
                     + Adicionar {novaMagia === 0 ? "truque" : "magia"}
@@ -575,6 +650,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
       </div>
 
       {rolando && <PainelRolagem key={rolando.seq} teste={rolando.t} onFechar={() => setRolando(null)} aoAplicar={rolando.t.cura ? (n) => set(curar(f, n)) : undefined} />}
+      {trocaMagias && <TrocaMagias ficha={f} etapa={trocaMagias} onMudar={salvar} onTrocar={() => setTrocaMagias("trocar")} onFechar={() => setTrocaMagias(null)} />}
     </div>
   );
 }

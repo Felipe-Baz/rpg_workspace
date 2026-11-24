@@ -51,7 +51,8 @@ export type Magia = {
   id: string;
   nome: string;
   nivel: number; // 0 = truque
-  preparada: boolean;
+  /** Ativa = conta nos limites da classe e pode ser conjurada. Inativas ficam só no "pool" da ficha. */
+  ativa: boolean;
   escola: string;
   tempo: string;
   alcance: string;
@@ -76,7 +77,8 @@ export type Espaco = { total: number; usados: number };
 
 export type FichaDnd = {
   nome: string;
-  classe: string;
+  /** Classe do personagem (uma das classes do livro). "" = não escolhida. */
+  classe: ClasseId | "";
   subclasse: string;
   nivel: number;
   antecedente: string;
@@ -108,6 +110,8 @@ export type FichaDnd = {
   atrConjuracao: Atributo | "";
   espacos: Espaco[]; // índice 0 = 1º círculo ... 8 = 9º
   magias: Magia[];
+  /** Ajustes raros somados aos limites de magias ativas da classe (itens mágicos, talentos). Negativos reduzem. */
+  ajusteLimites: { truques: number; magias: number };
 
   moedas: { pc: number; pp: number; pe: number; po: number; pl: number };
   itens: Item[];
@@ -135,6 +139,7 @@ export const FICHA_VAZIA: FichaDnd = {
   atrConjuracao: "",
   espacos: Array.from({ length: 9 }, () => ({ total: 0, usados: 0 })),
   magias: [],
+  ajusteLimites: { truques: 0, magias: 0 },
   moedas: { pc: 0, pp: 0, pe: 0, po: 0, pl: 0 },
   itens: [], equipamento: "", tracos: "", proficienciasIdiomas: "", personalidade: "", ideais: "", vinculos: "", defeitos: "",
   aparencia: "", tituloLivro: "", livro: [""], notas: "",
@@ -144,16 +149,29 @@ export const FICHA_VAZIA: FichaDnd = {
 export function normalizar(parcial: Partial<FichaDnd> | undefined): FichaDnd {
   const p = parcial ?? {};
   const espacos = Array.from({ length: 9 }, (_, i) => ({ ...FICHA_VAZIA.espacos[i], ...(p.espacos?.[i] ?? {}) }));
+  // fichas antigas: `classe` era texto livre e a classe conjuradora ficava em `classeConj`
+  const antigo = p as { classeConj?: string; ajusteLimites?: { truques?: number; magias?: number } };
+  const textoClasse = typeof p.classe === "string" ? p.classe : "";
+  const classe: ClasseId | "" = ehClasseId(textoClasse) ? textoClasse
+    : ehClasseId(antigo.classeConj ?? "") ? (antigo.classeConj as ClasseId) : classeDeTexto(textoClasse);
+  const textoSobra = textoClasse && !ehClasseId(textoClasse) && !p.subclasse ? textoClasse : "";
   return {
     ...FICHA_VAZIA,
     ...p,
+    classe,
+    subclasse: p.subclasse || textoSobra,
+    ajusteLimites: { truques: antigo.ajusteLimites?.truques ?? 0, magias: antigo.ajusteLimites?.magias ?? 0 },
+    magias: (p.magias ?? []).map((m) => {
+      const { preparada, ...resto } = m as Magia & { preparada?: boolean };
+      const preparaMagias = !!classe && (modoDe(classe) === "preparadas" || modoDe(classe) === "grimorio");
+      return { ...resto, ativa: m.ativa ?? (m.nivel === 0 || !preparaMagias ? true : (preparada ?? true)) };
+    }),
     atributos: { ...FICHA_VAZIA.atributos, ...p.atributos },
     salvaguardas: { ...FICHA_VAZIA.salvaguardas, ...p.salvaguardas },
     moedas: { ...FICHA_VAZIA.moedas, ...p.moedas },
     pericias: p.pericias ?? {},
     bonusPericias: p.bonusPericias ?? {},
     ataques: p.ataques ?? [],
-    magias: p.magias ?? [],
     itens: p.itens ?? [],
     // fichas antigas guardavam a história num texto único (`historia`)
     livro: p.livro ?? ((p as { historia?: string }).historia ? [(p as { historia?: string }).historia!] : [""]),
@@ -192,6 +210,148 @@ export function espacosPorNivel(tipo: "completo" | "meio", nivel: number): numbe
   const idx = tipo === "completo" ? n : n < 2 ? 0 : Math.ceil(n / 2);
   const linha = idx === 0 ? [] : TABELA_COMPLETO[idx - 1];
   return Array.from({ length: 9 }, (_, i) => linha[i] ?? 0);
+}
+
+// ---------- classes ----------
+export const CLASSES = [
+  { id: "barbaro", nome: "Bárbaro" }, { id: "bardo", nome: "Bardo" }, { id: "bruxo", nome: "Bruxo" }, { id: "clerigo", nome: "Clérigo" },
+  { id: "druida", nome: "Druida" }, { id: "feiticeiro", nome: "Feiticeiro" }, { id: "guerreiro", nome: "Guerreiro" }, { id: "ladino", nome: "Ladino" },
+  { id: "mago", nome: "Mago" }, { id: "monge", nome: "Monge" }, { id: "paladino", nome: "Paladino" }, { id: "patrulheiro", nome: "Patrulheiro" },
+] as const;
+export type ClasseId = (typeof CLASSES)[number]["id"];
+export const ehClasseId = (s: string): s is ClasseId => CLASSES.some((c) => c.id === s);
+export const nomeClasse = (id: ClasseId | "") => CLASSES.find((c) => c.id === id)?.nome ?? "";
+
+const semAcentos = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+/** Reconhece uma classe num texto livre ("Mago 5", "Guerreiro 3 / Ladino 2" → a que aparece primeiro). "" se nenhuma. */
+export function classeDeTexto(texto: string): ClasseId | "" {
+  const t = semAcentos(texto);
+  let achada: ClasseId | "" = "", pos = Infinity;
+  for (const c of CLASSES) {
+    const i = t.search(new RegExp(`\\b${semAcentos(c.nome)}`));
+    if (i >= 0 && i < pos) { pos = i; achada = c.id; }
+  }
+  return achada;
+}
+
+// ---------- classes conjuradoras (limites de magias ativas) ----------
+// Todas as magias ficam cadastradas na ficha; o limite vale só para as ATIVAS (as demais ficam de reserva).
+// preparadas: prepara parte da lista da classe a cada descanso longo (clérigo, druida, paladino).
+// grimorio:   anota magias num grimório e prepara parte delas (mago).
+// conhecidas: conhece um número fixo de magias (bardo, feiticeiro, bruxo, patrulheiro).
+export type ClasseConjId = "bardo" | "bruxo" | "clerigo" | "druida" | "feiticeiro" | "mago" | "paladino" | "patrulheiro";
+type ModoConj = "preparadas" | "grimorio" | "conhecidas";
+type ClasseConj = {
+  nome: string; atr: Atributo; modo: ModoConj; espacos: "completo" | "meio" | "pacto";
+  /** Truques por nível (índice = nível - 1). */
+  truques: (n: number) => number;
+  /** conhecidas: tabela por nível (índice = nível - 1). */
+  conhecidas?: number[];
+};
+const faixa = (a: number, b: number, c: number) => (n: number) => (n >= 10 ? c : n >= 4 ? b : a);
+const nenhum = () => 0;
+
+export const CLASSES_CONJ: Record<ClasseConjId, ClasseConj> = {
+  bardo: { nome: "Bardo", atr: "car", modo: "conhecidas", espacos: "completo", truques: faixa(2, 3, 4), conhecidas: [4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 15, 16, 18, 19, 19, 20, 22, 22, 22] },
+  bruxo: { nome: "Bruxo", atr: "car", modo: "conhecidas", espacos: "pacto", truques: faixa(2, 3, 4), conhecidas: [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15] },
+  clerigo: { nome: "Clérigo", atr: "sab", modo: "preparadas", espacos: "completo", truques: faixa(3, 4, 5) },
+  druida: { nome: "Druida", atr: "sab", modo: "preparadas", espacos: "completo", truques: faixa(2, 3, 4) },
+  feiticeiro: { nome: "Feiticeiro", atr: "car", modo: "conhecidas", espacos: "completo", truques: faixa(4, 5, 6), conhecidas: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13, 13, 14, 14, 15, 15, 15, 15] },
+  mago: { nome: "Mago", atr: "int", modo: "grimorio", espacos: "completo", truques: faixa(3, 4, 5) },
+  paladino: { nome: "Paladino", atr: "car", modo: "preparadas", espacos: "meio", truques: nenhum },
+  patrulheiro: { nome: "Patrulheiro", atr: "sab", modo: "conhecidas", espacos: "meio", truques: nenhum, conhecidas: [0, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11] },
+};
+
+const nivelValido = (n: number) => Math.min(Math.max(Math.floor(n), 1), 20);
+
+/** Espaços de magia da classe no nível. Bruxo: espaços de pacto (todos no mesmo círculo). */
+export function espacosDaClasse(id: ClasseConjId, nivel: number): number[] {
+  const c = CLASSES_CONJ[id];
+  const n = nivelValido(nivel);
+  if (c.espacos !== "pacto") return espacosPorNivel(c.espacos, n);
+  const circulo = Math.min(5, Math.ceil(n / 2));
+  const total = n >= 17 ? 4 : n >= 11 ? 3 : n >= 2 ? 2 : 1;
+  return Array.from({ length: 9 }, (_, i) => (i + 1 === circulo ? total : 0));
+}
+
+const ehConjuradora = (id: ClasseId | ""): id is ClasseConjId => id in CLASSES_CONJ;
+export const modoDe = (id: ClasseId | ""): ModoConj | undefined => (ehConjuradora(id) ? CLASSES_CONJ[id].modo : undefined);
+
+export type LimitesMagia = {
+  /** Máximo de truques ativos. */
+  truques: number;
+  /** Máximo de magias ativas de 1º círculo em diante (preparadas ou conhecidas, conforme a classe). */
+  magias: number;
+};
+
+/** Limites de magias ATIVAS (classe + nível + ajustes). null = classe sem conjuração ou não escolhida (sem limites). */
+export function limitesMagia(f: FichaDnd): LimitesMagia | null {
+  if (!ehConjuradora(f.classe)) return null;
+  const c = CLASSES_CONJ[f.classe];
+  const n = nivelValido(f.nivel);
+  const aj = f.ajusteLimites;
+  const truques = Math.max(0, c.truques(n) + aj.truques);
+  const base = c.modo === "conhecidas"
+    ? c.conhecidas![n - 1]
+    : Math.max(1, (f.classe === "paladino" ? Math.floor(n / 2) : n) + modDe(f, c.atr));
+  return { truques, magias: Math.max(0, base + aj.magias) };
+}
+
+/** Contagens de magias ativas contra os limites. `cheio*` só é verdadeiro quando há limite. */
+export function contagemMagias(f: FichaDnd) {
+  const lim = limitesMagia(f);
+  const truques = f.magias.filter((m) => m.nivel === 0 && m.ativa).length;
+  const magias = f.magias.filter((m) => m.nivel > 0 && m.ativa).length;
+  return {
+    lim, truques, magias,
+    totalTruques: f.magias.filter((m) => m.nivel === 0).length,
+    totalMagias: f.magias.filter((m) => m.nivel > 0).length,
+    truquesCheio: !!lim && truques >= lim.truques,
+    magiasCheio: !!lim && magias >= lim.magias,
+  };
+}
+
+/** A magia pode ser ativada agora? (inativa e ainda há vaga no limite do seu tipo; sem limites, sempre.) */
+export function podeAtivar(f: FichaDnd, m: Magia): boolean {
+  if (m.ativa) return false;
+  const c = contagemMagias(f);
+  return !(m.nivel === 0 ? c.truquesCheio : c.magiasCheio);
+}
+
+/** Liga/desliga uma magia. Ativar além do limite não acontece: devolve a ficha igual. Desativar é sempre permitido. */
+export function alternarMagia(f: FichaDnd, id: string): FichaDnd {
+  const m = f.magias.find((x) => x.id === id);
+  if (!m || (!m.ativa && !podeAtivar(f, m))) return f;
+  return { ...f, magias: f.magias.map((x) => (x.id === id ? { ...x, ativa: !x.ativa } : x)) };
+}
+
+/** Escolhe a classe. Classes conjuradoras ajustam o atributo de conjuração e os espaços ao nível (mantém os já gastos). */
+export function definirClasse(f: FichaDnd, id: ClasseId | ""): FichaDnd {
+  if (!ehConjuradora(id)) return { ...f, classe: id };
+  const t = espacosDaClasse(id, f.nivel);
+  return {
+    ...f, classe: id, atrConjuracao: CLASSES_CONJ[id].atr,
+    espacos: f.espacos.map((e, i) => ({ total: t[i], usados: Math.min(e.usados, t[i]) })),
+  };
+}
+
+/** Círculos (1–9) com espaço livre que servem para uma magia de `nivelMagia` (conjurar em círculo maior é permitido). */
+export function circulosDisponiveis(f: FichaDnd, nivelMagia: number): number[] {
+  const out: number[] = [];
+  for (let c = Math.max(1, nivelMagia); c <= 9; c++) if (f.espacos[c - 1].total - f.espacos[c - 1].usados > 0) out.push(c);
+  return out;
+}
+
+/** Magia que pode ser conjurada agora: com limites de classe, precisa estar ativa; sem limites, qualquer uma. */
+export function magiaPronta(f: FichaDnd, m: Magia): boolean {
+  return !limitesMagia(f) || m.ativa;
+}
+
+/** Gasta um espaço do círculo escolhido. Devolve a ficha igual se não houver espaço (ou truque: não gasta). */
+export function conjurar(f: FichaDnd, m: Magia, circulo: number): FichaDnd {
+  if (m.nivel === 0 || !magiaPronta(f, m) || !circulosDisponiveis(f, m.nivel).includes(circulo)) return f;
+  return { ...f, espacos: f.espacos.map((e, i) => (i + 1 === circulo ? { ...e, usados: e.usados + 1 } : e)) };
 }
 
 // ---------- rolagens ----------
