@@ -83,7 +83,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
             onChange={(e) => set({ nome: e.target.value })}
             placeholder={nomePadrao || "Nome do personagem"}
             aria-label="Nome do personagem"
-            className="min-w-0 flex-1 border-b border-gold/30 bg-transparent pb-1 font-display text-3xl font-bold tracking-wide focus:border-gold focus:outline-none"
+            className="min-w-0 flex-1 border-b border-gold/30 bg-transparent pb-1 font-display text-2xl font-bold tracking-wide focus:border-gold sm:text-3xl focus:outline-none"
           />
           <button
             onClick={() => set({ inspiracao: !f.inspiracao })}
@@ -485,7 +485,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
 
           {aba === "inventario" && (
             <section className={`${cartao} space-y-4`}>
-              <div className="grid grid-cols-5 gap-2 text-center">
+              <div className="grid grid-cols-3 gap-2 text-center sm:grid-cols-5">
                 {([["pc", "Cobre"], ["pp", "Prata"], ["pe", "Electro"], ["po", "Ouro"], ["pl", "Platina"]] as const).map(([k, r]) => (
                   <label key={k} className="text-[10px] uppercase tracking-widest text-muted">
                     {r} ({k.toUpperCase()})

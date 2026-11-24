@@ -4,6 +4,32 @@ Registro curto de **mudanças de comportamento** que alteraram esta base (mais r
 
 Se uma alteração de código **não** afeta nenhuma feature, fluxo, regra de acesso, modelo de dados ou rota, registre mesmo assim com `sem impacto na base` (isso marca a revisão como feita).
 
+- 2026-11-24: `/dev/erro-cliente` dividida em `page.tsx` (Server Component com `instant = false`) e `BotaoQuebrar.tsx` (cliente), pois Client Components não exportam `instant`: sem impacto na base.
+- 2026-11-24: `/dev/offline` virou Server Component com `instant = false` (o wrapper cliente já é o `OfflineAviso`): sem impacto na base.
+- 2026-11-24: `instant = false` em `src/app/dev/layout.tsx` (silencia aviso de navegação instantânea nas páginas de teste `/dev`): sem impacto na base.
+- 2026-11-24: páginas de resiliência: `not-found` (404), `error` (erro de rota com "tentar novamente"), `global-error` (falha no layout raiz) e `loading` em `src/app/`, com componentes `PaginaEstado`/`ErroRota`. Só telas de fallback: sem impacto na base.
+- 2026-11-24: ajuste interno do minijogo (leitura do recorde sem setState em effect) e alterações de shell/navegação (`ShellBase`, `navegacao`) só de layout/organização: sem impacto na base.
+- 2026-11-24: carregando mostra o modelo 3D real do dado (`VitrineDado` em `cena-dados.ts`, mesma geometria/números da mesa) girando no lugar em vários eixos e alternando d4 a d20; fatias SVG como reserva (sem WebGL/movimento reduzido). Só tela de carregamento: sem impacto na base.
+- 2026-11-24: `instant = false` no layout das páginas de teste `/dev` (arquivo temporário do editor já removido): sem impacto na base.
+- 2026-11-24: `loading.tsx` agora usa `CarregandoRPG` (dados d4 a d20 lançados em sequência e frases de vários cenários de RPG). Só tela de carregamento: sem impacto na base.
+- 2026-11-24: removido `dynamic` da página de teste `/dev/carregando` (incompatível com `cacheComponents`): sem impacto na base.
+- 2026-11-24: removido `export const instant` das páginas de teste `/dev/erro-cliente` e `/dev/offline` (Client Components não aceitam): sem impacto na base.
+- 2026-11-24: ajuste de texto na página de teste `/dev/offline` (lint): sem impacto na base.
+- 2026-11-24: rotas `/dev/*` só em desenvolvimento (404 em produção) para testar 404, erro, loading e offline; `OfflineAviso` ganhou a prop `forcar`. Ferramenta de teste: sem impacto na base.
+- 2026-11-24: **Caça aos Corvos** substitui o minijogo de corrida nas páginas 404/erro e no aviso offline; ranking global `Nick - Pontuação` na coleção nova `rankingJogo/{uid}` (melhor pontuação por usuário, regra nova que só deixa subir a nota). Página: nova `features/minijogo-caca-corvos.md`, permissoes-e-seguranca, README.
+- 2026-11-24: páginas 404/erro ganharam d20 clicável, brasas animadas e minijogo de corrida (`MiniJogoCorrida`, recorde só em `localStorage`); novo `OfflineAviso` no layout raiz mostra o jogo quando o navegador fica sem internet. Só UI de fallback: sem impacto na base.
+- 2026-11-24: logos com `width: auto` e `shrink-0` (aviso do next/image sobre proporção). sem impacto na base.
+- 2026-11-24: correção de erro de hidratação na landing (botão Entrar/Abrir minhas mesas). sem impacto na base.
+- 2026-11-24: sidebar reagrupada por uso (mestre: Aventura / Elenco e itens / Mesa; jogador: Personagem / Aventura / Pessoas / Mapas e imagens). Página: navegacao-e-busca.
+- 2026-11-24: sidebar com grupos recolhíveis (preferência local) e novo grupo "Fichas" separado de "Jogo", para mestre e jogador. Página: navegacao-e-busca.
+- 2026-11-24: script do tema no `layout.tsx` passou para `next/script` (`beforeInteractive`) para silenciar aviso do React. sem impacto na base.
+- 2026-11-24: **Atalho para o item liberado:** o sino do jogador abre direto o item (`?item=id` em mapas, imagens e fichas) e, quando o mestre libera algo com a mesa aberta, aparece um toast com botão "Abrir". Página: liberacao-de-conteudo.
+- 2026-11-24: referência D&D 5e ampliada em `docs/referencias/` com `dnd5e-talentos-multiclasse.md` e `dnd5e-antecedentes.md` (cap. 4 e 6 do Livro do Jogador). Só documentação de consulta: sem impacto na base.
+- 2026-11-24: material de referência D&D 5e extraído do Livro do Jogador para `docs/referencias/` (`dnd5e-classes.md`, `dnd5e-racas.md`, `dnd5e-equipamento.md`, `dnd5e-magias.md`), base de dados para modelar o sistema no site. Só documentação de consulta: sem impacto na base.
+- 2026-11-24: iniciativa: "puxar jogadores" não rola mais d20 automático (entram sem iniciativa; rolar é um botão à parte). Página: sessao-ao-vivo.
+- 2026-11-24: iniciativa: jogadores entram com a vida atual da ficha e o mestre pode pedir o teste de iniciativa (novo tipo `iniciativa` em `pedidosTeste`, regra atualizada). Página: sessao-ao-vivo.
+- 2026-11-24: revisão de responsividade (sessão ao vivo, shell, ficha D&D, visor de mapa, timeline, criador de extensão): layout e tamanhos de tela apenas. sem impacto na base.
+- 2026-11-24: **Pedir teste:** na sessão ao vivo o mestre pede perícia/atributo/salvaguarda/teste livre a um jogador; o cartão aparece na tela dele, ele rola (site ou mesa) e a resposta volta ao mestre. Coleção nova `mesas/{id}/pedidosTeste` com regra própria. Páginas: sessao-ao-vivo (ver também permissoes-e-seguranca).
 - 2026-11-24: dados 3D: física de corpo rígido real (cannon-es) com números trocados nas faces para dar o resultado sorteado, e tamanho proporcional à tela. Página: dados-3d.
 - 2026-11-24: logos do site aplicadas (brasão nos cabeçalhos da landing, login e dashboard; logo completa no painel de login e na tela de carregamento; favicon). sem impacto na base.
 - 2026-11-24: **Rolador de dados 3D único:** todo o site rola por um só componente (`RolagemProvider`) com dados 3D (three.js) jogados na tela e som; número sorteado por `crypto`, animação guiada até a face; rolagens compartilhadas em `mesas/{id}/rolagens` (regra nova) e reencenadas para quem está online; d100 vira dezenas + unidades e acima de 100 soma dados (d120 = percentil + d20). Páginas: dados-3d (nova), README, sessao-ao-vivo, ficha-dnd5e, extensoes, permissoes-e-seguranca, arquitetura.

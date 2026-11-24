@@ -357,6 +357,29 @@ service cloud.firestore {
         allow delete: if mestreMesa() || (membroMesa() && resource.data.uid == request.auth.uid);
       }
 
+      // Pedidos de teste do mestre a um jogador. O mestre cria/apaga e lê todos; o jogador alvo lê só os seus e,
+      // para responder, muda apenas status/total/natural/origem/respondidoEm de um pedido pendente.
+      match /pedidosTeste/{pedidoId} {
+        allow read: if mestreMesa() || (membroMesa() && resource.data.paraUid == request.auth.uid);
+        allow create: if mestreMesa()
+          && request.resource.data.keys().hasOnly(['paraUid', 'paraNome', 'tipo', 'chave', 'vantagem', 'motivo', 'status', 'criadoEm'])
+          && request.resource.data.paraUid is string
+          && request.resource.data.paraNome is string && request.resource.data.paraNome.size() <= 60
+          && request.resource.data.tipo in ['pericia', 'atributo', 'salvaguarda', 'iniciativa', 'livre']
+          && request.resource.data.chave is string && request.resource.data.chave.size() <= 60
+          && (request.resource.data.vantagem == null || request.resource.data.vantagem in ['v', 'd'])
+          && request.resource.data.motivo is string && request.resource.data.motivo.size() <= 200
+          && request.resource.data.status == 'pendente'
+          && request.resource.data.criadoEm is number;
+        allow update: if mestreMesa()
+          || (membroMesa() && resource.data.paraUid == request.auth.uid && resource.data.status == 'pendente'
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'total', 'natural', 'origem', 'respondidoEm'])
+              && request.resource.data.status == 'respondido'
+              && request.resource.data.total is number && request.resource.data.natural is number
+              && request.resource.data.origem in ['site', 'mesa']);
+        allow delete: if mestreMesa();
+      }
+
       // Jobs de geração de assets: o mestre acompanha (onSnapshot); só o servidor (Admin SDK) escreve.
       match /jobs/{jobId} {
         allow read: if mestreMesa();
@@ -398,6 +421,25 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['donoUid', 'nome', 'criadoEm'])
         && request.resource.data.nome is string && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 60;
       allow update: if false;
+    }
+
+    // Ranking do minijogo (Caça aos Corvos): um doc por usuário com a melhor pontuação.
+    // Qualquer logado lê; cada um só grava o próprio doc e só pode subir a pontuação.
+    match /rankingJogo/{uid} {
+      function rankingValido() {
+        return request.resource.data.keys().hasOnly(['uid', 'nick', 'pontos', 'em'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.nick is string
+          && request.resource.data.nick.size() > 0 && request.resource.data.nick.size() <= 16
+          && request.resource.data.pontos is int
+          && request.resource.data.pontos > 0 && request.resource.data.pontos <= 30000
+          && request.resource.data.em == request.time;
+      }
+      allow read: if logado();
+      allow create: if logado() && uid == request.auth.uid && rankingValido();
+      allow update: if logado() && uid == request.auth.uid && rankingValido()
+        && request.resource.data.pontos > resource.data.pontos;
+      allow delete: if logado() && uid == request.auth.uid;
     }
 
     // Convites: código -> mesa. Só leitura por código exato (sem listar).

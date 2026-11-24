@@ -266,9 +266,9 @@ export default function TelaTimeline() {
         <button className={botao} onClick={() => mudar((c) => ({ ...c, agora: Math.round(xDoPx(largura / 2)) }))} title="Marca o centro da tela como o ponto atual da campanha">Marcar agora aqui</button>
         <div className="relative ml-auto">
           <Search size={14} className="pointer-events-none absolute left-2.5 top-2.5 text-muted" />
-          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar evento…" className={`${campo} w-52 pl-8`} />
+          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar evento…" className={`${campo} w-40 pl-8 sm:w-52`} />
           {resultados.length > 0 && (
-            <ul className="absolute right-0 z-30 mt-1 w-72 overflow-hidden rounded-lg border border-border bg-card shadow-xl">
+            <ul className="absolute right-0 z-30 mt-1 w-72 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-card shadow-xl">
               {resultados.map((r) => (
                 <li key={r.id}>
                   <button className="block w-full px-3 py-2 text-left text-sm hover:bg-card-2" onClick={() => { setSelecionado(r.id); irPara(r.x); setBusca(""); }}>
@@ -292,7 +292,7 @@ export default function TelaTimeline() {
 
       <div className="flex flex-col gap-4 xl:flex-row">
         <div className="min-w-0 flex-1 overflow-hidden rounded-xl border border-border bg-card">
-          <div className="max-h-[62vh] overflow-y-auto">
+          <div className="max-h-[62dvh] overflow-y-auto">
             <div className="flex">
               <div className="shrink-0 border-r border-border bg-card-2/40" style={{ width: LARGURA_ROTULOS }}>
                 <div style={{ height: ALTURA_REGUA }} className="border-b border-border px-3 pt-2 text-[11px] text-muted">{t.unidade}</div>

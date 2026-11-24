@@ -1,7 +1,8 @@
 "use client";
 
 import { ListaSkeleton } from "@/components/ui/Skeleton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import EditorMarkdown from "../EditorMarkdown";
 import Markdown from "../Markdown";
 import { uid } from "@/lib/mesas";
@@ -22,7 +23,9 @@ export default function MapasJogador({
   const { mapas, carregado } = useMapasJogador(mesaId, usuarioUid, true, colecao);
   const { carregado: pinosOk, pinosDe, definirPinos, notaDe, definirNota } = usePinos(mesaId, usuarioUid, true);
   const [sel, setSel] = useState<string | null>(null);
-  const mapa = mapas.find((m) => m.id === sel) ?? mapas[0];
+  const itemUrl = useSearchParams().get("item"); // atalho do sino/toast
+  useEffect(() => { if (itemUrl) setSel(itemUrl); }, [itemUrl]);
+  const mapa =mapas.find((m) => m.id === sel) ?? mapas[0];
 
   if (!carregado) return <ListaSkeleton />;
   if (!mapa) return <p className="text-muted">{colecao === "mapas" ? "Nenhum mapa foi liberado" : "Nenhuma imagem foi liberada"} pelo mestre ainda.</p>;

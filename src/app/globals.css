@@ -198,3 +198,53 @@ button:active:not(:disabled) { transform: scale(0.97); }
 @keyframes cintilar { 0%, 100% { filter: drop-shadow(0 0 0 transparent); } 50% { filter: drop-shadow(0 0 14px var(--gold)); } }
 .anim-dado { display: inline-block; animation: dado .6s var(--ease) both; }
 .text-gold.anim-dado { animation: dado .6s var(--ease) both, cintilar 1.6s ease-in-out .6s infinite; }
+
+/* Páginas de estado (404, erro, offline) */
+@keyframes brasa-subir {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  15% { opacity: 0.9; }
+  100% { transform: translateY(-110vh) translateX(var(--dx, 20px)) scale(0.3); opacity: 0; }
+}
+@keyframes dado-flutuar {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-10px) rotate(6deg); }
+}
+@keyframes dado-girar {
+  0% { transform: rotate(0) scale(1); }
+  50% { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+.brasa { position: absolute; bottom: -10px; border-radius: 9999px; background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: brasa-subir var(--dur, 9s) linear infinite; animation-delay: var(--delay, 0s); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .brasa { display: none; }
+}
+
+/* Carregando: dado lançado sobre a mesa */
+@keyframes dado-tombar {
+  0% { transform: rotateX(0) rotateY(0) rotateZ(0) scale(0.7); }
+  15% { transform: rotateX(200deg) rotateY(120deg) rotateZ(40deg) scale(1.12); }
+  45% { transform: rotateX(430deg) rotateY(330deg) rotateZ(150deg) scale(1.05); }
+  75% { transform: rotateX(640deg) rotateY(520deg) rotateZ(300deg) scale(1.02); }
+  100% { transform: rotateX(720deg) rotateY(720deg) rotateZ(360deg) scale(1); }
+}
+@keyframes dado-sombra {
+  0% { transform: scaleX(0.3); opacity: 0; }
+  35%, 68%, 100% { transform: scaleX(1); opacity: 0.45; }
+  50% { transform: scaleX(0.6); opacity: 0.25; }
+}
+@keyframes barra-correr {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(260%); }
+}
+@keyframes texto-trocar {
+  0% { opacity: 0; transform: translateY(6px); }
+  15%, 85% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+.dado-tombando { animation: dado-tombar 1.5s cubic-bezier(0.25, 0.8, 0.3, 1) both; }
+.dado-sombra { animation: dado-sombra 1.5s var(--ease) both; }
+.barra-correndo { animation: barra-correr 1.4s ease-in-out infinite; }
+.texto-trocando { animation: texto-trocar 2.4s ease-in-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .dado-tombando, .dado-sombra, .barra-correndo, .texto-trocando { animation: none; }
+}

@@ -28,6 +28,7 @@ Ponto de entrada para qualquer agente (ou pessoa) que precise entender o site r�
 - [diario-do-jogador](features/diario-do-jogador.md) · [quadro-de-investigacao](features/quadro-de-investigacao.md)
 - [sessao-ao-vivo](features/sessao-ao-vivo.md): dados, iniciativa, cronômetro, notas rápidas.
 - [dados-3d](features/dados-3d.md): rolador único com dados 3D, som e rolagem vista por todos os online.
+- [minijogo-caca-corvos](features/minijogo-caca-corvos.md): jogo de tiro nas telas 404/erro/offline com ranking global.
 
 **Mapas e imagens**
 - [mapas-e-imagens](features/mapas-e-imagens.md): upload, coberturas (fog), pinos, liberação.

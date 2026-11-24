@@ -9,6 +9,7 @@ import { STATUS_LABEL, useMesas, type Mesa } from "@/lib/mesas";
 import ThemeToggle from "../ThemeToggle";
 import AutomacoesHost from "../extensoes/AutomacoesHost";
 import PainelDados from "../sessao/PainelDados";
+import PedidoTesteJogador from "../sessao/PedidoTesteJogador";
 import RolagemProvider from "../dados/RolagemProvider";
 import PaletaComandos from "./PaletaComandos";
 import type { ExtensaoMesa } from "@/lib/extensoes/dados";
@@ -28,6 +29,21 @@ const assinarRecolhida = (cb: () => void) => { ouvintes.add(cb); return () => { 
 function alternarRecolhida() {
   try { localStorage.setItem(CHAVE, lerRecolhida() ? "0" : "1"); } catch {}
   ouvintes.forEach((f) => f());
+}
+
+/* ---- grupos da sidebar recolhidos (por título, persistido; o snapshot é o texto cru para ficar estável) ---- */
+const CHAVE_GRUPOS = "sidebar-grupos-recolhidos";
+const ouvintesGrupos = new Set<() => void>();
+const lerGrupos = () => {
+  try { return localStorage.getItem(CHAVE_GRUPOS) ?? "[]"; } catch { return "[]"; }
+};
+const assinarGrupos = (cb: () => void) => { ouvintesGrupos.add(cb); return () => { ouvintesGrupos.delete(cb); }; };
+function alternarGrupo(titulo: string) {
+  let l: string[] = [];
+  try { l = JSON.parse(lerGrupos()); } catch {}
+  l = l.includes(titulo) ? l.filter((t) => t !== titulo) : [...l, titulo];
+  try { localStorage.setItem(CHAVE_GRUPOS, JSON.stringify(l)); } catch {}
+  ouvintesGrupos.forEach((f) => f());
 }
 
 const ativo = (pathname: string, href: string, exato: boolean) => (exato ? pathname === href : pathname === href || pathname.startsWith(`${href}/`));
@@ -94,6 +110,8 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
     return () => document.removeEventListener("keydown", f);
   }, []);
   const recolhida = useSyncExternalStore(assinarRecolhida, lerRecolhida, () => false);
+  const gruposFechadosTxt = useSyncExternalStore(assinarGrupos, lerGrupos, () => "[]");
+  const gruposFechados: string[] = (() => { try { return JSON.parse(gruposFechadosTxt); } catch { return []; } })();
 
     // Menu da mesa: extensões podem ocultar ferramentas e trocar nomes (Início, Extensões e Configurações são protegidos).
   const grupos = gruposBrutos
@@ -115,11 +133,11 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
     <MesaProvider value={mesa}>
       <RolagemProvider mesa={mesa}>
       <ExtensoesProvider value={{ extensoes, papel: modo, base: inicio.href, nativas: nativas.config, nativasProntas: nativas.prontas, souMestre: nativas.souMestre, efeitos }}>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-dvh">
         {aberto && <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden" onClick={fechar} />}
 
         <aside
-          className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface transition-[transform,width] duration-300 [transition-timing-function:var(--ease)] md:sticky md:top-0 md:h-screen md:translate-x-0 ${
+          className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface transition-[transform,width] duration-300 [transition-timing-function:var(--ease)] md:sticky md:top-0 md:h-dvh md:translate-x-0 ${
             aberto ? "translate-x-0" : "-translate-x-full"
           } ${recolhida ? "md:w-[4.25rem]" : "md:w-64"}`}
         >
@@ -138,26 +156,40 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
               </Link>
             )}
             <LinkNav item={inicio} pathname={pathname} exato recolhida={recolhida} badge={badges[inicio.href]} onClick={fechar} />
-            {grupos.map((g) => (
-              <div key={g.titulo}>
-                {!recolhida ? (
-                  <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">{g.titulo}</p>
-                ) : (
-                  <div className="mx-3 mb-1 border-t border-border" />
-                )}
-                <div className="space-y-0.5">
-                  {g.itens.map((i) => (
-                    <LinkNav key={i.href} item={i} pathname={pathname} recolhida={recolhida} badge={badges[i.href]} onClick={fechar} />
-                  ))}
-                  {modo === "mestre" && g.titulo === "Extensões" && (
-                    <Link href={`${inicio.href}/extensoes/criar`} onClick={fechar} title={recolhida ? "Criar extensão" : undefined} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-ext hover:bg-ext/10">
-                      <Plus size={18} className="shrink-0" />
-                      {!recolhida && <span>Criar extensão</span>}
-                    </Link>
+            {grupos.map((g) => {
+              // Na sidebar estreita não há títulos: mostra tudo. Recolhido, o grupo ainda mostra o item da tela atual.
+              const fechado = !recolhida && gruposFechados.includes(g.titulo);
+              const itens = fechado ? g.itens.filter((i) => ativo(pathname, i.href, false)) : g.itens;
+              const novidades = g.itens.reduce((n, i) => n + (badges[i.href] ?? 0), 0);
+              return (
+                <div key={g.titulo}>
+                  {!recolhida ? (
+                    <button
+                      onClick={() => alternarGrupo(g.titulo)}
+                      aria-expanded={!fechado}
+                      className="mb-1 flex w-full items-center gap-1 rounded-md px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted hover:text-foreground"
+                    >
+                      <ChevronDown size={13} className={`shrink-0 transition-transform ${fechado ? "-rotate-90" : ""}`} />
+                      <span className="flex-1 text-left">{g.titulo}</span>
+                      {fechado && novidades > 0 && <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold normal-case tracking-normal text-white">{novidades}</span>}
+                    </button>
+                  ) : (
+                    <div className="mx-3 mb-1 border-t border-border" />
                   )}
+                  <div className="space-y-0.5">
+                    {itens.map((i) => (
+                      <LinkNav key={i.href} item={i} pathname={pathname} recolhida={recolhida} badge={badges[i.href]} onClick={fechar} />
+                    ))}
+                    {modo === "mestre" && g.titulo === "Extensões" && !fechado && (
+                      <Link href={`${inicio.href}/extensoes/criar`} onClick={fechar} title={recolhida ? "Criar extensão" : undefined} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-ext hover:bg-ext/10">
+                        <Plus size={18} className="shrink-0" />
+                        {!recolhida && <span>Criar extensão</span>}
+                      </Link>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </nav>
 
           <div className="space-y-0.5 border-t border-border px-2 py-2">
@@ -181,9 +213,9 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
               <Menu size={20} />
             </button>
             <nav aria-label="Você está em" className="flex min-w-0 items-center gap-2 text-sm">
-              <Link href="/mesas" className="text-muted hover:text-foreground">Mesas</Link>
-              <span className="text-muted/50">/</span>
-              <Link href={inicio.href} className="max-w-[10rem] truncate text-muted hover:text-foreground">{mesa.nome || "Sem nome"}</Link>
+              <Link href="/mesas" className="hidden text-muted hover:text-foreground sm:inline">Mesas</Link>
+              <span className="hidden text-muted/50 sm:inline">/</span>
+              <Link href={inicio.href} className="max-w-[7rem] truncate text-muted hover:text-foreground sm:max-w-[10rem]">{mesa.nome || "Sem nome"}</Link>
               {rotuloAtual && rotuloAtual !== inicio.rotulo && (
                 <>
                   <span className="text-muted/50">/</span>
@@ -191,8 +223,8 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
                 </>
               )}
             </nav>
-            <div className="ml-auto flex items-center gap-2">
-              <button onClick={() => setPaleta(true)} aria-label="Buscar (Ctrl+K)" className="inline-flex h-9 items-center gap-2 rounded-lg border border-border px-2.5 text-sm text-muted hover:text-foreground sm:w-48">
+            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+              <button onClick={() => setPaleta(true)} aria-label="Buscar (Ctrl+K)" className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-border px-2.5 text-sm text-muted hover:text-foreground sm:w-48 sm:justify-start">
                 <Search size={15} /> <span className="hidden flex-1 text-left sm:inline">Buscar…</span>
                 <kbd className="hidden rounded border border-border px-1 text-[10px] sm:inline">Ctrl K</kbd>
               </button>
@@ -205,7 +237,7 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
                   {sino && (
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setSino(false)} />
-                      <div className="anim-surgir absolute right-0 top-11 z-20 w-72 space-y-0.5 rounded-xl border border-border bg-card p-1.5 shadow-2xl">
+                      <div className="anim-surgir fixed inset-x-3 top-14 z-20 max-h-[70dvh] space-y-0.5 overflow-y-auto sm:absolute sm:inset-x-auto sm:right-0 sm:top-11 sm:w-72 rounded-xl border border-border bg-card p-1.5 shadow-2xl">
                         <p className="px-3 py-2 text-xs font-semibold uppercase tracking-widest text-muted">Liberado pelo mestre</p>
                         {avisos.length === 0 && <p className="px-3 pb-3 text-sm text-muted">Nada novo por enquanto.</p>}
                         {avisos.map((a) => (
@@ -222,13 +254,13 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
             </div>
           </header>
 
-          <main id="conteudo" tabIndex={-1} key={pathname} className={`anim-surgir mx-auto w-full flex-1 px-4 py-8 sm:px-8 ${pathname.endsWith("/marcas") ? "max-w-7xl" : "max-w-5xl"}`}>{children}</main>
+          <main id="conteudo" tabIndex={-1} key={pathname} className={`anim-surgir mx-auto w-full min-w-0 flex-1 px-4 pb-24 pt-6 sm:px-8 sm:py-8 md:pb-8 ${pathname.endsWith("/marcas") ? "max-w-7xl" : "max-w-5xl"}`}>{children}</main>
         </div>
       </div>
       {/* Rolador de dados flutuante (disponível em qualquer tela da mesa) */}
-      <div className="fixed bottom-5 right-5 z-30 flex flex-col items-end gap-3">
+      <div className="fixed bottom-4 right-4 z-30 sm:bottom-5 sm:right-5 flex flex-col items-end gap-3">
         {rolador && (
-          <div className="anim-surgir w-80 max-w-[calc(100vw-2.5rem)] rounded-2xl border border-border bg-card p-4 shadow-2xl">
+          <div className="anim-surgir w-80 max-w-[calc(100vw-2.5rem)] max-h-[80dvh] overflow-y-auto rounded-2xl border border-border bg-card p-4 shadow-2xl">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">Dados</h2>
               <button onClick={() => setRolador(false)} aria-label="Fechar rolador" className="text-muted hover:text-foreground"><Fechar size={16} /></button>
@@ -247,6 +279,7 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
       </div>
 
       {modo === "mestre" && <AutomacoesHost />}
+      {modo === "jogador" && <PedidoTesteJogador />}
 
       {paleta && (
         <PaletaComandos
@@ -345,7 +378,7 @@ function CabecalhoMesa({ mesa, modo, recolhida, uid, mesas, onFechar }: { mesa: 
 
 export function Carregando() {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-dvh">
       <div className="hidden w-64 space-y-3 border-r border-border bg-surface p-4 md:block">
         {Array.from({ length: 8 }, (_, i) => <div key={i} className="h-8 animate-pulse rounded-lg bg-card-2" />)}
       </div>

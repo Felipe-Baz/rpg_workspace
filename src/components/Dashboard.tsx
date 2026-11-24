@@ -65,7 +65,7 @@ export default function Dashboard() {
   const nome = (user?.displayName || user?.email || "").split(/[ @]/)[0];
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-dvh">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(ellipse_at_50%_-20%,color-mix(in_srgb,var(--accent)_28%,transparent),transparent_70%)]" />
 
       <header className="border-b border-border/60 bg-background/70 backdrop-blur-md">

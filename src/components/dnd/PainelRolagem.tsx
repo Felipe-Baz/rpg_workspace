@@ -35,7 +35,7 @@ export default function PainelRolagem({ teste, onFechar, aoAplicar }: { teste: T
   // Portal no body: ancestrais com transform/animação prenderiam o "fixed" ao fim da página.
   if (typeof document === "undefined") return null;
   return createPortal(
-    <aside role="dialog" aria-label={teste.titulo} className="anim-surgir fixed inset-x-3 bottom-3 z-40 mx-auto max-w-xl rounded-2xl border-2 border-gold/60 bg-card p-4 shadow-2xl">
+    <aside role="dialog" aria-label={teste.titulo} className="anim-surgir fixed inset-x-3 bottom-3 z-40 mx-auto max-h-[85dvh] max-w-xl overflow-y-auto rounded-2xl border-2 border-gold/60 bg-card p-4 shadow-2xl">
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-display text-lg font-semibold text-gold">{teste.titulo}</h3>
         <button onClick={onFechar} aria-label="Fechar" className="text-muted hover:text-foreground"><X size={18} /></button>

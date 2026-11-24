@@ -31,7 +31,7 @@ export default function EscolherPersonagem({ mesa, uid, nomeConta }: { mesa: Mes
   }
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-dvh">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72" style={{ background: `radial-gradient(ellipse at 50% -20%, color-mix(in srgb, ${mesa.cor} 40%, transparent), transparent 70%)` }} />
       <main className="mx-auto w-full max-w-xl space-y-6 px-4 py-10 sm:px-6">
         <Link href="/mesas" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground"><ArrowLeft size={14} /> Minhas mesas</Link>

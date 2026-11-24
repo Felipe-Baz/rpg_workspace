@@ -6,30 +6,33 @@ import { ICONES_FICHA } from "../fichas/IconeCategoria";
 export type ItemNav = { href: string; rotulo: string; icone: LucideIcon; ext?: boolean; troca?: boolean; chave?: string }; // troca = link para a outra visão (nunca "ativo")
 export type GrupoNav = { titulo: string; itens: ItemNav[] };
 
+const FICHAS = (base: string, ids: string[]): ItemNav[] =>
+  CATEGORIAS.filter((c) => ids.includes(c.id)).map((c) => ({ chave: `fichas.${c.id}`, href: `${base}/fichas/${c.id}`, rotulo: c.rotulo, icone: ICONES_FICHA[c.id] ?? Boxes }));
+const PESSOAS = ["npc", "importante", "inimigo"];
 
-// Sidebar agrupada por categoria (Mundo / Jogo / Extensões). `base` = /mesas/{id}.
+// Sidebar agrupada pelo que se consulta junto na mesa, e cada grupo pode ser recolhido. `base` = /mesas/{id}.
 export function gruposNav(base: string, extensoes: ItemNav[] = [], dnd = false): { inicio: ItemNav; grupos: GrupoNav[] } {
   return {
     inicio: { href: base, rotulo: "Visão geral", icone: LayoutDashboard },
     grupos: [
       {
-        titulo: "Mundo",
+        titulo: "Aventura",
         itens: [
+          { chave: "mundo", href: `${base}/mundo`, rotulo: "Mundo", icone: BookOpenText },
+          { chave: "missoes", href: `${base}/missoes`, rotulo: "Missões", icone: Scroll },
           { chave: "mapas", href: `${base}/mapas`, rotulo: "Mapas", icone: MapIcon },
           { chave: "imagens", href: `${base}/imagens`, rotulo: "Imagens", icone: ImageIcon },
-          { chave: "mundo", href: `${base}/mundo`, rotulo: "Mundo", icone: BookOpenText },
         ],
       },
+      { titulo: "Elenco e itens", itens: FICHAS(base, [...PESSOAS, "item"]) },
       {
-        titulo: "Jogo",
+        titulo: "Mesa",
         itens: [
-          { chave: "missoes", href: `${base}/missoes`, rotulo: "Missões", icone: Scroll },
-          ...CATEGORIAS.map((c) => ({ chave: `fichas.${c.id}`, href: `${base}/fichas/${c.id}`, rotulo: c.rotulo, icone: ICONES_FICHA[c.id] ?? Boxes })),
           { chave: "jogadores", href: `${base}/jogadores`, rotulo: "Jogadores", icone: Crown },
-          { chave: "sessoes", href: `${base}/sessoes`, rotulo: "Sessões", icone: Calendar },
-          { chave: "segredos", href: `${base}/segredos`, rotulo: "Segredos", icone: Lock },
           ...(dnd ? [{ href: `${base}/personagens`, rotulo: "Fichas D&D", icone: IdCard }] : []),
+          { chave: "sessoes", href: `${base}/sessoes`, rotulo: "Sessões", icone: Calendar },
           { href: `${base}/timeline`, rotulo: "Timeline", icone: GitBranch },
+          { chave: "segredos", href: `${base}/segredos`, rotulo: "Segredos", icone: Lock },
         ],
       },
       {
@@ -48,21 +51,22 @@ export function gruposNavJogador(base: string, extensoes: ItemNav[] = [], dnd = 
   return {
     inicio: { href: base, rotulo: "Meu diário", icone: BookMarked },
     grupos: [
+      // Quem olha a ficha logo confere o que carrega.
+      { titulo: "Personagem", itens: [...(dnd ? [{ href: `${base}/ficha`, rotulo: "Minha ficha", icone: IdCard }] : []), ...FICHAS(base, ["item"])] },
       {
-        titulo: "Mundo",
+        titulo: "Aventura",
+        itens: [
+          { chave: "missoes", href: `${base}/missoes`, rotulo: "Missões", icone: Scroll },
+          { chave: "quadro", href: `${base}/quadro`, rotulo: "Quadro", icone: PenLine },
+          { chave: "mundo", href: `${base}/mundo`, rotulo: "Mundo", icone: BookOpenText },
+        ],
+      },
+      { titulo: "Pessoas", itens: FICHAS(base, PESSOAS) },
+      {
+        titulo: "Mapas e imagens",
         itens: [
           { chave: "mapas", href: `${base}/mapas`, rotulo: "Mapas", icone: MapIcon },
           { chave: "imagens", href: `${base}/imagens`, rotulo: "Imagens", icone: ImageIcon },
-          { chave: "mundo", href: `${base}/mundo`, rotulo: "Mundo", icone: BookOpenText },
-          { chave: "quadro", href: `${base}/quadro`, rotulo: "Quadro", icone: PenLine },
-        ],
-      },
-      {
-        titulo: "Jogo",
-        itens: [
-          { chave: "missoes", href: `${base}/missoes`, rotulo: "Missões", icone: Scroll },
-          ...(dnd ? [{ href: `${base}/ficha`, rotulo: "Minha ficha", icone: IdCard }] : []),
-          ...CATEGORIAS.map((c) => ({ chave: `fichas.${c.id}`, href: `${base}/fichas/${c.id}`, rotulo: c.rotulo, icone: ICONES_FICHA[c.id] ?? Boxes })),
         ],
       },
       ...(extensoes.length ? [{ titulo: "Extensões", itens: extensoes }] : []),

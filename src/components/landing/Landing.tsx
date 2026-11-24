@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   BookOpenText, Dices, Download, EyeOff, Image as ImageIcon, KeyRound, Map as MapIcon, Scroll,
   Skull, Sparkles, Swords, UserRound, Users, WandSparkles, type LucideIcon,
@@ -89,7 +89,10 @@ const PASSOS = [
 /* ---------- página ---------- */
 
 export default function Landing() {
-  const { user } = useAuth();
+  const { user: usuarioAuth } = useAuth();
+  // A hidratação pode acontecer depois do login ser resolvido; durante ela vale o estado "deslogado" do HTML do servidor.
+  const hidratado = useSyncExternalStore(() => () => {}, () => true, () => false);
+  const user = hidratado ? usuarioAuth : null;
   const entrada = user ? "/mesas" : "/login";
   const rotuloEntrada = user ? "Abrir minhas mesas" : "Entrar";
 

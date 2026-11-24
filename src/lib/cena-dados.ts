@@ -403,3 +403,84 @@ export class CenaDados {
     this.renderer.dispose();
   }
 }
+
+/**
+ * Vitrine: um único dado 3D girando no lugar (vários eixos ao mesmo tempo) dentro de um canvas pequeno, que desacelera e
+ * para com uma face virada para a câmera. Usado nas telas de carregamento. Não tem física nem resultado de jogo.
+ */
+export class VitrineDado {
+  private renderer: THREE.WebGLRenderer;
+  private cena = new THREE.Scene();
+  private camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
+  private dado: THREE.Group | null = null;
+  private raf = 0;
+  private t0 = 0;
+  private dur = 1500;
+  private qFinal = new THREE.Quaternion();
+  private giro = new THREE.Vector3();
+
+  constructor(canvas: HTMLCanvasElement, tamanho = 160) {
+    this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    this.renderer.setClearColor(0x000000, 0);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    this.renderer.setSize(tamanho, tamanho, false);
+    this.cena.add(new THREE.HemisphereLight(0xfff1dd, 0x20141f, 1.5));
+    const luz = new THREE.DirectionalLight(0xffffff, 2.4);
+    luz.position.set(-3, 5, 7);
+    this.cena.add(luz);
+    this.camera.position.set(0, 0, 8.5);
+    this.camera.lookAt(0, 0, 0);
+    const laco = () => { this.quadro(); this.raf = requestAnimationFrame(laco); };
+    this.raf = requestAnimationFrame(laco);
+  }
+
+  /** Troca o dado e começa um novo giro; ele para mostrando uma face (número) de frente. */
+  mostrar(lados: number, duracaoMs = 1500) {
+    this.remover();
+    const p = poliedro(lados);
+    const rotulos: Rotulos = p.valoresVertice ? [...p.valoresVertice] : p.faces.map((f) => f.valor);
+    const g = criarDado(lados, rotulos);
+    this.cena.add(g);
+    this.dado = g;
+
+    const f = p.faces[Math.floor(Math.random() * p.faces.length)];
+    const q1 = new THREE.Quaternion().setFromUnitVectors(v3(f.normal).normalize(), new THREE.Vector3(0, 0, 1));
+    const cima = v3(p.vertices[f.idx[0]]).sub(v3(f.centro)).applyQuaternion(q1);
+    const roll = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 2 - Math.atan2(cima.y, cima.x));
+    this.qFinal.copy(roll.multiply(q1));
+
+    const sinal = () => (Math.random() < 0.5 ? -1 : 1);
+    const volta = Math.PI * 2;
+    this.giro.set(sinal() * volta * 2.5, sinal() * volta * 2, sinal() * volta * 1.5);
+    this.dur = duracaoMs;
+    this.t0 = performance.now();
+  }
+
+  private quadro() {
+    if (!this.dado) return;
+    const t = Math.min(1, (performance.now() - this.t0) / this.dur);
+    const r = Math.pow(1 - t, 3); // desacelera até parar
+    const giro = new THREE.Quaternion().setFromEuler(new THREE.Euler(this.giro.x * r, this.giro.y * r, this.giro.z * r));
+    this.dado.quaternion.copy(giro.multiply(this.qFinal));
+    this.dado.scale.setScalar(0.6 + 0.4 * Math.min(1, t * 3.5));
+    this.renderer.render(this.cena, this.camera);
+  }
+
+  private remover() {
+    if (!this.dado) return;
+    this.cena.remove(this.dado);
+    this.dado.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m.geometry) m.geometry.dispose();
+      const mat = m.material as THREE.Material | undefined;
+      if (mat) mat.dispose(); // as texturas ficam no cache
+    });
+    this.dado = null;
+  }
+
+  destruir() {
+    cancelAnimationFrame(this.raf);
+    this.remover();
+    this.renderer.dispose();
+  }
+}
