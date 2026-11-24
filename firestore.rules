@@ -248,6 +248,12 @@ service cloud.firestore {
         allow write: if marcasMestre();
       }
 
+      // Ficha de personagem (D&D 5e): documento do jogador (id = uid). O dono lê e edita; o mestre lê e edita todas.
+      match /personagens/{donoId} {
+        allow read: if mestreMesa() || (membroMesa() && request.auth.uid == donoId);
+        allow write: if mestreMesa() || (membroMesa() && request.auth.uid == donoId);
+      }
+
       // Notas e segredos: somente o mestre.
       match /segredos/{docId} {
         allow read, write: if logado()
@@ -357,6 +363,21 @@ service cloud.firestore {
     match /assetsPublicos/{assetId} {
       allow read: if logado();
       allow write: if false;
+    }
+
+    // Sistemas de jogo públicos (dropdown ao criar mesa): qualquer logado lê; só o servidor escreve.
+    match /sistemas/{id} {
+      allow read: if logado();
+      allow write: if false;
+    }
+
+    // Sistemas cadastrados pelo usuário: visíveis só para ele.
+    match /sistemasPessoais/{id} {
+      allow read, delete: if logado() && resource.data.donoUid == request.auth.uid;
+      allow create: if logado() && request.resource.data.donoUid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['donoUid', 'nome', 'criadoEm'])
+        && request.resource.data.nome is string && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 60;
+      allow update: if false;
     }
 
     // Convites: código -> mesa. Só leitura por código exato (sem listar).

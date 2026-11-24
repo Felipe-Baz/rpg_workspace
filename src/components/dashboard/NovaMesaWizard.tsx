@@ -2,11 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Trash2 } from "lucide-react";
 import { CORES, STATUS_LABEL, criarMesa, type Status } from "@/lib/mesas";
+import { criarSistemaPessoal, excluirSistemaPessoal, useSistemas } from "@/lib/sistemas";
 import Dialog from "../ui/Dialog";
 
-const SISTEMAS = ["D&D 5e", "Tormenta20", "Pathfinder 2e", "Call of Cthulhu", "Vampiro", "Sistema próprio"];
+const NOVO = "__novo__";
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
 
 // Cadastro da mesa em uma tela só: só o nome é obrigatório; o resto tem padrões e dá para editar depois.
@@ -14,6 +15,11 @@ export default function NovaMesaWizard({ uid, onClose }: { uid: string; onClose:
   const router = useRouter();
   const [nome, setNome] = useState("");
   const [sistema, setSistema] = useState("");
+  const [novoSistema, setNovoSistema] = useState<string | null>(null); // texto do sistema próprio em cadastro
+  const opcoes = useSistemas(uid);
+  const publicos = opcoes.filter((o) => !o.proprio);
+  const proprios = opcoes.filter((o) => o.proprio);
+  const atualProprio = proprios.find((o) => o.nome === sistema);
   const [cor, setCor] = useState(CORES[0]);
   const [status, setStatus] = useState<Status>("planejando");
   const [descricao, setDescricao] = useState("");
@@ -45,20 +51,74 @@ export default function NovaMesaWizard({ uid, onClose }: { uid: string; onClose:
           </label>
 
           <div className="text-sm">
-            Sistema
-            <input value={sistema} onChange={(e) => setSistema(e.target.value)} placeholder="Escolha abaixo ou digite" className={`${campo} mt-1`} />
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {SISTEMAS.map((s) => (
+            <label htmlFor="sistema-mesa">Sistema</label>
+            <select
+              id="sistema-mesa"
+              value={novoSistema !== null ? NOVO : sistema}
+              onChange={(e) => {
+                if (e.target.value === NOVO) setNovoSistema("");
+                else {
+                  setNovoSistema(null);
+                  setSistema(e.target.value);
+                }
+              }}
+              className={`${campo} mt-1`}
+            >
+              <option value="">Sem sistema definido</option>
+              {publicos.length > 0 && (
+                <optgroup label="Sistemas">
+                  {publicos.map((o) => <option key={o.nome} value={o.nome}>{o.nome}</option>)}
+                </optgroup>
+              )}
+              {proprios.length > 0 && (
+                <optgroup label="Meus sistemas (só você vê)">
+                  {proprios.map((o) => <option key={o.id} value={o.nome}>{o.nome}</option>)}
+                </optgroup>
+              )}
+              <option value={NOVO}>+ Cadastrar sistema próprio…</option>
+            </select>
+
+            {novoSistema !== null && (
+              <div className="anim-surgir mt-2 flex gap-2">
+                <input
+                  value={novoSistema}
+                  onChange={(e) => setNovoSistema(e.target.value)}
+                  maxLength={60}
+                  placeholder="Nome do seu sistema"
+                  aria-label="Nome do sistema próprio"
+                  className={campo}
+                />
                 <button
                   type="button"
-                  key={s}
-                  onClick={() => setSistema(s === "Sistema próprio" ? "" : s)}
-                  className={`rounded-full border px-3 py-1 text-xs ${sistema === s ? "border-accent bg-accent/15 text-accent-soft" : "border-border text-muted hover:border-accent-hover hover:text-foreground"}`}
+                  disabled={!novoSistema.trim()}
+                  onClick={async () => {
+                    const nome = novoSistema.trim();
+                    try {
+                      if (!opcoes.some((o) => o.nome.toLocaleLowerCase("pt-BR") === nome.toLocaleLowerCase("pt-BR"))) await criarSistemaPessoal(uid, nome);
+                      setSistema(opcoes.find((o) => o.nome.toLocaleLowerCase("pt-BR") === nome.toLocaleLowerCase("pt-BR"))?.nome ?? nome);
+                      setNovoSistema(null);
+                    } catch {
+                      setErro("Não foi possível salvar o sistema. Tente novamente.");
+                    }
+                  }}
+                  className="shrink-0 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
                 >
-                  {s}
+                  Salvar
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
+            {atualProprio?.id && novoSistema === null && (
+              <button
+                type="button"
+                onClick={async () => {
+                  await excluirSistemaPessoal(atualProprio.id!).catch(() => setErro("Não foi possível remover o sistema."));
+                  setSistema("");
+                }}
+                className="mt-2 flex items-center gap-1 text-xs text-muted hover:text-danger"
+              >
+                <Trash2 size={12} /> Remover “{atualProprio.nome}” dos meus sistemas
+              </button>
+            )}
           </div>
 
           <div className="text-sm">

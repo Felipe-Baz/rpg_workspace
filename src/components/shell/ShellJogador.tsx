@@ -12,6 +12,7 @@ import { encaixeDe, normalizarManifesto } from "@/lib/extensoes/manifesto";
 import { useMesas } from "@/lib/mesas";
 import EscolherPersonagem from "../telas/EscolherPersonagem";
 import ShellBase, { Carregando } from "./ShellBase";
+import { ehDnd5e } from "@/lib/dnd5e";
 import { itensNativos, gruposNavJogador } from "./navegacao";
 import { useNovidades } from "./useNovidades";
 
@@ -61,6 +62,7 @@ export default function ShellJogador({ id, children }: { id: string; children: R
       const enc = encaixeDe(e.manifesto, "sidebar", "jogador");
       return enc ? [{ href: `${base}/extensoes/${e.id}`, rotulo: enc.rotulo || e.titulo, icone: Puzzle, ext: true }] : [];
     }), ...efeitos.recursos.map((r) => ({ href: `${base}/recursos/${r.extId}/${r.id}`, rotulo: r.plural, icone: Layers, ext: true }))],
+    ehDnd5e(mesa.sistema),
   );
   return (
     <ShellBase

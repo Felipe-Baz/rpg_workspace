@@ -18,11 +18,13 @@ Ponto de entrada para qualquer agente (ou pessoa) que precise entender o site r�
 - [contas-e-acesso](features/contas-e-acesso.md): login, cadastro, rotas protegidas.
 - [mesas-e-convites](features/mesas-e-convites.md): criar mesa, status, código de convite, entrar/sair.
 - [jogadores-e-personagens](features/jogadores-e-personagens.md): personagens, quem controla qual.
+- [ficha-dnd5e](features/ficha-dnd5e.md): ficha automatizada de D&D 5e (rolagens mostradas como conta, espaços de magia).
 - [navegacao-e-busca](features/navegacao-e-busca.md): sidebar por grupos, Ctrl+K, visão mestre × jogador.
 - [liberacao-de-conteudo](features/liberacao-de-conteudo.md): o padrão "mestre libera, jogador lê" e o aviso de novidades.
 
 **Conteúdo da campanha**
 - [fichas](features/fichas.md) · [missoes](features/missoes.md) · [mundo](features/mundo.md) · [sessoes-e-segredos](features/sessoes-e-segredos.md)
+- [timeline](features/timeline.md): linha do tempo do mestre, com ramos, zoom e minimapa.
 - [diario-do-jogador](features/diario-do-jogador.md) · [quadro-de-investigacao](features/quadro-de-investigacao.md)
 - [sessao-ao-vivo](features/sessao-ao-vivo.md): dados, iniciativa, cronômetro, notas rápidas.
 

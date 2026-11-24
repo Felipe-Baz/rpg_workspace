@@ -8,6 +8,7 @@ A **mesa** é a campanha. Tem nome, sistema de jogo, descrição, cor, status (`
 
 ## Como funciona
 - **Criar:** wizard de uma tela; só o nome é obrigatório, o resto tem padrão e se edita depois. `criarMesa` gera `codigo` e grava `convites/{codigo}`.
+- **Sistema (dropdown):** lista os sistemas **públicos** (coleção `sistemas`, cadastrados pelo servidor com `scripts/semear-sistemas.mjs`; se vazia, usa `SISTEMAS_PADRAO`) e os **pessoais** do usuário (`sistemasPessoais`, só ele vê), com a opção "Cadastrar sistema próprio" no próprio dropdown. `Mesa.sistema` continua sendo só o nome em texto; sistemas pessoais não são visíveis a outros usuários (a mesa guarda apenas o nome).
 - **Listar:** `useMesas()` assina `mesas` onde `membros` contém o uid (tempo real). Cartões agrupados por status (ativa = borda viva; planejando = tracejada; arquivadas = esmaecidas); mesas que o usuário mestra e mesas em que joga ficam separadas.
 - **Editar:** `atualizarMesa` mescla em `pendentes` e grava com debounce de ~600 ms (sem botão salvar). Configurações da mesa salvam automaticamente.
 - **Entrar:** o jogador informa o código (`entrarPorCodigo`): lê `convites/{codigo}`, faz `arrayUnion` em `membros` (as regras só permitem +1 do próprio uid) e cai na visão do jogador.
@@ -16,11 +17,12 @@ A **mesa** é a campanha. Tem nome, sistema de jogo, descrição, cor, status (`
 
 ## Regras e limites
 - Só o dono edita a mesa e não pode trocar o `donoUid`.
+- `sistemas`: qualquer logado lê, ninguém no cliente escreve. `sistemasPessoais`: só o dono lê/cria/apaga (nome até 60 caracteres, sem edição).
 - `convites` não pode ser listado (apenas `get` por código exato).
 - `MESA_PADRAO` (`marcas-const.ts`) é o id da mesa de "O Juramento de Cinzas".
 
 ## Onde está no código
-`src/lib/mesas.ts`, `src/components/dashboard/*` (CardMesa, NovaMesaWizard, EntrarDialog), `src/app/mesas/page.tsx`, `TelaConfiguracoes`.
+`src/lib/mesas.ts`, `src/lib/sistemas.ts`, `src/lib/sistemas-padrao.ts`, `scripts/semear-sistemas.mjs`, `src/components/dashboard/*` (CardMesa, NovaMesaWizard, EntrarDialog), `src/app/mesas/page.tsx`, `TelaConfiguracoes`.
 
 ## Relações
 [jogadores-e-personagens](jogadores-e-personagens.md), [navegacao-e-busca](navegacao-e-busca.md), fluxos [onboarding-do-mestre](../fluxos/onboarding-do-mestre.md) e [entrada-do-jogador](../fluxos/entrada-do-jogador.md).

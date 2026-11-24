@@ -41,6 +41,7 @@ Regra de ouro: `lib/` mistura dois tipos de arquivo. Os que têm hooks `use…` 
 mesas/{mesaId}                       Mesa: nome, sistema, cor, status, donoUid, membros[], codigo,
                                       jogadores[] (embutido), sessoes[] (embutido)
   ├─ segredos/mestre                  segredosMestre, notasSessoes, notasJogadores   (só mestre)
+  ├─ segredos/timeline                ramos, eventos, agora, unidade   (só mestre)
   ├─ anotacoes/{uid}                  diário privado do jogador
   ├─ pinos/{uid}                      pinos privados do jogador nos mapas
   ├─ mapas/{id}  imagens/{id}         imagem (data URL ou Storage), todos, liberadoPara[], cobertas, zonas, cenaId?
@@ -64,6 +65,9 @@ mesas/{mesaId}                       Mesa: nome, sistema, cor, status, donoUid, 
 convites/{codigo}                    código → mesa (get por código exato; sem listar)
 extensoes/{id}                       biblioteca do mestre (donoUid; reaproveitável entre mesas)
 assetsPublicos/{id}                  assets gerados, legíveis por qualquer usuário logado
+mesas/{id}/personagens/{uid}        ficha D&D 5e do jogador (dono e mestre)
+sistemas/{id}                        sistemas de jogo públicos (dropdown da nova mesa), só o servidor escreve
+sistemasPessoais/{id}                sistemas cadastrados por um usuário ({donoUid, nome}), só ele lê/escreve
 usuarios/{uid}/...                   config de IA e chaves cifradas (NINGUÉM no cliente lê/escreve)
 ```
 

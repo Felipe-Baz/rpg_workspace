@@ -8,7 +8,7 @@ A barreira real é **Firestore Rules + Storage Rules + rotas de servidor**. A in
 |---|---|---|---|
 | Documento da mesa | lê/escreve (não pode trocar `donoUid`) | lê; só pode **entrar** (+1 em `membros`), **sair**, e **assumir/criar o próprio personagem** em `jogadores` | Convite por código sem dar poder de edição |
 | Mapas e Imagens | lê/escreve tudo | lê só os liberados (`todos` ou em `liberadoPara`) | Controlar spoiler |
-| Cenas, temas, assets, segredos | só ele | nada | Preparação e notas do mestre |
+| Cenas, temas, assets, segredos, timeline (`segredos/timeline`) | só ele | nada | Preparação e notas do mestre |
 | Mundo | escreve | lê | Lore público da campanha |
 | Missões (pública) | escreve | lê | Versão derivada, sem segredos |
 | Missões do mestre | só ele | nada | Etapas pendentes e notas nunca vazam |
@@ -33,6 +33,8 @@ Fora de `mesas`:
 - `convites/{codigo}`: `get` por código exato para qualquer logado, **sem `list`**. Quem não tem o código não enumera mesas.
 - `extensoes/{id}` (biblioteca): só o `donoUid`.
 - `assetsPublicos`: qualquer logado lê; ninguém no cliente escreve.
+- `mesas/{id}/personagens/{uid}` (ficha D&D 5e): o dono (jogador membro) lê e edita; o mestre lê e edita todas.
+- `sistemas`: qualquer logado lê; ninguém no cliente escreve. `sistemasPessoais`: só o dono (`donoUid`) lê, cria e apaga.
 - `usuarios/{uid}/**`: **bloqueado** ao cliente (configuração de IA e chaves cifradas).
 
 ## Storage

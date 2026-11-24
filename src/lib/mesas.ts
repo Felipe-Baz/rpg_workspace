@@ -239,6 +239,7 @@ export async function excluirMesa(mesa: Mesa) {
   pendentes.delete(mesa.id);
   const batch = writeBatch(db);
   batch.delete(doc(db, COLECAO, mesa.id, "segredos", "mestre"));
+  batch.delete(doc(db, COLECAO, mesa.id, "segredos", "timeline"));
   batch.delete(doc(db, CONVITES, mesa.codigo));
   batch.delete(doc(db, COLECAO, mesa.id));
   await batch.commit().catch((e) => console.error("excluirMesa:", e));

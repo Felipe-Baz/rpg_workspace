@@ -1,4 +1,4 @@
-import { BookMarked, BookOpenText, Boxes, Calendar, Crown, Image as ImageIcon, LayoutDashboard, Lock, Map as MapIcon, PenLine, Puzzle, Scroll, type LucideIcon } from "lucide-react";
+import { BookMarked, BookOpenText, Boxes, Calendar, Crown, GitBranch, IdCard, Image as ImageIcon, LayoutDashboard, Lock, Map as MapIcon, PenLine, Puzzle, Scroll, type LucideIcon } from "lucide-react";
 import { CATEGORIAS } from "@/lib/fichas";
 import { nativasVisiveis, type ConfigNativas } from "@/lib/extensoes/nativas";
 import { ICONES_FICHA } from "../fichas/IconeCategoria";
@@ -8,7 +8,7 @@ export type GrupoNav = { titulo: string; itens: ItemNav[] };
 
 
 // Sidebar agrupada por categoria (Mundo / Jogo / Extensões). `base` = /mesas/{id}.
-export function gruposNav(base: string, extensoes: ItemNav[] = []): { inicio: ItemNav; grupos: GrupoNav[] } {
+export function gruposNav(base: string, extensoes: ItemNav[] = [], dnd = false): { inicio: ItemNav; grupos: GrupoNav[] } {
   return {
     inicio: { href: base, rotulo: "Visão geral", icone: LayoutDashboard },
     grupos: [
@@ -28,6 +28,8 @@ export function gruposNav(base: string, extensoes: ItemNav[] = []): { inicio: It
           { chave: "jogadores", href: `${base}/jogadores`, rotulo: "Jogadores", icone: Crown },
           { chave: "sessoes", href: `${base}/sessoes`, rotulo: "Sessões", icone: Calendar },
           { chave: "segredos", href: `${base}/segredos`, rotulo: "Segredos", icone: Lock },
+          ...(dnd ? [{ href: `${base}/personagens`, rotulo: "Fichas D&D", icone: IdCard }] : []),
+          { href: `${base}/timeline`, rotulo: "Timeline", icone: GitBranch },
         ],
       },
       {
@@ -42,7 +44,7 @@ export function gruposNav(base: string, extensoes: ItemNav[] = []): { inicio: It
 }
 
 // Visão do jogador: só o que o mestre libera. `base` = /mesas/{id}/jogador.
-export function gruposNavJogador(base: string, extensoes: ItemNav[] = []): { inicio: ItemNav; grupos: GrupoNav[] } {
+export function gruposNavJogador(base: string, extensoes: ItemNav[] = [], dnd = false): { inicio: ItemNav; grupos: GrupoNav[] } {
   return {
     inicio: { href: base, rotulo: "Meu diário", icone: BookMarked },
     grupos: [
@@ -59,6 +61,7 @@ export function gruposNavJogador(base: string, extensoes: ItemNav[] = []): { ini
         titulo: "Jogo",
         itens: [
           { chave: "missoes", href: `${base}/missoes`, rotulo: "Missões", icone: Scroll },
+          ...(dnd ? [{ href: `${base}/ficha`, rotulo: "Minha ficha", icone: IdCard }] : []),
           ...CATEGORIAS.map((c) => ({ chave: `fichas.${c.id}`, href: `${base}/fichas/${c.id}`, rotulo: c.rotulo, icone: ICONES_FICHA[c.id] ?? Boxes })),
         ],
       },

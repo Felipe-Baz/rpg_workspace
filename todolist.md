@@ -1,5 +1,5 @@
-* Timeline para o mestre
-* Ficha
+- Ficha
+
 * Cadastrar sistemas como dnd que tenham coisas salvas como ficha, magias e etc
 * Dados mais performaticos com animação 3d zikaaaaa
 * Pedir testes para os jogadores

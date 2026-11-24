@@ -56,6 +56,7 @@
 | **Quadro** | Quadro de investigação do jogador (notas, textos, imagens e ligações). |
 | **Diário** | Anotações privadas do jogador por sessão. |
 | **Segredos** | Notas só do mestre (campanha, sessões, jogadores). |
+| **Timeline** | Linha do tempo só do mestre: eventos num eixo numérico, em ramos (principal, paralelos, ramificações) e marcador "agora". |
 | **Sessão** | Registro de um encontro: data, título, resumo público e nota secreta. |
 | **Sessão ao vivo** | Modo "estou jogando agora" (dados, iniciativa, cronômetro, notas rápidas). |
 | **Paleta de comandos** | Busca global Ctrl/⌘+K. |

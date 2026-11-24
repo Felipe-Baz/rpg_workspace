@@ -11,6 +11,7 @@ import { usePedidosMestre } from "@/lib/extensoes/pedidos";
 import { toast } from "../ui/Toasts";
 import { useMesas } from "@/lib/mesas";
 import ShellBase, { Carregando } from "./ShellBase";
+import { ehDnd5e } from "@/lib/dnd5e";
 import { itensNativos, gruposNav } from "./navegacao";
 
 // Visão do mestre: exige ser o dono da mesa.
@@ -56,6 +57,7 @@ export default function ShellMesa({ id, children }: { id: string; children: Reac
       const enc = encaixeDe(e.manifesto, "sidebar", "mestre");
       return enc ? [{ href: `${base}/extensoes/${e.id}`, rotulo: enc.rotulo || e.titulo, icone: Puzzle, ext: true }] : [];
     }), ...efeitos.recursos.map((r) => ({ href: `${base}/recursos/${r.extId}/${r.id}`, rotulo: r.plural, icone: Layers, ext: true }))],
+    ehDnd5e(mesa.sistema),
   );
   return (
     <ShellBase
