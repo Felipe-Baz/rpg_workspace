@@ -4,6 +4,11 @@ Registro curto de **mudanças de comportamento** que alteraram esta base (mais r
 
 Se uma alteração de código **não** afeta nenhuma feature, fluxo, regra de acesso, modelo de dados ou rota, registre mesmo assim com `sem impacto na base` (isso marca a revisão como feita).
 
+- 2026-11-24: ficha D&D 5e: descanso curto cura 1 dado de vida e restaura os espaços; descanso longo recupera tudo (inclui todos os dados de vida). Página: ficha-dnd5e.
+- 2026-11-24: ficha D&D 5e: descanso curto (máx. 2 por descanso longo) e gastar dado de vida. Página: ficha-dnd5e.
+- 2026-11-24: ficha D&D 5e: título do livro editável (`tituloLivro`) e markdown nas páginas da história (barra de formatação e modo Ler). Página: ficha-dnd5e.
+- 2026-11-24: ficha D&D 5e: história do personagem em aba separada, em formato de livro paginado (`livro`). Página: ficha-dnd5e.
+- 2026-11-24: painel de rolagem da ficha D&D renderizado em portal (correção de posição): sem impacto na base.
 - 2026-11-23: ficha D&D 5e: equipamento passa a ser lista de itens (`itens`), com peso total. Página: ficha-dnd5e.
 - 2026-11-23: **Ficha de D&D 5e:** ficha automatizada por jogador (`mesas/{id}/personagens/{uid}`, regra nova), com rolagens mostradas como conta ("1d20 + 5 (Carisma)…"), ataques, espaços e lista de magias, descanso longo; só em mesas D&D 5e; menu "Minha ficha" (jogador) e "Fichas D&D" (mestre). Páginas: ficha-dnd5e (nova), README, permissoes-e-seguranca, arquitetura.
 - 2026-11-23: **Sistema da mesa em dropdown:** sistemas públicos no banco (`sistemas`, leitura para logados) + sistemas pessoais por usuário (`sistemasPessoais`, privados), cadastráveis no wizard de nova mesa. Páginas: mesas-e-convites, permissoes-e-seguranca, arquitetura.

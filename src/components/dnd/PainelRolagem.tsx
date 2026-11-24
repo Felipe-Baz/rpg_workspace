@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Copy, Dices, X } from "lucide-react";
 import { rolar } from "@/lib/dados";
 import { expressaoParaRolar, formatarExpressao, totalFixo, type Teste } from "@/lib/dnd5e";
 
 // Mostra a conta "1d20 + 5 (Carisma) + 2 (Proficiência)". Não rola sozinho: o jogador pode rolar no site
 // ou com dados de verdade e só informar o resultado do dado para conferir o total.
-export default function PainelRolagem({ teste, onFechar }: { teste: Teste; onFechar: () => void }) {
+export default function PainelRolagem({ teste, onFechar, aoAplicar }: { teste: Teste; onFechar: () => void; aoAplicar?: (total: number) => void }) {
   const [vantagem, setVantagem] = useState<"v" | "d" | null>(null);
   const [critico, setCritico] = useState(false);
   const [manual, setManual] = useState("");
@@ -28,7 +29,9 @@ export default function PainelRolagem({ teste, onFechar }: { teste: Teste; onFec
   const manualNum = manual.trim() === "" ? null : Number(manual);
   const totalManual = manualNum !== null && Number.isFinite(manualNum) ? manualNum + fixo : null;
 
-  return (
+  // Portal no body: ancestrais com transform/animação prenderiam o "fixed" ao fim da página.
+  if (typeof document === "undefined") return null;
+  return createPortal(
     <aside role="dialog" aria-label={teste.titulo} className="anim-surgir fixed inset-x-3 bottom-3 z-40 mx-auto max-w-xl rounded-2xl border-2 border-gold/60 bg-card p-4 shadow-2xl">
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-display text-lg font-semibold text-gold">{teste.titulo}</h3>
@@ -63,11 +66,20 @@ export default function PainelRolagem({ teste, onFechar }: { teste: Teste; onFec
           {resultado.critico === "falha" && <span className="ml-2 text-danger">1 natural</span>}
         </p>
       )}
+      {aoAplicar && (resultado || totalManual !== null) && (
+        <button
+          onClick={() => { aoAplicar(Math.max(0, resultado?.total ?? totalManual ?? 0)); onFechar(); }}
+          className="mt-3 rounded-lg border border-ok/50 px-3 py-1.5 text-sm font-semibold text-ok hover:bg-ok/10"
+        >
+          Aplicar {Math.max(0, resultado?.total ?? totalManual ?? 0)} PV de cura
+        </button>
+      )}
       <label className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted">
         Rolei na mesa. {teste.d20 ? "Dado:" : "Soma dos dados:"}
         <input type="number" value={manual} onChange={(e) => { setManual(e.target.value); setResultado(null); }} className="w-20 rounded-lg border border-border bg-background px-2 py-1 text-foreground" />
         {totalManual !== null && <span>→ total <strong className="text-lg text-gold">{totalManual}</strong></span>}
       </label>
-    </aside>
+    </aside>,
+    document.body,
   );
 }

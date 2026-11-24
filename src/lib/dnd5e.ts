@@ -101,6 +101,7 @@ export type FichaDnd = {
   dadosVidaUsados: number;
   morteSucessos: number;
   morteFalhas: number;
+  descansosCurtos: number; // usados desde o último descanso longo (máx. MAX_DESCANSOS_CURTOS)
 
   ataques: Ataque[];
 
@@ -118,7 +119,8 @@ export type FichaDnd = {
   vinculos: string;
   defeitos: string;
   aparencia: string;
-  historia: string;
+  tituloLivro: string; // vazio = "A Crônica de {nome}"
+  livro: string[]; // história do personagem, uma página por item
   notas: string;
 };
 
@@ -128,14 +130,14 @@ export const FICHA_VAZIA: FichaDnd = {
   salvaguardas: { for: false, des: false, con: false, int: false, sab: false, car: false },
   pericias: {}, bonusPericias: {},
   ca: 10, bonusIniciativa: 0, deslocamento: "9 m", pvMax: 10, pv: 10, pvTemp: 0,
-  dadoVida: "d8", dadosVidaTotal: 1, dadosVidaUsados: 0, morteSucessos: 0, morteFalhas: 0,
+  dadoVida: "d8", dadosVidaTotal: 1, dadosVidaUsados: 0, morteSucessos: 0, morteFalhas: 0, descansosCurtos: 0,
   ataques: [],
   atrConjuracao: "",
   espacos: Array.from({ length: 9 }, () => ({ total: 0, usados: 0 })),
   magias: [],
   moedas: { pc: 0, pp: 0, pe: 0, po: 0, pl: 0 },
   itens: [], equipamento: "", tracos: "", proficienciasIdiomas: "", personalidade: "", ideais: "", vinculos: "", defeitos: "",
-  aparencia: "", historia: "", notas: "",
+  aparencia: "", tituloLivro: "", livro: [""], notas: "",
 };
 
 /** Completa campos que faltam (fichas antigas ou parciais) sem perder nada do que já existe. */
@@ -153,6 +155,8 @@ export function normalizar(parcial: Partial<FichaDnd> | undefined): FichaDnd {
     ataques: p.ataques ?? [],
     magias: p.magias ?? [],
     itens: p.itens ?? [],
+    // fichas antigas guardavam a história num texto único (`historia`)
+    livro: p.livro ?? ((p as { historia?: string }).historia ? [(p as { historia?: string }).historia!] : [""]),
     espacos,
   };
 }
@@ -198,6 +202,7 @@ export type Teste = {
   partes: ParteRolagem[]; // somados ao dado
   d20: boolean; // permite vantagem/desvantagem
   dano?: boolean; // permite dobrar os dados num crítico
+  cura?: boolean; // o resultado pode ser aplicado aos PV
 };
 
 /** "1d20 + 5 (Carisma) + 2 (Proficiência)": mostra de onde vem cada número. Partes zeradas ficam de fora. */
@@ -279,13 +284,12 @@ export function testeDanoMagia(m: Magia): Teste {
   return { titulo: `Dano: ${m.nome || "sem nome"}`, dado: m.dano.trim() || "1d4", d20: false, dano: true, partes: [] };
 }
 
-/** Descanso longo: PV cheios, espaços restaurados, metade dos dados de vida (mín. 1), mortes zeradas. */
+/** Descanso longo: recupera tudo (PV, espaços de magia, todos os dados de vida, descansos curtos, salvaguardas de morte). */
 export function descansoLongo(f: FichaDnd): FichaDnd {
-  const recuperados = Math.max(1, Math.floor(f.dadosVidaTotal / 2));
   return {
     ...f,
-    pv: f.pvMax, pvTemp: 0, morteSucessos: 0, morteFalhas: 0,
-    dadosVidaUsados: Math.max(0, f.dadosVidaUsados - recuperados),
+    pv: f.pvMax, pvTemp: 0, morteSucessos: 0, morteFalhas: 0, descansosCurtos: 0,
+    dadosVidaUsados: 0,
     espacos: f.espacos.map((e) => ({ ...e, usados: 0 })),
   };
 }
@@ -295,3 +299,26 @@ export const ehDnd5e = (sistema: string) => /d\s*&\s*d|dnd/i.test(sistema);
 
 /** Peso total carregado (quantidade × peso de cada item), em kg. */
 export const pesoTotal = (itens: Item[]) => Math.round(itens.reduce((a, i) => a + Math.max(0, i.quantidade) * Math.max(0, i.peso), 0) * 100) / 100;
+
+export const MAX_DESCANSOS_CURTOS = 2;
+export const podeDescansoCurto = (f: FichaDnd) => f.descansosCurtos < MAX_DESCANSOS_CURTOS;
+
+export const temDadoVida = (f: FichaDnd) => f.dadosVidaUsados < f.dadosVidaTotal;
+
+/**
+ * Descanso curto (máx. 2 por descanso longo): restaura todos os espaços de magia e gasta 1 dado de vida, se houver.
+ * A cura em si é a rolagem de `testeDadoVida`, aplicada por quem rola (os dados podem ser físicos).
+ */
+export const descansoCurto = (f: FichaDnd): FichaDnd =>
+  podeDescansoCurto(f)
+    ? { ...f, descansosCurtos: f.descansosCurtos + 1, dadosVidaUsados: f.dadosVidaUsados + (temDadoVida(f) ? 1 : 0), espacos: f.espacos.map((e) => ({ ...e, usados: 0 })) }
+    : f;
+
+/** Soma `n` PV (sem passar do máximo); quem é curado sai das salvaguardas de morte. */
+export const curar = (f: FichaDnd, n: number): FichaDnd => ({ ...f, pv: Math.min(f.pvMax, f.pv + Math.max(0, n)), morteSucessos: 0, morteFalhas: 0 });
+
+/** Gasta um dado de vida: "1d8 + 2 (Constituição)". Só rola se ainda houver dados disponíveis. */
+export function testeDadoVida(f: FichaDnd): Teste {
+  const faces = f.dadoVida.trim().toLowerCase().replace(/^1?d/, "");
+  return { titulo: "Dado de vida", dado: `1d${/^\d+$/.test(faces) ? faces : "8"}`, d20: false, cura: true, partes: [{ rotulo: "Constituição", valor: modDe(f, "con") }] };
+}

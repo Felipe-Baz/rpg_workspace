@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  curar, descansoCurto, testeDadoVida, formatarExpressao as fmt,
   pesoTotal,
   FICHA_VAZIA, bonusPericia, bonusProficiencia, cdMagia, descansoLongo, dobrarDados, espacosPorNivel, expressaoParaRolar,
   formatarExpressao, modificador, normalizar, testeAtaque, testePericia, type FichaDnd,
@@ -51,14 +52,14 @@ test("espaços de magia: completo, meio e CD", () => {
   assert.equal(cdMagia(f), 8 + 3 + 4);
 });
 
-test("descanso longo restaura PV, espaços e metade dos dados de vida", () => {
+test("descanso longo restaura tudo, inclusive todos os dados de vida", () => {
   const f = ficha({ pv: 1, pvMax: 20, pvTemp: 5, dadosVidaTotal: 5, dadosVidaUsados: 5, morteFalhas: 2 });
   f.espacos[0] = { total: 3, usados: 3 };
   const r = descansoLongo(f);
   assert.equal(r.pv, 20);
   assert.equal(r.pvTemp, 0);
   assert.equal(r.morteFalhas, 0);
-  assert.equal(r.dadosVidaUsados, 3);
+  assert.equal(r.dadosVidaUsados, 0);
   assert.deepEqual(r.espacos[0], { total: 3, usados: 0 });
 });
 
@@ -71,4 +72,27 @@ test("normalizar completa campos que faltam", () => {
 test("peso total soma quantidade × peso", () => {
   const i = (quantidade: number, peso: number) => ({ id: "x", nome: "", quantidade, peso, equipado: false, descricao: "" });
   assert.equal(pesoTotal([i(2, 1.5), i(1, 0.25), i(0, 9)]), 3.25);
+});
+
+test("descanso curto: no máximo 2 até o próximo descanso longo", () => {
+  let f = ficha();
+  f = descansoCurto(descansoCurto(descansoCurto(f)));
+  assert.equal(f.descansosCurtos, 2);
+  assert.equal(descansoLongo(f).descansosCurtos, 0);
+});
+
+test("dado de vida usa o dado da classe e a Constituição", () => {
+  const f = ficha({ dadoVida: "d10", atributos: { ...FICHA_VAZIA.atributos, con: 14 } });
+  const t = testeDadoVida(f);
+  assert.equal(fmt(t.dado, t.partes), "1d10 + 2 (Constituição)");
+});
+
+test("descanso curto gasta 1 dado de vida e restaura todos os espaços", () => {
+  const f = ficha({ dadosVidaTotal: 3, dadosVidaUsados: 1 });
+  f.espacos[1] = { total: 2, usados: 2 };
+  const r = descansoCurto(f);
+  assert.equal(r.dadosVidaUsados, 2);
+  assert.deepEqual(r.espacos[1], { total: 2, usados: 0 });
+  assert.equal(descansoCurto(ficha({ dadosVidaTotal: 1, dadosVidaUsados: 1 })).dadosVidaUsados, 1);
+  assert.equal(curar(ficha({ pv: 5, pvMax: 8, morteFalhas: 2 }), 10).pv, 8);
 });

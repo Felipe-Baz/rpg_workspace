@@ -6,9 +6,10 @@ import { uid } from "@/lib/mesas";
 import { useFichaPersonagem } from "@/lib/fichaPersonagem";
 import {
   ATRIBUTOS, ATRIBUTO_NOME, PERICIAS, bonusAtaqueMagia, bonusIniciativa, bonusPericia, bonusProficiencia, bonusSalvaguarda, cdMagia,
-  comSinal, descansoLongo, espacosPorNivel, modDe, percepcaoPassiva, pesoTotal, testeAtaque, testeAtaqueMagia, testeAtributo,
+  MAX_DESCANSOS_CURTOS, comSinal, curar, temDadoVida, descansoCurto, descansoLongo, podeDescansoCurto, testeDadoVida, espacosPorNivel, modDe, percepcaoPassiva, pesoTotal, testeAtaque, testeAtaqueMagia, testeAtributo,
   testeDano, testeDanoMagia, testeIniciativa, testePericia, testeSalvaguarda, type Atributo, type Ataque, type FichaDnd, type Item, type Magia, type NivelProf, type Teste,
 } from "@/lib/dnd5e";
+import LivroHistoria from "./LivroHistoria";
 import PainelRolagem from "./PainelRolagem";
 
 const campo = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
@@ -38,10 +39,10 @@ const Texto = ({ rotulo, valor, onChange, linhas = 4 }: { rotulo: string; valor:
   </label>
 );
 
-type Aba = "combate" | "magias" | "tracos" | "inventario" | "personagem";
+type Aba = "combate" | "magias" | "tracos" | "inventario" | "personagem" | "historia";
 const ABAS: { id: Aba; rotulo: string }[] = [
   { id: "combate", rotulo: "Combate" }, { id: "magias", rotulo: "Magias" }, { id: "tracos", rotulo: "Traços" },
-  { id: "inventario", rotulo: "Inventário" }, { id: "personagem", rotulo: "Personagem" },
+  { id: "inventario", rotulo: "Inventário" }, { id: "personagem", rotulo: "Personagem" }, { id: "historia", rotulo: "História" },
 ];
 
 export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaId: string; donoUid: string; nomePadrao?: string }) {
@@ -94,10 +95,18 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
           </button>
           <button
             onClick={() => set(descansoLongo(f))}
-            title="PV cheios, espaços de magia restaurados e metade dos dados de vida"
+            title="Recupera tudo: PV, espaços de magia, dados de vida e descansos curtos"
             className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-muted hover:border-gold hover:text-gold"
           >
             <BedDouble size={14} /> Descanso longo
+          </button>
+          <button
+            onClick={() => { const havia = temDadoVida(f); set(descansoCurto(f)); if (havia) rolar(testeDadoVida(f)); }}
+            disabled={!podeDescansoCurto(f)}
+            title="Até 2 por descanso longo: gasta 1 dado de vida (cura) e restaura todos os espaços de magia"
+            className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-muted hover:border-gold hover:text-gold disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border disabled:hover:text-muted"
+          >
+            <BedDouble size={14} /> Descanso curto ({f.descansosCurtos}/{MAX_DESCANSOS_CURTOS})
           </button>
         </div>
         <div className="relative mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
@@ -248,6 +257,14 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                   <span className="text-muted">/</span>
                   <Num valor={f.dadosVidaTotal} min={0} onChange={(n) => set({ dadosVidaTotal: n })} className="!w-14" />
                 </div>
+                <button
+                  onClick={() => { set({ dadosVidaUsados: f.dadosVidaUsados + 1 }); rolar(testeDadoVida(f)); }}
+                  disabled={!temDadoVida(f)}
+                  title="Gasta mais um dado de vida e rola a cura (dado + Constituição)"
+                  className="ml-[6.5rem] rounded-md border border-gold/40 px-2 py-0.5 text-xs text-gold hover:bg-gold/10 disabled:opacity-40"
+                >
+                  Gastar dado de vida
+                </button>
                 {([["morteSucessos", "Sucessos", "text-ok"], ["morteFalhas", "Falhas", "text-danger"]] as const).map(([k, r, cor]) => (
                   <div key={k} className="flex items-center gap-2">
                     <span className="w-24 text-xs text-muted">Morte: {r}</span>
@@ -502,6 +519,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
             </section>
           )}
 
+          {aba === "historia" && <LivroHistoria paginas={f.livro} titulo={f.tituloLivro} nomePersonagem={f.nome || nomePadrao} onChange={(livro) => set({ livro })} onTitulo={(tituloLivro) => set({ tituloLivro })} />}
+
           {aba === "personagem" && (
             <section className={`${cartao} grid gap-4 sm:grid-cols-2`}>
               <Texto rotulo="Traços de personalidade" valor={f.personalidade} onChange={(v) => set({ personalidade: v })} />
@@ -509,14 +528,13 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
               <Texto rotulo="Vínculos" valor={f.vinculos} onChange={(v) => set({ vinculos: v })} />
               <Texto rotulo="Defeitos" valor={f.defeitos} onChange={(v) => set({ defeitos: v })} />
               <Texto rotulo="Aparência" valor={f.aparencia} onChange={(v) => set({ aparencia: v })} />
-              <Texto rotulo="História" valor={f.historia} onChange={(v) => set({ historia: v })} />
               <div className="sm:col-span-2"><Texto rotulo="Anotações" valor={f.notas} onChange={(v) => set({ notas: v })} linhas={6} /></div>
             </section>
           )}
         </div>
       </div>
 
-      {rolando && <PainelRolagem key={rolando.seq} teste={rolando.t} onFechar={() => setRolando(null)} />}
+      {rolando && <PainelRolagem key={rolando.seq} teste={rolando.t} onFechar={() => setRolando(null)} aoAplicar={rolando.t.cura ? (n) => set(curar(f, n)) : undefined} />}
     </div>
   );
 }
