@@ -2,7 +2,9 @@
 // espaços de magia) e montagem de rolagens "1d20 + 5 (Carisma) + 2 (Proficiência)". Puro e testável.
 // As rolagens não são automáticas: o jogador pode rolar no site ou usar os dados da mesa e só conferir a conta.
 
-export const ATRIBUTOS = ["for", "des", "con", "int", "sab", "car"] as const;
+import type { Build } from "./regras/dnd5e/build.ts";
+
+export const ATRIBUTOS =["for", "des", "con", "int", "sab", "car"] as const;
 export type Atributo = (typeof ATRIBUTOS)[number];
 
 export const ATRIBUTO_NOME: Record<Atributo, string> = {
@@ -44,11 +46,17 @@ export type Ataque = {
   bonusDano: number; // extra no dano (além do modificador)
   tipoDano: string;
   notas: string;
+  /** Linha calculada a partir de uma arma equipada (não é gravada; editar a arma no inventário). */
+  derivado?: boolean;
 };
 
 export type TipoAtaqueMagia = "nenhum" | "ataque" | "salvaguarda";
 export type Magia = {
   id: string;
+  /** Id da magia no catálogo (`regras/dnd5e/magias`), quando veio de lá. Cadastro manual não tem. */
+  catalogoId?: string;
+  /** Classe pela qual a magia é conjurada (multiclasse): define o atributo de conjuração dela. */
+  classeOrigem?: string;
   nome: string;
   nivel: number; // 0 = truque
   /** Ativa = conta nos limites da classe e pode ser conjurada. Inativas ficam só no "pool" da ficha. */
@@ -58,7 +66,12 @@ export type Magia = {
   alcance: string;
   componentes: string;
   duracao: string;
-  descricao: string; // ainda sem tela de leitura dedicada; fica guardada para a próxima etapa
+  descricao: string;
+  /** Vindos do catálogo: exige concentração / pode ser conjurada como ritual. */
+  concentracao?: boolean;
+  ritual?: boolean;
+  /** Sempre preparada (domínio, juramento...): não conta nos limites e está sempre pronta. */
+  sempre?: boolean;
   tipo: TipoAtaqueMagia;
   dano: string; // ex.: "8d6" (vazio = sem rolagem de dano)
   salvaguarda: Atributo; // usada quando tipo = "salvaguarda"
@@ -71,6 +84,14 @@ export type Item = {
   peso: number; // por unidade, em kg (0 = sem peso)
   equipado: boolean;
   descricao: string;
+  /** Id no catálogo de equipamento (`regras/dnd5e`), quando veio de lá. */
+  catalogoId?: string;
+  /** Bônus mágico de arma (ataque e dano) ou armadura/escudo (CA). */
+  bonusMagico?: number;
+  /** Bônus à CA de um item que não é armadura (anel de proteção, manto...) enquanto equipado. */
+  bonusCa?: number;
+  exigeSintonia?: boolean;
+  sintonizado?: boolean;
 };
 
 export type Espaco = { total: number; usados: number };
@@ -126,6 +147,22 @@ export type FichaDnd = {
   tituloLivro: string; // vazio = "A Crônica de {nome}"
   livro: string[]; // história do personagem, uma página por item
   notas: string;
+  /** Escolhas do jogador para a ficha automatizada (opcional: fichas antigas não têm). Ver `regras/dnd5e`. */
+  build?: Build;
+  /** Só na ficha efetiva e só com multiclasse: o nível em cada classe (nunca gravado). */
+  classes?: { id: string; nivel: number }[];
+  /** Magia mantida em concentração (id da magia na ficha). Só uma por vez. */
+  concentracao?: { magiaId: string; nome: string };
+  /** Usos gastos de cada recurso (Fúria, Ki...), por id; o máximo é calculado pela classe e nível. */
+  recursos?: Record<string, number>;
+  /** Características ligadas agora (furia, ataque-descuidado...). Encerram no descanso. */
+  ativos?: string[];
+  /** Condições do Apêndice A aplicadas (ids); "inconsciente" a 0 PV é implícita. */
+  condicoes?: string[];
+  /** Nível de exaustão (0 a 6). */
+  exaustao?: number;
+  /** Resistências, vulnerabilidades e imunidades manuais (tipos de dano), além das calculadas. */
+  defesas?: { resistencias: string[]; vulnerabilidades: string[]; imunidades: string[] };
 };
 
 export const FICHA_VAZIA: FichaDnd = {
@@ -193,8 +230,17 @@ export function bonusPericia(f: FichaDnd, id: PericiaId): number {
 export const bonusSalvaguarda = (f: FichaDnd, a: Atributo) => modDe(f, a) + (f.salvaguardas[a] ? bonusProficiencia(f.nivel) : 0);
 export const bonusIniciativa = (f: FichaDnd) => modDe(f, "des") + f.bonusIniciativa;
 export const percepcaoPassiva = (f: FichaDnd) => 10 + bonusPericia(f, "percepcao");
-export const cdMagia = (f: FichaDnd) => (f.atrConjuracao ? 8 + bonusProficiencia(f.nivel) + modDe(f, f.atrConjuracao) : 0);
-export const bonusAtaqueMagia = (f: FichaDnd) => (f.atrConjuracao ? bonusProficiencia(f.nivel) + modDe(f, f.atrConjuracao) : 0);
+/** Classes e níveis da ficha: o que o `build` diz (multiclasse) ou, sem ele, a classe única com o nível total. */
+export const classesDaFicha = (f: Pick<FichaDnd, "classe" | "nivel" | "classes">): { id: string; nivel: number }[] =>
+  f.classes && f.classes.length ? f.classes : f.classe ? [{ id: f.classe, nivel: f.nivel }] : [];
+/** Nível do personagem numa classe (0 se não tem). */
+export const nivelNaClasse = (f: Pick<FichaDnd, "classe" | "nivel" | "classes">, id: string) => classesDaFicha(f).find((c) => c.id === id)?.nivel ?? 0;
+
+/** Atributo de conjuração de uma magia: o da classe pela qual ela é conjurada (multiclasse) ou o da ficha. */
+export const atrDaMagia = (f: FichaDnd, m?: Pick<Magia, "classeOrigem">): Atributo | "" =>
+  m?.classeOrigem && ehConjuradora(m.classeOrigem as ClasseId) ? CLASSES_CONJ[m.classeOrigem as ClasseConjId].atr : f.atrConjuracao;
+export const cdMagia = (f: FichaDnd, m?: Pick<Magia, "classeOrigem">) => { const a = atrDaMagia(f, m); return a ? 8 + bonusProficiencia(f.nivel) + modDe(f, a) : 0; };
+export const bonusAtaqueMagia = (f: FichaDnd, m?: Pick<Magia, "classeOrigem">) => { const a = atrDaMagia(f, m); return a ? bonusProficiencia(f.nivel) + modDe(f, a) : 0; };
 
 // ---------- espaços de magia ----------
 // Índice = nível de conjurador - 1; cada linha = espaços do 1º ao 9º círculo.
@@ -275,7 +321,7 @@ export function espacosDaClasse(id: ClasseConjId, nivel: number): number[] {
   return Array.from({ length: 9 }, (_, i) => (i + 1 === circulo ? total : 0));
 }
 
-const ehConjuradora = (id: ClasseId | ""): id is ClasseConjId => id in CLASSES_CONJ;
+export const ehConjuradora = (id: ClasseId | ""): id is ClasseConjId => id in CLASSES_CONJ;
 export const modoDe = (id: ClasseId | ""): ModoConj | undefined => (ehConjuradora(id) ? CLASSES_CONJ[id].modo : undefined);
 
 export type LimitesMagia = {
@@ -287,6 +333,7 @@ export type LimitesMagia = {
 
 /** Limites de magias ATIVAS (classe + nível + ajustes). null = classe sem conjuração ou não escolhida (sem limites). */
 export function limitesMagia(f: FichaDnd): LimitesMagia | null {
+  if (f.classes && f.classes.length > 1) return null; // multiclasse: limites por classe ainda não são calculados (ver pendências)
   if (!ehConjuradora(f.classe)) return null;
   const c = CLASSES_CONJ[f.classe];
   const n = nivelValido(f.nivel);
@@ -301,8 +348,8 @@ export function limitesMagia(f: FichaDnd): LimitesMagia | null {
 /** Contagens de magias ativas contra os limites. `cheio*` só é verdadeiro quando há limite. */
 export function contagemMagias(f: FichaDnd) {
   const lim = limitesMagia(f);
-  const truques = f.magias.filter((m) => m.nivel === 0 && m.ativa).length;
-  const magias = f.magias.filter((m) => m.nivel > 0 && m.ativa).length;
+  const truques = f.magias.filter((m) => m.nivel === 0 && m.ativa && !m.sempre).length;
+  const magias = f.magias.filter((m) => m.nivel > 0 && m.ativa && !m.sempre).length;
   return {
     lim, truques, magias,
     totalTruques: f.magias.filter((m) => m.nivel === 0).length,
@@ -322,7 +369,7 @@ export function podeAtivar(f: FichaDnd, m: Magia): boolean {
 /** Liga/desliga uma magia. Ativar além do limite não acontece: devolve a ficha igual. Desativar é sempre permitido. */
 export function alternarMagia(f: FichaDnd, id: string): FichaDnd {
   const m = f.magias.find((x) => x.id === id);
-  if (!m || (!m.ativa && !podeAtivar(f, m))) return f;
+  if (!m || m.sempre || (!m.ativa && !podeAtivar(f, m))) return f;
   return { ...f, magias: f.magias.map((x) => (x.id === id ? { ...x, ativa: !x.ativa } : x)) };
 }
 
@@ -345,7 +392,7 @@ export function circulosDisponiveis(f: FichaDnd, nivelMagia: number): number[] {
 
 /** Magia que pode ser conjurada agora: com limites de classe, precisa estar ativa; sem limites, qualquer uma. */
 export function magiaPronta(f: FichaDnd, m: Magia): boolean {
-  return !limitesMagia(f) || m.ativa;
+  return !limitesMagia(f) || m.ativa || !!m.sempre;
 }
 
 /** Gasta um espaço do círculo escolhido. Devolve a ficha igual se não houver espaço (ou truque: não gasta). */
@@ -363,6 +410,10 @@ export type Teste = {
   d20: boolean; // permite vantagem/desvantagem
   dano?: boolean; // permite dobrar os dados num crítico
   cura?: boolean; // o resultado pode ser aplicado aos PV
+  /** Vantagem/desvantagem sugeridas pelas condições e características ativas (o jogador pode mudar). */
+  sugestao?: { modo: "v" | "d" | null; vantagens: string[]; desvantagens: string[]; falhaAutomatica?: string };
+  /** Salvaguarda de morte: o resultado do d20 é aplicado à ficha, não aos PV. */
+  morte?: boolean;
 };
 
 /** "1d20 + 5 (Carisma) + 2 (Proficiência)": mostra de onde vem cada número. Partes zeradas ficam de fora. */
@@ -431,11 +482,12 @@ export function testeDano(f: FichaDnd, a: Ataque): Teste {
 }
 
 export function testeAtaqueMagia(f: FichaDnd, m: Magia): Teste {
+  const a = atrDaMagia(f, m);
   return {
     titulo: `Ataque de magia: ${m.nome || "sem nome"}`, dado: "1d20", d20: true,
     partes: [
-      { rotulo: f.atrConjuracao ? ATRIBUTO_NOME[f.atrConjuracao] : "Atributo de conjuração", valor: f.atrConjuracao ? modDe(f, f.atrConjuracao) : 0 },
-      { rotulo: "Proficiência", valor: f.atrConjuracao ? bonusProficiencia(f.nivel) : 0 },
+      { rotulo: a ? ATRIBUTO_NOME[a] : "Atributo de conjuração", valor: a ? modDe(f, a) : 0 },
+      { rotulo: "Proficiência", valor: a ? bonusProficiencia(f.nivel) : 0 },
     ],
   };
 }
@@ -449,7 +501,7 @@ export function descansoLongo(f: FichaDnd): FichaDnd {
   return {
     ...f,
     pv: f.pvMax, pvTemp: 0, morteSucessos: 0, morteFalhas: 0, descansosCurtos: 0,
-    dadosVidaUsados: 0,
+    dadosVidaUsados: 0, concentracao: undefined,
     espacos: f.espacos.map((e) => ({ ...e, usados: 0 })),
   };
 }

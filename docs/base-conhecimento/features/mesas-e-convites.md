@@ -8,6 +8,7 @@ A **mesa** é a campanha. Tem nome, sistema de jogo, descrição, cor, status (`
 
 ## Como funciona
 - **Criar:** wizard de uma tela; só o nome é obrigatório, o resto tem padrão e se edita depois. `criarMesa` gera `codigo` e grava `convites/{codigo}`.
+- **Regras opcionais (`opcoesRegras`):** campo opcional da mesa com as regras opcionais do sistema ligadas pelo mestre em Configurações (hoje, só D&D 5e: `talentos` e `multiclasse`, desligadas por padrão). A seção só aparece se o sistema tem módulo de regras (`regrasDoSistema`).
 - **Sistema (dropdown):** lista os sistemas **públicos** (coleção `sistemas`, cadastrados pelo servidor com `scripts/semear-sistemas.mjs`; se vazia, usa `SISTEMAS_PADRAO`) e os **pessoais** do usuário (`sistemasPessoais`, só ele vê), com a opção "Cadastrar sistema próprio" no próprio dropdown. `Mesa.sistema` continua sendo só o nome em texto; sistemas pessoais não são visíveis a outros usuários (a mesa guarda apenas o nome).
 - **Listar:** `useMesas()` assina `mesas` onde `membros` contém o uid (tempo real). Cartões agrupados por status (ativa = borda viva; planejando = tracejada; arquivadas = esmaecidas); mesas que o usuário mestra e mesas em que joga ficam separadas.
 - **Editar:** `atualizarMesa` mescla em `pendentes` e grava com debounce de ~600 ms (sem botão salvar). Configurações da mesa salvam automaticamente.

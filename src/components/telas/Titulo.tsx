@@ -12,7 +12,8 @@ export default function Titulo({ titulo, texto, acao, termo }: { titulo: string;
     <header className="mb-5 flex flex-wrap items-end justify-between gap-3 sm:mb-6">
       <div className="min-w-0">
         <h1 className="break-words font-display text-2xl font-bold tracking-wide sm:text-3xl">{nome}</h1>
-        {texto && <p className="mt-1 text-sm text-muted">{texto}</p>}
+        <span aria-hidden className="filete mt-2 block w-28" />
+        {texto && <p className="mt-2 text-sm text-muted">{texto}</p>}
       </div>
       {acao}
     </header>

@@ -84,7 +84,7 @@ export default function PainelDados({ compacto = false }: { mesaId?: string; com
             {historico.map((h) => (
               <li key={h.id} className="flex items-baseline justify-between gap-3 rounded-lg bg-card-2/60 px-3 py-1.5">
                 <span className="truncate text-muted">
-                  <span className="text-foreground">{h.nome}</span> · {h.rolagem.expressao} <span className="text-xs">[{h.rolagem.grupos.map((g) => g.dados.join(",")).join(" | ")}]</span>
+                  <span className="text-foreground" title={h.rotulo ? `Jogador: ${h.nome}` : undefined}>{h.rotulo ?? h.nome}</span> · {h.rolagem.expressao} <span className="text-xs">[{h.rolagem.grupos.map((g) => g.dados.join(",")).join(" | ")}]</span>
                 </span>
                 <b className={h.rolagem.critico === "acerto" ? "text-gold" : h.rolagem.critico === "falha" ? "text-danger" : ""}>{h.rolagem.total}</b>
               </li>

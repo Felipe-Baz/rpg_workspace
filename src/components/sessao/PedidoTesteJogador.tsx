@@ -4,8 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Dices, Swords } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { useFichaPersonagem } from "@/lib/fichaPersonagem";
-import { ehDnd5e, expressaoParaRolar, formatarExpressao, testeAtributo, testeIniciativa, testePericia, testeSalvaguarda, totalFixo, type Atributo, type ParteRolagem } from "@/lib/dnd5e";
+import { useFichaEfetiva } from "@/lib/fichaPersonagem";
+import { modoDaJogada, type Jogada } from "@/lib/regras/dnd5e/combate";
+import type { OpcoesMesa } from "@/lib/regras/sistema";
+import { PERICIAS, ehDnd5e, expressaoParaRolar, formatarExpressao, testeAtributo, testeIniciativa, testePericia, testeSalvaguarda, totalFixo, type Atributo, type ParteRolagem } from "@/lib/dnd5e";
 import { assinarMeusPedidos, periciaValida, responderPedido, tituloPedido, type PedidoTeste } from "@/lib/pedidosTeste";
 import { useRolagem } from "../dados/RolagemProvider";
 import { useMesaAtual } from "../shell/MesaContext";
@@ -22,12 +24,13 @@ export default function PedidoTesteJogador() {
 
   const pedido = fila[0];
   if (!pedido || typeof document === "undefined") return null;
-  return createPortal(<Cartao key={pedido.id} pedido={pedido} restantes={fila.length - 1} mesaId={mesa.id} meuUid={meuUid} sistema={mesa.sistema} />, document.body);
+  return createPortal(<Cartao key={pedido.id} pedido={pedido} restantes={fila.length - 1} mesaId={mesa.id} meuUid={meuUid} sistema={mesa.sistema} opcoes={mesa.opcoesRegras} />, document.body);
 }
 
-function Cartao({ pedido, restantes, mesaId, meuUid, sistema }: { pedido: PedidoTeste; restantes: number; mesaId: string; meuUid: string; sistema: string }) {
+function Cartao({ pedido, restantes, mesaId, meuUid, sistema, opcoes }: { pedido: PedidoTeste; restantes: number; mesaId: string; meuUid: string; sistema: string; opcoes?: OpcoesMesa }) {
   const dnd = ehDnd5e(sistema);
-  const { ficha, carregado } = useFichaPersonagem(mesaId, meuUid, dnd);
+  // ficha com os valores calculados pelo livro (a gravada tem números defasados quando há construção)
+  const { ficha, calc, carregado } = useFichaEfetiva(mesaId, meuUid, opcoes, dnd);
   const { rolar, rolando } = useRolagem();
   const [bonusLivre, setBonusLivre] = useState("");
   const [manual, setManual] = useState("");
@@ -45,6 +48,14 @@ function Cartao({ pedido, restantes, mesaId, meuUid, sistema }: { pedido: Pedido
     if (pedido.tipo === "atributo") return testeAtributo(ficha, pedido.chave as Atributo).partes;
     return testeSalvaguarda(ficha, pedido.chave as Atributo).partes;
   }, [pedido, dnd, ficha, bonusLivre]);
+
+  // o que as condições e características da ficha sugerem (o mestre decide a vantagem do pedido; isto é um aviso)
+  const sugestao = useMemo(() => {
+    if (!dnd || pedido.tipo === "livre") return null;
+    const atr = (pedido.tipo === "pericia" ? PERICIAS.find((p) => p.id === pedido.chave)?.atr : pedido.chave) as Atributo | undefined;
+    const jogada: Jogada | null = pedido.tipo === "iniciativa" ? { tipo: "iniciativa" } : !atr ? null : pedido.tipo === "salvaguarda" ? { tipo: "salvaguarda", atributo: atr } : { tipo: "teste", atributo: atr };
+    return jogada ? modoDaJogada({ ...ficha, armaduraSemProf: calc?.armaduraSemProf }, jogada) : null;
+  }, [dnd, pedido, ficha, calc]);
 
   const pronto = !dnd || pedido.tipo === "livre" || carregado;
   const fixo = totalFixo(partes);
@@ -66,7 +77,7 @@ function Cartao({ pedido, restantes, mesaId, meuUid, sistema }: { pedido: Pedido
 
   async function rolarAqui() {
     if (rolando || enviando) return;
-    const r = await rolar(expressaoParaRolar("1d20", partes, { vantagem: pedido.vantagem }), titulo);
+    const r = await rolar(expressaoParaRolar("1d20", partes, { vantagem: pedido.vantagem }), dnd && ficha.nome ? `${ficha.nome} — ${titulo}` : titulo);
     if (!r) { setErro("Não foi possível rolar."); return; }
     const natural = r.grupos[0]?.mantidos[0] ?? r.total - fixo;
     await enviar(r.total, natural, "site");
@@ -80,6 +91,16 @@ function Cartao({ pedido, restantes, mesaId, meuUid, sistema }: { pedido: Pedido
       <h3 className="mt-1 font-display text-xl font-semibold text-gold">{titulo}</h3>
       {pedido.motivo && <p className="mt-1 text-sm text-muted">{pedido.motivo}</p>}
       <p className="mt-2 rounded-lg bg-background px-3 py-2 font-mono text-base">{formatarExpressao(vantagemTxt, partes)}</p>
+      {sugestao && (sugestao.vantagens.length > 0 || sugestao.desvantagens.length > 0 || sugestao.falhaAutomatica) && (
+        <p role="note" className="mt-2 text-xs">
+          <span className="text-muted">Pela sua ficha: </span>
+          {sugestao.falhaAutomatica && <strong className="mr-2 text-danger">{sugestao.falhaAutomatica}.</strong>}
+          {sugestao.vantagens.length > 0 && <span className="mr-2 text-ok">vantagem ({sugestao.vantagens.join(", ")})</span>}
+          {sugestao.desvantagens.length > 0 && <span className="mr-2 text-danger">desvantagem ({sugestao.desvantagens.join(", ")})</span>}
+          {!sugestao.modo && sugestao.vantagens.length > 0 && sugestao.desvantagens.length > 0 && <span className="text-muted">— se anulam.</span>}
+          <span className="text-muted"> Combine com o mestre.</span>
+        </p>
+      )}
 
       {(pedido.tipo === "livre" || !dnd) && (
         <label className="mt-3 flex items-center gap-2 text-sm text-muted">

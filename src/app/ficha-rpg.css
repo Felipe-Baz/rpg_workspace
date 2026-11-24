@@ -1,0 +1,123 @@
+/* =====================================================================
+   TEMA DE FICHA (D&D): pergaminho no claro, couro/ébano no escuro, filetes dourados.
+   Vive sob `.ficha-rpg` e usa os mesmos tokens do site (--gold, --card...): não é um
+   segundo design system. Ornamentos são decorativos (a informação sempre está em texto);
+   `prefers-reduced-motion` já zera as animações (ver globals.css).
+   ===================================================================== */
+.ficha-rpg {
+  --escola: var(--gold);
+  --border: #3b3328;
+  --card: #1c1a1f;
+  --card-2: #262129;
+}
+[data-theme="light"] .ficha-rpg {
+  --gold: #7d5a14; /* ouro mais escuro: contraste AA do texto sobre o pergaminho */
+  --card: #fbf6e9;
+  --card-2: #f1e7c9;
+  --border: #d3bf8c;
+  --background: #fffdf6;
+  --muted: #6a5a3a;
+}
+
+/* filete e moldura de cartão com cantos ornamentados */
+.filete { height: 1px; border: 0; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .6; }
+.ficha-rpg .cartao-rpg {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--gold) 38%, var(--border));
+  box-shadow: inset 0 0 0 3px var(--card), inset 0 0 0 4px color-mix(in srgb, var(--gold) 22%, transparent);
+  background:
+    radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--gold) 7%, transparent), transparent 55%),
+    var(--card);
+}
+.ficha-rpg .cartao-rpg::before,
+.ficha-rpg .cartao-rpg::after {
+  content: "◆"; position: absolute; font-size: 7px; line-height: 1; color: var(--gold); opacity: .55; pointer-events: none;
+}
+.ficha-rpg .cartao-rpg::before { top: 5px; left: 6px; }
+.ficha-rpg .cartao-rpg::after { bottom: 5px; right: 6px; }
+
+/* medalhão hexagonal de atributo */
+.medalhao {
+  --hex: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%);
+  position: relative; margin: 0 auto; width: 4.6rem; aspect-ratio: 1 / 1.08;
+  clip-path: var(--hex);
+  background: linear-gradient(150deg, var(--gold), color-mix(in srgb, var(--gold) 35%, var(--card)));
+}
+.medalhao-miolo {
+  position: absolute; inset: 2px; clip-path: var(--hex);
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 35%, var(--card-2), var(--card));
+}
+
+/* escudo da CA */
+.escudo { position: relative; width: 4.2rem; height: 5rem; margin: 0 auto; }
+.escudo-svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 3px rgb(0 0 0 / .35)); }
+.escudo-fundo { fill: var(--gold); }
+.escudo-miolo { fill: var(--card-2); }
+.escudo-linha { stroke: color-mix(in srgb, var(--gold) 35%, transparent); stroke-width: 1; fill: none; }
+.escudo-valor {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding-bottom: .15rem;
+  font-family: var(--font-display), serif; font-size: 1.55rem; font-weight: 700; color: var(--foreground);
+}
+
+/* gemas dos espaços de magia (alvo de toque de 32px; a gema desenhada é menor) */
+.gema-botao { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 9999px; }
+.gema {
+  display: block; width: .95rem; height: .95rem; transform: rotate(45deg); border-radius: 3px; border: 1px solid var(--accent-hover);
+  background: linear-gradient(135deg, #fff9 0%, var(--accent-soft) 30%, var(--accent) 70%, var(--accent-strong));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 70%, transparent); transition: all var(--t-base) var(--ease);
+}
+.gema-gasta { background: var(--card); border-color: var(--border); box-shadow: none; opacity: .7; }
+
+/* perícias: losango vazio / cheio / duplo */
+.losango-botao { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; flex: none; }
+.losango { display: block; width: .62rem; height: .62rem; transform: rotate(45deg); border: 1px solid var(--border); }
+.losango-1 { background: var(--gold); border-color: var(--gold); }
+.losango-2 { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 0 2px var(--card), 0 0 0 3px var(--gold); }
+
+/* botões de rolagem com o d20 */
+.ficha-rpg .botao-d20 { display: inline-flex; align-items: center; gap: .3em; }
+.ficha-rpg .botao-d20::before {
+  content: ""; width: .85em; height: .85em; flex: none; background: currentColor; opacity: .75;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'><path d='M12 2 21 7v10l-9 5-9-5V7z'/><path d='M12 2 3 7l9 5 9-5M12 12v10M3 17l9-5 9 5'/></svg>") center / contain no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'><path d='M12 2 21 7v10l-9 5-9-5V7z'/><path d='M12 2 3 7l9 5 9-5M12 12v10M3 17l9-5 9 5'/></svg>") center / contain no-repeat;
+}
+
+/* barra de PV com camada de PV temporário e reação a dano e cura */
+.barra-pv { position: relative; height: .9rem; border-radius: 9999px; overflow: hidden; background: color-mix(in srgb, var(--danger) 14%, var(--background)); border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--border)); }
+.barra-pv-cheia { height: 100%; border-radius: 9999px; background: linear-gradient(180deg, #ff8a7a, var(--danger) 45%, #9b1c1c); transition: width var(--t-slow) var(--ease); }
+.barra-pv-temp { position: absolute; right: 0; top: 0; height: 100%; background: repeating-linear-gradient(45deg, #38bdf8aa 0 4px, #0ea5e9aa 4px 8px); }
+@keyframes pulso-dano { 0% { box-shadow: 0 0 0 0 rgb(239 68 68 / .7); } 100% { box-shadow: 0 0 0 14px rgb(239 68 68 / 0); } }
+@keyframes pulso-cura { 0% { box-shadow: 0 0 0 0 rgb(34 197 94 / .6); } 100% { box-shadow: 0 0 0 14px rgb(34 197 94 / 0); } }
+@keyframes batida { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.18); } 30% { transform: scale(1); } 45% { transform: scale(1.12); } }
+.pulso-dano { animation: pulso-dano .7s ease-out; }
+.pulso-cura { animation: pulso-cura .7s ease-out; }
+.coracao-baixo { animation: batida 1.2s ease-in-out infinite; color: var(--danger); }
+
+/* rolagem: brilho no crítico e tremor na falha crítica */
+@keyframes brilho-critico { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 22px 4px color-mix(in srgb, var(--gold) 80%, transparent); } }
+@keyframes tremor { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+.brilho-critico { animation: brilho-critico 1.2s ease-in-out 2; border-color: var(--gold) !important; }
+.tremor { animation: tremor .5s ease-in-out; border-color: var(--danger) !important; }
+
+/* abas como marcadores de livro */
+.ficha-rpg .marcador { position: relative; margin-right: 2px; border: 1px solid var(--border); border-bottom: 0; border-radius: 10px 10px 0 0; background: var(--card-2); padding: .45rem 1rem; transition: transform var(--t-fast), background var(--t-fast); }
+.ficha-rpg .marcador[aria-selected="true"] { background: var(--card); border-top: 3px solid var(--gold); transform: translateY(1px); }
+.ficha-rpg .marcador:not([aria-selected="true"]):hover { transform: translateY(-1px); }
+
+/* cartas de magia: borda e selo pela escola (no pergaminho a cor escurece para manter o contraste) */
+.carta-magia, .carta-escola { --escola: var(--escola-base, var(--gold)); }
+[data-theme="light"] .carta-magia, [data-theme="light"] .carta-escola { --escola: color-mix(in srgb, var(--escola-base, var(--gold)) 58%, black); }
+.carta-magia { position: relative; border-left: 4px solid var(--escola); background: linear-gradient(90deg, color-mix(in srgb, var(--escola) 11%, var(--card)), var(--card) 45%); }
+.selo-circulo { display: inline-flex; align-items: center; justify-content: center; width: 1.4rem; height: 1.4rem; border-radius: 9999px; border: 1.5px solid var(--escola); font-size: .7rem; font-weight: 700; color: var(--escola); flex: none; }
+.selo-badge { border: 1px solid color-mix(in srgb, var(--escola) 60%, transparent); border-radius: 9999px; padding: 0 .4rem; font-size: .65rem; text-transform: uppercase; letter-spacing: .05em; color: var(--escola); }
+.glifo { display: inline-flex; width: 1.1rem; height: 1.1rem; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 4px; font-size: .62rem; font-weight: 700; color: var(--muted); }
+
+/* modo combate (celular): só o essencial, alvos de toque de 44px */
+.ficha-rpg.compacto button:not(.gema-botao):not(.losango-botao),
+.ficha-rpg.compacto select,
+.ficha-rpg.compacto input:not([type="checkbox"]):not([type="radio"]) { min-height: 44px; }
+@media (max-width: 640px) {
+  .ficha-rpg .botao-d20, .ficha-rpg [role="tab"] { min-height: 44px; }
+  .ficha-rpg .medalhao { width: 4rem; }
+}

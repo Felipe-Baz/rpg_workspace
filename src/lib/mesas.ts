@@ -42,6 +42,8 @@ export type Mesa = {
   codigo: string; // código de convite para jogadores
   jogadores: Jogador[];
   sessoes: Sessao[];
+  /** Regras opcionais do sistema ligadas pelo mestre (ex.: D&D 5e: `talentos`, `multiclasse`). Ausente = padrão do sistema. */
+  opcoesRegras?: Record<string, boolean>;
 };
 
 // Documento mesas/{id}/segredos/mestre — só o mestre lê e escreve.

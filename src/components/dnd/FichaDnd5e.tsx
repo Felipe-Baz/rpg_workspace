@@ -1,28 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BedDouble, FileUp, Heart, Minus, Plus, Shield, Star, Swords, Trash2, Wind } from "lucide-react";
 import { uid } from "@/lib/mesas";
 import { useFichaPersonagem } from "@/lib/fichaPersonagem";
 import {
   ATRIBUTOS, ATRIBUTO_NOME, PERICIAS, bonusAtaqueMagia, bonusIniciativa, bonusPericia, bonusProficiencia, bonusSalvaguarda, cdMagia,
-  MAX_DESCANSOS_CURTOS, comSinal, contagemMagias, CLASSES, alternarMagia, circulosDisponiveis, conjurar, definirClasse, limitesMagia, magiaPronta, nomeClasse, type ClasseId, curar, temDadoVida, descansoCurto, descansoLongo, podeDescansoCurto, testeDadoVida, espacosPorNivel, modDe, percepcaoPassiva, pesoTotal, testeAtaque, testeAtaqueMagia, testeAtributo,
+  MAX_DESCANSOS_CURTOS, atrDaMagia, classesDaFicha, ehConjuradora, nivelNaClasse, comSinal, contagemMagias, CLASSES, alternarMagia, circulosDisponiveis, definirClasse, limitesMagia, magiaPronta, nomeClasse, type ClasseId, temDadoVida, descansoCurto, descansoLongo, podeDescansoCurto, testeDadoVida, espacosPorNivel, modDe, percepcaoPassiva, pesoTotal, testeAtaque, testeAtributo,
   testeDano, testeDanoMagia, testeIniciativa, testePericia, testeSalvaguarda, type Atributo, type Ataque, type FichaDnd, type Item, type Magia, type NivelProf, type Teste,
 } from "@/lib/dnd5e";
 import LivroHistoria from "./LivroHistoria";
 import PainelRolagem from "./PainelRolagem";
 import TrocaMagias from "./TrocaMagias";
+import CompendioMagias from "./CompendioMagias";
+import CatalogoEquipamento from "./CatalogoEquipamento";
+import EstadoCombate from "./EstadoCombate";
+import { Escudo, Gema, IconeEscola, Losango, Medalhao, corDaEscola } from "./ornamentos";
+import { usePersistido } from "@/lib/persistido";
+import AssistenteNivel from "./AssistenteNivel";
+import AssistenteCriacao from "./AssistenteCriacao";
+import { nivelPorXp, podeSubirDeNivel } from "@/lib/regras/dnd5e/progressao";
+import { TIPOS_DE_DANO, aplicarCura, aplicarDano, comSugestao, danoDeFuria, defesasDe, estabilizar, estadoVital, modoDaJogada, salvaguardaDeMorte, type EstadoJogo, type Jogada } from "@/lib/regras/dnd5e/combate";
+import { recursosCalculados, recursosDaFicha, restaurarRecursos } from "@/lib/regras/dnd5e/recursos";
+import { MAX_SINTONIZADOS, emOuro, pagar, totalEmCobre, trocarMoedas } from "@/lib/regras/dnd5e/equipamento";
+import type { Moeda } from "@/lib/regras/dnd5e/catalogo";
+import ConstrucaoPersonagem, { CaracteristicasPorFonte } from "./ConstrucaoPersonagem";
+import { carregarCatalogoPhb, type Catalogo } from "@/lib/regras/dnd5e/catalogo";
+import { derivar } from "@/lib/regras/dnd5e/derivar";
+import { fichaEfetiva, gravavel } from "@/lib/regras/dnd5e/efetiva";
+import type { OpcoesMesa } from "@/lib/regras/sistema";
+import { carregarMagias, magiaParaFicha, type MagiaCat } from "@/lib/regras/dnd5e/magias";
+import { classeFazRitual, conjurarMagia, encerrarConcentracao, planoDeConjuracao, podeAprender, testeConcentracao } from "@/lib/regras/dnd5e/conjuracao";
 
 const campo = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
-const cartao = "rounded-2xl border border-border bg-card p-4";
+const cartao = "cartao-rpg rounded-2xl border border-border bg-card p-4";
 const titulo = "mb-3 flex items-center gap-2 font-display text-xs font-semibold uppercase tracking-[0.2em] text-gold";
-const botaoRolar = "rounded-md border border-gold/40 bg-gold/10 px-2 py-0.5 font-mono text-sm font-semibold text-gold hover:bg-gold/20";
+const botaoRolar = "botao-d20 rounded-md border border-gold/40 bg-gold/10 px-2 py-0.5 font-mono text-sm font-semibold text-gold hover:bg-gold/20";
 const ABREV: Record<Atributo, string> = { for: "FOR", des: "DES", con: "CON", int: "INT", sab: "SAB", car: "CAR" };
 
-function Num({ valor, onChange, min, className = "" }: { valor: number; onChange: (n: number) => void; min?: number; className?: string }) {
+function Num({ valor, onChange, min, className = "", disabled, title }: { valor: number; onChange: (n: number) => void; min?: number; className?: string; disabled?: boolean; title?: string }) {
   return (
     <input
       type="number"
+      disabled={disabled}
+      title={title}
       value={Number.isFinite(valor) ? valor : 0}
       onChange={(e) => {
         const n = Number(e.target.value);
@@ -46,8 +67,10 @@ const ABAS: { id: Aba; rotulo: string }[] = [
   { id: "inventario", rotulo: "Inventário" }, { id: "personagem", rotulo: "Personagem" }, { id: "historia", rotulo: "História" },
 ];
 
-export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaId: string; donoUid: string; nomePadrao?: string }) {
-  const { ficha: f, carregado, salvar } = useFichaPersonagem(mesaId, donoUid);
+export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "jogador", opcoes }: { mesaId: string; donoUid: string; nomePadrao?: string; /** o mestre passa por cima da lista de magias da classe */ papel?: "jogador" | "mestre"; /** regras opcionais da mesa (talentos, multiclasse) */ opcoes?: OpcoesMesa }) {
+  const { ficha: bruta, carregado, salvar: salvarBruto } = useFichaPersonagem(mesaId, donoUid);
+  // catálogo do livro: carregado sob demanda (precisa já se a ficha usa a construção, ou nas abas que a mostram)
+  const [catLivro, setCatLivro] = useState<Catalogo | null>(null);
   const [aba, setAba] = useState<Aba>("combate");
   const [rolando, setRolando] = useState<{ t: Teste; seq: number } | null>(null);
   const [valorPv, setValorPv] = useState(1);
@@ -57,17 +80,81 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
   const [importando, setImportando] = useState(false);
   // após o descanso longo: "perguntar" se quer trocar as magias ativas, "trocar" com o painel aberto
   const [trocaMagias, setTrocaMagias] = useState<"perguntar" | "trocar" | null>(null);
+  const [compendio, setCompendio] = useState(false);
+  const [catalogoEquip, setCatalogoEquip] = useState(false);
+  const [compacto, setCompacto] = usePersistido<boolean>("ficha-modo-combate", false);
+  const [pulso, setPulso] = useState<"dano" | "cura" | "">("");
+  const [assistente, setAssistente] = useState<"nivel" | "criacao" | null>(null);
+  const [xpConceder, setXpConceder] = useState(100);
+  const [tipoDano, setTipoDano] = useState("");
+  const [danoCritico, setDanoCritico] = useState(false);
+  const [logCombate, setLogCombate] = useState<string[]>([]);
+  const [troca, setTroca] = useState<{ de: Moeda; para: Moeda; qtd: number }>({ de: "po", para: "pp", qtd: 1 });
+  // magias do catálogo (para rolagens escaladas); carrega só quando a aba Magias é aberta
+  const [catalogo, setCatalogo] = useState<Map<string, MagiaCat>>(new Map());
+  // dano recém-sofrido enquanto concentrado: oferece o teste de Constituição
+  const [danoConc, setDanoConc] = useState<number | null>(null);
+  const precisaCatalogo = !!bruta.build || aba === "personagem" || aba === "tracos" || aba === "inventario" || assistente !== null;
+  useEffect(() => {
+    if (!precisaCatalogo) return;
+    let vivo = true;
+    carregarCatalogoPhb().then((c) => vivo && setCatLivro(c)).catch(() => {});
+    return () => { vivo = false; };
+  }, [precisaCatalogo]);
+  // ficha com os valores calculados pelo livro (se houver `build`); `salvar` devolve os derivados antes de gravar
+  const calc = useMemo(() => (bruta.build && catLivro ? derivar(bruta, catLivro, opcoes) : null), [bruta, catLivro, opcoes]);
+  const f = bruta.build && catLivro && calc ? fichaEfetiva(bruta, calc, catLivro) : bruta;
+  const auto = !!bruta.build;
+  const salvar = (x: FichaDnd) => salvarBruto(gravavel(bruta, x));
+  useEffect(() => {
+    if (aba !== "magias") return;
+    let vivo = true;
+    carregarMagias().then((l) => vivo && setCatalogo(new Map(l.map((m) => [m.id, m])))).catch(() => {});
+    return () => { vivo = false; };
+  }, [aba]);
 
-  if (!carregado) return <p className="py-10 text-center text-muted">Abrindo a ficha…</p>;
+  if (!carregado || (bruta.build && !catLivro)) return <p className="py-10 text-center text-muted">Abrindo a ficha…</p>;
 
   const set = (p: Partial<FichaDnd>) => salvar({ ...f, ...p });
-  const rolar = (t: Teste) => setRolando({ t, seq: (rolando?.seq ?? 0) + 1 });
+  const estado: EstadoJogo = { ...f, armaduraSemProf: calc?.armaduraSemProf };
+  const rolar = (t: Teste, j?: Jogada) => setRolando({ t: j ? comSugestao(t, modoDaJogada(estado, j)) : t, seq: (rolando?.seq ?? 0) + 1 });
+  const defsRecursos = recursosDaFicha(f, { racaId: bruta.build?.raca?.id, talentos: bruta.build?.talentos });
+  const recursos = recursosCalculados(f, defsRecursos);
+  const corpoACorpo = (a: Ataque) => !/munição/i.test(a.notas);
+  /** Dano da arma com os bônus de características ligadas (Fúria soma ao dano corpo a corpo com Força). */
+  const danoDoAtaque = (a: Ataque): Teste => {
+    const t = testeDano(f, a);
+    return (f.ativos ?? []).includes("furia") && a.atr === "for" && corpoACorpo(a) ? { ...t, partes: [...t.partes, { rotulo: "Fúria", valor: danoDeFuria(nivelNaClasse(f, "barbaro")) }] } : t;
+  };
   const prof = bonusProficiencia(f.nivel);
 
   const aplicarPv = (tipo: "dano" | "cura") => {
-    if (tipo === "cura") return set({ pv: Math.min(f.pvMax, f.pv + valorPv), morteSucessos: 0, morteFalhas: 0 });
-    const absorvido = Math.min(f.pvTemp, valorPv);
-    set({ pvTemp: f.pvTemp - absorvido, pv: Math.max(0, f.pv - (valorPv - absorvido)) });
+    if (tipo === "cura") { set(aplicarCura(f, valorPv, pvMaxEf)); setLogCombate([`Curou ${valorPv} PV.`]); setPulso("cura"); return; }
+    setPulso("dano");
+    const defesas = defesasDe(f, calc?.resistencias.map((r) => r.nome));
+    const r = aplicarDano(f, { valor: valorPv, tipo: tipoDano || undefined, critico: danoCritico, defesas });
+    // chegar a 0 PV encerra a concentração; senão, oferece o teste de Constituição
+    const ficha = r.caiu || r.morreu ? { ...r.ficha, concentracao: undefined } : r.ficha;
+    set(ficha);
+    setLogCombate([`Sofreu ${r.final} de dano${tipoDano ? ` (${tipoDano})` : ""}.`, ...r.texto]);
+    if (f.concentracao && r.final > 0 && !r.caiu && !r.morreu) setDanoConc(r.final);
+    else setDanoConc(null);
+  };
+  const vital = estadoVital(f);
+  const pvMaxEf = Math.max(1, (f.exaustao ?? 0) >= 4 ? Math.floor(f.pvMax / 2) : f.pvMax);
+  const aplicarMorte = (d20: number) => { const r = salvaguardaDeMorte(f, d20); set(r.ficha); setLogCombate([r.texto]); };
+
+  const circuloDe = (m: Magia) => {
+    if (m.nivel === 0) return 0;
+    const cs = circulosDisponiveis(f, m.nivel);
+    return cs.includes(circuloConj[m.id]) ? circuloConj[m.id] : (cs[0] ?? m.nivel);
+  };
+  const conjurarNaFicha = (m: Magia, circulo: number, ritual = false) => {
+    const r = conjurarMagia(f, m, circulo, { ritual });
+    if (!r.ok) return window.alert(r.motivo);
+    if (r.encerrou && !window.confirm(`Conjurar ${m.nome} encerra a concentração em ${r.encerrou}. Continuar?`)) return;
+    salvar(r.ficha);
+    setDanoConc(null);
   };
 
   const setAtaque = (id: string, p: Partial<Ataque>) => set({ ataques: f.ataques.map((a) => (a.id === id ? { ...a, ...p } : a)) });
@@ -86,7 +173,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
       const campos = await lerCamposPdf(await arquivo.arrayBuffer());
       const { ficha: nova, resumo } = fichaDeCampos(campos, uid, f);
       if (!window.confirm(`Importar "${arquivo.name}" vai substituir todos os dados atuais desta ficha.\n\n${resumo}\n\nContinuar?`)) return;
-      salvar(nova);
+      salvarBruto({ ...nova, build: undefined }); // a importação substitui tudo, inclusive a construção pelo livro
       setImportacao({ ok: true, texto: `Ficha importada. ${resumo}` });
     } catch (e) {
       setImportacao({ ok: false, texto: e instanceof Error ? e.message : "Não consegui importar esse PDF." });
@@ -98,7 +185,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
   const ciclo = (id: (typeof PERICIAS)[number]["id"]) => set({ pericias: { ...f.pericias, [id]: (((f.pericias[id] ?? 0) + 1) % 3) as NivelProf } });
 
   return (
-    <div className="space-y-4">
+    <div className={`ficha-rpg space-y-4 ${compacto ? "compacto" : ""}`}>
       {/* Cabeçalho do personagem */}
       <header className="relative overflow-hidden rounded-2xl border-2 border-gold/50 bg-gradient-to-br from-card-2 via-card to-background p-5">
         <div aria-hidden className="pointer-events-none absolute -right-6 -top-6 text-[9rem] leading-none text-gold/5">⚔</div>
@@ -119,14 +206,14 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
             <Star size={14} className={f.inspiracao ? "fill-gold" : ""} /> Inspiração
           </button>
           <button
-            onClick={() => { set(descansoLongo(f)); if (limitesMagia(f) && f.magias.length > 0) setTrocaMagias("perguntar"); }}
+            onClick={() => { set({ ...restaurarRecursos(descansoLongo(f), defsRecursos, "longo"), exaustao: Math.max(0, (f.exaustao ?? 0) - 1) }); if (limitesMagia(f) && f.magias.length > 0) setTrocaMagias("perguntar"); }}
             title="Recupera tudo: PV, espaços de magia, dados de vida e descansos curtos"
             className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-muted hover:border-gold hover:text-gold"
           >
             <BedDouble size={14} /> Descanso longo
           </button>
           <button
-            onClick={() => { const havia = temDadoVida(f); set(descansoCurto(f)); if (havia) rolar(testeDadoVida(f)); }}
+            onClick={() => { const havia = temDadoVida(f); set(restaurarRecursos(descansoCurto(f), defsRecursos, "curto")); if (havia) rolar(testeDadoVida(f)); }}
             disabled={!podeDescansoCurto(f)}
             title="Até 2 por descanso longo: gasta 1 dado de vida (cura) e restaura todos os espaços de magia"
             className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-muted hover:border-gold hover:text-gold disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border disabled:hover:text-muted"
@@ -154,11 +241,13 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
         {importacao && (
           <p role="status" className={`relative mt-3 text-sm ${importacao.ok ? "text-gold" : "text-red-400"}`}>{importacao.texto}</p>
         )}
-        <div className="relative mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+        <div className={`relative mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7 ${compacto ? "hidden" : ""}`}>
           <label className="text-[11px] uppercase tracking-wider text-muted">
             Classe
             <select
               value={f.classe}
+              disabled={auto}
+              title={auto ? "Calculado pelo livro: mude na aba Personagem" : undefined}
               onChange={(e) => {
                 const id = e.target.value as ClasseId | "";
                 const novo = definirClasse(f, id);
@@ -174,37 +263,60 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
           {([["subclasse", "Subclasse"], ["raca", "Raça"], ["antecedente", "Antecedente"], ["alinhamento", "Alinhamento"]] as const).map(([k, r]) => (
             <label key={k} className="text-[11px] uppercase tracking-wider text-muted">
               {r}
-              <input value={f[k]} onChange={(e) => set({ [k]: e.target.value })} className={`${campo} mt-0.5 normal-case tracking-normal text-foreground`} />
+              <input value={f[k]} disabled={auto && k !== "alinhamento"} title={auto && k !== "alinhamento" ? "Calculado pelo livro: mude na aba Personagem" : undefined} onChange={(e) => set({ [k]: e.target.value })} className={`${campo} mt-0.5 normal-case tracking-normal text-foreground`} />
             </label>
           ))}
           <label className="text-[11px] uppercase tracking-wider text-muted">
             Nível
-            <Num valor={f.nivel} min={1} onChange={(n) => set({ nivel: Math.min(20, Math.max(1, n)) })} className="mt-0.5" />
+            <Num valor={f.nivel} min={1} disabled={auto} title={auto ? "Calculado pelo livro" : undefined} onChange={(n) => set({ nivel: Math.min(20, Math.max(1, n)) })} className="mt-0.5" />
           </label>
           <label className="text-[11px] uppercase tracking-wider text-muted">
             XP
             <Num valor={f.xp} min={0} onChange={(n) => set({ xp: n })} className="mt-0.5" />
           </label>
         </div>
+        <div className="relative mt-2 flex flex-wrap items-center gap-2 text-xs">
+          <button
+            onClick={() => { setCompacto(!compacto); if (!compacto) setAba("combate"); }}
+            aria-pressed={compacto}
+            title="Mostra só o essencial para a mesa: PV, CA, ataques, magias, espaços e condições"
+            className={`rounded-md border px-2 py-0.5 font-semibold ${compacto ? "border-gold bg-gold/20 text-gold" : "border-border text-muted hover:text-foreground"}`}
+          >
+            Modo combate{compacto ? " ✓" : ""}
+          </button>
+          {podeSubirDeNivel(f.xp, f.nivel) && <span role="status" className="rounded-full border border-gold bg-gold/15 px-3 py-0.5 font-semibold text-gold">XP suficiente para o nível {nivelPorXp(f.xp)}!</span>}
+          {f.nivel < 20 && (
+            <button onClick={() => setAssistente("nivel")} className="rounded-md border border-gold/40 bg-gold/10 px-2 py-0.5 font-semibold text-gold hover:bg-gold/20" title={auto ? "Assistente de subida de nível" : "Ative a construção pelo livro na aba Personagem para usar o assistente"}>Subir de nível</button>
+          )}
+          {papel === "mestre" && (
+            <span className="ml-auto flex items-center gap-1 text-muted">
+              Conceder XP
+              <input type="number" min={1} value={xpConceder} onChange={(e) => setXpConceder(Math.max(1, Number(e.target.value) || 1))} aria-label="XP a conceder" className={`${campo} !w-24 !py-0.5 text-center`} />
+              <button onClick={() => set({ xp: f.xp + xpConceder })} className="rounded-md border border-border px-2 py-0.5 text-foreground hover:border-gold">+ XP</button>
+            </span>
+          )}
+        </div>
       </header>
 
-      <div className="grid gap-4 lg:grid-cols-[17rem_1fr]">
+      <div className={`grid gap-4 ${compacto ? "" : "lg:grid-cols-[17rem_1fr]"}`}>
         {/* Coluna esquerda: atributos, salvaguardas, perícias */}
-        <div className="space-y-4">
+        <div className={`space-y-4 ${compacto ? "hidden" : ""}`}>
           <section className={cartao}>
             <h2 className={titulo}>Atributos</h2>
             <div className="grid grid-cols-3 gap-2 lg:grid-cols-2">
               {ATRIBUTOS.map((a) => (
                 <div key={a} className="rounded-xl border border-gold/30 bg-background/60 p-2 text-center">
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">{ATRIBUTO_NOME[a]}</p>
-                  <button
-                    onClick={() => rolar(testeAtributo(f, a))}
-                    title={`Rolar teste de ${ATRIBUTO_NOME[a]}`}
-                    className="my-1 font-display text-2xl font-bold text-gold transition-transform hover:scale-110"
-                  >
-                    {comSinal(modDe(f, a))}
-                  </button>
-                  <Num valor={f.atributos[a]} min={1} onChange={(n) => set({ atributos: { ...f.atributos, [a]: Math.min(30, n) } })} className="!py-0.5" />
+                  <Medalhao>
+                    <button
+                      onClick={() => rolar(testeAtributo(f, a), { tipo: "teste", atributo: a })}
+                      title={`Rolar teste de ${ATRIBUTO_NOME[a]}`}
+                      className="font-display text-2xl font-bold text-gold transition-transform hover:scale-110"
+                    >
+                      {comSinal(modDe(f, a))}
+                    </button>
+                  </Medalhao>
+                  <Num valor={f.atributos[a]} min={1} disabled={auto} title={calc ? `${calc.atributos[a].partes.map((p, i) => `${i ? (p.valor >= 0 ? "+ " : "− ") : ""}${i ? Math.abs(p.valor) : p.valor} ${p.rotulo}`).join(" ")}` : undefined} onChange={(n) => set({ atributos: { ...f.atributos, [a]: Math.min(30, n) } })} className="!py-0.5" />
                 </div>
               ))}
             </div>
@@ -221,11 +333,12 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                   <input
                     type="checkbox"
                     checked={f.salvaguardas[a]}
+                    disabled={auto}
                     onChange={(e) => set({ salvaguardas: { ...f.salvaguardas, [a]: e.target.checked } })}
                     aria-label={`Proficiência em salvaguarda de ${ATRIBUTO_NOME[a]}`}
                   />
                   <span className="flex-1">{ATRIBUTO_NOME[a]}</span>
-                  <button onClick={() => rolar(testeSalvaguarda(f, a))} className={botaoRolar}>{comSinal(bonusSalvaguarda(f, a))}</button>
+                  <button onClick={() => rolar(testeSalvaguarda(f, a), { tipo: "salvaguarda", atributo: a })} className={botaoRolar}>{comSinal(bonusSalvaguarda(f, a))}</button>
                 </li>
               ))}
             </ul>
@@ -238,21 +351,21 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                 const n = f.pericias[p.id] ?? 0;
                 return (
                   <li key={p.id} className="flex items-center gap-2 text-sm">
-                    <button
-                      onClick={() => ciclo(p.id)}
-                      title="Alternar: sem proficiência, proficiente, especialista"
-                      aria-label={`Proficiência em ${p.nome}`}
-                      className={`h-4 w-4 shrink-0 rounded-full border ${n === 0 ? "border-border" : "border-gold"} ${n === 1 ? "bg-gold/70" : n === 2 ? "bg-gold shadow-[0_0_0_2px_var(--card),0_0_0_3px_var(--gold)]" : ""}`}
+                    <Losango
+                      nivel={n}
+                      onClick={() => !auto && ciclo(p.id)}
+                      titulo={auto ? (calc?.pericias[p.id]?.fontes.join(", ") || "Sem proficiência") : "Alternar: sem proficiência, proficiente, especialista"}
+                      rotulo={`Proficiência em ${p.nome}: ${n === 0 ? "nenhuma" : n === 1 ? "proficiente" : "especialista"}`}
                     />
                     <span className="flex-1 truncate">
                       {p.nome} <span className="text-[10px] uppercase text-muted">{ABREV[p.atr]}</span>
                     </span>
-                    <button onClick={() => rolar(testePericia(f, p.id))} className={botaoRolar}>{comSinal(bonusPericia(f, p.id))}</button>
+                    <button onClick={() => rolar(testePericia(f, p.id), { tipo: "teste", atributo: p.atr })} className={botaoRolar}>{comSinal(bonusPericia(f, p.id))}</button>
                   </li>
                 );
               })}
             </ul>
-            <p className="mt-2 text-[11px] text-muted">Círculo vazio: sem proficiência · cheio: proficiente · com anel: especialista.</p>
+            <p className="mt-2 text-[11px] text-muted">Losango vazio: sem proficiência · cheio: proficiente · com anel: especialista.</p>
           </section>
         </div>
 
@@ -260,18 +373,19 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
         <div className="min-w-0 space-y-4">
           <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className={`${cartao} text-center`}>
-              <Shield size={16} className="mx-auto text-gold" />
-              <p className="text-[10px] uppercase tracking-widest text-muted">Classe de armadura</p>
-              <Num valor={f.ca} onChange={(n) => set({ ca: n })} className="mt-1 !text-xl font-bold" />
+              <Escudo valor={f.ca} titulo={calc ? calc.ca.partes.map((p, i) => `${i ? (p.valor >= 0 ? "+ " : "− ") : ""}${i ? Math.abs(p.valor) : p.valor} ${p.rotulo}`).join(" ") : undefined} />
+              <p className="mt-1 text-[10px] uppercase tracking-widest text-muted">Classe de armadura</p>
+              <Num valor={f.ca} disabled={auto} title={calc ? calc.ca.partes.map((p, i) => `${i ? (p.valor >= 0 ? "+ " : "− ") : ""}${i ? Math.abs(p.valor) : p.valor} ${p.rotulo}`).join(" ") : undefined} onChange={(n) => set({ ca: n })} className="mx-auto mt-1 !w-16 !py-0.5 !text-xs" />
+              {calc && <p className="mt-1 text-[10px] text-muted">pela armadura equipada</p>}
             </div>
             <div className={`${cartao} text-center`}>
               <Swords size={16} className="mx-auto text-gold" />
               <p className="text-[10px] uppercase tracking-widest text-muted">Iniciativa</p>
-              <button onClick={() => rolar(testeIniciativa(f))} className={`${botaoRolar} mt-1 !text-xl`}>{comSinal(bonusIniciativa(f))}</button>
+              <button onClick={() => rolar(testeIniciativa(f), { tipo: "iniciativa" })} className={`${botaoRolar} mt-1 !text-xl`}>{comSinal(bonusIniciativa(f))}</button>
               <input
                 type="number"
-                value={f.bonusIniciativa}
-                onChange={(e) => set({ bonusIniciativa: Number(e.target.value) || 0 })}
+                value={bruta.bonusIniciativa}
+                onChange={(e) => salvarBruto({ ...bruta, bonusIniciativa: Number(e.target.value) || 0 })}
                 title="Bônus extra de iniciativa"
                 aria-label="Bônus extra de iniciativa"
                 className={`${campo} mx-auto mt-1 !w-16 !py-0.5 text-center text-xs`}
@@ -280,7 +394,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
             <div className={`${cartao} text-center`}>
               <Wind size={16} className="mx-auto text-gold" />
               <p className="text-[10px] uppercase tracking-widest text-muted">Deslocamento</p>
-              <input value={f.deslocamento} onChange={(e) => set({ deslocamento: e.target.value })} className={`${campo} mt-1 text-center`} />
+              <input value={f.deslocamento} disabled={auto} title={calc ? calc.deslocamento.partes.map((p) => `${p.valor} ${p.rotulo}`).join(" + ") : undefined} onChange={(e) => set({ deslocamento: e.target.value })} className={`${campo} mt-1 text-center`} />
             </div>
             <div className={`${cartao} text-center`}>
               <p className="mt-[1.1rem] text-[10px] uppercase tracking-widest text-muted">Percepção passiva</p>
@@ -289,34 +403,43 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
           </section>
 
           <section className={cartao}>
-            <h2 className={titulo}><Heart size={14} /> Pontos de vida</h2>
+            <h2 className={titulo}><Heart size={14} className={f.pv > 0 && f.pv <= f.pvMax / 4 ? "coracao-baixo" : f.pv <= 0 ? "text-danger" : ""} aria-hidden /> Pontos de vida{f.pvTemp > 0 ? <span className="ml-1 normal-case tracking-normal text-sky-400">+{f.pvTemp} temporários</span> : null}</h2>
             <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
               <div>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <label className="text-[10px] uppercase tracking-widest text-muted">Atuais<Num valor={f.pv} onChange={(n) => set({ pv: Math.max(0, n) })} className="mt-1 !text-xl font-bold" /></label>
-                  <label className="text-[10px] uppercase tracking-widest text-muted">Máximos<Num valor={f.pvMax} min={1} onChange={(n) => set({ pvMax: n })} className="mt-1 !text-xl font-bold" /></label>
+                  <label className="text-[10px] uppercase tracking-widest text-muted">Máximos<Num valor={f.pvMax} min={1} disabled={auto} title={calc ? calc.pvMax.partes.map((p) => `${p.valor} ${p.rotulo}`).join(" + ") : undefined} onChange={(n) => set({ pvMax: n })} className="mt-1 !text-xl font-bold" /></label>
                   <label className="text-[10px] uppercase tracking-widest text-muted">Temporários<Num valor={f.pvTemp} min={0} onChange={(n) => set({ pvTemp: n })} className="mt-1 !text-xl font-bold" /></label>
                 </div>
-                <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-background">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-danger to-ok transition-[width]"
-                    style={{ width: `${Math.min(100, Math.max(0, (f.pv / Math.max(1, f.pvMax)) * 100))}%` }}
-                  />
+                <div
+                  className={`barra-pv mt-3 ${pulso ? `pulso-${pulso}` : ""}`}
+                  onAnimationEnd={() => setPulso("")}
+                  role="meter" aria-label="Pontos de vida" aria-valuemin={0} aria-valuemax={f.pvMax} aria-valuenow={f.pv}
+                >
+                  <div className="barra-pv-cheia" style={{ width: `${Math.min(100, Math.max(0, (f.pv / Math.max(1, f.pvMax)) * 100))}%` }} />
+                  {f.pvTemp > 0 && <div className="barra-pv-temp" style={{ width: `${Math.min(100, (f.pvTemp / Math.max(1, f.pvMax)) * 100)}%` }} title={`${f.pvTemp} PV temporários`} />}
                 </div>
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
                   <button onClick={() => aplicarPv("dano")} className="rounded-lg border border-danger/50 px-3 py-1 text-danger hover:bg-danger/10"><Minus size={13} className="mr-1 inline" />Dano</button>
                   <Num valor={valorPv} min={1} onChange={setValorPv} className="!w-20" />
                   <button onClick={() => aplicarPv("cura")} className="rounded-lg border border-ok/50 px-3 py-1 text-ok hover:bg-ok/10"><Plus size={13} className="mr-1 inline" />Cura</button>
-                  <span className="text-[11px] text-muted">O dano consome PV temporários primeiro.</span>
+                  <select value={tipoDano} onChange={(e) => setTipoDano(e.target.value)} aria-label="Tipo do dano" className={`${campo} !w-auto !py-0.5 text-xs`}>
+                    <option value="">tipo do dano…</option>
+                    {TIPOS_DE_DANO.map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                  <label className="flex items-center gap-1 text-xs text-muted" title="Crítico: a 0 PV conta como duas falhas"><input type="checkbox" checked={danoCritico} onChange={(e) => setDanoCritico(e.target.checked)} />crítico</label>
                 </div>
+                <p className="mt-1 text-[11px] text-muted">O dano passa por resistências, vulnerabilidades e imunidades, depois pelos PV temporários.</p>
+                {logCombate.length > 0 && <ul role="status" className="mt-1 space-y-0.5 text-xs text-gold">{logCombate.map((l, i) => <li key={i}>{l}</li>)}</ul>}
+                {vital !== "vivo" && <p className="mt-1 text-xs font-semibold text-danger">{vital === "morto" ? "Morto" : vital === "estavel" ? "Estável (0 PV)" : "Inconsciente (0 PV)"}</p>}
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="w-24 text-xs text-muted">Dados de vida</span>
-                  <input value={f.dadoVida} onChange={(e) => set({ dadoVida: e.target.value })} className={`${campo} !w-14 text-center`} aria-label="Tipo do dado de vida" />
+                  <input value={f.dadoVida} disabled={auto} onChange={(e) => set({ dadoVida: e.target.value })} className={`${campo} !w-14 text-center`} aria-label="Tipo do dado de vida" />
                   <Num valor={f.dadosVidaTotal - f.dadosVidaUsados} min={0} onChange={(n) => set({ dadosVidaUsados: Math.max(0, f.dadosVidaTotal - n) })} className="!w-14" />
                   <span className="text-muted">/</span>
-                  <Num valor={f.dadosVidaTotal} min={0} onChange={(n) => set({ dadosVidaTotal: n })} className="!w-14" />
+                  <Num valor={f.dadosVidaTotal} min={0} disabled={auto} onChange={(n) => set({ dadosVidaTotal: n })} className="!w-14" />
                 </div>
                 <button
                   onClick={() => { set({ dadosVidaUsados: f.dadosVidaUsados + 1 }); rolar(testeDadoVida(f)); }}
@@ -326,6 +449,12 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                 >
                   Gastar dado de vida
                 </button>
+                {f.pv <= 0 && vital === "inconsciente" && (
+                  <div className="ml-[6.5rem] flex gap-2">
+                    <button onClick={() => rolar({ titulo: "Salvaguarda de morte", dado: "1d20", d20: true, partes: [], morte: true })} className="rounded-md border border-danger/50 px-2 py-0.5 text-xs text-danger hover:bg-danger/10">Rolar salvaguarda de morte</button>
+                    <button onClick={() => { set(estabilizar(f)); setLogCombate(["Estabilizado."]); }} className="rounded-md border border-border px-2 py-0.5 text-xs text-muted hover:text-foreground">Estabilizar</button>
+                  </div>
+                )}
                 {([["morteSucessos", "Sucessos", "text-ok"], ["morteFalhas", "Falhas", "text-danger"]] as const).map(([k, r, cor]) => (
                   <div key={k} className="flex items-center gap-2">
                     <span className="w-24 text-xs text-muted">Morte: {r}</span>
@@ -345,13 +474,13 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
           </section>
 
           <nav role="tablist" className="flex flex-wrap gap-1 border-b border-border">
-            {ABAS.map((a) => (
+            {ABAS.filter((a) => !compacto || a.id === "combate" || a.id === "magias").map((a) => (
               <button
                 key={a.id}
                 role="tab"
                 aria-selected={aba === a.id}
                 onClick={() => setAba(a.id)}
-                className={`-mb-px rounded-t-lg border-b-2 px-4 py-2 font-display text-sm tracking-wide ${aba === a.id ? "border-gold text-gold" : "border-transparent text-muted hover:text-foreground"}`}
+                className={`marcador font-display text-sm tracking-wide ${aba === a.id ? "text-gold" : "text-muted hover:text-foreground"}`}
               >
                 {a.rotulo}
               </button>
@@ -360,23 +489,43 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
 
           {aba === "combate" && (
             <section className={cartao}>
+              <h2 className={titulo}><Shield size={14} /> Estado e recursos</h2>
+              <EstadoCombate
+                ficha={f}
+                defs={defsRecursos}
+                recursos={recursos}
+                estado={estado}
+                deslocamentoBase={parseFloat(f.deslocamento.replace(",", ".")) || 9}
+                papel={papel}
+                onMudar={set}
+                onRolar={(t) => rolar(t)}
+              />
+            </section>
+          )}
+
+          {aba === "combate" && (
+            <section className={cartao}>
               <h2 className={titulo}><Swords size={14} /> Ataques</h2>
               {f.ataques.length === 0 && <p className="mb-3 text-sm text-muted">Nenhum ataque ainda. Adicione sua arma ou ataque natural.</p>}
+              {auto && <p className="mb-3 text-xs text-muted">Armas equipadas no inventário viram linhas de ataque sozinhas, com proficiência, acuidade e versátil.</p>}
               <ul className="space-y-3">
                 {f.ataques.map((a) => {
                   const modDano = modDe(f, a.atr) + a.bonusDano;
                   return (
                     <li key={a.id} className="rounded-xl border border-border bg-background/50 p-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        <input value={a.nome} onChange={(e) => setAtaque(a.id, { nome: e.target.value })} placeholder="Nome (Espada longa)" className={`${campo} min-w-40 flex-1`} />
-                        <button onClick={() => rolar(testeAtaque(f, a))} className={botaoRolar} title="Rolar ataque">
+                        {a.derivado ? <span className="min-w-40 flex-1 font-semibold">{a.nome}{a.id !== "arma:desarmado" && <span className="ml-1 text-[10px] font-normal uppercase text-muted">arma equipada</span>}</span> : <input value={a.nome} onChange={(e) => setAtaque(a.id, { nome: e.target.value })} placeholder="Nome (Espada longa)" className={`${campo} min-w-40 flex-1`} />}
+                        <button onClick={() => rolar(testeAtaque(f, a), { tipo: "ataque", corpo: corpoACorpo(a), atributo: a.atr })} className={botaoRolar} title="Rolar ataque">
                           Ataque {comSinal(modDe(f, a.atr) + (a.proficiente ? prof : 0) + a.bonusAtaque)}
                         </button>
-                        <button onClick={() => rolar(testeDano(f, a))} className={botaoRolar} title="Rolar dano">
+                        <button onClick={() => rolar(danoDoAtaque(a))} className={botaoRolar} title="Rolar dano">
                           Dano {a.dano || "1d4"}{modDano !== 0 ? comSinal(modDano) : ""}
                         </button>
-                        <button onClick={() => set({ ataques: f.ataques.filter((x) => x.id !== a.id) })} aria-label="Remover ataque" className="text-muted hover:text-danger"><Trash2 size={15} /></button>
+                        {!a.derivado && <button onClick={() => set({ ataques: f.ataques.filter((x) => x.id !== a.id) })} aria-label="Remover ataque" className="text-muted hover:text-danger"><Trash2 size={15} /></button>}
                       </div>
+                      {a.derivado ? (
+                        <p className="mt-1 text-xs text-muted">{ABREV[a.atr]}{a.proficiente ? " + proficiência" : " · sem proficiência"}{a.bonusAtaque ? ` · +${a.bonusAtaque} mágico` : ""} · {a.tipoDano}{a.notas ? ` · ${a.notas}` : ""}</p>
+                      ) : (
                       <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] uppercase tracking-wider text-muted sm:grid-cols-6">
                         <label>
                           Atributo
@@ -392,6 +541,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                         <label>Bônus dano<Num valor={a.bonusDano} onChange={(n) => setAtaque(a.id, { bonusDano: n })} className="mt-0.5" /></label>
                         <label>Tipo<input value={a.tipoDano} onChange={(e) => setAtaque(a.id, { tipoDano: e.target.value })} placeholder="cortante" className={`${campo} mt-0.5`} /></label>
                       </div>
+                      )}
                     </li>
                   );
                 })}
@@ -420,6 +570,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                   <div className="text-center">
                     <p className="text-[10px] uppercase tracking-widest text-muted">CD da magia</p>
                     <p className="font-display text-2xl font-bold text-gold">{f.atrConjuracao ? cdMagia(f) : "—"}</p>
+                    {f.classes && f.classes.length > 1 && <p className="text-[10px] text-muted">{f.classes.filter((c) => ehConjuradora(c.id as ClasseId)).map((c) => `${nomeClasse(c.id as ClasseId)} ${cdMagia(f, { classeOrigem: c.id })}`).join(" · ")}</p>}
                   </div>
                   <div className="text-center">
                     <p className="text-[10px] uppercase tracking-widest text-muted">Ataque de magia</p>
@@ -452,12 +603,11 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                       <p className="text-[10px] uppercase tracking-widest text-muted">{i + 1}º círculo</p>
                       <div className="my-1.5 flex min-h-5 flex-wrap justify-center gap-1">
                         {Array.from({ length: e.total }, (_, k) => (
-                          <button
+                          <Gema
                             key={k}
+                            gasta={k < e.usados}
                             onClick={() => setEspaco(i, { usados: k < e.usados ? k : k + 1 })}
-                            aria-label={`Espaço ${k + 1} do ${i + 1}º círculo`}
-                            aria-pressed={k < e.usados}
-                            className={`h-4 w-4 rounded-full border border-accent ${k < e.usados ? "bg-transparent" : "bg-accent shadow-[0_0_6px_var(--accent)]"}`}
+                            rotulo={`Espaço ${k + 1} do ${i + 1}º círculo: ${k < e.usados ? "gasto" : "disponível"}`}
                           />
                         ))}
                       </div>
@@ -465,7 +615,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                     </div>
                   ))}
                 </div>
-                <p className="mt-2 text-[11px] text-muted">Clique num círculo para marcar o espaço como gasto. O número abaixo é o total.</p>
+                <p className="mt-2 text-[11px] text-muted">Clique numa gema para marcar o espaço como gasto. O número abaixo é o total.</p>
               </div>
 
               <div className={cartao}>
@@ -493,6 +643,15 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                 ) : (
                   <p className="mb-3 text-xs text-muted">Escolha uma classe conjuradora no cabeçalho para aplicar os limites de truques e magias ativas.</p>
                 )}
+                {f.concentracao && (
+                  <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-gold/40 bg-gold/10 px-3 py-2 text-sm">
+                    <span>Concentrando em <strong className="text-gold">{f.concentracao.nome}</strong></span>
+                    {danoConc !== null && (
+                      <button onClick={() => rolar(testeConcentracao(f, danoConc), { tipo: "salvaguarda", atributo: "con" })} className={botaoRolar}>Teste de concentração (sofreu {danoConc})</button>
+                    )}
+                    <button onClick={() => { salvar(encerrarConcentracao(f)); setDanoConc(null); }} className="ml-auto text-accent-hover hover:underline">Encerrar concentração</button>
+                  </div>
+                )}
                 {f.magias.length === 0 && <p className="mb-3 text-sm text-muted">Nenhuma magia ainda.</p>}
                 {Array.from({ length: 10 }, (_, nv) => nv).map((nv) => {
                   const lista = f.magias.filter((m) => m.nivel === nv);
@@ -502,8 +661,10 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                       <h3 className="mb-1 border-b border-gold/20 pb-1 font-display text-sm text-gold">{nv === 0 ? "Truques" : `${nv}º círculo`}</h3>
                       <ul className="space-y-2">
                         {lista.map((m) => (
-                          <li key={m.id} className="rounded-xl border border-border bg-background/50 p-2.5">
+                          <li key={m.id} className="carta-magia rounded-xl border border-border p-2.5" style={{ "--escola-base": corDaEscola(m.escola) } as React.CSSProperties}>
                             <div className="flex flex-wrap items-center gap-2">
+                              <span className="selo-circulo" title={nv === 0 ? "Truque" : `${nv}º círculo`}>{nv === 0 ? "T" : nv}</span>
+                              <IconeEscola escola={m.escola} />
                               {cont.lim && (() => {
                                 const cheio = nv === 0 ? cont.truquesCheio : cont.magiasCheio;
                                 return (
@@ -518,27 +679,47 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                                 );
                               })()}
                               <input value={m.nome} onChange={(e) => setMagia(m.id, { nome: e.target.value })} placeholder="Nome da magia" className={`${campo} min-w-40 flex-1`} />
-                              {nv > 0 && (() => {
+                              {m.concentracao && <span className="selo-badge" title="Exige concentração">Conc.</span>}
+                              {m.ritual && <span className="selo-badge" title="Pode ser conjurada como ritual">Ritual</span>}
+                              {(["V", "S", "M"] as const).filter((c) => new RegExp(`(^|[^A-Za-z])${c}([^A-Za-z]|$)`).test(m.componentes.replace(/\(.*\)/, ""))).map((c) => <span key={c} className="glifo" title={c === "V" ? "Componente verbal" : c === "S" ? "Componente somático" : "Componente material"}>{c}</span>)}
+                              {(nv > 0 || m.concentracao) && (() => {
                                 const circulos = circulosDisponiveis(f, nv);
                                 const pronta = magiaPronta(f, m);
-                                const escolhido = circulos.includes(circuloConj[m.id]) ? circuloConj[m.id] : circulos[0];
-                                const motivo = !pronta ? "Ative a magia para conjurá-la" : !circulos.length ? "Sem espaços de magia disponíveis" : "";
+                                const escolhido = circuloDe(m);
+                                const motivo = !pronta ? "Ative a magia para conjurá-la" : nv > 0 && !circulos.length ? "Sem espaços de magia disponíveis" : "";
                                 return (
                                   <span className="flex items-center gap-1">
-                                    {circulos.length > 1 && (
+                                    {nv > 0 && circulos.length > 1 && (
                                       <select value={escolhido} onChange={(e) => setCirculoConj({ ...circuloConj, [m.id]: Number(e.target.value) })} aria-label="Círculo do espaço a gastar" className={`${campo} !w-auto !py-0.5 !text-xs`}>
                                         {circulos.map((c) => <option key={c} value={c}>{c}º{c > nv ? " (maior)" : ""}</option>)}
                                       </select>
                                     )}
-                                    <button disabled={!!motivo} title={motivo || `Gasta 1 espaço do ${escolhido}º círculo`} onClick={() => set(conjurar(f, m, escolhido))} className={`${botaoRolar} disabled:cursor-not-allowed disabled:opacity-40`}>
+                                    <button disabled={!!motivo} title={motivo || (nv > 0 ? `Gasta 1 espaço do ${escolhido}º círculo` : "Conjurar")} onClick={() => conjurarNaFicha(m, escolhido)} className={`${botaoRolar} disabled:cursor-not-allowed disabled:opacity-40`}>
                                       Conjurar
                                     </button>
+                                    {m.ritual && nv > 0 && classeFazRitual(f) && (
+                                      <button title="Ritual: +10 minutos, não gasta espaço" onClick={() => conjurarNaFicha(m, nv, true)} className={botaoRolar}>Ritual</button>
+                                    )}
                                   </span>
                                 );
                               })()}
-                              {m.tipo === "ataque" && <button onClick={() => rolar(testeAtaqueMagia(f, m))} className={botaoRolar}>Ataque {comSinal(bonusAtaqueMagia(f))}</button>}
-                              {m.tipo === "salvaguarda" && <span className="text-xs text-muted">CD <strong className="text-gold">{cdMagia(f)}</strong> · {ATRIBUTO_NOME[m.salvaguarda]}</span>}
-                              {m.dano.trim() && <button onClick={() => rolar(testeDanoMagia(m))} className={botaoRolar}>Dano {m.dano}</button>}
+                              {(() => {
+                                const plano = planoDeConjuracao(f, m, catalogo.get(m.catalogoId ?? ""), circuloDe(m));
+                                const semDados = plano.danos.length === 0 && !plano.cura && plano.extras.length === 0;
+                                return (
+                                  <>
+                                    {plano.ataque && <button onClick={() => rolar(plano.ataque!, { tipo: "ataque", corpo: false, atributo: atrDaMagia(f, m) || "int" })} className={botaoRolar}>Ataque {comSinal(bonusAtaqueMagia(f, m))}</button>}
+                                    {plano.salvaguarda
+                                      ? <span className="text-xs text-muted">CD <strong className="text-gold">{plano.salvaguarda.cd}</strong> · {ATRIBUTO_NOME[plano.salvaguarda.atributo]}</span>
+                                      : m.tipo === "salvaguarda" && <span className="text-xs text-muted">CD <strong className="text-gold">{cdMagia(f, m)}</strong> · {ATRIBUTO_NOME[m.salvaguarda]}</span>}
+                                    {plano.danos.map((t, i) => <button key={i} onClick={() => rolar(t)} className={botaoRolar} title={t.titulo}>Dano {t.dado}</button>)}
+                                    {plano.dardos && <span className="text-xs text-muted" title="Quantidade de dardos ou raios">{plano.dardos} dardos/raios</span>}
+                                    {plano.cura && <button onClick={() => rolar(plano.cura!)} className={botaoRolar}>Cura {plano.cura.dado}</button>}
+                                    {plano.extras.map((t, i) => <button key={i} onClick={() => rolar(t)} className={botaoRolar} title={t.titulo}>{t.titulo.split(":")[0]} {t.dado}</button>)}
+                                    {semDados && m.dano.trim() && <button onClick={() => rolar(testeDanoMagia(m))} className={botaoRolar}>Dano {m.dano}</button>}
+                                  </>
+                                );
+                              })()}
                               <button onClick={() => set({ magias: f.magias.filter((x) => x.id !== m.id) })} aria-label="Remover magia" className="text-muted hover:text-danger"><Trash2 size={15} /></button>
                             </div>
                             <details className="mt-2 text-sm">
@@ -547,7 +728,16 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                                 {([["escola", "Escola"], ["tempo", "Tempo de conjuração"], ["alcance", "Alcance"], ["componentes", "Componentes"], ["duracao", "Duração"]] as const).map(([k, r]) => (
                                   <label key={k}>{r}<input value={m[k]} onChange={(e) => setMagia(m.id, { [k]: e.target.value })} className={`${campo} mt-0.5 normal-case tracking-normal`} /></label>
                                 ))}
+                                {f.classes && f.classes.length > 1 && (
+                                  <label>Classe de conjuração
+                                    <select value={m.classeOrigem ?? ""} onChange={(e) => setMagia(m.id, { classeOrigem: e.target.value || undefined })} className={`${campo} mt-0.5`}>
+                                      <option value="">Padrão da ficha</option>
+                                      {f.classes.filter((c) => ehConjuradora(c.id as ClasseId)).map((c) => <option key={c.id} value={c.id}>{nomeClasse(c.id as ClasseId)}</option>)}
+                                    </select>
+                                  </label>
+                                )}
                                 <label>Círculo<Num valor={m.nivel} min={0} onChange={(n) => setMagia(m.id, { nivel: Math.min(9, n) })} className="mt-0.5" /></label>
+                                <label className="flex items-end gap-1.5 pb-1.5 normal-case tracking-normal"><input type="checkbox" checked={!!m.sempre} onChange={(e) => setMagia(m.id, { sempre: e.target.checked || undefined })} />Sempre preparada</label>
                                 <label>
                                   Rolagem
                                   <select value={m.tipo} onChange={(e) => setMagia(m.id, { tipo: e.target.value as Magia["tipo"] })} className={`${campo} mt-0.5`}>
@@ -586,6 +776,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                   >
                     + Adicionar {novaMagia === 0 ? "truque" : "magia"}
                   </button>
+                  <button onClick={() => setCompendio(true)} className="ml-auto text-accent-hover hover:underline">Do catálogo…</button>
                 </div>
               </div>
             </section>
@@ -593,6 +784,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
 
           {aba === "tracos" && (
             <section className={`${cartao} space-y-4`}>
+              {calc && <CaracteristicasPorFonte calc={calc} />}
               <Texto rotulo="Características, traços de raça e classe, talentos" valor={f.tracos} onChange={(v) => set({ tracos: v })} linhas={10} />
               <Texto rotulo="Outras proficiências e idiomas" valor={f.proficienciasIdiomas} onChange={(v) => set({ proficienciasIdiomas: v })} linhas={5} />
             </section>
@@ -608,6 +800,23 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                   </label>
                 ))}
               </div>
+              <div className="flex flex-wrap items-end gap-2 text-xs text-muted">
+                <span>Total: <strong className="text-gold">{emOuro(f.moedas).toLocaleString("pt-BR", { maximumFractionDigits: 2 })} po</strong></span>
+                <span className="ml-auto flex flex-wrap items-center gap-1">
+                  Trocar
+                  <input type="number" min={1} value={troca.qtd} onChange={(e) => setTroca({ ...troca, qtd: Math.max(1, Number(e.target.value) || 1) })} aria-label="Quantidade a trocar" className={`${campo} !w-16 !py-0.5 text-center`} />
+                  <select value={troca.de} onChange={(e) => setTroca({ ...troca, de: e.target.value as Moeda })} aria-label="Moeda de origem" className={`${campo} !w-auto !py-0.5`}>{(["pc", "pp", "pe", "po", "pl"] as const).map((m) => <option key={m} value={m}>{m}</option>)}</select>
+                  por
+                  <select value={troca.para} onChange={(e) => setTroca({ ...troca, para: e.target.value as Moeda })} aria-label="Moeda de destino" className={`${campo} !w-auto !py-0.5`}>{(["pc", "pp", "pe", "po", "pl"] as const).map((m) => <option key={m} value={m}>{m}</option>)}</select>
+                  <button onClick={() => { const novas = trocarMoedas(f.moedas, troca.de, troca.para, troca.qtd); if (novas === f.moedas) window.alert("Não dá para trocar essa quantidade sem sobrar fração de moeda."); else set({ moedas: novas }); }} className="text-accent-hover hover:underline">trocar</button>
+                </span>
+              </div>
+              {!auto && f.itens.some((i) => i.catalogoId) && <p className="text-xs text-muted">Há itens do catálogo, mas a CA e os ataques das armas só são calculados com a construção pelo livro ativa (aba Personagem).</p>}
+              {calc && calc.avisos.length > 0 && (
+                <ul className="space-y-0.5 rounded-lg border border-gold/40 bg-gold/10 px-3 py-2 text-xs">
+                  {calc.avisos.map((a) => <li key={a}>⚠ {a}</li>)}
+                </ul>
+              )}
               <div>
                 <h2 className={titulo}>Equipamento e itens</h2>
                 {f.itens.length === 0 && <p className="mb-3 text-sm text-muted">Nenhum item cadastrado.</p>}
@@ -619,6 +828,11 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                         <input value={i.nome} onChange={(e) => setItem(i.id, { nome: e.target.value })} placeholder="Nome do item" className={`${campo} min-w-40 flex-1`} />
                         <label className="flex items-center gap-1 text-xs text-muted">Qtd<Num valor={i.quantidade} min={0} onChange={(n) => setItem(i.id, { quantidade: n })} className="!w-16" /></label>
                         <label className="flex items-center gap-1 text-xs text-muted">Peso (kg)<Num valor={i.peso} min={0} onChange={(n) => setItem(i.id, { peso: n })} className="!w-20" /></label>
+                        <label className="flex items-center gap-1 text-xs text-muted" title="Bônus mágico: +N no ataque e dano da arma, ou na CA da armadura/escudo">+<Num valor={i.bonusMagico ?? 0} min={0} onChange={(n) => setItem(i.id, { bonusMagico: n || undefined })} className="!w-14" /></label>
+                        <label className="flex items-center gap-1 text-xs text-muted" title="Item mágico que exige sintonização (máximo 3)"><input type="checkbox" checked={!!i.sintonizado} onChange={(e) => {
+                          if (e.target.checked && papel !== "mestre" && f.itens.filter((x) => x.sintonizado).length >= MAX_SINTONIZADOS) { window.alert(`Só ${MAX_SINTONIZADOS} itens podem estar sintonizados. Desfaça a sintonia de outro antes.`); return; }
+                          setItem(i.id, { sintonizado: e.target.checked || undefined });
+                        }} />sintonizado</label>
                         <button onClick={() => set({ itens: f.itens.filter((x) => x.id !== i.id) })} aria-label="Remover item" className="text-muted hover:text-danger"><Trash2 size={15} /></button>
                       </div>
                       <input value={i.descricao} onChange={(e) => setItem(i.id, { descricao: e.target.value })} placeholder="Descrição ou propriedades (opcional)" className={`${campo} mt-2`} />
@@ -626,8 +840,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
                   ))}
                 </ul>
                 <div className="mt-3 flex items-center justify-between text-sm">
-                  <button onClick={() => set({ itens: [...f.itens, { id: uid(), nome: "", quantidade: 1, peso: 0, equipado: false, descricao: "" }] })} className="text-accent-hover hover:underline">+ Adicionar item</button>
-                  <span className="text-xs text-muted">Peso total: <strong className="text-gold">{pesoTotal(f.itens)} kg</strong></span>
+                  <span className="flex gap-4"><button onClick={() => set({ itens: [...f.itens, { id: uid(), nome: "", quantidade: 1, peso: 0, equipado: false, descricao: "" }] })} className="text-accent-hover hover:underline">+ Adicionar item</button><button onClick={() => setCatalogoEquip(true)} className="text-accent-hover hover:underline">Do catálogo…</button></span>
+                  <span className="text-xs text-muted">Peso total: <strong className="text-gold">{pesoTotal(f.itens)} kg</strong>{calc ? ` de ${calc.carga.capacidade} kg` : ""}{calc ? ` · sintonizados ${calc.sintonizados}/${MAX_SINTONIZADOS}` : ""}</span>
                 </div>
               </div>
               <Texto rotulo="Anotações sobre o equipamento" valor={f.equipamento} onChange={(v) => set({ equipamento: v })} linhas={4} />
@@ -638,6 +852,13 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
 
           {aba === "personagem" && (
             <section className={`${cartao} grid gap-4 sm:grid-cols-2`}>
+              <div className="sm:col-span-2">
+                <h2 className={titulo}>Construção pelo livro</h2>
+                <button onClick={() => setAssistente("criacao")} className="mb-3 rounded-lg border border-gold bg-gold/15 px-3 py-1.5 text-sm font-semibold text-gold hover:bg-gold/25">Criar personagem com o assistente</button>
+                {catLivro ? (
+                  <ConstrucaoPersonagem ficha={bruta} cat={catLivro} calc={calc} opcoes={opcoes} papel={papel} onSalvar={salvarBruto} />
+                ) : <p className="text-sm text-muted">Carregando o catálogo…</p>}
+              </div>
               <Texto rotulo="Traços de personalidade" valor={f.personalidade} onChange={(v) => set({ personalidade: v })} />
               <Texto rotulo="Ideais" valor={f.ideais} onChange={(v) => set({ ideais: v })} />
               <Texto rotulo="Vínculos" valor={f.vinculos} onChange={(v) => set({ vinculos: v })} />
@@ -649,7 +870,36 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
         </div>
       </div>
 
-      {rolando && <PainelRolagem key={rolando.seq} teste={rolando.t} onFechar={() => setRolando(null)} aoAplicar={rolando.t.cura ? (n) => set(curar(f, n)) : undefined} />}
+      {rolando && <PainelRolagem key={rolando.seq} origem={f.nome || nomePadrao || undefined} teste={rolando.t} onFechar={() => setRolando(null)} aoAplicar={rolando.t.cura ? (n) => set(aplicarCura(f, n, pvMaxEf)) : rolando.t.morte ? aplicarMorte : undefined} />}
+      {assistente === "nivel" && catLivro && <AssistenteNivel ficha={bruta} cat={catLivro} opcoes={opcoes} papel={papel} onSalvar={salvarBruto} onFechar={() => setAssistente(null)} />}
+      {assistente === "criacao" && catLivro && <AssistenteCriacao ficha={bruta} cat={catLivro} opcoes={opcoes} papel={papel} onSalvar={salvarBruto} onFechar={() => setAssistente(null)} />}
+      {catalogoEquip && catLivro && (
+        <CatalogoEquipamento
+          cat={catLivro}
+          podePagar={(custo) => totalEmCobre(f.moedas) >= custo}
+          onAdicionar={(novos, custo) => {
+            const moedas = custo ? pagar(f.moedas, custo) : f.moedas;
+            if (!moedas) return;
+            set({ itens: [...f.itens, ...novos], moedas });
+          }}
+          onFechar={() => setCatalogoEquip(false)}
+        />
+      )}
+      {compendio && (
+        <CompendioMagias
+          classeInicial={f.classe}
+          avaliar={(m) => (papel === "mestre" ? { ok: true } : podeAprender(f, m))}
+          jaNaFicha={new Set(f.magias.map((m) => m.catalogoId).filter((x): x is string => !!x))}
+          onAdicionar={(m) => {
+            const cheio = m.nivel === 0 ? contagemMagias(f).truquesCheio : contagemMagias(f).magiasCheio;
+            const nova = magiaParaFicha(m, uid(), !cheio);
+            // multiclasse: a magia é conjurada pela primeira classe do personagem que a tem na lista (define o atributo de conjuração)
+            const origem = classesDaFicha(f).map((c) => c.id).find((id) => ehConjuradora(id as ClasseId) && m.classes.includes(id));
+            set({ magias: [...f.magias, f.classes && f.classes.length > 1 && origem ? { ...nova, classeOrigem: origem } : nova] });
+          }}
+          onFechar={() => setCompendio(false)}
+        />
+      )}
       {trocaMagias && <TrocaMagias ficha={f} etapa={trocaMagias} onMudar={salvar} onTrocar={() => setTrocaMagias("trocar")} onFechar={() => setTrocaMagias(null)} />}
     </div>
   );

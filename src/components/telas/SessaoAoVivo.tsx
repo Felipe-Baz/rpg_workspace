@@ -1,5 +1,6 @@
 "use client";
 
+import { ehDnd5e } from "@/lib/dnd5e";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BookOpenText, Flag, Lock, Map as MapIcon, Scroll, Skull, Users } from "lucide-react";
@@ -69,7 +70,7 @@ export default function SessaoAoVivo() {
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="min-w-0 space-y-4">
           <Painel titulo="Iniciativa e combate">
-            <Iniciativa mesaId={mesa.id} jogadores={mesa.jogadores.map((j) => ({ nome: j.personagem || j.nome, uid: j.uid })).filter((j) => j.nome)} />
+            <Iniciativa mesaId={mesa.id} opcoes={mesa.opcoesRegras} aoVivo={ehDnd5e(mesa.sistema)} jogadores={mesa.jogadores.map((j) => ({ nome: j.personagem || j.nome, uid: j.uid })).filter((j) => j.nome)} />
           </Painel>
           <Painel titulo="Pedir teste"><PedirTeste /></Painel>
           <Painel titulo="Notas rápidas">

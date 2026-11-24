@@ -9,8 +9,8 @@ import { expressaoParaRolar, formatarExpressao, totalFixo, type Teste } from "@/
 
 // Mostra a conta "1d20 + 5 (Carisma) + 2 (Proficiência)". Não rola sozinho: o jogador pode rolar no site
 // ou com dados de verdade e só informar o resultado do dado para conferir o total.
-export default function PainelRolagem({ teste, onFechar, aoAplicar }: { teste: Teste; onFechar: () => void; aoAplicar?: (total: number) => void }) {
-  const [vantagem, setVantagem] = useState<"v" | "d" | null>(null);
+export default function PainelRolagem({ teste, onFechar, aoAplicar, origem }: { teste: Teste; onFechar: () => void; aoAplicar?: (total: number) => void; /** nome do personagem: vai no histórico da mesa ("Aria — Ataque de magia: Raio de Fogo") */ origem?: string }) {
+  const [vantagem, setVantagem] = useState<"v" | "d" | null>(teste.sugestao?.modo ?? null);
   const [critico, setCritico] = useState(false);
   const [manual, setManual] = useState("");
   const [copiado, setCopiado] = useState(false);
@@ -24,7 +24,7 @@ export default function PainelRolagem({ teste, onFechar, aoAplicar }: { teste: T
 
   async function rolarAqui() {
     setResultado(null);
-    const r = await rolar(expressaoParaRolar(teste.dado, teste.partes, { vantagem: teste.d20 ? vantagem : null, critico: teste.dano ? critico : false }), teste.titulo);
+    const r = await rolar(expressaoParaRolar(teste.dado, teste.partes, { vantagem: teste.d20 ? vantagem : null, critico: teste.dano ? critico : false }), origem ? `${origem} — ${teste.titulo}` : teste.titulo);
     setErro(!r);
     setResultado(r);
     setManual("");
@@ -35,12 +35,20 @@ export default function PainelRolagem({ teste, onFechar, aoAplicar }: { teste: T
   // Portal no body: ancestrais com transform/animação prenderiam o "fixed" ao fim da página.
   if (typeof document === "undefined") return null;
   return createPortal(
-    <aside role="dialog" aria-label={teste.titulo} className="anim-surgir fixed inset-x-3 bottom-3 z-40 mx-auto max-h-[85dvh] max-w-xl overflow-y-auto rounded-2xl border-2 border-gold/60 bg-card p-4 shadow-2xl">
+    <aside role="dialog" aria-label={teste.titulo} className={`${resultado?.critico === "acerto" ? "brilho-critico " : resultado?.critico === "falha" ? "tremor " : ""}anim-surgir fixed inset-x-3 bottom-3 z-40 mx-auto max-h-[85dvh] max-w-xl overflow-y-auto rounded-2xl border-2 border-gold/60 bg-card p-4 shadow-2xl`}>
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-display text-lg font-semibold text-gold">{teste.titulo}</h3>
         <button onClick={onFechar} aria-label="Fechar" className="text-muted hover:text-foreground"><X size={18} /></button>
       </div>
       <p className="mt-2 rounded-lg bg-background px-3 py-2 font-mono text-base">{texto}</p>
+      {teste.sugestao && (
+        <p className="mt-2 text-xs" role="note">
+          {teste.sugestao.falhaAutomatica && <strong className="mr-2 text-danger">{teste.sugestao.falhaAutomatica}.</strong>}
+          {teste.sugestao.vantagens.length > 0 && <span className="mr-2 text-ok">Vantagem: {teste.sugestao.vantagens.join(", ")}.</span>}
+          {teste.sugestao.desvantagens.length > 0 && <span className="mr-2 text-danger">Desvantagem: {teste.sugestao.desvantagens.join(", ")}.</span>}
+          {!teste.sugestao.modo && teste.sugestao.vantagens.length > 0 && teste.sugestao.desvantagens.length > 0 && <span className="text-muted">Os dois lados se anulam.</span>}
+        </p>
+      )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
         {teste.d20 && (
@@ -74,7 +82,7 @@ export default function PainelRolagem({ teste, onFechar, aoAplicar }: { teste: T
           onClick={() => { aoAplicar(Math.max(0, resultado?.total ?? totalManual ?? 0)); onFechar(); }}
           className="mt-3 rounded-lg border border-ok/50 px-3 py-1.5 text-sm font-semibold text-ok hover:bg-ok/10"
         >
-          Aplicar {Math.max(0, resultado?.total ?? totalManual ?? 0)} PV de cura
+          {teste.morte ? `Aplicar o ${Math.max(0, resultado?.total ?? totalManual ?? 0)} à salvaguarda de morte` : `Aplicar ${Math.max(0, resultado?.total ?? totalManual ?? 0)} PV de cura`}
         </button>
       )}
       <label className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted">

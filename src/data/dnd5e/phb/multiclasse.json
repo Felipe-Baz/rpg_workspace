@@ -1,0 +1,334 @@
+{
+  "espacosConjurador": [
+    {
+      "nivel": 1,
+      "espacos": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 2,
+      "espacos": [
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 3,
+      "espacos": [
+        4,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 4,
+      "espacos": [
+        4,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 5,
+      "espacos": [
+        4,
+        3,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 6,
+      "espacos": [
+        4,
+        3,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 7,
+      "espacos": [
+        4,
+        3,
+        3,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 8,
+      "espacos": [
+        4,
+        3,
+        3,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 9,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        1,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 10,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        2,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 11,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        2,
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 12,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        2,
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 13,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 14,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        2,
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "nivel": 15,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        2,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    {
+      "nivel": 16,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        2,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    {
+      "nivel": 17,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        2,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "nivel": 18,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        3,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "nivel": 19,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        3,
+        2,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "nivel": 20,
+      "espacos": [
+        4,
+        3,
+        3,
+        3,
+        3,
+        2,
+        2,
+        1,
+        1
+      ]
+    }
+  ],
+  "prerequisitos": [
+    {
+      "classe": "Bárbaro",
+      "requisito": "Força 13"
+    },
+    {
+      "classe": "Bardo",
+      "requisito": "Carisma 13"
+    },
+    {
+      "classe": "Bruxo",
+      "requisito": "Carisma 13"
+    },
+    {
+      "classe": "Clérigo",
+      "requisito": "Sabedoria 13"
+    },
+    {
+      "classe": "Druida",
+      "requisito": "Sabedoria 13"
+    },
+    {
+      "classe": "Feiticeiro",
+      "requisito": "Carisma 13"
+    },
+    {
+      "classe": "Guerreiro",
+      "requisito": "Força 13 ou Destreza 13"
+    },
+    {
+      "classe": "Ladino",
+      "requisito": "Destreza 13"
+    },
+    {
+      "classe": "Mago",
+      "requisito": "Inteligência 13"
+    },
+    {
+      "classe": "Monge",
+      "requisito": "Destreza 13 e Sabedoria 13"
+    },
+    {
+      "classe": "Paladino",
+      "requisito": "Força 13 e Carisma 13"
+    },
+    {
+      "classe": "Patrulheiro",
+      "requisito": "Destreza 13 e Sabedoria 13"
+    }
+  ]
+}

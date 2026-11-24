@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useUidJogador } from "../shell/VisaoJogadorContext";
 import { ehDnd5e } from "@/lib/dnd5e";
 import FichaDnd5e from "../dnd/FichaDnd5e";
+import ResumoDoGrupo from "../dnd/ResumoDoGrupo";
 import { useMesaAtual } from "../shell/MesaContext";
 import Titulo from "./Titulo";
 
@@ -22,7 +23,7 @@ export function FichaDndJogador() {
       {!ehDnd5e(mesa.sistema) ? (
         <Aviso>Esta mesa não usa D&D 5e, então a ficha automatizada não está disponível.</Aviso>
       ) : uid ? (
-        <FichaDnd5e mesaId={mesa.id} donoUid={uid} nomePadrao={meu?.personagem} />
+        <FichaDnd5e mesaId={mesa.id} donoUid={uid} nomePadrao={meu?.personagem} opcoes={mesa.opcoesRegras} />
       ) : null}
     </>
   );
@@ -43,6 +44,7 @@ export function FichasDndMestre() {
         <Aviso>Nenhum jogador assumiu um personagem ainda.</Aviso>
       ) : (
         <>
+          <ResumoDoGrupo mesaId={mesa.id} jogadores={jogadores.map((j) => ({ uid: j.uid!, nome: j.personagem || j.nome || "Sem nome" }))} opcoes={mesa.opcoesRegras} aoAbrir={(uid) => { setSel(uid); window.scrollTo({ top: 99999, behavior: "smooth" }); }} />
           <div className="mb-4 flex flex-wrap gap-2">
             {jogadores.map((j) => (
               <button
@@ -55,7 +57,7 @@ export function FichasDndMestre() {
               </button>
             ))}
           </div>
-          <FichaDnd5e key={atual.uid} mesaId={mesa.id} donoUid={atual.uid!} nomePadrao={atual.personagem} />
+          <FichaDnd5e key={atual.uid} mesaId={mesa.id} donoUid={atual.uid!} nomePadrao={atual.personagem} papel="mestre" opcoes={mesa.opcoesRegras} />
         </>
       )}
     </>

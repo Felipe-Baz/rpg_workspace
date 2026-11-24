@@ -37,6 +37,7 @@ Fora de `mesas`:
 - `extensoes/{id}` (biblioteca): só o `donoUid`.
 - `assetsPublicos`: qualquer logado lê; ninguém no cliente escreve.
 - `mesas/{id}/personagens/{uid}` (ficha D&D 5e): o dono (jogador membro) lê e edita; o mestre lê e edita todas.
+  - **Regras opcionais da mesa** (`Mesa.opcoesRegras`, ex.: talentos, multiclasse): o bloqueio ao jogador (talento/multiclasse com a opção desligada) é feito **só na interface**, não nas regras do Firestore; serve para guiar a mesa (confiança na mesa), não como barreira de segurança. O mestre ignora o bloqueio.
 - `sistemas`: qualquer logado lê; ninguém no cliente escreve. `sistemasPessoais`: só o dono (`donoUid`) lê, cria e apaga.
 - `usuarios/{uid}/**`: **bloqueado** ao cliente (configuração de IA e chaves cifradas).
 
