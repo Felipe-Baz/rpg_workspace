@@ -3,9 +3,11 @@
 import { confirmar } from "@/components/ui/Dialogos";
 import { useMemo, useRef, useState } from "react";
 import Markdown from "./Markdown";
+import MundoEditor from "./MundoEditor";
 import {
   lerMundoJson,
-  restaurarMundoPadrao,
+  apagarMundo,
+  mundoVazio,
   salvarMundo,
   useMundo,
   type Bloco,
@@ -13,73 +15,106 @@ import {
   type Secao,
 } from "@/lib/mundo";
 
-/** Aba "Mundo": histórias, lendas, geografia e religiões. O mestre cadastra o conteúdo como JSON. */
+/** Aba "Mundo": histórias, lendas, geografia e religiões. Cada mesa tem o seu; o mestre cadastra o conteúdo. */
 export default function Mundo({ mesaId, ehMestre }: { mesaId: string; ehMestre: boolean }) {
-  const { mundo, personalizado, json, carregado } = useMundo(mesaId, true);
+  const { mundo, json, carregado } = useMundo(mesaId, true);
   const [ativaId, setAtivaId] = useState<string>("");
+  const [importando, setImportando] = useState(false);
   const [editando, setEditando] = useState(false);
 
-  const secao = mundo.secoes.find((s) => s.id === ativaId) ?? mundo.secoes[0];
+  if (!carregado) return <p className="text-sm text-muted">Carregando…</p>;
+
+  if (editando) {
+    return <MundoEditor mesaId={mesaId} inicial={mundo ?? mundoVazio()} onFechar={() => setEditando(false)} />;
+  }
+
+  const secao = mundo?.secoes.find((s) => s.id === ativaId) ?? mundo?.secoes[0];
 
   return (
     <div className="space-y-6">
-      <header className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-accent/20 via-card to-amber-500/10 p-6 sm:p-8">
-        <div className="pointer-events-none absolute -right-6 -top-8 select-none text-[9rem] leading-none opacity-[0.07]">📜</div>
-        <div className="relative space-y-3">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-2xl font-bold sm:text-3xl">{mundo.titulo}</h2>
-              {mundo.subtitulo && <p className="mt-1 text-muted">{mundo.subtitulo}</p>}
-            </div>
-            {ehMestre && (
-              <button
-                onClick={() => setEditando(true)}
-                className="shrink-0 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover"
-              >
-                ⬆ Importar JSON
-              </button>
-            )}
-          </div>
-          {mundo.introducao && <Markdown texto={mundo.introducao} />}
-          {ehMestre && carregado && (
-            <p className="text-xs text-muted">
-              {personalizado ? "Conteúdo personalizado da sua mesa." : "Exibindo o conteúdo padrão de Valgreth."}
-            </p>
+      {!mundo ? (
+        <div className="rounded-2xl border-2 border-dashed border-border p-8 text-center sm:p-12">
+          <div className="text-5xl">📜</div>
+          <h2 className="mt-3 text-xl font-bold">O mundo desta mesa ainda não foi escrito</h2>
+          {ehMestre ? (
+            <>
+              <p className="mx-auto mt-1 max-w-md text-sm text-muted">
+                Cada mesa vive num universo próprio. Cadastre aqui o que qualquer pessoa do seu mundo sabe: lendas, lugares, povos, fé.
+              </p>
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                <button onClick={() => setEditando(true)} className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover">
+                  ✍️ Escrever o mundo
+                </button>
+                <button onClick={() => setImportando(true)} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-border/50">
+                  ⬆ Importar JSON
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="mt-1 text-sm text-muted">Quando o mestre cadastrar o conteúdo, ele aparece aqui.</p>
           )}
         </div>
-      </header>
+      ) : (
+        <>
+          <header className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-accent/20 via-card to-amber-500/10 p-6 sm:p-8">
+            <div className="pointer-events-none absolute -right-6 -top-8 select-none text-[9rem] leading-none opacity-[0.07]">📜</div>
+            <div className="relative space-y-3">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-2xl font-bold sm:text-3xl">{mundo.titulo}</h2>
+                  {mundo.subtitulo && <p className="mt-1 text-muted">{mundo.subtitulo}</p>}
+                </div>
+                {ehMestre && (
+                  <div className="flex shrink-0 gap-2">
+                    <button
+                      onClick={() => setEditando(true)}
+                      className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover"
+                    >
+                      ✍️ Editar
+                    </button>
+                    <button onClick={() => setImportando(true)} className="rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-border/50">
+                      ⬆ JSON
+                    </button>
+                  </div>
+                )}
+              </div>
+              {mundo.introducao && <Markdown texto={mundo.introducao} />}
+            </div>
+          </header>
 
-      {mundo.secoes.length > 1 && (
-        <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4" aria-label="Seções do mundo">
-          {mundo.secoes.map((s) => {
-            const ativa = s.id === secao?.id;
-            return (
-              <button
-                key={s.id}
-                onClick={() => setAtivaId(s.id)}
-                aria-current={ativa}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition ${
-                  ativa
-                    ? "border-accent-hover bg-accent-hover/10 text-accent-hover"
-                    : "border-border bg-card text-foreground hover:border-accent-hover/60"
-                }`}
-              >
-                <span className="text-lg">{s.icone ?? "•"}</span>
-                <span className="leading-tight">{s.titulo}</span>
-              </button>
-            );
-          })}
-        </nav>
+          {mundo.secoes.length > 1 && (
+            <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4" aria-label="Seções do mundo">
+              {mundo.secoes.map((s) => {
+                const ativa = s.id === secao?.id;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => setAtivaId(s.id)}
+                    aria-current={ativa}
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition ${
+                      ativa
+                        ? "border-accent-hover bg-accent-hover/10 text-accent-hover"
+                        : "border-border bg-card text-foreground hover:border-accent-hover/60"
+                    }`}
+                  >
+                    <span className="text-lg">{s.icone ?? "•"}</span>
+                    <span className="leading-tight">{s.titulo}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          )}
+
+          {secao && <SecaoView key={secao.id} secao={secao} />}
+        </>
       )}
 
-      {secao && <SecaoView key={secao.id} secao={secao} />}
-
-      {editando && (
+      {importando && (
         <EditorJson
           mesaId={mesaId}
-          inicial={json ?? JSON.stringify(mundo, null, 2)}
-          personalizado={personalizado}
-          onFechar={() => setEditando(false)}
+          inicial={json ?? JSON.stringify(mundo ?? mundoVazio(), null, 2)}
+          existe={!!mundo}
+          onFechar={() => setImportando(false)}
         />
       )}
     </div>
@@ -217,41 +252,97 @@ function Cartao({ item }: { item: ItemCartao }) {
   );
 }
 
-const EXEMPLO = `{
-  "titulo": "Nome do mundo",
-  "subtitulo": "opcional",
-  "introducao": "Markdown opcional",
-  "secoes": [
-    {
-      "id": "lendas",
-      "titulo": "Lendas",
-      "icone": "📜",
-      "resumo": "opcional",
-      "blocos": [
-        { "tipo": "texto", "titulo": "opcional", "texto": "Markdown" },
-        { "tipo": "destaque", "titulo": "opcional", "texto": "Markdown" },
-        {
-          "tipo": "cartoes", "colunas": 2,
-          "itens": [
-            { "titulo": "Título", "subtitulo": "opc.", "icone": "🐉", "tags": ["a", "b"],
-              "texto": "Markdown", "detalhes": [{ "rotulo": "Governo", "valor": "..." }] }
-          ]
-        },
-        { "tipo": "tabela", "colunas": ["A", "B"], "linhas": [["1", "2"]] }
-      ]
-    }
-  ]
-}`;
+const URL_IA = "/mcp/ia/mundo-json.txt";
+
+const TIPOS_BLOCO: [string, string][] = [
+  ["texto", "Parágrafos corridos. Campos: texto (Markdown, obrigatório), titulo."],
+  ["destaque", "Caixa realçada para avisos e observações. Campos: texto (Markdown, obrigatório), titulo."],
+  ["cartoes", "Grade de cartões (cidades, povos, deuses, lendas). Campos: itens (obrigatório), colunas (1, 2 ou 3), titulo, texto de abertura."],
+  ["tabela", "Dados comparativos. Campos: colunas (lista de textos) e linhas (lista de listas de textos, uma por linha), titulo."],
+];
+
+function AjudaFormato() {
+  const code = "rounded bg-border/50 px-1 py-0.5 text-xs";
+  return (
+    <div className="space-y-3 rounded-lg bg-border/30 p-3 text-sm">
+      <p>
+        O arquivo é <strong>um único objeto JSON</strong>: o mundo tem <strong>seções</strong> (os botões de navegação) e cada seção
+        tem <strong>blocos</strong> (o conteúdo). Todos os valores são <em>texto entre aspas</em> — inclusive números em tabelas.
+      </p>
+      <ul className="list-disc space-y-1 pl-5 text-muted">
+        <li><b className="text-foreground">Mundo</b>: <code className={code}>titulo</code> (obrigatório), <code className={code}>subtitulo</code>, <code className={code}>introducao</code> (Markdown), <code className={code}>secoes</code> (lista, obrigatório).</li>
+        <li><b className="text-foreground">Seção</b>: <code className={code}>titulo</code> (obrigatório), <code className={code}>blocos</code> (lista, obrigatório), <code className={code}>id</code> (curto e único), <code className={code}>icone</code> (emoji), <code className={code}>resumo</code>.</li>
+        <li>
+          <b className="text-foreground">Bloco</b>: o campo <code className={code}>tipo</code> escolhe o formato:
+          <ul className="mt-1 list-[circle] space-y-1 pl-5">
+            {TIPOS_BLOCO.map(([t, d]) => (
+              <li key={t}><code className={code}>{t}</code> — {d}</li>
+            ))}
+          </ul>
+        </li>
+        <li>
+          <b className="text-foreground">Item de cartão</b>: <code className={code}>titulo</code> (obrigatório), <code className={code}>subtitulo</code>, <code className={code}>icone</code> (emoji),{" "}
+          <code className={code}>tags</code> (lista de textos), <code className={code}>texto</code> (Markdown) e <code className={code}>detalhes</code> (lista de {"{"} rotulo, valor {"}"}).
+        </li>
+        <li>Campos de texto aceitam Markdown (<code className={code}>**negrito**</code>, listas com <code className={code}>-</code>). Dentro do JSON, quebra de linha vira <code className={code}>{"\\n"}</code> e aspas viram <code className={code}>{'\\"'}</code>.</li>
+      </ul>
+      <p className="text-muted">
+        Se algo estiver errado, a importação aponta o caminho do problema (ex.: <code className={code}>secoes[2].blocos[0].titulo: deve ser texto</code>) e não salva nada.
+        Dica: baixe o template, ou envie o link de instruções abaixo para uma IA converter a sua história.
+      </p>
+    </div>
+  );
+}
+
+// Template baixável: JSON válido que passa em lerMundoJson, com um exemplo de cada tipo de bloco.
+const TEMPLATE = JSON.stringify(
+  {
+    titulo: "Nome do seu mundo",
+    subtitulo: "Frase curta (opcional)",
+    introducao: "Texto de abertura em **Markdown** (opcional).",
+    secoes: [
+      {
+        id: "lendas",
+        titulo: "Lendas",
+        icone: "📜",
+        resumo: "Resumo curto da seção (opcional)",
+        blocos: [
+          { tipo: "texto", titulo: "Título do bloco (opcional)", texto: "Parágrafo em **Markdown**." },
+          { tipo: "destaque", titulo: "Atenção (opcional)", texto: "Caixa de destaque para avisos e observações." },
+          {
+            tipo: "cartoes",
+            titulo: "Lista de cartões",
+            texto: "Texto de abertura (opcional)",
+            colunas: 2,
+            itens: [
+              {
+                titulo: "Nome do item",
+                subtitulo: "Subtítulo (opcional)",
+                icone: "🐉",
+                tags: ["tag1", "tag2"],
+                texto: "Descrição em **Markdown**.",
+                detalhes: [{ rotulo: "Governo", valor: "Quem manda aqui" }],
+              },
+            ],
+          },
+          { tipo: "tabela", titulo: "Tabela", colunas: ["Coluna A", "Coluna B"], linhas: [["valor 1", "valor 2"]] },
+        ],
+      },
+    ],
+  },
+  null,
+  2,
+);
 
 function EditorJson({
   mesaId,
   inicial,
-  personalizado,
+  existe,
   onFechar,
 }: {
   mesaId: string;
   inicial: string; // JSON em vigor (usado só para baixar como modelo)
-  personalizado: boolean;
+  existe: boolean;
   onFechar: () => void;
 }) {
   // O mestre não digita JSON: ele importa um arquivo .json, confere o resumo e confirma.
@@ -260,7 +351,17 @@ function EditorJson({
   const [salvando, setSalvando] = useState(false);
   const [erroSalvar, setErroSalvar] = useState("");
   const [ajuda, setAjuda] = useState(false);
+  const [copiado, setCopiado] = useState(false);
   const arquivo = useRef<HTMLInputElement>(null);
+  const linkIa = typeof window === "undefined" ? URL_IA : `${window.location.origin}${URL_IA}`;
+
+  async function copiarLink() {
+    try {
+      await navigator.clipboard.writeText(linkIa);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 1600);
+    } catch {}
+  }
 
   const validacao = useMemo(() => {
     if (!texto) return null;
@@ -341,23 +442,37 @@ function EditorJson({
         {erroSalvar && <p className="text-sm text-danger">{erroSalvar}</p>}
 
         <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-          <button onClick={() => baixar(inicial, "mundo.json")} className={botao}>Baixar atual (modelo)</button>
+          <button onClick={() => baixar(TEMPLATE, "mundo-template.json")} className={botao}>⬇ Baixar template</button>
+          {existe && <button onClick={() => baixar(inicial, "mundo.json")} className={botao}>Baixar mundo atual</button>}
           <button onClick={() => setAjuda((v) => !v)} className={botao}>{ajuda ? "Ocultar formato" : "Ver formato"}</button>
-          {personalizado && (
+          {existe && (
             <button
               onClick={async () => {
-                if (await confirmar({ texto: "Descartar o conteúdo importado e voltar ao padrão de Valgreth?", confirmar: "Descartar", perigo: true })) {
-                  await restaurarMundoPadrao(mesaId);
+                if (await confirmar({ texto: "Apagar todo o conteúdo do mundo desta mesa? Os jogadores deixarão de vê-lo.", confirmar: "Apagar", perigo: true })) {
+                  await apagarMundo(mesaId);
                   onFechar();
                 }
               }}
               className={`${botao} text-danger`}
             >
-              Restaurar padrão
+              Apagar mundo
             </button>
           )}
         </div>
-        {ajuda && <pre className="max-h-48 overflow-auto rounded-lg bg-border/30 p-3 text-xs">{EXEMPLO}</pre>}
+        {ajuda && <AjudaFormato />}
+
+        <div className="space-y-2 rounded-lg border border-accent-hover/30 bg-accent-hover/5 p-3 text-sm">
+          <p className="font-medium">🤖 Converter sua história com uma IA</p>
+          <p className="text-muted">
+            Copie este link, envie para o ChatGPT, Claude ou outra IA junto com o seu texto e peça: “siga as instruções deste link e converta minha história”.
+            Depois salve a resposta como <code>.json</code> e importe aqui.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <code className="min-w-0 flex-1 truncate rounded bg-border/40 px-2 py-1.5 text-xs">{linkIa}</code>
+            <button onClick={copiarLink} className={botao}>{copiado ? "✓ Copiado" : "Copiar link"}</button>
+            <a href={URL_IA} target="_blank" rel="noopener noreferrer" className={botao}>Abrir ↗</a>
+          </div>
+        </div>
 
         <div className="flex justify-end gap-2">
           <button onClick={onFechar} className={botao}>Cancelar</button>

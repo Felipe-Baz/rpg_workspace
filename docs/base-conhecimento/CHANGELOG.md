@@ -4,6 +4,12 @@ Registro curto de **mudanças de comportamento** que alteraram esta base (mais r
 
 Se uma alteração de código **não** afeta nenhuma feature, fluxo, regra de acesso, modelo de dados ou rota, registre mesmo assim com `sem impacto na base` (isso marca a revisão como feita).
 
+- 2026-11-24: ajuste de texto/escape na ajuda de formato do Mundo (`Mundo.tsx`); a documentação já cobre o comportamento: sem impacto na base.
+- 2026-11-24: importação do Mundo: explicação do formato na janela e link público `/mcp/ia/mundo-json.txt` com instruções para uma IA gerar o JSON. Páginas: `features/mundo.md`.
+- 2026-11-24: `/dev/erro-servidor` passou a aguardar `connection()` antes de lançar o erro de teste, para não quebrar a pré-renderização do build: sem impacto na base.
+- 2026-11-24: importação do Mundo ganhou botão "Baixar template" (JSON de exemplo válido). Páginas: `features/mundo.md`.
+- 2026-11-24: Mundo sem conteúdo padrão embutido: cada mesa cadastra o seu (novo editor estruturado do mestre + importação JSON); Valgreth removido do código e semeado no Firestore só na mesa `5010347d-…` via `scripts/semear-mundo.mjs`. Páginas: `features/mundo.md`.
+- 2026-11-24: `README.md` da raiz reescrito (visão do projeto, stack, como rodar, estrutura, links para a base): sem impacto na base.
 - 2026-11-24: `/dev/erro-cliente` dividida em `page.tsx` (Server Component com `instant = false`) e `BotaoQuebrar.tsx` (cliente), pois Client Components não exportam `instant`: sem impacto na base.
 - 2026-11-24: `/dev/offline` virou Server Component com `instant = false` (o wrapper cliente já é o `OfflineAviso`): sem impacto na base.
 - 2026-11-24: `instant = false` em `src/app/dev/layout.tsx` (silencia aviso de navegação instantânea nas páginas de teste `/dev`): sem impacto na base.

@@ -6,9 +6,8 @@
 // e devolve uma versão reduzida dos dados.
 
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
-import { MUNDO_PADRAO } from "@/content/valgreth";
 import { db } from "../firebase";
-import { lerMundoJson } from "../mundo";
+import { lerMundoJson, type Mundo } from "../mundo";
 import type { Mesa } from "../mesas";
 import { atender, leitorExemplo, type Leitor, type Perguntador, type Proponente, type Rolador } from "./broker-puro";
 import type { Pedido, Permissao } from "./capacidades";
@@ -76,9 +75,9 @@ function leitorReal(mesa: Mesa, papel: "mestre" | "jogador", uid: string): Leito
       case "mundo": {
         const snap = await getDoc(doc(db, "mesas", mesa.id, "mundo", "principal"));
         const json = snap.exists() ? str(snap.data().json) : "";
-        let mundo = MUNDO_PADRAO;
+        let mundo: Mundo = { titulo: "", secoes: [] };
         if (json) {
-          try { mundo = lerMundoJson(json); } catch { /* inválido: usa o padrão, como a tela do Mundo */ }
+          try { mundo = lerMundoJson(json); } catch { /* inválido: trata como vazio, como a tela do Mundo */ }
         }
         if (typeof args?.secao === "string") {
           const s = mundo.secoes.find((x) => x.id === args.secao);
