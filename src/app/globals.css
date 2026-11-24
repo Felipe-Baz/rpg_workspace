@@ -249,3 +249,36 @@ button:active:not(:disabled) { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) {
   .dado-tombando, .dado-sombra, .barra-correndo, .texto-trocando { animation: none; }
 }
+
+/* ===== Livros (visão do mestre): texto de referência legível, com tabelas e destaques ===== */
+.livro-md { line-height: 1.7; font-size: 0.95rem; overflow-wrap: anywhere; }
+.livro-md > * + * { margin-top: 0.85em; }
+.livro-md p { max-width: 75ch; }
+.livro-md strong { color: color-mix(in srgb, var(--gold) 70%, var(--foreground)); font-weight: 650; }
+.livro-md em { color: var(--muted); }
+.livro-md ul { list-style: none; padding-left: 0; max-width: 75ch; }
+.livro-md ul > li { position: relative; padding-left: 1.25rem; margin-top: 0.3em; }
+.livro-md ul > li::before { content: ""; position: absolute; left: 0.25rem; top: 0.7em; width: 0.4rem; height: 0.4rem; transform: rotate(45deg); background: var(--gold); opacity: 0.8; }
+.livro-md ol { list-style: decimal; padding-left: 1.5rem; max-width: 75ch; }
+.livro-md ol > li { margin-top: 0.3em; padding-left: 0.25rem; }
+.livro-md ol > li::marker { color: var(--gold); font-weight: 700; }
+.livro-md li > ul, .livro-md li > ol { margin-top: 0.3em; }
+.livro-md hr { border: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.5; margin: 1.6em 0; }
+.livro-h3, .livro-h4 { font-family: var(--font-display), serif; scroll-margin-top: 6.5rem; }
+.livro-h3 { margin-top: 1.9em; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.03em; color: var(--gold); padding-bottom: 0.3em; border-bottom: 1px solid color-mix(in srgb, var(--gold) 35%, transparent); }
+.livro-h4 { margin-top: 1.5em; font-size: 1.02rem; font-weight: 700; letter-spacing: 0.02em; display: flex; align-items: center; gap: 0.5rem; }
+.livro-h4::before { content: ""; width: 0.45rem; height: 0.45rem; transform: rotate(45deg); background: var(--accent-hover); flex: none; }
+.livro-tabela { overflow-x: auto; border: 1px solid var(--border); border-radius: 0.75rem; background: var(--card); }
+.livro-md table { width: 100%; border-collapse: collapse; font-size: 0.86rem; line-height: 1.45; }
+.livro-md th { text-align: left; font-weight: 700; white-space: nowrap; padding: 0.55em 0.8em; background: color-mix(in srgb, var(--gold) 14%, var(--card)); border-bottom: 2px solid color-mix(in srgb, var(--gold) 45%, transparent); color: var(--foreground); }
+.livro-md td { padding: 0.5em 0.8em; border-top: 1px solid color-mix(in srgb, var(--border) 80%, transparent); vertical-align: top; }
+.livro-md tbody tr:nth-child(even) { background: color-mix(in srgb, var(--border) 28%, transparent); }
+.livro-md tbody tr:hover { background: color-mix(in srgb, var(--gold) 9%, transparent); }
+.livro-md td:first-child { font-weight: 600; }
+.livro-md blockquote { max-width: 75ch; border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent); border-left: 4px solid var(--gold); border-radius: 0.6rem; padding: 0.7em 1em; color: var(--foreground); background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 12%, var(--card)), var(--card)); }
+.livro-md blockquote > * + * { margin-top: 0.5em; }
+.livro-md code { background: color-mix(in srgb, var(--border) 70%, transparent); padding: 0.1em 0.35em; border-radius: 0.3em; font-size: 0.88em; }
+.livro-md mark, .livro-previa mark { background: color-mix(in srgb, var(--gold) 40%, transparent); color: inherit; border-radius: 0.2em; padding: 0 0.1em; }
+.livro-cartao { transition: transform var(--t-base) var(--ease), border-color var(--t-base), box-shadow var(--t-base); }
+.livro-cartao:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--gold) 65%, var(--border)); box-shadow: 0 14px 30px -16px color-mix(in srgb, var(--gold) 55%, transparent); }
+.livro-capa { background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 55%), radial-gradient(90% 120% at 100% 100%, color-mix(in srgb, var(--gold) 22%, transparent), transparent 60%), var(--card); }

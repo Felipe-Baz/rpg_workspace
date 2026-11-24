@@ -1,4 +1,4 @@
-import { BookMarked, BookOpenText, Boxes, Calendar, Crown, GitBranch, IdCard, Image as ImageIcon, LayoutDashboard, Lock, Map as MapIcon, PenLine, Puzzle, Scroll, type LucideIcon } from "lucide-react";
+import { BookMarked, BookOpenText, Boxes, Calendar, Crown, GitBranch, IdCard, Image as ImageIcon, LayoutDashboard, Library, Lock, Map as MapIcon, PenLine, Puzzle, Scroll, type LucideIcon } from "lucide-react";
 import { CATEGORIAS } from "@/lib/fichas";
 import { nativasVisiveis, type ConfigNativas } from "@/lib/extensoes/nativas";
 import { ICONES_FICHA } from "../fichas/IconeCategoria";
@@ -33,6 +33,7 @@ export function gruposNav(base: string, extensoes: ItemNav[] = [], dnd = false):
           { chave: "sessoes", href: `${base}/sessoes`, rotulo: "Sessões", icone: Calendar },
           { href: `${base}/timeline`, rotulo: "Timeline", icone: GitBranch },
           { chave: "segredos", href: `${base}/segredos`, rotulo: "Segredos", icone: Lock },
+          ...(dnd ? [{ href: `${base}/livros`, rotulo: "Livros", icone: Library }] : []),
         ],
       },
       {
