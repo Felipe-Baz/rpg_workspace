@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BedDouble, Heart, Minus, Plus, Shield, Star, Swords, Trash2, Wind } from "lucide-react";
+import { BedDouble, FileUp, Heart, Minus, Plus, Shield, Star, Swords, Trash2, Wind } from "lucide-react";
 import { uid } from "@/lib/mesas";
 import { useFichaPersonagem } from "@/lib/fichaPersonagem";
 import {
@@ -51,6 +51,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
   const [rolando, setRolando] = useState<{ t: Teste; seq: number } | null>(null);
   const [valorPv, setValorPv] = useState(1);
   const [novaMagia, setNovaMagia] = useState(0);
+  const [importacao, setImportacao] = useState<{ ok: boolean; texto: string } | null>(null);
+  const [importando, setImportando] = useState(false);
 
   if (!carregado) return <p className="py-10 text-center text-muted">Abrindo a ficha…</p>;
 
@@ -69,6 +71,24 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
   const setMagia = (id: string, p: Partial<Magia>) => set({ magias: f.magias.map((m) => (m.id === id ? { ...m, ...p } : m)) });
   const setEspaco = (i: number, p: Partial<{ total: number; usados: number }>) =>
     set({ espacos: f.espacos.map((e, k) => (k === i ? { ...e, ...p } : e)) });
+
+  /** Lê o PDF oficial preenchido e substitui os dados da ficha (com confirmação). */
+  const importarPdf = async (arquivo: File) => {
+    setImportacao(null);
+    setImportando(true);
+    try {
+      const { lerCamposPdf, fichaDeCampos } = await import("@/lib/importarFichaPdf");
+      const campos = await lerCamposPdf(await arquivo.arrayBuffer());
+      const { ficha: nova, resumo } = fichaDeCampos(campos, uid, f);
+      if (!window.confirm(`Importar "${arquivo.name}" vai substituir todos os dados atuais desta ficha.\n\n${resumo}\n\nContinuar?`)) return;
+      salvar(nova);
+      setImportacao({ ok: true, texto: `Ficha importada. ${resumo}` });
+    } catch (e) {
+      setImportacao({ ok: false, texto: e instanceof Error ? e.message : "Não consegui importar esse PDF." });
+    } finally {
+      setImportando(false);
+    }
+  };
 
   const ciclo = (id: (typeof PERICIAS)[number]["id"]) => set({ pericias: { ...f.pericias, [id]: (((f.pericias[id] ?? 0) + 1) % 3) as NivelProf } });
 
@@ -108,7 +128,27 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "" }: { mesaI
           >
             <BedDouble size={14} /> Descanso curto ({f.descansosCurtos}/{MAX_DESCANSOS_CURTOS})
           </button>
+          <label
+            title="Preenche a ficha com os valores do PDF “D&D 5ed - Ficha Editável” preenchido"
+            className={`flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-muted hover:border-gold hover:text-gold ${importando ? "pointer-events-none opacity-50" : ""}`}
+          >
+            <FileUp size={14} /> {importando ? "Importando…" : "Importar PDF"}
+            <input
+              type="file"
+              accept="application/pdf,.pdf"
+              className="sr-only"
+              disabled={importando}
+              onChange={(e) => {
+                const arquivo = e.target.files?.[0];
+                e.target.value = ""; // permite escolher o mesmo arquivo de novo
+                if (arquivo) void importarPdf(arquivo);
+              }}
+            />
+          </label>
         </div>
+        {importacao && (
+          <p role="status" className={`relative mt-3 text-sm ${importacao.ok ? "text-gold" : "text-red-400"}`}>{importacao.texto}</p>
+        )}
         <div className="relative mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
           {([["classe", "Classe"], ["subclasse", "Subclasse"], ["raca", "Raça"], ["antecedente", "Antecedente"], ["alinhamento", "Alinhamento"]] as const).map(([k, r]) => (
             <label key={k} className="text-[11px] uppercase tracking-wider text-muted">
