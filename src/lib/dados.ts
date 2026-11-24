@@ -1,5 +1,6 @@
 // Rolador de dados: expressões como "d20", "2d6+3", "4d6kh3", "d20-1", "2d8+1d4+2".
-// Puro e determinístico quando recebe um `rng` — fácil de testar.
+// Puro e determinístico quando recebe um `rng` — fácil de testar. Sem `rng`, usa o CSPRNG (`aleatorio.ts`).
+import { floatSeguro } from "./aleatorio.ts";
 
 export type GrupoDados = { sinal: 1 | -1; qtd: number; faces: number; manter?: { modo: "kh" | "kl"; n: number } };
 export type Rolagem = {
@@ -43,11 +44,10 @@ export function interpretar(expr: string): { grupos: GrupoDados[]; bonus: number
   return { grupos, bonus };
 }
 
-export function rolar(expr: string, rng: () => number = Math.random): Rolagem | null {
-  const p = interpretar(expr);
-  if (!p) return null;
-  const grupos = p.grupos.map((g) => {
-    const dados = Array.from({ length: g.qtd }, () => 1 + Math.floor(rng() * g.faces));
+/** Monta a rolagem a partir de valores já definidos (um array por grupo), venham de um rng ou de dados 3D. */
+export function montarRolagem(expr: string, p: { grupos: GrupoDados[]; bonus: number }, valores: number[][]): Rolagem {
+  const grupos = p.grupos.map((g, i) => {
+    const dados = valores[i];
     let mantidos = dados;
     if (g.manter) {
       const ord = [...dados].sort((a, b) => (g.manter!.modo === "kh" ? b - a : a - b));
@@ -70,6 +70,13 @@ export function rolar(expr: string, rng: () => number = Math.random): Rolagem | 
     else if (v === 1) r.critico = "falha";
   }
   return r;
+}
+
+export function rolar(expr: string, rng: () => number = floatSeguro): Rolagem | null {
+  const p = interpretar(expr);
+  if (!p) return null;
+  const valores = p.grupos.map((g) => Array.from({ length: g.qtd }, () => 1 + Math.floor(rng() * g.faces)));
+  return montarRolagem(expr, p, valores);
 }
 
 /** d20 com vantagem ("v") ou desvantagem ("d"), somando um modificador. */

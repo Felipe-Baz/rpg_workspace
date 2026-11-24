@@ -337,6 +337,26 @@ service cloud.firestore {
         allow write: if mestreMesa();
       }
 
+      // Rolagens de dados da mesa: qualquer membro lê (quem está online repete a animação) e cria as próprias.
+      // Imutáveis depois de criadas; só quem rolou ou o mestre apaga.
+      match /rolagens/{rolagemId} {
+        allow read: if membroMesa();
+        allow create: if membroMesa()
+          && request.resource.data.keys().hasOnly(['uid', 'nome', 'expressao', 'total', 'rolagem', 'jogada', 'em', 'rotulo', 'criadoEm'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.nome is string && request.resource.data.nome.size() <= 60
+          && request.resource.data.expressao is string && request.resource.data.expressao.size() <= 60
+          && request.resource.data.total is number
+          && request.resource.data.rolagem is map
+          && (request.resource.data.jogada == null
+              || (request.resource.data.jogada is map && request.resource.data.jogada.dados.size() <= 24))
+          && request.resource.data.em is number
+          && (request.resource.data.rotulo == null || (request.resource.data.rotulo is string && request.resource.data.rotulo.size() <= 80))
+          && request.resource.data.criadoEm == request.time;
+        allow update: if false;
+        allow delete: if mestreMesa() || (membroMesa() && resource.data.uid == request.auth.uid);
+      }
+
       // Jobs de geração de assets: o mestre acompanha (onSnapshot); só o servidor (Admin SDK) escreve.
       match /jobs/{jobId} {
         allow read: if mestreMesa();

@@ -4,6 +4,9 @@ Registro curto de **mudanças de comportamento** que alteraram esta base (mais r
 
 Se uma alteração de código **não** afeta nenhuma feature, fluxo, regra de acesso, modelo de dados ou rota, registre mesmo assim com `sem impacto na base` (isso marca a revisão como feita).
 
+- 2026-11-24: dados 3D: física de corpo rígido real (cannon-es) com números trocados nas faces para dar o resultado sorteado, e tamanho proporcional à tela. Página: dados-3d.
+- 2026-11-24: logos do site aplicadas (brasão nos cabeçalhos da landing, login e dashboard; logo completa no painel de login e na tela de carregamento; favicon). sem impacto na base.
+- 2026-11-24: **Rolador de dados 3D único:** todo o site rola por um só componente (`RolagemProvider`) com dados 3D (three.js) jogados na tela e som; número sorteado por `crypto`, animação guiada até a face; rolagens compartilhadas em `mesas/{id}/rolagens` (regra nova) e reencenadas para quem está online; d100 vira dezenas + unidades e acima de 100 soma dados (d120 = percentil + d20). Páginas: dados-3d (nova), README, sessao-ao-vivo, ficha-dnd5e, extensoes, permissoes-e-seguranca, arquitetura.
 - 2026-11-24: ficha D&D 5e: descanso curto cura 1 dado de vida e restaura os espaços; descanso longo recupera tudo (inclui todos os dados de vida). Página: ficha-dnd5e.
 - 2026-11-24: ficha D&D 5e: descanso curto (máx. 2 por descanso longo) e gastar dado de vida. Página: ficha-dnd5e.
 - 2026-11-24: ficha D&D 5e: título do livro editável (`tituloLivro`) e markdown nas páginas da história (barra de formatação e modo Ler). Página: ficha-dnd5e.

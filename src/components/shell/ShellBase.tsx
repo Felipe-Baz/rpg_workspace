@@ -9,6 +9,7 @@ import { STATUS_LABEL, useMesas, type Mesa } from "@/lib/mesas";
 import ThemeToggle from "../ThemeToggle";
 import AutomacoesHost from "../extensoes/AutomacoesHost";
 import PainelDados from "../sessao/PainelDados";
+import RolagemProvider from "../dados/RolagemProvider";
 import PaletaComandos from "./PaletaComandos";
 import type { ExtensaoMesa } from "@/lib/extensoes/dados";
 import { variaveisDoTema, type EfeitosCombinados } from "@/lib/extensoes/efeitos";
@@ -112,6 +113,7 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
 
   return (
     <MesaProvider value={mesa}>
+      <RolagemProvider mesa={mesa}>
       <ExtensoesProvider value={{ extensoes, papel: modo, base: inicio.href, nativas: nativas.config, nativasProntas: nativas.prontas, souMestre: nativas.souMestre, efeitos }}>
       <div className="flex min-h-screen">
         {aberto && <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden" onClick={fechar} />}
@@ -258,6 +260,7 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
         />
       )}
       </ExtensoesProvider>
+      </RolagemProvider>
     </MesaProvider>
   );
 }

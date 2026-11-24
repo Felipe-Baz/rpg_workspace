@@ -57,6 +57,7 @@ mesas/{mesaId}                       Mesa: nome, sistema, cor, status, donoUid, 
   ├─ quadro/{noId}                    quadro de investigação do jogador
   ├─ extensoes/{id}                   extensões instaladas (cópia do HTML; estadoAprovado)
   │   └─ estado/{mestre|para_uid|de_uid}  estado por escopo (só mestre / entregue ao jogador / escrito pelo jogador)
+  ├─ rolagens/{rolagemId}             rolagens de dados da mesa (uid, nome, expressao, total, rolagem, jogada{semente,dados}, em, criadoEm); membros leem e criam as próprias
   ├─ recursosDados/{registroId}       registros dos tipos de dado criados por extensões (liberado)
   ├─ extensoesPedidos/{pedidoId}      pedidos de jogadores por extensões (mestre aprova/recusa)
   ├─ extensoesLotes/{loteId}          conteúdo criado por extensões (itens + origem), para desfazer

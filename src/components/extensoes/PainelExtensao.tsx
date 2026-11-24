@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { criarBroker } from "@/lib/extensoes/broker";
+import { useRolagem } from "../dados/RolagemProvider";
 import { chamarIa } from "@/lib/ia-cliente";
 import { salvarDadosExtensao, type ExtensaoMesa } from "@/lib/extensoes/dados";
 import { MAX_GRAVACOES_JOGADOR_POR_MINUTO, assinarEstado, escoposGravaveis, type ContextoEstado, type Escopo } from "@/lib/extensoes/estado";
@@ -59,7 +60,8 @@ export function useExtensaoEmExecucao(ext: ExtensaoMesa, mestre: boolean) {
     () => ({ papel, aprovados: escopos, jogadores: jogadoresParaEstado(mesa), minhaConta: uid, armazem: armazemFirestore(mesa.id, ext.id), podeGravar: () => limitador(ext.id, Date.now()) }),
     [papel, escopos, mesa, uid, ext.id, limitador],
   );
-  const aoPedido = useMemo(() => criarBroker({ mesa, papel, uid, aprovadas, propor, perguntar, estado }), [mesa, papel, uid, aprovadas, propor, perguntar, estado]);
+  const { rolar } = useRolagem();
+  const aoPedido = useMemo(() => criarBroker({ mesa, papel, uid, aprovadas, propor, perguntar, estado, rolar: (e) => rolar(e, ext.titulo) }), [mesa, papel, uid, aprovadas, propor, perguntar, estado, rolar, ext.titulo]);
   const assinar = useCallback<AssinarEstado>((escopo, jogador, fn) => assinarEstado(estado, escopo, jogador, fn), [estado]);
   const gravaveis = useMemo(() => escoposGravaveis(escopos, papel), [escopos, papel]);
   return { aoPedido, salvar, aprovadas, assinar, gravaveis, eu: mestre ? null : meuJogador(mesa, uid) };

@@ -1,31 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { Dices, Trash2 } from "lucide-react";
-import { expressaoD20, rolar, type Rolagem } from "@/lib/dados";
-import { usePersistido } from "@/lib/persistido";
+import { Dices, Volume2, VolumeX } from "lucide-react";
+import { expressaoD20, type Rolagem } from "@/lib/dados";
+import { definirSom, somAtivo } from "@/lib/som-dados";
+import { useRolagem } from "../dados/RolagemProvider";
 
-type Registro = Rolagem & { id: number; quem?: string };
 const FACES = [4, 6, 8, 10, 12, 20, 100];
-const MAX_HISTORICO = 30;
 
-// Rolador compartilhado (tela do mestre e popover flutuante): o histórico é o mesmo por mesa.
-export default function PainelDados({ mesaId, compacto = false }: { mesaId: string; compacto?: boolean }) {
-  const [hist, setHist] = usePersistido<Registro[]>(`dados:${mesaId}`, []);
+// Rolador do site: os dados 3D caem na tela de todos que estão com a mesa aberta. O histórico é o da mesa inteira.
+export default function PainelDados({ compacto = false }: { mesaId?: string; compacto?: boolean }) {
+  const { rolar, historico, rolando } = useRolagem();
   const [expr, setExpr] = useState("");
   const [erro, setErro] = useState("");
   const [mod, setMod] = useState(0);
   const [giro, setGiro] = useState(0); // reinicia a animação do resultado a cada rolagem
+  const [ultimo, setUltimo] = useState<Rolagem | null>(null);
+  const [som, setSom] = useState(somAtivo);
 
-  function fazer(e: string) {
-    const r = rolar(e);
-    if (!r) { setErro("Expressão inválida. Exemplos: d20, 2d6+3, 4d6kh3."); return; }
+  async function fazer(e: string) {
+    if (rolando) return;
+    const r = await rolar(e);
+    if (!r) { setErro("Expressão inválida. Exemplos: d20, 2d6+3, 4d6kh3, 1d120."); return; }
     setErro("");
     setGiro((g) => g + 1);
-    setHist((h) => [{ ...r, id: Date.now() + Math.random() }, ...h].slice(0, MAX_HISTORICO));
+    setUltimo(r);
   }
-
-  const ultimo = hist[0];
 
   return (
     <div className="space-y-3">
@@ -52,7 +52,7 @@ export default function PainelDados({ mesaId, compacto = false }: { mesaId: stri
 
       <div className="flex flex-wrap gap-1.5">
         {FACES.map((f) => (
-          <button key={f} onClick={() => fazer(f === 20 ? expressaoD20(null, mod) : `d${f}`)} className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:border-accent-hover hover:bg-card-2">
+          <button key={f} disabled={rolando} onClick={() => fazer(f === 20 ? expressaoD20(null, mod) : `d${f}`)} className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:border-accent-hover hover:bg-card-2 disabled:opacity-50">
             d{f}
           </button>
         ))}
@@ -60,8 +60,8 @@ export default function PainelDados({ mesaId, compacto = false }: { mesaId: stri
 
       {/* d20 com vantagem / desvantagem e modificador */}
       <div className="flex flex-wrap items-center gap-1.5 text-sm">
-        <button onClick={() => fazer(expressaoD20("v", mod))} className="rounded-lg border border-ok/50 px-3 py-1.5 text-ok hover:bg-ok/10">Vantagem</button>
-        <button onClick={() => fazer(expressaoD20("d", mod))} className="rounded-lg border border-danger/50 px-3 py-1.5 text-danger hover:bg-danger/10">Desvantagem</button>
+        <button disabled={rolando} onClick={() => fazer(expressaoD20("v", mod))} className="rounded-lg border border-ok/50 px-3 py-1.5 text-ok hover:bg-ok/10 disabled:opacity-50">Vantagem</button>
+        <button disabled={rolando} onClick={() => fazer(expressaoD20("d", mod))} className="rounded-lg border border-danger/50 px-3 py-1.5 text-danger hover:bg-danger/10 disabled:opacity-50">Desvantagem</button>
         <label className="ml-auto flex items-center gap-1.5 text-muted">
           mod
           <input type="number" value={mod} onChange={(e) => setMod(Math.max(-30, Math.min(30, Number(e.target.value) || 0)))} aria-label="Modificador do d20" className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center" />
@@ -69,24 +69,24 @@ export default function PainelDados({ mesaId, compacto = false }: { mesaId: stri
       </div>
 
       <form onSubmit={(e) => { e.preventDefault(); if (expr.trim()) fazer(expr); }} className="flex gap-2">
-        <input value={expr} onChange={(e) => setExpr(e.target.value)} placeholder="2d6+3, 4d6kh3…" aria-label="Expressão de dados" className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-        <button className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-strong">Rolar</button>
+        <input value={expr} onChange={(e) => setExpr(e.target.value)} placeholder="2d6+3, 4d6kh3, 1d120…" aria-label="Expressão de dados" className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+        <button disabled={rolando} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-strong disabled:opacity-60">Rolar</button>
+        <button type="button" onClick={() => { definirSom(!som); setSom(!som); }} aria-pressed={som} aria-label={som ? "Silenciar o som dos dados" : "Ligar o som dos dados"} title={som ? "Som ligado" : "Som desligado"} className="rounded-lg border border-border px-2.5 text-muted hover:text-foreground">
+          {som ? <Volume2 size={16} /> : <VolumeX size={16} />}
+        </button>
       </form>
       {erro && <p role="alert" className="text-xs text-danger">{erro}</p>}
 
-      {hist.length > 1 && (
+      {historico.length > 0 && (
         <div>
-          <div className="mb-1 flex items-center justify-between text-xs uppercase tracking-widest text-muted">
-            Histórico
-            <button onClick={() => setHist([])} className="inline-flex items-center gap-1 normal-case tracking-normal hover:text-foreground"><Trash2 size={12} /> limpar</button>
-          </div>
+          <p className="mb-1 text-xs uppercase tracking-widest text-muted">Histórico da mesa</p>
           <ul className={`space-y-1 overflow-y-auto text-sm ${compacto ? "max-h-32" : "max-h-56"}`}>
-            {hist.slice(1).map((r) => (
-              <li key={r.id} className="flex items-baseline justify-between gap-3 rounded-lg bg-card-2/60 px-3 py-1.5">
+            {historico.map((h) => (
+              <li key={h.id} className="flex items-baseline justify-between gap-3 rounded-lg bg-card-2/60 px-3 py-1.5">
                 <span className="truncate text-muted">
-                  {r.expressao} <span className="text-xs">[{r.grupos.map((g) => g.dados.join(",")).join(" | ")}]</span>
+                  <span className="text-foreground">{h.nome}</span> · {h.rolagem.expressao} <span className="text-xs">[{h.rolagem.grupos.map((g) => g.dados.join(",")).join(" | ")}]</span>
                 </span>
-                <b className={r.critico === "acerto" ? "text-gold" : r.critico === "falha" ? "text-danger" : ""}>{r.total}</b>
+                <b className={h.rolagem.critico === "acerto" ? "text-gold" : h.rolagem.critico === "falha" ? "text-danger" : ""}>{h.rolagem.total}</b>
               </li>
             ))}
           </ul>

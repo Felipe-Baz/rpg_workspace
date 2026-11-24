@@ -27,6 +27,7 @@ Ponto de entrada para qualquer agente (ou pessoa) que precise entender o site r�
 - [timeline](features/timeline.md): linha do tempo do mestre, com ramos, zoom e minimapa.
 - [diario-do-jogador](features/diario-do-jogador.md) · [quadro-de-investigacao](features/quadro-de-investigacao.md)
 - [sessao-ao-vivo](features/sessao-ao-vivo.md): dados, iniciativa, cronômetro, notas rápidas.
+- [dados-3d](features/dados-3d.md): rolador único com dados 3D, som e rolagem vista por todos os online.
 
 **Mapas e imagens**
 - [mapas-e-imagens](features/mapas-e-imagens.md): upload, coberturas (fog), pinos, liberação.

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Copy, Dices, X } from "lucide-react";
-import { rolar } from "@/lib/dados";
+import type { Rolagem } from "@/lib/dados";
+import { useRolagem } from "../dados/RolagemProvider";
 import { expressaoParaRolar, formatarExpressao, totalFixo, type Teste } from "@/lib/dnd5e";
 
 // Mostra a conta "1d20 + 5 (Carisma) + 2 (Proficiência)". Não rola sozinho: o jogador pode rolar no site
@@ -17,11 +18,13 @@ export default function PainelRolagem({ teste, onFechar, aoAplicar }: { teste: T
   const dado = teste.d20 ? (vantagem ? (vantagem === "v" ? "2d20 (melhor)" : "2d20 (pior)") : "1d20") : critico ? expressaoParaRolar(teste.dado, [], { critico: true }) : teste.dado;
   const texto = formatarExpressao(dado, teste.partes);
   const fixo = totalFixo(teste.partes);
-  const [resultado, setResultado] = useState<ReturnType<typeof rolar>>(null);
+  const { rolar, rolando } = useRolagem();
+  const [resultado, setResultado] = useState<Rolagem | null>(null);
   const [erro, setErro] = useState(false);
 
-  function rolarAqui() {
-    const r = rolar(expressaoParaRolar(teste.dado, teste.partes, { vantagem: teste.d20 ? vantagem : null, critico: teste.dano ? critico : false }));
+  async function rolarAqui() {
+    setResultado(null);
+    const r = await rolar(expressaoParaRolar(teste.dado, teste.partes, { vantagem: teste.d20 ? vantagem : null, critico: teste.dano ? critico : false }), teste.titulo);
     setErro(!r);
     setResultado(r);
     setManual("");
@@ -51,7 +54,7 @@ export default function PainelRolagem({ teste, onFechar, aoAplicar }: { teste: T
         {teste.dano && (
           <label className="flex items-center gap-1.5 text-xs text-muted"><input type="checkbox" checked={critico} onChange={(e) => { setCritico(e.target.checked); setResultado(null); }} /> Crítico (dobra os dados)</label>
         )}
-        <button onClick={rolarAqui} className="ml-auto flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 font-semibold text-white hover:bg-accent-strong"><Dices size={15} /> Rolar aqui</button>
+        <button onClick={rolarAqui} disabled={rolando} className="ml-auto flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 font-semibold text-white hover:bg-accent-strong disabled:opacity-60"><Dices size={15} /> Rolar aqui</button>
         <button
           onClick={() => { navigator.clipboard?.writeText(texto).then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 1500); }).catch(() => {}); }}
           className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-muted hover:text-foreground"><Copy size={14} /> {copiado ? "Copiado" : "Copiar"}</button>

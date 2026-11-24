@@ -19,6 +19,7 @@ A barreira real é **Firestore Rules + Storage Rules + rotas de servidor**. A in
 | Estado por escopo: `extensoes/{extId}/estado/mestre` | lê e grava | nada | Gabaritos e segredos da extensão |
 | `extensoes/{extId}/estado/para_{uid}` | lê e grava | só o dono (`uid`) lê, com a extensão visível, ativa e `porJogador` em `estadoAprovado` | Conteúdo entregue a um jogador; jogador nunca lista a subcoleção |
 | `extensoes/{extId}/estado/de_{uid}` | lê e apaga (nunca grava) | só o dono lê e grava, com a extensão visível, ativa e `doJogador` aprovado; chaves `json`/`uid`/`atualizadoEm`, `json` ≤ 50.000 | Escrita do jogador sem aprovação; o mestre não forja respostas |
+| Rolagens: `mesas/{id}/rolagens/{id}` | lê e cria as próprias; apaga qualquer uma | lê todas e cria as próprias (`uid == auth.uid`); só apaga as próprias | Quem está online repete a animação; ninguém edita uma rolagem depois de feita (ver [dados-3d](features/dados-3d.md)) |
 | Registros de tipos de dado: `recursosDados/{id}` | lê e grava tudo | lê só `liberado == true` | O mestre libera cada registro |
 | Pedidos de jogadores: `extensoesPedidos/{id}` | lê todos; aprova/recusa/apaga | cria e lê só os próprios (`de == uid`, `status: pendente`) | O jogador nunca grava conteúdo direto; o pedido é revalidado pelo mestre ao aprovar |
 | Lotes criados por extensões: `extensoesLotes/{id}` | lê e grava | nada | Histórico para listar e desfazer |

@@ -7,6 +7,7 @@ import {
   Skull, Sparkles, Swords, UserRound, Users, WandSparkles, type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { LogoIcone } from "../Logo";
 import ThemeToggle from "../ThemeToggle";
 import Brasas from "./Brasas";
 
@@ -98,7 +99,7 @@ export default function Landing() {
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-md">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
           <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold tracking-wide">
-            <Sparkles size={18} className="text-gold" /> RPG Workspace
+            <LogoIcone altura={30} /> RPG Workspace
           </Link>
           <div className="hidden items-center gap-6 text-sm text-muted md:flex">
             <a href="#recursos" className="hover:text-foreground">Recursos</a>

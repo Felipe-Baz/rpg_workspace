@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronRight, Dices, Heart, Plus, RotateCcw, X } from "lucide-react";
-import { rolar } from "@/lib/dados";
+import { useRolagem } from "../dados/RolagemProvider";
 import { usePersistido } from "@/lib/persistido";
 
 type Combatente = { id: string; nome: string; ini: number; pv: number | null; condicoes: string[]; jogador: boolean };
@@ -15,15 +15,16 @@ const ordenar = (l: Combatente[]) => [...l].sort((a, b) => b.ini - a.ini);
 // Rastreador de iniciativa: ordem, turno, rodada, PV e condições. Persiste por mesa no navegador.
 export default function Iniciativa({ mesaId, jogadores }: { mesaId: string; jogadores: string[] }) {
   const [est, setEst] = usePersistido<Estado>(`iniciativa:${mesaId}`, VAZIO);
+  const { rolar } = useRolagem();
   const [nome, setNome] = useState("");
   const [ini, setIni] = useState("");
   const ordem = ordenar(est.lista);
   const turno = Math.min(est.turno, Math.max(0, ordem.length - 1));
 
-  function adicionar(n: string, valor: number | null, jogador = false) {
+  async function adicionar(n: string, valor: number | null, jogador = false) {
     const nomeFinal = n.trim();
     if (!nomeFinal) return;
-    const iniFinal = valor ?? rolar("d20")!.total;
+    const iniFinal = valor ?? (await rolar("d20", `Iniciativa de ${nomeFinal}`))!.total;
     setEst((e) => ({ ...e, lista: [...e.lista, { id: crypto.randomUUID(), nome: nomeFinal, ini: iniFinal, pv: null, condicoes: [], jogador }] }));
   }
 

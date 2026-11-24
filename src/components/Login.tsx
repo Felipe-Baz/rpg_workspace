@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Map as MapIcon, Sparkles, Users, WandSparkles } from "lucide-react";
+import { Map as MapIcon, Users, WandSparkles } from "lucide-react";
 import {
   criarConta,
   entrarComEmail,
@@ -13,6 +13,7 @@ import {
   useAuth,
 } from "@/lib/auth";
 import Brasas from "./landing/Brasas";
+import { LogoCompleta, LogoIcone } from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 
 const campo = "w-full rounded-lg border border-border bg-background px-3 py-2.5 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
@@ -79,10 +80,9 @@ export default function Login() {
       <aside className="relative isolate hidden overflow-hidden border-r border-border lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_30%_0%,color-mix(in_srgb,var(--accent)_40%,transparent),transparent_60%),radial-gradient(ellipse_at_80%_90%,color-mix(in_srgb,var(--gold)_18%,transparent),transparent_55%)]" />
         <Brasas quantidade={45} />
-        <Link href="/" className="flex items-center gap-2 font-display text-xl font-semibold tracking-wide">
-          <Sparkles size={20} className="text-gold" /> RPG Workspace
-        </Link>
+        <span aria-hidden />
         <div className="anim-surgir max-w-md">
+          <LogoCompleta altura={150} className="mb-6 drop-shadow-[0_0_30px_color-mix(in_srgb,var(--gold)_30%,transparent)]" />
           <h2 className="font-display text-4xl font-bold leading-tight tracking-wide">
             Sua campanha, <span className="text-gold">inteira</span> em um só lugar.
           </h2>
@@ -106,7 +106,7 @@ export default function Login() {
         <div className="mx-auto w-full max-w-sm space-y-5">
           <div>
             <Link href="/" className="mb-6 flex items-center gap-2 font-display text-lg font-semibold tracking-wide lg:hidden">
-              <Sparkles size={18} className="text-gold" /> RPG Workspace
+              <LogoIcone altura={30} /> RPG Workspace
             </Link>
             <h1 className="font-display text-3xl font-bold tracking-wide">{modo === "entrar" ? "Bem-vindo de volta" : "Crie sua conta"}</h1>
             <p className="mt-1 text-sm text-muted">
