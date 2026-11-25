@@ -77,6 +77,19 @@ export type Magia = {
   salvaguarda: Atributo; // usada quando tipo = "salvaguarda"
 };
 
+/** Habilidade com usos limitados cadastrada à mão (ex.: um traço de raça ou subclasse que o motor não conhece). */
+export type Habilidade = {
+  id: string;
+  nome: string;
+  /** Usos por recarga (1 a 99). */
+  max: number;
+  /** `manual`: nenhum descanso devolve; o jogador repõe. */
+  recarga: "curto" | "longo" | "manual";
+  /** Origem (ex.: "Halfling", "Sortudo") e texto de consulta. */
+  fonte: string;
+  descricao: string;
+};
+
 export type Item = {
   id: string;
   nome: string;
@@ -159,6 +172,8 @@ export type FichaDnd = {
   concentracao?: { magiaId: string; nome: string };
   /** Usos gastos de cada recurso (Fúria, Ki...), por id; o máximo é calculado pela classe e nível. */
   recursos?: Record<string, number>;
+  /** Habilidades com usos cadastradas pelo jogador (raça, subclasse, talento, item). Os usos gastos vão em `recursos["hab-{id}"]`. */
+  habilidades?: Habilidade[];
   /** Características ligadas agora (furia, ataque-descuidado...). Encerram no descanso. */
   ativos?: string[];
   /** Condições do Apêndice A aplicadas (ids); "inconsciente" a 0 PV é implícita. */

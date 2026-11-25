@@ -4,6 +4,11 @@ Registro curto de **mudanças de comportamento** que alteraram esta base (mais r
 
 Se uma alteração de código **não** afeta nenhuma feature, fluxo, regra de acesso, modelo de dados ou rota, registre mesmo assim com `sem impacto na base` (isso marca a revisão como feita).
 
+- 2026-11-24: ficha D&D 5e: bolinhas de usos e de salvaguarda de morte ficam redondas no modo combate (ajuste de estilo): sem impacto na base.
+- 2026-11-24: layout: as telas da ficha (`/ficha` e `/personagens`) usam a largura toda da área de conteúdo (antes limitada a 5xl): sem impacto na base.
+- 2026-11-24: ficha D&D 5e: modo combate vira painel de batalha em colunas (PV, recursos, ataques, itens, testes/salvaguardas, espaços e magias ativas). Páginas: features/ficha-dnd5e.md.
+- 2026-11-24: ficha D&D 5e: características de subclasse só aparecem a partir do nível em que chegam (`niveisSubclasse.ts`). Páginas: features/ficha-dnd5e.md.
+- 2026-11-24: ficha D&D 5e: "Habilidades e usos" na aba Traços: usos limitados de subclasses, raça, talentos e classe vêm automáticos do livro (tabela curada `usosCatalogo.ts`) e há cadastro manual (`FichaDnd.habilidades`, recarga curto/longo/manual), tudo ligado aos recursos e aos descansos. Páginas: features/ficha-dnd5e.md.
 - 2026-11-24: compêndio de magias: corrigido o corte na tela (portal no `body`, altura responsiva) e novo filtro "Só no meu nível" (padrão ligado) que limita ao maior círculo que o personagem conjura. Páginas: features/ficha-dnd5e.md.
 - 2026-11-24: assistente de criação: subclasse do 1º nível (Patrono do bruxo etc.) e passo "Magias" (truques e 1º círculo da lista da classe); compêndio de magias cabe na tela (rola só a lista) e ganha categorias/subcategorias (Dano, Cura, Suporte, Controle...). Páginas: features/ficha-dnd5e.md.
 - 2026-11-24: ficha D&D 5e: status da ficha (rascunho/publicada, `FichaDnd.status`) que trava identidade, atributos, proficiências e textos de personagem para o jogador (mestre reabre; painel do grupo mostra o status); cartões de atributo com valor só de leitura e centralizado; dicas ao passar o mouse nas caixas de seleção (sintonizado etc.). Páginas: features/ficha-dnd5e.md, permissoes-e-seguranca.md.

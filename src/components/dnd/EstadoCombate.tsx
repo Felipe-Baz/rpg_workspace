@@ -75,13 +75,13 @@ export default function EstadoCombate({ ficha: f, defs, recursos, estado, desloc
                         aria-label={`${r.nome}: uso ${i + 1}`}
                         aria-pressed={i < r.usados}
                         onClick={() => onMudar(gastarRecurso(f, defs, r.id, i < r.usados ? -1 : 1))}
-                        className={`h-4 w-4 rounded-full border ${i < r.usados ? "border-border" : "border-gold bg-gold/70"}`}
+                        className={`bolinha h-4 w-4 rounded-full border ${i < r.usados ? "border-border" : "border-gold bg-gold/70"}`}
                         title={i < r.usados ? "Gasto (clique para devolver)" : "Disponível (clique para gastar)"}
                       />
                     ))}
                   </span>
                 )}
-                <span className="text-[10px] uppercase tracking-wider text-muted">{r.recarga === "curto" ? "descanso curto" : "descanso longo"}</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted">{r.recarga === "curto" ? "descanso curto" : r.recarga === "longo" ? "descanso longo" : "recarga manual"}</span>
                 {r.rolagem && <button className={botao} onClick={() => onRolar({ ...r.rolagem!, d20: false })}>{r.rolagem.titulo} {r.rolagem.dado}</button>}
               </li>
             ))}

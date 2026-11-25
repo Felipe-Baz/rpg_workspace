@@ -4,6 +4,7 @@
 // armadura vem na Fase 4 (por ora: 10 + Des). Sem `ficha.build` (fichas antigas / importadas do PDF) nada é
 // recalculado: vale o que está na ficha.
 
+import { caracteristicasSubAteNivel } from "./niveisSubclasse.ts";
 import { ATRIBUTOS, bonusProficiencia, modificador, pesoTotal, type Ataque, type Atributo, type FichaDnd } from "../../dnd5e.ts";
 import { MAX_SINTONIZADOS, ataquesDeArmas, capacidadeDeCarga, itensDeTexto, partesDeCa, proficienteEmArmadura, sintonizados } from "./equipamento.ts";
 import { resolver, type Efeito, type Valor } from "../efeitos.ts";
@@ -146,7 +147,7 @@ export function fontesDoBuild(b: Build, cat: Catalogo, opcoes?: OpcoesMesa): Fon
     fontes.push({ id: cl.id, nome: b.classes.length > 1 ? `${cl.nome} ${c.nivel}${i > 0 ? " (multiclasse)" : ""}` : `${cl.nome} ${c.nivel}`, tipo: "classe", efeitos: [], concede, tracos, pendentes: [], talentos: [], truques: [] });
     const sub = c.subclasse ? cl.subclasses?.find((s) => s.id === c.subclasse) : undefined;
     if (sub && c.nivel >= (cl.subclasseNivel ?? 1)) {
-      fontes.push({ id: sub.id, nome: sub.nome, tipo: "subclasse", efeitos: [], concede: vazio(), tracos: sub.caracteristicas, pendentes: [], talentos: [], truques: [] });
+      fontes.push({ id: sub.id, nome: sub.nome, tipo: "subclasse", efeitos: [], concede: vazio(), tracos: caracteristicasSubAteNivel(sub, c.nivel, cl.subclasseNivel ?? 1), pendentes: [], talentos: [], truques: [] });
     }
   });
   if (opcaoAtiva(dnd5e, opcoes, "talentos")) {

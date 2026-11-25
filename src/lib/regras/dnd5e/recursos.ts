@@ -1,10 +1,13 @@
 // Recursos com usos (Fúria, Ki, Canalizar Divindade...), o tipo de recarga e as rolagens que eles geram.
 // A ficha guarda só os usos gastos (`recursos[id]`); o máximo vem da classe, do nível e dos atributos.
 
-import { classesDaFicha, modificador, nivelNaClasse, type FichaDnd, type Teste } from "../../dnd5e.ts";
+import { classesDaFicha, modificador, nivelNaClasse, type FichaDnd, type Habilidade, type Teste } from "../../dnd5e.ts";
+import { usosDoCatalogo } from "./usosCatalogo.ts";
 import { ATIVAVEIS, danoDeFuria } from "./combate.ts";
 
-export type Recarga = "curto" | "longo";
+/** `manual` só existe nas habilidades cadastradas: nenhum descanso devolve os usos. */
+export type Recarga = "curto" | "longo" | "manual";
+export type Descanso = "curto" | "longo";
 export type RecursoDef = {
   id: string;
   nome: string;
@@ -25,7 +28,7 @@ const mod = (f: FichaDnd, a: keyof FichaDnd["atributos"]) => modificador(f.atrib
 const porNivel = (nivel: number, faixas: [number, number][]) => faixas.reduce((v, [de, valor]) => (nivel >= de ? valor : v), 0);
 
 /** Recursos da classe (e de raça/talento informados) para a ficha efetiva. Fichas sem classe não têm recursos. */
-export function recursosDaFicha(f: FichaDnd, extras: { racaId?: string; talentos?: string[] } = {}): RecursoDef[] {
+export function recursosDaFicha(f: FichaDnd, extras: { racaId?: string; subRacaId?: string; talentos?: string[]; subclasses?: Record<string, string | undefined> } = {}): RecursoDef[] {
   const out: RecursoDef[] = [];
   // cada classe dá os recursos do SEU nível (multiclasse: guerreiro 5 / mago 3 tem Surto de Ação de guerreiro 5 e Recuperação Arcana de mago 3)
   for (const { id: classe, nivel: n } of classesDaFicha(f)) switch (classe) {
@@ -67,7 +70,20 @@ export function recursosDaFicha(f: FichaDnd, extras: { racaId?: string; talentos
   }
   if (extras.racaId === "draconato") out.push({ id: "arma-de-sopro", nome: "Arma de Sopro", max: 1, recarga: "curto", fonte: "Draconato", descricao: "Dano pelo ancestral dracônico; CD 8 + Con + proficiência." });
   if (extras.talentos?.includes("sortudo")) out.push({ id: "pontos-de-sorte", nome: "Pontos de Sorte", max: 3, recarga: "longo", fonte: "Sortudo", descricao: "Rolar um d20 adicional em ataques, testes ou salvaguardas." });
+  // subclasses, raça e talentos (tabela curada de `usosCatalogo.ts`)
+  const classes = classesDaFicha(f);
+  for (const { def: u, max } of usosDoCatalogo(f, {
+    racaId: extras.racaId, subRacaId: extras.subRacaId, talentos: extras.talentos, subclasses: extras.subclasses,
+    niveis: Object.fromEntries(classes.map((c) => [c.id, c.nivel])), nivelTotal: classes.reduce((a, c) => a + c.nivel, 0) || f.nivel,
+  })) out.push({ id: u.id, nome: u.nome, max, recarga: u.recarga, fonte: u.fonte, descricao: u.descricao });
+  // habilidades cadastradas pelo jogador entram na mesma lista (usos em `recursos["hab-{id}"]`)
+  for (const h of f.habilidades ?? []) out.push(defDeHabilidade(h));
   return out;
+}
+
+export const idHabilidade = (id: string) => `hab-${id}`;
+export function defDeHabilidade(h: Habilidade): RecursoDef {
+  return { id: idHabilidade(h.id), nome: h.nome || "Habilidade", max: Math.min(99, Math.max(1, Math.floor(h.max) || 1)), recarga: h.recarga, fonte: h.fonte || "Habilidade", descricao: h.descricao };
 }
 
 /** Defs com os usos gastos e o que resta. */
@@ -90,9 +106,9 @@ export function gastarRecurso(f: FichaDnd, defs: readonly RecursoDef[], id: stri
 }
 
 /** Descanso: o curto devolve os recursos de recarga curta; o longo devolve todos. As características ligadas se encerram. */
-export function restaurarRecursos(f: FichaDnd, defs: readonly RecursoDef[], descanso: Recarga): FichaDnd {
+export function restaurarRecursos(f: FichaDnd, defs: readonly RecursoDef[], descanso: Descanso): FichaDnd {
   const recursos = { ...f.recursos };
-  for (const d of defs) if (descanso === "longo" || d.recarga === "curto") delete recursos[d.id];
+  for (const d of defs) if (d.recarga !== "manual" && (descanso === "longo" || d.recarga === "curto")) delete recursos[d.id];
   return { ...f, recursos, ativos: [] };
 }
 

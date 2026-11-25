@@ -132,7 +132,7 @@ test("recursos por classe e nível", () => {
   assert.equal(recursosDaFicha(ficha({ classe: "guerreiro", nivel: 17 })).find((r) => r.id === "surto-de-acao")?.max, 2);
   assert.deepEqual(ids(ficha({ classe: "monge", nivel: 5 })), ["pontos-de-ki:5"]);
   assert.deepEqual(ids(ficha({ classe: "monge", nivel: 1 })), []);
-  assert.deepEqual(ids(ficha({ classe: "paladino", nivel: 4 })), ["imposicao-das-maos:20", "sentido-divino:1"]);
+  assert.deepEqual(ids(ficha({ classe: "paladino", nivel: 4 })), ["imposicao-das-maos:20", "sentido-divino:1", "canalizar-divindade-paladino:1"]);
   assert.deepEqual(ids(ficha({ classe: "clerigo", nivel: 6 })), ["canalizar-divindade:2"]);
   assert.deepEqual(ids(ficha({ classe: "feiticeiro", nivel: 3 })), ["pontos-de-feiticaria:3"]);
   assert.deepEqual(ids(ficha({ classe: "ladino", nivel: 3 })), []);

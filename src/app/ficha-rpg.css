@@ -117,13 +117,18 @@
 .glifo { display: inline-flex; width: 1.1rem; height: 1.1rem; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 4px; font-size: .62rem; font-weight: 700; color: var(--muted); }
 
 /* modo combate (celular): só o essencial, alvos de toque de 44px */
-.ficha-rpg.compacto button:not(.gema-botao):not(.losango-botao),
+.ficha-rpg.compacto button:not(.gema-botao):not(.losango-botao):not(.bolinha),
 .ficha-rpg.compacto select,
 .ficha-rpg.compacto input:not([type="checkbox"]):not([type="radio"]) { min-height: 44px; }
 @media (max-width: 640px) {
   .ficha-rpg .botao-d20, .ficha-rpg [role="tab"] { min-height: 44px; }
   .ficha-rpg .medalhao { width: 4rem; }
 }
+
+/* bolinhas (usos, salvaguarda de morte): sempre redondas; no modo combate a área de toque cresce por um halo invisível */
+.ficha-rpg .bolinha { flex: none; aspect-ratio: 1; padding: 0; }
+.ficha-rpg.compacto .bolinha { position: relative; }
+.ficha-rpg.compacto .bolinha::after { content: ""; position: absolute; inset: -.6rem; }
 
 /* cartões de status (CA, iniciativa, deslocamento, percepção): mesma altura e o conteúdo centralizado */
 .ficha-rpg .cartao-stat { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .35rem; min-height: 6.2rem; padding: .7rem .5rem; text-align: center; }

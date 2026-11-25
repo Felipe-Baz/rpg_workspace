@@ -22,6 +22,7 @@ import AssistenteNivel from "./AssistenteNivel";
 import AssistenteCriacao from "./AssistenteCriacao";
 import { nivelPorXp, podeSubirDeNivel } from "@/lib/regras/dnd5e/progressao";
 import { TIPOS_DE_DANO, aplicarCura, aplicarDano, comSugestao, danoDeFuria, defesasDe, estabilizar, estadoVital, modoDaJogada, salvaguardaDeMorte, type EstadoJogo, type Jogada } from "@/lib/regras/dnd5e/combate";
+import HabilidadesUsos from "./HabilidadesUsos";
 import { recursosCalculados, recursosDaFicha, restaurarRecursos } from "@/lib/regras/dnd5e/recursos";
 import { MAX_SINTONIZADOS, emOuro, pagar, reembolsar, totalEmCobre, trocarMoedas } from "@/lib/regras/dnd5e/equipamento";
 import type { Moeda } from "@/lib/regras/dnd5e/catalogo";
@@ -196,7 +197,10 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   const nomesAntecedentes = catLivro ? catLivro.antecedentes().map((a) => a.nome) : [];
   const estado: EstadoJogo = { ...f, armaduraSemProf: calc?.armaduraSemProf };
   const rolar = (t: Teste, j?: Jogada) => setRolando({ t: j ? comSugestao(t, modoDaJogada(estado, j)) : t, seq: (rolando?.seq ?? 0) + 1 });
-  const defsRecursos = recursosDaFicha(f, { racaId: bruta.build?.raca?.id, talentos: bruta.build?.talentos });
+  const defsRecursos = recursosDaFicha(f, {
+    racaId: bruta.build?.raca?.id, subRacaId: bruta.build?.raca?.sub, talentos: bruta.build?.talentos,
+    subclasses: Object.fromEntries((bruta.build?.classes ?? []).map((c) => [c.id, c.subclasse])),
+  });
   const recursos = recursosCalculados(f, defsRecursos);
   const corpoACorpo = (a: Ataque) => !/munição/i.test(a.notas);
   /** Dano da arma com os bônus de características ligadas (Fúria soma ao dano corpo a corpo com Força). */
@@ -261,6 +265,469 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   };
 
   const ciclo = (id: (typeof PERICIAS)[number]["id"]) => set({ pericias: { ...f.pericias, [id]: (((f.pericias[id] ?? 0) + 1) % 3) as NivelProf } });
+
+  const secStats = (
+      <section className={`grid grid-cols-2 gap-3 sm:grid-cols-4 ${compacto ? "xl:grid-cols-8" : ""}`}>
+        <div className={`${cartao} cartao-stat`}>
+          <Escudo valor={f.ca} disabled={auto || travada} titulo={calc ? calc.ca.partes.map((p, i) => `${i ? (p.valor >= 0 ? "+ " : "− ") : ""}${i ? Math.abs(p.valor) : p.valor} ${p.rotulo}`).join(" ") : undefined} onChange={(n) => set({ ca: n })} />
+          <p className="stat-rotulo">Classe de armadura</p>
+        </div>
+        <div className={`${cartao} cartao-stat`}>
+          <button onClick={() => rolar(testeIniciativa(f), { tipo: "iniciativa" })} className={`${botaoRolar} stat-rolar`} title="Rolar iniciativa">{comSinal(bonusIniciativa(f))}</button>
+          <p className="stat-rotulo"><Swords size={12} className="mr-1 inline text-gold" aria-hidden />Iniciativa</p>
+        </div>
+        <div className={`${cartao} cartao-stat`}>
+          <ValorDeslocamento valor={f.deslocamento} editavel={!auto && !travada} titulo={calc ? calc.deslocamento.partes.map((p) => `${p.valor} ${p.rotulo}`).join(" + ") : undefined} onChange={(v) => set({ deslocamento: v })} />
+          <p className="stat-rotulo"><Wind size={12} className="mr-1 inline text-gold" aria-hidden />Deslocamento</p>
+        </div>
+        <div className={`${cartao} cartao-stat`}>
+          <p className="stat-valor">{percepcaoPassiva(f)}</p>
+          <p className="stat-rotulo">Percepção passiva</p>
+        </div>
+        {compacto && (
+          <>
+            <div className={`${cartao} cartao-stat`}>
+              <p className="stat-valor">{comSinal(prof)}</p>
+              <p className="stat-rotulo">Proficiência</p>
+            </div>
+            <div className={`${cartao} cartao-stat`}>
+              <button onClick={() => set({ inspiracao: !f.inspiracao })} aria-pressed={f.inspiracao} className={`rounded-full border px-3 py-1 text-sm font-semibold ${f.inspiracao ? "border-gold bg-gold/20 text-gold" : "border-border text-muted"}`}>{f.inspiracao ? "Com inspiração" : "Sem inspiração"}</button>
+              <p className="stat-rotulo"><Star size={12} className="mr-1 inline text-gold" aria-hidden />Inspiração</p>
+            </div>
+            {conjura && !!f.atrConjuracao && (
+              <>
+                <div className={`${cartao} cartao-stat`}>
+                  <p className="stat-valor">{cdMagia(f)}</p>
+                  <p className="stat-rotulo">CD da magia</p>
+                </div>
+                <div className={`${cartao} cartao-stat`}>
+                  <p className="stat-valor">{comSinal(bonusAtaqueMagia(f))}</p>
+                  <p className="stat-rotulo">Ataque de magia</p>
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </section>
+  );
+
+  const secPv = (
+      <section className={cartao}>
+        <h2 className={titulo}><Heart size={14} className={f.pv > 0 && f.pv <= f.pvMax / 4 ? "coracao-baixo" : f.pv <= 0 ? "text-danger" : ""} aria-hidden /> Pontos de vida{f.pvTemp > 0 ? <span className="ml-1 normal-case tracking-normal text-sky-400">+{f.pvTemp} temporários</span> : null}</h2>
+        <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+          <div>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <label className="text-[10px] uppercase tracking-widest text-muted">Atuais<Num valor={f.pv} onChange={(n) => set({ pv: Math.max(0, n) })} className="mt-1 !text-xl font-bold" /></label>
+              <label className="text-[10px] uppercase tracking-widest text-muted">Máximos<Num valor={f.pvMax} min={1} disabled={auto || travada} title={calc ? calc.pvMax.partes.map((p) => `${p.valor} ${p.rotulo}`).join(" + ") : undefined} onChange={(n) => set({ pvMax: n })} className="mt-1 !text-xl font-bold" /></label>
+              <label className="text-[10px] uppercase tracking-widest text-muted">Temporários<Num valor={f.pvTemp} min={0} onChange={(n) => set({ pvTemp: n })} className="mt-1 !text-xl font-bold" /></label>
+            </div>
+            <div
+              className={`barra-pv mt-3 ${pulso ? `pulso-${pulso}` : ""}`}
+              onAnimationEnd={() => setPulso("")}
+              role="meter" aria-label="Pontos de vida" aria-valuemin={0} aria-valuemax={f.pvMax} aria-valuenow={f.pv}
+            >
+              <div className="barra-pv-cheia" style={{ width: `${Math.min(100, Math.max(0, (f.pv / Math.max(1, f.pvMax)) * 100))}%` }} />
+              {f.pvTemp > 0 && <div className="barra-pv-temp" style={{ width: `${Math.min(100, (f.pvTemp / Math.max(1, f.pvMax)) * 100)}%` }} title={`${f.pvTemp} PV temporários`} />}
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+              <button onClick={() => aplicarPv("dano")} className="rounded-lg border border-danger/50 px-3 py-1 text-danger hover:bg-danger/10"><Minus size={13} className="mr-1 inline" />Dano</button>
+              <Num valor={valorPv} min={1} onChange={setValorPv} className="!w-20" />
+              <button onClick={() => aplicarPv("cura")} className="rounded-lg border border-ok/50 px-3 py-1 text-ok hover:bg-ok/10"><Plus size={13} className="mr-1 inline" />Cura</button>
+              <select value={tipoDano} onChange={(e) => setTipoDano(e.target.value)} aria-label="Tipo do dano" className={`${campo} !w-auto !py-0.5 text-xs`}>
+                <option value="">tipo do dano…</option>
+                {TIPOS_DE_DANO.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+              <label className="flex items-center gap-1 text-xs text-muted" title="Acerto crítico: o dano é dobrado e, se o alvo está a 0 PV, conta como duas falhas na salvaguarda de morte."><input type="checkbox" checked={danoCritico} onChange={(e) => setDanoCritico(e.target.checked)} />crítico</label>
+            </div>
+            <p className="mt-1 text-[11px] text-muted">O dano passa por resistências, vulnerabilidades e imunidades, depois pelos PV temporários.</p>
+            {logCombate.length > 0 && <ul role="status" className="mt-1 space-y-0.5 text-xs text-gold">{logCombate.map((l, i) => <li key={i}>{l}</li>)}</ul>}
+            {vital !== "vivo" && <p className="mt-1 text-xs font-semibold text-danger">{vital === "morto" ? "Morto" : vital === "estavel" ? "Estável (0 PV)" : "Inconsciente (0 PV)"}</p>}
+          </div>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="w-24 text-xs text-muted">Dados de vida</span>
+              <input value={f.dadoVida} disabled={auto || travada} onChange={(e) => set({ dadoVida: e.target.value })} className={`${campo} !w-14 text-center`} aria-label="Tipo do dado de vida" />
+              <Num valor={f.dadosVidaTotal - f.dadosVidaUsados} min={0} onChange={(n) => set({ dadosVidaUsados: Math.max(0, f.dadosVidaTotal - n) })} className="!w-14" />
+              <span className="text-muted">/</span>
+              <Num valor={f.dadosVidaTotal} min={0} disabled={auto || travada} onChange={(n) => set({ dadosVidaTotal: n })} className="!w-14" />
+            </div>
+            <button
+              onClick={() => { set({ dadosVidaUsados: f.dadosVidaUsados + 1 }); rolar(testeDadoVida(f)); }}
+              disabled={!temDadoVida(f)}
+              title="Gasta mais um dado de vida e rola a cura (dado + Constituição)"
+              className="ml-[6.5rem] rounded-md border border-gold/40 px-2 py-0.5 text-xs text-gold hover:bg-gold/10 disabled:opacity-40"
+            >
+              Gastar dado de vida
+            </button>
+            {f.pv <= 0 && vital === "inconsciente" && (
+              <div className="ml-[6.5rem] flex gap-2">
+                <button onClick={() => rolar({ titulo: "Salvaguarda de morte", dado: "1d20", d20: true, partes: [], morte: true })} className="rounded-md border border-danger/50 px-2 py-0.5 text-xs text-danger hover:bg-danger/10">Rolar salvaguarda de morte</button>
+                <button onClick={() => { set(estabilizar(f)); setLogCombate(["Estabilizado."]); }} className="rounded-md border border-border px-2 py-0.5 text-xs text-muted hover:text-foreground">Estabilizar</button>
+              </div>
+            )}
+            {([["morteSucessos", "Sucessos", "text-ok"], ["morteFalhas", "Falhas", "text-danger"]] as const).map(([k, r, cor]) => (
+              <div key={k} className="flex items-center gap-2">
+                <span className="w-24 text-xs text-muted">Morte: {r}</span>
+                {[1, 2, 3].map((i) => (
+                  <button
+                    key={i}
+                    onClick={() => set({ [k]: f[k] === i ? i - 1 : i })}
+                    aria-label={`${r}: ${i}`}
+                    aria-pressed={f[k] >= i}
+                    className={`bolinha h-5 w-5 rounded-full border ${f[k] >= i ? `border-current bg-current ${cor}` : "border-border"}`}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+  );
+
+  const secEstado = (
+        <section className={cartao}>
+          <h2 className={titulo}><Shield size={14} /> Estado e recursos</h2>
+          <EstadoCombate
+            ficha={f}
+            defs={defsRecursos}
+            recursos={recursos}
+            estado={estado}
+            deslocamentoBase={parseFloat(f.deslocamento.replace(",", ".")) || 9}
+            papel={papel}
+            onMudar={set}
+            onRolar={(t) => rolar(t)}
+          />
+        </section>
+  );
+
+  const secAtaques = (
+        <section className={cartao}>
+          <h2 className={titulo}><Swords size={14} /> Ataques</h2>
+          {f.ataques.length === 0 && <p className="mb-3 text-sm text-muted">Nenhum ataque ainda. Adicione sua arma ou ataque natural.</p>}
+          {auto && !compacto && <p className="mb-3 text-xs text-muted">Armas equipadas no inventário viram linhas de ataque sozinhas, com proficiência, acuidade e versátil.</p>}
+          <ul className="space-y-3">
+            {f.ataques.map((a) => {
+              const modDano = modDe(f, a.atr) + a.bonusDano;
+              return (
+                <li key={a.id} className="rounded-xl border border-border bg-background/50 p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {a.derivado || compacto ? <span className="min-w-40 flex-1 font-semibold">{a.nome || "Ataque"}{a.derivado && a.id !== "arma:desarmado" && <span className="ml-1 text-[10px] font-normal uppercase text-muted">arma equipada</span>}</span> : <input value={a.nome} onChange={(e) => setAtaque(a.id, { nome: e.target.value })} placeholder="Nome (Espada longa)" className={`${campo} min-w-40 flex-1`} />}
+                    <button onClick={() => rolar(testeAtaque(f, a), { tipo: "ataque", corpo: corpoACorpo(a), atributo: a.atr })} className={botaoRolar} title="Rolar ataque">
+                      Ataque {comSinal(modDe(f, a.atr) + (a.proficiente ? prof : 0) + a.bonusAtaque)}
+                    </button>
+                    <button onClick={() => rolar(danoDoAtaque(a))} className={botaoRolar} title="Rolar dano">
+                      Dano {a.dano || "1d4"}{modDano !== 0 ? comSinal(modDano) : ""}
+                    </button>
+                    {!a.derivado && !compacto && <button onClick={() => set({ ataques: f.ataques.filter((x) => x.id !== a.id) })} aria-label="Remover ataque" className="text-muted hover:text-danger"><Trash2 size={15} /></button>}
+                  </div>
+                  {a.derivado || compacto ? (
+                    <p className="mt-1 text-xs text-muted">{ABREV[a.atr]}{a.proficiente ? " + proficiência" : " · sem proficiência"}{a.bonusAtaque ? ` · +${a.bonusAtaque} mágico` : ""} · {a.tipoDano}{a.notas ? ` · ${a.notas}` : ""}</p>
+                  ) : (
+                  <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] uppercase tracking-wider text-muted sm:grid-cols-6">
+                    <label>
+                      Atributo
+                      <select value={a.atr} onChange={(e) => setAtaque(a.id, { atr: e.target.value as Atributo })} className={`${campo} mt-0.5`}>
+                        {ATRIBUTOS.map((x) => <option key={x} value={x}>{ABREV[x]}</option>)}
+                      </select>
+                    </label>
+                    <label className="flex items-end gap-1.5 pb-2 normal-case tracking-normal">
+                      <input type="checkbox" checked={a.proficiente} onChange={(e) => setAtaque(a.id, { proficiente: e.target.checked })} /> <Dica texto="Soma o bônus de proficiência ao ataque. Marque se o personagem sabe usar esta arma (por classe, raça ou treino).">Proficiente</Dica>
+                    </label>
+                    <label>Bônus acerto<Num valor={a.bonusAtaque} onChange={(n) => setAtaque(a.id, { bonusAtaque: n })} className="mt-0.5" /></label>
+                    <label>Dado de dano<input value={a.dano} onChange={(e) => setAtaque(a.id, { dano: e.target.value })} placeholder="1d8" className={`${campo} mt-0.5 text-center`} /></label>
+                    <label>Bônus dano<Num valor={a.bonusDano} onChange={(n) => setAtaque(a.id, { bonusDano: n })} className="mt-0.5" /></label>
+                    <label>Tipo<input value={a.tipoDano} onChange={(e) => setAtaque(a.id, { tipoDano: e.target.value })} placeholder="cortante" className={`${campo} mt-0.5`} /></label>
+                  </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          {!compacto && <button
+            onClick={() => set({ ataques: [...f.ataques, { id: uid(), nome: "", atr: "for", proficiente: true, bonusAtaque: 0, dano: "1d8", bonusDano: 0, tipoDano: "", notas: "" }] })}
+            className="mt-3 text-sm text-accent-hover hover:underline"
+          >
+            + Adicionar ataque
+          </button>}
+        </section>
+  );
+
+  const secMagias = (
+        <section className="space-y-4">
+          {!compacto && <div className={cartao}>
+            <h2 className={titulo}>Conjuração</h2>
+            {!!f.classe && !ehConjuradora(f.classe) && <p className="mb-3 text-xs text-muted">{nomeClasse(f.classe)} não conjura magias por padrão. Você ainda pode cadastrar magias (itens, talentos, subclasses como Cavaleiro Místico) e escolher o atributo de conjuração abaixo.</p>}
+            <div className="flex flex-wrap items-end gap-4">
+              <label className="text-[11px] uppercase tracking-wider text-muted">
+                Atributo
+                <select value={f.atrConjuracao} disabled={atrDaClasse} title={atrDaClasse ? "Definido pela classe" : undefined} onChange={(e) => set({ atrConjuracao: e.target.value as Atributo | "" })} className={`${campo} mt-0.5 !w-40`}>
+                  <option value="">Não conjura</option>
+                  {ATRIBUTOS.map((a) => <option key={a} value={a}>{ATRIBUTO_NOME[a]}</option>)}
+                </select>
+              </label>
+              <div className="text-center">
+                <p className="text-[10px] uppercase tracking-widest text-muted">CD da magia</p>
+                <p className="font-display text-2xl font-bold text-gold">{f.atrConjuracao ? cdMagia(f) : "—"}</p>
+                {f.classes && f.classes.length > 1 && <p className="text-[10px] text-muted">{f.classes.filter((c) => ehConjuradora(c.id as ClasseId)).map((c) => `${nomeClasse(c.id as ClasseId)} ${cdMagia(f, { classeOrigem: c.id })}`).join(" · ")}</p>}
+              </div>
+              <div className="text-center">
+                <p className="text-[10px] uppercase tracking-widest text-muted">Ataque de magia</p>
+                <p className="font-display text-2xl font-bold text-gold">{f.atrConjuracao ? comSinal(bonusAtaqueMagia(f)) : "—"}</p>
+              </div>
+            </div>
+          </div>}
+  
+          <div className={cartao}>
+            <h2 className={titulo}>Espaços de magia</h2>
+            <div className={`grid grid-cols-3 gap-2 ${compacto ? "" : "sm:grid-cols-5 lg:grid-cols-9"}`}>
+              {f.espacos.map((e, i) => (
+                <div key={i} className="rounded-xl border border-border bg-background/50 p-2 text-center">
+                  <p className="text-[10px] uppercase tracking-widest text-muted">{i + 1}º círculo</p>
+                  <div className="my-1.5 flex min-h-5 flex-wrap justify-center gap-1">
+                    {Array.from({ length: e.total }, (_, k) => (
+                      <Gema
+                        key={k}
+                        gasta={k < e.usados}
+                        onClick={() => setEspaco(i, { usados: k < e.usados ? k : k + 1 })}
+                        rotulo={`Espaço ${k + 1} do ${i + 1}º círculo: ${k < e.usados ? "gasto" : "disponível"}`}
+                      />
+                    ))}
+                  </div>
+                  {compacto
+                    ? <p className="font-mono text-xs text-muted">{e.total - e.usados}/{e.total}</p>
+                    : <Num valor={e.total} min={0} onChange={(n) => setEspaco(i, { total: Math.min(n, 9), usados: Math.min(e.usados, n) })} className="!py-0.5 !text-xs" />}
+                </div>
+              ))}
+            </div>
+            {!compacto && <p className="mt-2 text-[11px] text-muted">Clique numa gema para marcar o espaço como gasto. O número abaixo é o total.</p>}
+          </div>
+  
+          <div className={cartao}>
+            <h2 className={titulo}>Truques e magias</h2>
+            {!compacto && (cont.lim ? (
+              <div className="mb-3 space-y-1 text-xs text-muted">
+                <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <span>Truques ativos <strong className={cont.truques > cont.lim.truques ? "text-danger" : cont.truquesCheio ? "text-gold" : "text-foreground"}>{cont.truques}/{cont.lim.truques}</strong></span>
+                  <span>Magias ativas <strong className={cont.magias > cont.lim.magias ? "text-danger" : cont.magiasCheio ? "text-gold" : "text-foreground"}>{cont.magias}/{cont.lim.magias}</strong></span>
+                  <button onClick={() => setTrocaMagias("trocar")} className="ml-auto text-accent-hover hover:underline">Trocar magias ativas</button>
+                </p>
+                <p>Cadastre quantas magias quiser: o limite da classe e do nível vale só para as <strong>ativas</strong>. Só magias ativas podem ser conjuradas. A troca é feita no descanso longo.</p>
+                <details>
+                  <summary className="cursor-pointer hover:text-foreground">Ajustes especiais (itens mágicos, talentos)</summary>
+                  <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] uppercase tracking-wider">
+                    {([["truques", "Truques"], ["magias", "Magias"]] as const).map(([k, r]) => (
+                      <label key={k}>{r} (±)
+                        <Num valor={f.ajusteLimites[k]} onChange={(n) => set({ ajusteLimites: { ...f.ajusteLimites, [k]: n } })} className="mt-0.5" />
+                      </label>
+                    ))}
+                  </div>
+                  <p className="mt-1">Some ou subtraia só quando algo raro mudar o limite da classe.</p>
+                </details>
+              </div>
+            ) : (
+              <p className="mb-3 text-xs text-muted">Escolha uma classe conjuradora no cabeçalho para aplicar os limites de truques e magias ativas.</p>
+            ))}
+            {f.concentracao && (
+              <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-gold/40 bg-gold/10 px-3 py-2 text-sm">
+                <span>Concentrando em <strong className="text-gold">{f.concentracao.nome}</strong></span>
+                {danoConc !== null && (
+                  <button onClick={() => rolar(testeConcentracao(f, danoConc), { tipo: "salvaguarda", atributo: "con" })} className={botaoRolar}>Teste de concentração (sofreu {danoConc})</button>
+                )}
+                <button onClick={() => { salvar(encerrarConcentracao(f)); setDanoConc(null); }} className="ml-auto text-accent-hover hover:underline">Encerrar concentração</button>
+              </div>
+            )}
+            {f.magias.length === 0 && <p className="mb-3 text-sm text-muted">Nenhuma magia ainda.</p>}
+            {Array.from({ length: 10 }, (_, nv) => nv).map((nv) => {
+              const lista = f.magias.filter((m) => m.nivel === nv && (!compacto || m.ativa || !cont.lim));
+              if (!lista.length) return null;
+              return (
+                <div key={nv} className="mb-4">
+                  <h3 className="mb-1 border-b border-gold/20 pb-1 font-display text-sm text-gold">{nv === 0 ? "Truques" : `${nv}º círculo`}</h3>
+                  <ul className="space-y-2">
+                    {lista.map((m) => (
+                      <li key={m.id} className="carta-magia rounded-xl border border-border p-2.5" style={{ "--escola-base": corDaEscola(m.escola) } as React.CSSProperties}>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="selo-circulo" title={nv === 0 ? "Truque" : `${nv}º círculo`}>{nv === 0 ? "T" : nv}</span>
+                          <IconeEscola escola={m.escola} />
+                          {cont.lim && !compacto && (() => {
+                            const cheio = nv === 0 ? cont.truquesCheio : cont.magiasCheio;
+                            return (
+                              <input
+                                type="checkbox"
+                                checked={m.ativa}
+                                disabled={!m.ativa && cheio}
+                                onChange={() => set(alternarMagia(f, m.id))}
+                                aria-label="Ativa"
+                                title={!m.ativa && cheio ? "Limite de ativas atingido: desative outra primeiro" : m.ativa ? "Magia ativa (preparada ou conhecida): pode ser conjurada. Clique para desativar." : "Magia inativa: está cadastrada mas não pode ser conjurada. Clique para ativar (respeita o limite da classe)."}
+                              />
+                            );
+                          })()}
+                          {compacto ? <span className="min-w-40 flex-1 font-semibold">{m.nome || "Magia"}</span> : <input value={m.nome} onChange={(e) => setMagia(m.id, { nome: e.target.value })} placeholder="Nome da magia" className={`${campo} min-w-40 flex-1`} />}
+                          {m.concentracao && <span className="selo-badge" title="Exige concentração">Conc.</span>}
+                          {m.ritual && <span className="selo-badge" title="Pode ser conjurada como ritual">Ritual</span>}
+                          {(["V", "S", "M"] as const).filter((c) => new RegExp(`(^|[^A-Za-z])${c}([^A-Za-z]|$)`).test(m.componentes.replace(/\(.*\)/, ""))).map((c) => <span key={c} className="glifo" title={c === "V" ? "Componente verbal" : c === "S" ? "Componente somático" : "Componente material"}>{c}</span>)}
+                          {(nv > 0 || m.concentracao) && (() => {
+                            const circulos = circulosDisponiveis(f, nv);
+                            const pronta = magiaPronta(f, m);
+                            const escolhido = circuloDe(m);
+                            const motivo = !pronta ? "Ative a magia para conjurá-la" : nv > 0 && !circulos.length ? "Sem espaços de magia disponíveis" : "";
+                            return (
+                              <span className="flex items-center gap-1">
+                                {nv > 0 && circulos.length > 1 && (
+                                  <select value={escolhido} onChange={(e) => setCirculoConj({ ...circuloConj, [m.id]: Number(e.target.value) })} aria-label="Círculo do espaço a gastar" className={`${campo} !w-auto !py-0.5 !text-xs`}>
+                                    {circulos.map((c) => <option key={c} value={c}>{c}º{c > nv ? " (maior)" : ""}</option>)}
+                                  </select>
+                                )}
+                                <button disabled={!!motivo} title={motivo || (nv > 0 ? `Gasta 1 espaço do ${escolhido}º círculo` : "Conjurar")} onClick={() => conjurarNaFicha(m, escolhido)} className={`${botaoRolar} disabled:cursor-not-allowed disabled:opacity-40`}>
+                                  Conjurar
+                                </button>
+                                {m.ritual && nv > 0 && classeFazRitual(f) && (
+                                  <button title="Ritual: +10 minutos, não gasta espaço" onClick={() => conjurarNaFicha(m, nv, true)} className={botaoRolar}>Ritual</button>
+                                )}
+                              </span>
+                            );
+                          })()}
+                          {(() => {
+                            const plano = planoDeConjuracao(f, m, catalogo.get(m.catalogoId ?? ""), circuloDe(m));
+                            const semDados = plano.danos.length === 0 && !plano.cura && plano.extras.length === 0;
+                            return (
+                              <>
+                                {plano.ataque && <button onClick={() => rolar(plano.ataque!, { tipo: "ataque", corpo: false, atributo: atrDaMagia(f, m) || "int" })} className={botaoRolar}>Ataque {comSinal(bonusAtaqueMagia(f, m))}</button>}
+                                {plano.salvaguarda
+                                  ? <span className="text-xs text-muted">CD <strong className="text-gold">{plano.salvaguarda.cd}</strong> · {ATRIBUTO_NOME[plano.salvaguarda.atributo]}</span>
+                                  : m.tipo === "salvaguarda" && <span className="text-xs text-muted">CD <strong className="text-gold">{cdMagia(f, m)}</strong> · {ATRIBUTO_NOME[m.salvaguarda]}</span>}
+                                {plano.danos.map((t, i) => <button key={i} onClick={() => rolar(t)} className={botaoRolar} title={t.titulo}>Dano {t.dado}</button>)}
+                                {plano.dardos && <span className="text-xs text-muted" title="Quantidade de dardos ou raios">{plano.dardos} dardos/raios</span>}
+                                {plano.cura && <button onClick={() => rolar(plano.cura!)} className={botaoRolar}>Cura {plano.cura.dado}</button>}
+                                {plano.extras.map((t, i) => <button key={i} onClick={() => rolar(t)} className={botaoRolar} title={t.titulo}>{t.titulo.split(":")[0]} {t.dado}</button>)}
+                                {semDados && m.dano.trim() && <button onClick={() => rolar(testeDanoMagia(m))} className={botaoRolar}>Dano {m.dano}</button>}
+                              </>
+                            );
+                          })()}
+                          {!compacto && <button onClick={() => set({ magias: f.magias.filter((x) => x.id !== m.id) })} aria-label="Remover magia" className="text-muted hover:text-danger"><Trash2 size={15} /></button>}
+                        </div>
+                        <details className="mt-2 text-sm">
+                          <summary className="cursor-pointer text-xs text-muted hover:text-foreground">Detalhes e descrição</summary>
+                          {compacto && <p className="mt-2 text-xs text-muted">{[m.tempo, m.alcance, m.componentes, m.duracao].filter(Boolean).join(" · ")}</p>}
+                          <div className={`mt-2 grid grid-cols-2 gap-2 text-[11px] uppercase tracking-wider text-muted sm:grid-cols-4 ${compacto ? "hidden" : ""}`}>
+                            {([["escola", "Escola"], ["tempo", "Tempo de conjuração"], ["alcance", "Alcance"], ["componentes", "Componentes"], ["duracao", "Duração"]] as const).map(([k, r]) => (
+                              <label key={k}>{r}<input value={m[k]} onChange={(e) => setMagia(m.id, { [k]: e.target.value })} className={`${campo} mt-0.5 normal-case tracking-normal`} /></label>
+                            ))}
+                            {f.classes && f.classes.length > 1 && (
+                              <label>Classe de conjuração
+                                <select value={m.classeOrigem ?? ""} onChange={(e) => setMagia(m.id, { classeOrigem: e.target.value || undefined })} className={`${campo} mt-0.5`}>
+                                  <option value="">Padrão da ficha</option>
+                                  {f.classes.filter((c) => ehConjuradora(c.id as ClasseId)).map((c) => <option key={c.id} value={c.id}>{nomeClasse(c.id as ClasseId)}</option>)}
+                                </select>
+                              </label>
+                            )}
+                            <label>Círculo<Num valor={m.nivel} min={0} onChange={(n) => setMagia(m.id, { nivel: Math.min(9, n) })} className="mt-0.5" /></label>
+                            <label className="flex items-end gap-1.5 pb-1.5 normal-case tracking-normal" title="Magia que o personagem sempre tem pronta (de domínio, juramento, subclasse...): não conta no limite de magias ativas."><input type="checkbox" checked={!!m.sempre} onChange={(e) => setMagia(m.id, { sempre: e.target.checked || undefined })} /><span className="cursor-help underline decoration-dotted underline-offset-2">Sempre preparada</span></label>
+                            <label>
+                              Rolagem
+                              <select value={m.tipo} onChange={(e) => setMagia(m.id, { tipo: e.target.value as Magia["tipo"] })} className={`${campo} mt-0.5`}>
+                                <option value="nenhum">Nenhuma</option>
+                                <option value="ataque">Ataque de magia</option>
+                                <option value="salvaguarda">Salvaguarda</option>
+                              </select>
+                            </label>
+                            {m.tipo === "salvaguarda" && (
+                              <label>
+                                Salvaguarda de
+                                <select value={m.salvaguarda} onChange={(e) => setMagia(m.id, { salvaguarda: e.target.value as Atributo })} className={`${campo} mt-0.5`}>
+                                  {ATRIBUTOS.map((a) => <option key={a} value={a}>{ABREV[a]}</option>)}
+                                </select>
+                              </label>
+                            )}
+                            <label>Dano (ex.: 8d6)<input value={m.dano} onChange={(e) => setMagia(m.id, { dano: e.target.value })} className={`${campo} mt-0.5 normal-case tracking-normal`} /></label>
+                          </div>
+                          {compacto && <p className="mt-2 whitespace-pre-wrap text-xs text-muted">{m.descricao || "Sem descrição."}</p>}
+                          <textarea value={m.descricao} onChange={(e) => setMagia(m.id, { descricao: e.target.value })} rows={3} placeholder="Descrição da magia" className={`${campo} mt-2 ${compacto ? "hidden" : ""}`} />
+                        </details>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+            <div className={`flex items-center gap-2 text-sm ${compacto ? "hidden" : ""}`}>
+              <select value={novaMagia} onChange={(e) => setNovaMagia(Number(e.target.value))} className={`${campo} !w-36`} aria-label="Círculo da nova magia">
+                <option value={0}>Truque</option>
+                {Array.from({ length: 9 }, (_, i) => <option key={i} value={i + 1}>{i + 1}º círculo</option>)}
+              </select>
+              <button
+                title={(novaMagia === 0 ? cont.truquesCheio : cont.magiasCheio) ? "Limite de ativas atingido: a nova entra como inativa" : undefined}
+                onClick={() => set({ magias: [...f.magias, { id: uid(), nome: "", nivel: novaMagia, ativa: !(novaMagia === 0 ? cont.truquesCheio : cont.magiasCheio), escola: "", tempo: "1 ação", alcance: "", componentes: "", duracao: "", descricao: "", tipo: "nenhum", dano: "", salvaguarda: "des" }] })}
+                className="text-accent-hover hover:underline"
+              >
+                + Adicionar {novaMagia === 0 ? "truque" : "magia"}
+              </button>
+              <button onClick={() => setCompendio(true)} className="ml-auto text-accent-hover hover:underline">Do catálogo…</button>
+            </div>
+          </div>
+        </section>
+  );
+
+  // ---- Modo combate: tudo o que se usa numa batalha, distribuído em colunas ----
+  const sempreNaBatalha = new Set<string>(["percepcao", "furtividade", "atletismo", "acrobacia", "intuicao"]);
+  const secTestes = (
+    <section className={cartao}>
+      <h2 className={titulo}><Swords size={14} /> Testes e salvaguardas</h2>
+      <div className="grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-1 text-sm">
+        <span className="text-[10px] uppercase tracking-widest text-muted">Atributo</span>
+        <span className="text-center text-[10px] uppercase tracking-widest text-muted">Teste</span>
+        <span className="text-center text-[10px] uppercase tracking-widest text-muted">Salvaguarda</span>
+        {ATRIBUTOS.map((a) => (
+          <div key={a} className="contents">
+            <span>{ATRIBUTO_NOME[a]}{f.salvaguardas[a] && <span className="ml-1 text-gold" title="Proficiente na salvaguarda" aria-label="proficiente">◆</span>}</span>
+            <button onClick={() => rolar(testeAtributo(f, a), { tipo: "teste", atributo: a })} className={botaoRolar} title={`Teste de ${ATRIBUTO_NOME[a]}`}>{comSinal(modDe(f, a))}</button>
+            <button onClick={() => rolar(testeSalvaguarda(f, a), { tipo: "salvaguarda", atributo: a })} className={botaoRolar} title={`Salvaguarda de ${ATRIBUTO_NOME[a]}`}>{comSinal(bonusSalvaguarda(f, a))}</button>
+          </div>
+        ))}
+      </div>
+      <h3 className="mb-1 mt-4 border-b border-gold/20 pb-1 font-display text-sm text-gold">Perícias</h3>
+      <ul className="grid grid-cols-1 gap-x-4 gap-y-0.5 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+        {PERICIAS.filter((p) => (f.pericias[p.id] ?? 0) > 0 || sempreNaBatalha.has(p.id)).map((p) => (
+          <li key={p.id} className="flex items-center gap-2 text-sm">
+            <span className={`h-2 w-2 shrink-0 rotate-45 border border-gold ${(f.pericias[p.id] ?? 0) > 0 ? "bg-gold" : ""}`} aria-hidden />
+            <span className="flex-1 truncate">{p.nome} <span className="text-[10px] uppercase text-muted">{ABREV[p.atr]}</span></span>
+            <button onClick={() => rolar(testePericia(f, p.id), { tipo: "teste", atributo: p.atr })} className={botaoRolar}>{comSinal(bonusPericia(f, p.id))}</button>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-[11px] text-muted">Só as perícias em que você é proficiente e as mais usadas em combate.</p>
+    </section>
+  );
+
+  const secItens = (
+    <section className={cartao}>
+      <h2 className={titulo}><Scale size={14} /> Itens à mão</h2>
+      {f.itens.length === 0 ? <p className="text-sm text-muted">Nenhum item cadastrado.</p> : (
+        <ul className="max-h-80 space-y-1 overflow-y-auto pr-1">
+          {[...f.itens].sort((a, b) => Number(b.equipado) - Number(a.equipado)).map((i) => (
+            <li key={i.id} className="flex items-center gap-2 text-sm" title={i.descricao || undefined}>
+              <span className={`truncate ${i.equipado ? "font-semibold" : "text-muted"}`}>{i.nome || "Item"}{i.equipado && <span className="ml-1 text-[10px] uppercase text-gold">equipado</span>}</span>
+              <span className="ml-auto flex items-center gap-1">
+                <button onClick={() => setItem(i.id, { quantidade: Math.max(0, i.quantidade - 1) })} aria-label={`Gastar 1 de ${i.nome || "item"}`} className="rounded border border-border px-1.5">−</button>
+                <span className="w-6 text-center font-mono">{i.quantidade}</span>
+                <button onClick={() => setItem(i.id, { quantidade: i.quantidade + 1 })} aria-label={`Devolver 1 de ${i.nome || "item"}`} className="rounded border border-border px-1.5">+</button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-2 text-[11px] text-muted">Use − para gastar poções, flechas e outros consumíveis.</p>
+    </section>
+  );
+
+  const painelCompacto = (
+    <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="space-y-4 md:col-span-2 xl:col-span-3">{secStats}</div>
+      <div className="min-w-0 space-y-4">{secPv}{secEstado}</div>
+      <div className="min-w-0 space-y-4">{secAtaques}{secItens}</div>
+      <div className="min-w-0 space-y-4 md:col-span-2 xl:col-span-1">{secTestes}{conjura && secMagias}</div>
+    </div>
+  );
 
   return (
     <div className={`ficha-rpg space-y-4 ${compacto ? "compacto" : ""}`}>
@@ -510,95 +977,10 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
 
         {/* Coluna direita */}
         <div className="min-w-0 space-y-4">
-          <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className={`${cartao} cartao-stat`}>
-              <Escudo valor={f.ca} disabled={auto || travada} titulo={calc ? calc.ca.partes.map((p, i) => `${i ? (p.valor >= 0 ? "+ " : "− ") : ""}${i ? Math.abs(p.valor) : p.valor} ${p.rotulo}`).join(" ") : undefined} onChange={(n) => set({ ca: n })} />
-              <p className="stat-rotulo">Classe de armadura</p>
-            </div>
-            <div className={`${cartao} cartao-stat`}>
-              <button onClick={() => rolar(testeIniciativa(f), { tipo: "iniciativa" })} className={`${botaoRolar} stat-rolar`} title="Rolar iniciativa">{comSinal(bonusIniciativa(f))}</button>
-              <p className="stat-rotulo"><Swords size={12} className="mr-1 inline text-gold" aria-hidden />Iniciativa</p>
-            </div>
-            <div className={`${cartao} cartao-stat`}>
-              <ValorDeslocamento valor={f.deslocamento} editavel={!auto && !travada} titulo={calc ? calc.deslocamento.partes.map((p) => `${p.valor} ${p.rotulo}`).join(" + ") : undefined} onChange={(v) => set({ deslocamento: v })} />
-              <p className="stat-rotulo"><Wind size={12} className="mr-1 inline text-gold" aria-hidden />Deslocamento</p>
-            </div>
-            <div className={`${cartao} cartao-stat`}>
-              <p className="stat-valor">{percepcaoPassiva(f)}</p>
-              <p className="stat-rotulo">Percepção passiva</p>
-            </div>
-          </section>
-
-          <section className={cartao}>
-            <h2 className={titulo}><Heart size={14} className={f.pv > 0 && f.pv <= f.pvMax / 4 ? "coracao-baixo" : f.pv <= 0 ? "text-danger" : ""} aria-hidden /> Pontos de vida{f.pvTemp > 0 ? <span className="ml-1 normal-case tracking-normal text-sky-400">+{f.pvTemp} temporários</span> : null}</h2>
-            <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-              <div>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <label className="text-[10px] uppercase tracking-widest text-muted">Atuais<Num valor={f.pv} onChange={(n) => set({ pv: Math.max(0, n) })} className="mt-1 !text-xl font-bold" /></label>
-                  <label className="text-[10px] uppercase tracking-widest text-muted">Máximos<Num valor={f.pvMax} min={1} disabled={auto || travada} title={calc ? calc.pvMax.partes.map((p) => `${p.valor} ${p.rotulo}`).join(" + ") : undefined} onChange={(n) => set({ pvMax: n })} className="mt-1 !text-xl font-bold" /></label>
-                  <label className="text-[10px] uppercase tracking-widest text-muted">Temporários<Num valor={f.pvTemp} min={0} onChange={(n) => set({ pvTemp: n })} className="mt-1 !text-xl font-bold" /></label>
-                </div>
-                <div
-                  className={`barra-pv mt-3 ${pulso ? `pulso-${pulso}` : ""}`}
-                  onAnimationEnd={() => setPulso("")}
-                  role="meter" aria-label="Pontos de vida" aria-valuemin={0} aria-valuemax={f.pvMax} aria-valuenow={f.pv}
-                >
-                  <div className="barra-pv-cheia" style={{ width: `${Math.min(100, Math.max(0, (f.pv / Math.max(1, f.pvMax)) * 100))}%` }} />
-                  {f.pvTemp > 0 && <div className="barra-pv-temp" style={{ width: `${Math.min(100, (f.pvTemp / Math.max(1, f.pvMax)) * 100)}%` }} title={`${f.pvTemp} PV temporários`} />}
-                </div>
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-                  <button onClick={() => aplicarPv("dano")} className="rounded-lg border border-danger/50 px-3 py-1 text-danger hover:bg-danger/10"><Minus size={13} className="mr-1 inline" />Dano</button>
-                  <Num valor={valorPv} min={1} onChange={setValorPv} className="!w-20" />
-                  <button onClick={() => aplicarPv("cura")} className="rounded-lg border border-ok/50 px-3 py-1 text-ok hover:bg-ok/10"><Plus size={13} className="mr-1 inline" />Cura</button>
-                  <select value={tipoDano} onChange={(e) => setTipoDano(e.target.value)} aria-label="Tipo do dano" className={`${campo} !w-auto !py-0.5 text-xs`}>
-                    <option value="">tipo do dano…</option>
-                    {TIPOS_DE_DANO.map((t) => <option key={t} value={t}>{t}</option>)}
-                  </select>
-                  <label className="flex items-center gap-1 text-xs text-muted" title="Acerto crítico: o dano é dobrado e, se o alvo está a 0 PV, conta como duas falhas na salvaguarda de morte."><input type="checkbox" checked={danoCritico} onChange={(e) => setDanoCritico(e.target.checked)} />crítico</label>
-                </div>
-                <p className="mt-1 text-[11px] text-muted">O dano passa por resistências, vulnerabilidades e imunidades, depois pelos PV temporários.</p>
-                {logCombate.length > 0 && <ul role="status" className="mt-1 space-y-0.5 text-xs text-gold">{logCombate.map((l, i) => <li key={i}>{l}</li>)}</ul>}
-                {vital !== "vivo" && <p className="mt-1 text-xs font-semibold text-danger">{vital === "morto" ? "Morto" : vital === "estavel" ? "Estável (0 PV)" : "Inconsciente (0 PV)"}</p>}
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-24 text-xs text-muted">Dados de vida</span>
-                  <input value={f.dadoVida} disabled={auto || travada} onChange={(e) => set({ dadoVida: e.target.value })} className={`${campo} !w-14 text-center`} aria-label="Tipo do dado de vida" />
-                  <Num valor={f.dadosVidaTotal - f.dadosVidaUsados} min={0} onChange={(n) => set({ dadosVidaUsados: Math.max(0, f.dadosVidaTotal - n) })} className="!w-14" />
-                  <span className="text-muted">/</span>
-                  <Num valor={f.dadosVidaTotal} min={0} disabled={auto || travada} onChange={(n) => set({ dadosVidaTotal: n })} className="!w-14" />
-                </div>
-                <button
-                  onClick={() => { set({ dadosVidaUsados: f.dadosVidaUsados + 1 }); rolar(testeDadoVida(f)); }}
-                  disabled={!temDadoVida(f)}
-                  title="Gasta mais um dado de vida e rola a cura (dado + Constituição)"
-                  className="ml-[6.5rem] rounded-md border border-gold/40 px-2 py-0.5 text-xs text-gold hover:bg-gold/10 disabled:opacity-40"
-                >
-                  Gastar dado de vida
-                </button>
-                {f.pv <= 0 && vital === "inconsciente" && (
-                  <div className="ml-[6.5rem] flex gap-2">
-                    <button onClick={() => rolar({ titulo: "Salvaguarda de morte", dado: "1d20", d20: true, partes: [], morte: true })} className="rounded-md border border-danger/50 px-2 py-0.5 text-xs text-danger hover:bg-danger/10">Rolar salvaguarda de morte</button>
-                    <button onClick={() => { set(estabilizar(f)); setLogCombate(["Estabilizado."]); }} className="rounded-md border border-border px-2 py-0.5 text-xs text-muted hover:text-foreground">Estabilizar</button>
-                  </div>
-                )}
-                {([["morteSucessos", "Sucessos", "text-ok"], ["morteFalhas", "Falhas", "text-danger"]] as const).map(([k, r, cor]) => (
-                  <div key={k} className="flex items-center gap-2">
-                    <span className="w-24 text-xs text-muted">Morte: {r}</span>
-                    {[1, 2, 3].map((i) => (
-                      <button
-                        key={i}
-                        onClick={() => set({ [k]: f[k] === i ? i - 1 : i })}
-                        aria-label={`${r}: ${i}`}
-                        aria-pressed={f[k] >= i}
-                        className={`h-5 w-5 rounded-full border ${f[k] >= i ? `border-current bg-current ${cor}` : "border-border"}`}
-                      />
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+          {!compacto && (
+          <>
+          {secStats}
+          {secPv}
 
           <nav role="tablist" className="flex flex-wrap gap-x-2 gap-y-1 border-b border-border">
             {ABAS.filter((a) => (a.id !== "magias" || conjura) && (!compacto || a.id === "combate" || a.id === "magias")).map((a) => (
@@ -614,288 +996,15 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
             ))}
           </nav>
 
-          {abaAtual === "combate" && (
-            <section className={cartao}>
-              <h2 className={titulo}><Shield size={14} /> Estado e recursos</h2>
-              <EstadoCombate
-                ficha={f}
-                defs={defsRecursos}
-                recursos={recursos}
-                estado={estado}
-                deslocamentoBase={parseFloat(f.deslocamento.replace(",", ".")) || 9}
-                papel={papel}
-                onMudar={set}
-                onRolar={(t) => rolar(t)}
-              />
-            </section>
-          )}
+          {abaAtual === "combate" && secEstado}
 
-          {abaAtual === "combate" && (
-            <section className={cartao}>
-              <h2 className={titulo}><Swords size={14} /> Ataques</h2>
-              {f.ataques.length === 0 && <p className="mb-3 text-sm text-muted">Nenhum ataque ainda. Adicione sua arma ou ataque natural.</p>}
-              {auto && <p className="mb-3 text-xs text-muted">Armas equipadas no inventário viram linhas de ataque sozinhas, com proficiência, acuidade e versátil.</p>}
-              <ul className="space-y-3">
-                {f.ataques.map((a) => {
-                  const modDano = modDe(f, a.atr) + a.bonusDano;
-                  return (
-                    <li key={a.id} className="rounded-xl border border-border bg-background/50 p-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        {a.derivado ? <span className="min-w-40 flex-1 font-semibold">{a.nome}{a.id !== "arma:desarmado" && <span className="ml-1 text-[10px] font-normal uppercase text-muted">arma equipada</span>}</span> : <input value={a.nome} onChange={(e) => setAtaque(a.id, { nome: e.target.value })} placeholder="Nome (Espada longa)" className={`${campo} min-w-40 flex-1`} />}
-                        <button onClick={() => rolar(testeAtaque(f, a), { tipo: "ataque", corpo: corpoACorpo(a), atributo: a.atr })} className={botaoRolar} title="Rolar ataque">
-                          Ataque {comSinal(modDe(f, a.atr) + (a.proficiente ? prof : 0) + a.bonusAtaque)}
-                        </button>
-                        <button onClick={() => rolar(danoDoAtaque(a))} className={botaoRolar} title="Rolar dano">
-                          Dano {a.dano || "1d4"}{modDano !== 0 ? comSinal(modDano) : ""}
-                        </button>
-                        {!a.derivado && <button onClick={() => set({ ataques: f.ataques.filter((x) => x.id !== a.id) })} aria-label="Remover ataque" className="text-muted hover:text-danger"><Trash2 size={15} /></button>}
-                      </div>
-                      {a.derivado ? (
-                        <p className="mt-1 text-xs text-muted">{ABREV[a.atr]}{a.proficiente ? " + proficiência" : " · sem proficiência"}{a.bonusAtaque ? ` · +${a.bonusAtaque} mágico` : ""} · {a.tipoDano}{a.notas ? ` · ${a.notas}` : ""}</p>
-                      ) : (
-                      <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] uppercase tracking-wider text-muted sm:grid-cols-6">
-                        <label>
-                          Atributo
-                          <select value={a.atr} onChange={(e) => setAtaque(a.id, { atr: e.target.value as Atributo })} className={`${campo} mt-0.5`}>
-                            {ATRIBUTOS.map((x) => <option key={x} value={x}>{ABREV[x]}</option>)}
-                          </select>
-                        </label>
-                        <label className="flex items-end gap-1.5 pb-2 normal-case tracking-normal">
-                          <input type="checkbox" checked={a.proficiente} onChange={(e) => setAtaque(a.id, { proficiente: e.target.checked })} /> <Dica texto="Soma o bônus de proficiência ao ataque. Marque se o personagem sabe usar esta arma (por classe, raça ou treino).">Proficiente</Dica>
-                        </label>
-                        <label>Bônus acerto<Num valor={a.bonusAtaque} onChange={(n) => setAtaque(a.id, { bonusAtaque: n })} className="mt-0.5" /></label>
-                        <label>Dado de dano<input value={a.dano} onChange={(e) => setAtaque(a.id, { dano: e.target.value })} placeholder="1d8" className={`${campo} mt-0.5 text-center`} /></label>
-                        <label>Bônus dano<Num valor={a.bonusDano} onChange={(n) => setAtaque(a.id, { bonusDano: n })} className="mt-0.5" /></label>
-                        <label>Tipo<input value={a.tipoDano} onChange={(e) => setAtaque(a.id, { tipoDano: e.target.value })} placeholder="cortante" className={`${campo} mt-0.5`} /></label>
-                      </div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-              <button
-                onClick={() => set({ ataques: [...f.ataques, { id: uid(), nome: "", atr: "for", proficiente: true, bonusAtaque: 0, dano: "1d8", bonusDano: 0, tipoDano: "", notas: "" }] })}
-                className="mt-3 text-sm text-accent-hover hover:underline"
-              >
-                + Adicionar ataque
-              </button>
-            </section>
-          )}
+          {abaAtual === "combate" && secAtaques}
 
-          {abaAtual === "magias" && (
-            <section className="space-y-4">
-              <div className={cartao}>
-                <h2 className={titulo}>Conjuração</h2>
-                {!!f.classe && !ehConjuradora(f.classe) && <p className="mb-3 text-xs text-muted">{nomeClasse(f.classe)} não conjura magias por padrão. Você ainda pode cadastrar magias (itens, talentos, subclasses como Cavaleiro Místico) e escolher o atributo de conjuração abaixo.</p>}
-                <div className="flex flex-wrap items-end gap-4">
-                  <label className="text-[11px] uppercase tracking-wider text-muted">
-                    Atributo
-                    <select value={f.atrConjuracao} disabled={atrDaClasse} title={atrDaClasse ? "Definido pela classe" : undefined} onChange={(e) => set({ atrConjuracao: e.target.value as Atributo | "" })} className={`${campo} mt-0.5 !w-40`}>
-                      <option value="">Não conjura</option>
-                      {ATRIBUTOS.map((a) => <option key={a} value={a}>{ATRIBUTO_NOME[a]}</option>)}
-                    </select>
-                  </label>
-                  <div className="text-center">
-                    <p className="text-[10px] uppercase tracking-widest text-muted">CD da magia</p>
-                    <p className="font-display text-2xl font-bold text-gold">{f.atrConjuracao ? cdMagia(f) : "—"}</p>
-                    {f.classes && f.classes.length > 1 && <p className="text-[10px] text-muted">{f.classes.filter((c) => ehConjuradora(c.id as ClasseId)).map((c) => `${nomeClasse(c.id as ClasseId)} ${cdMagia(f, { classeOrigem: c.id })}`).join(" · ")}</p>}
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[10px] uppercase tracking-widest text-muted">Ataque de magia</p>
-                    <p className="font-display text-2xl font-bold text-gold">{f.atrConjuracao ? comSinal(bonusAtaqueMagia(f)) : "—"}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className={cartao}>
-                <h2 className={titulo}>Espaços de magia</h2>
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-9">
-                  {f.espacos.map((e, i) => (
-                    <div key={i} className="rounded-xl border border-border bg-background/50 p-2 text-center">
-                      <p className="text-[10px] uppercase tracking-widest text-muted">{i + 1}º círculo</p>
-                      <div className="my-1.5 flex min-h-5 flex-wrap justify-center gap-1">
-                        {Array.from({ length: e.total }, (_, k) => (
-                          <Gema
-                            key={k}
-                            gasta={k < e.usados}
-                            onClick={() => setEspaco(i, { usados: k < e.usados ? k : k + 1 })}
-                            rotulo={`Espaço ${k + 1} do ${i + 1}º círculo: ${k < e.usados ? "gasto" : "disponível"}`}
-                          />
-                        ))}
-                      </div>
-                      <Num valor={e.total} min={0} onChange={(n) => setEspaco(i, { total: Math.min(n, 9), usados: Math.min(e.usados, n) })} className="!py-0.5 !text-xs" />
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-2 text-[11px] text-muted">Clique numa gema para marcar o espaço como gasto. O número abaixo é o total.</p>
-              </div>
-
-              <div className={cartao}>
-                <h2 className={titulo}>Truques e magias</h2>
-                {cont.lim ? (
-                  <div className="mb-3 space-y-1 text-xs text-muted">
-                    <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                      <span>Truques ativos <strong className={cont.truques > cont.lim.truques ? "text-danger" : cont.truquesCheio ? "text-gold" : "text-foreground"}>{cont.truques}/{cont.lim.truques}</strong></span>
-                      <span>Magias ativas <strong className={cont.magias > cont.lim.magias ? "text-danger" : cont.magiasCheio ? "text-gold" : "text-foreground"}>{cont.magias}/{cont.lim.magias}</strong></span>
-                      <button onClick={() => setTrocaMagias("trocar")} className="ml-auto text-accent-hover hover:underline">Trocar magias ativas</button>
-                    </p>
-                    <p>Cadastre quantas magias quiser: o limite da classe e do nível vale só para as <strong>ativas</strong>. Só magias ativas podem ser conjuradas. A troca é feita no descanso longo.</p>
-                    <details>
-                      <summary className="cursor-pointer hover:text-foreground">Ajustes especiais (itens mágicos, talentos)</summary>
-                      <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] uppercase tracking-wider">
-                        {([["truques", "Truques"], ["magias", "Magias"]] as const).map(([k, r]) => (
-                          <label key={k}>{r} (±)
-                            <Num valor={f.ajusteLimites[k]} onChange={(n) => set({ ajusteLimites: { ...f.ajusteLimites, [k]: n } })} className="mt-0.5" />
-                          </label>
-                        ))}
-                      </div>
-                      <p className="mt-1">Some ou subtraia só quando algo raro mudar o limite da classe.</p>
-                    </details>
-                  </div>
-                ) : (
-                  <p className="mb-3 text-xs text-muted">Escolha uma classe conjuradora no cabeçalho para aplicar os limites de truques e magias ativas.</p>
-                )}
-                {f.concentracao && (
-                  <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-gold/40 bg-gold/10 px-3 py-2 text-sm">
-                    <span>Concentrando em <strong className="text-gold">{f.concentracao.nome}</strong></span>
-                    {danoConc !== null && (
-                      <button onClick={() => rolar(testeConcentracao(f, danoConc), { tipo: "salvaguarda", atributo: "con" })} className={botaoRolar}>Teste de concentração (sofreu {danoConc})</button>
-                    )}
-                    <button onClick={() => { salvar(encerrarConcentracao(f)); setDanoConc(null); }} className="ml-auto text-accent-hover hover:underline">Encerrar concentração</button>
-                  </div>
-                )}
-                {f.magias.length === 0 && <p className="mb-3 text-sm text-muted">Nenhuma magia ainda.</p>}
-                {Array.from({ length: 10 }, (_, nv) => nv).map((nv) => {
-                  const lista = f.magias.filter((m) => m.nivel === nv);
-                  if (!lista.length) return null;
-                  return (
-                    <div key={nv} className="mb-4">
-                      <h3 className="mb-1 border-b border-gold/20 pb-1 font-display text-sm text-gold">{nv === 0 ? "Truques" : `${nv}º círculo`}</h3>
-                      <ul className="space-y-2">
-                        {lista.map((m) => (
-                          <li key={m.id} className="carta-magia rounded-xl border border-border p-2.5" style={{ "--escola-base": corDaEscola(m.escola) } as React.CSSProperties}>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="selo-circulo" title={nv === 0 ? "Truque" : `${nv}º círculo`}>{nv === 0 ? "T" : nv}</span>
-                              <IconeEscola escola={m.escola} />
-                              {cont.lim && (() => {
-                                const cheio = nv === 0 ? cont.truquesCheio : cont.magiasCheio;
-                                return (
-                                  <input
-                                    type="checkbox"
-                                    checked={m.ativa}
-                                    disabled={!m.ativa && cheio}
-                                    onChange={() => set(alternarMagia(f, m.id))}
-                                    aria-label="Ativa"
-                                    title={!m.ativa && cheio ? "Limite de ativas atingido: desative outra primeiro" : m.ativa ? "Magia ativa (preparada ou conhecida): pode ser conjurada. Clique para desativar." : "Magia inativa: está cadastrada mas não pode ser conjurada. Clique para ativar (respeita o limite da classe)."}
-                                  />
-                                );
-                              })()}
-                              <input value={m.nome} onChange={(e) => setMagia(m.id, { nome: e.target.value })} placeholder="Nome da magia" className={`${campo} min-w-40 flex-1`} />
-                              {m.concentracao && <span className="selo-badge" title="Exige concentração">Conc.</span>}
-                              {m.ritual && <span className="selo-badge" title="Pode ser conjurada como ritual">Ritual</span>}
-                              {(["V", "S", "M"] as const).filter((c) => new RegExp(`(^|[^A-Za-z])${c}([^A-Za-z]|$)`).test(m.componentes.replace(/\(.*\)/, ""))).map((c) => <span key={c} className="glifo" title={c === "V" ? "Componente verbal" : c === "S" ? "Componente somático" : "Componente material"}>{c}</span>)}
-                              {(nv > 0 || m.concentracao) && (() => {
-                                const circulos = circulosDisponiveis(f, nv);
-                                const pronta = magiaPronta(f, m);
-                                const escolhido = circuloDe(m);
-                                const motivo = !pronta ? "Ative a magia para conjurá-la" : nv > 0 && !circulos.length ? "Sem espaços de magia disponíveis" : "";
-                                return (
-                                  <span className="flex items-center gap-1">
-                                    {nv > 0 && circulos.length > 1 && (
-                                      <select value={escolhido} onChange={(e) => setCirculoConj({ ...circuloConj, [m.id]: Number(e.target.value) })} aria-label="Círculo do espaço a gastar" className={`${campo} !w-auto !py-0.5 !text-xs`}>
-                                        {circulos.map((c) => <option key={c} value={c}>{c}º{c > nv ? " (maior)" : ""}</option>)}
-                                      </select>
-                                    )}
-                                    <button disabled={!!motivo} title={motivo || (nv > 0 ? `Gasta 1 espaço do ${escolhido}º círculo` : "Conjurar")} onClick={() => conjurarNaFicha(m, escolhido)} className={`${botaoRolar} disabled:cursor-not-allowed disabled:opacity-40`}>
-                                      Conjurar
-                                    </button>
-                                    {m.ritual && nv > 0 && classeFazRitual(f) && (
-                                      <button title="Ritual: +10 minutos, não gasta espaço" onClick={() => conjurarNaFicha(m, nv, true)} className={botaoRolar}>Ritual</button>
-                                    )}
-                                  </span>
-                                );
-                              })()}
-                              {(() => {
-                                const plano = planoDeConjuracao(f, m, catalogo.get(m.catalogoId ?? ""), circuloDe(m));
-                                const semDados = plano.danos.length === 0 && !plano.cura && plano.extras.length === 0;
-                                return (
-                                  <>
-                                    {plano.ataque && <button onClick={() => rolar(plano.ataque!, { tipo: "ataque", corpo: false, atributo: atrDaMagia(f, m) || "int" })} className={botaoRolar}>Ataque {comSinal(bonusAtaqueMagia(f, m))}</button>}
-                                    {plano.salvaguarda
-                                      ? <span className="text-xs text-muted">CD <strong className="text-gold">{plano.salvaguarda.cd}</strong> · {ATRIBUTO_NOME[plano.salvaguarda.atributo]}</span>
-                                      : m.tipo === "salvaguarda" && <span className="text-xs text-muted">CD <strong className="text-gold">{cdMagia(f, m)}</strong> · {ATRIBUTO_NOME[m.salvaguarda]}</span>}
-                                    {plano.danos.map((t, i) => <button key={i} onClick={() => rolar(t)} className={botaoRolar} title={t.titulo}>Dano {t.dado}</button>)}
-                                    {plano.dardos && <span className="text-xs text-muted" title="Quantidade de dardos ou raios">{plano.dardos} dardos/raios</span>}
-                                    {plano.cura && <button onClick={() => rolar(plano.cura!)} className={botaoRolar}>Cura {plano.cura.dado}</button>}
-                                    {plano.extras.map((t, i) => <button key={i} onClick={() => rolar(t)} className={botaoRolar} title={t.titulo}>{t.titulo.split(":")[0]} {t.dado}</button>)}
-                                    {semDados && m.dano.trim() && <button onClick={() => rolar(testeDanoMagia(m))} className={botaoRolar}>Dano {m.dano}</button>}
-                                  </>
-                                );
-                              })()}
-                              <button onClick={() => set({ magias: f.magias.filter((x) => x.id !== m.id) })} aria-label="Remover magia" className="text-muted hover:text-danger"><Trash2 size={15} /></button>
-                            </div>
-                            <details className="mt-2 text-sm">
-                              <summary className="cursor-pointer text-xs text-muted hover:text-foreground">Detalhes e descrição</summary>
-                              <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] uppercase tracking-wider text-muted sm:grid-cols-4">
-                                {([["escola", "Escola"], ["tempo", "Tempo de conjuração"], ["alcance", "Alcance"], ["componentes", "Componentes"], ["duracao", "Duração"]] as const).map(([k, r]) => (
-                                  <label key={k}>{r}<input value={m[k]} onChange={(e) => setMagia(m.id, { [k]: e.target.value })} className={`${campo} mt-0.5 normal-case tracking-normal`} /></label>
-                                ))}
-                                {f.classes && f.classes.length > 1 && (
-                                  <label>Classe de conjuração
-                                    <select value={m.classeOrigem ?? ""} onChange={(e) => setMagia(m.id, { classeOrigem: e.target.value || undefined })} className={`${campo} mt-0.5`}>
-                                      <option value="">Padrão da ficha</option>
-                                      {f.classes.filter((c) => ehConjuradora(c.id as ClasseId)).map((c) => <option key={c.id} value={c.id}>{nomeClasse(c.id as ClasseId)}</option>)}
-                                    </select>
-                                  </label>
-                                )}
-                                <label>Círculo<Num valor={m.nivel} min={0} onChange={(n) => setMagia(m.id, { nivel: Math.min(9, n) })} className="mt-0.5" /></label>
-                                <label className="flex items-end gap-1.5 pb-1.5 normal-case tracking-normal" title="Magia que o personagem sempre tem pronta (de domínio, juramento, subclasse...): não conta no limite de magias ativas."><input type="checkbox" checked={!!m.sempre} onChange={(e) => setMagia(m.id, { sempre: e.target.checked || undefined })} /><span className="cursor-help underline decoration-dotted underline-offset-2">Sempre preparada</span></label>
-                                <label>
-                                  Rolagem
-                                  <select value={m.tipo} onChange={(e) => setMagia(m.id, { tipo: e.target.value as Magia["tipo"] })} className={`${campo} mt-0.5`}>
-                                    <option value="nenhum">Nenhuma</option>
-                                    <option value="ataque">Ataque de magia</option>
-                                    <option value="salvaguarda">Salvaguarda</option>
-                                  </select>
-                                </label>
-                                {m.tipo === "salvaguarda" && (
-                                  <label>
-                                    Salvaguarda de
-                                    <select value={m.salvaguarda} onChange={(e) => setMagia(m.id, { salvaguarda: e.target.value as Atributo })} className={`${campo} mt-0.5`}>
-                                      {ATRIBUTOS.map((a) => <option key={a} value={a}>{ABREV[a]}</option>)}
-                                    </select>
-                                  </label>
-                                )}
-                                <label>Dano (ex.: 8d6)<input value={m.dano} onChange={(e) => setMagia(m.id, { dano: e.target.value })} className={`${campo} mt-0.5 normal-case tracking-normal`} /></label>
-                              </div>
-                              <textarea value={m.descricao} onChange={(e) => setMagia(m.id, { descricao: e.target.value })} rows={3} placeholder="Descrição da magia" className={`${campo} mt-2`} />
-                            </details>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                })}
-                <div className="flex items-center gap-2 text-sm">
-                  <select value={novaMagia} onChange={(e) => setNovaMagia(Number(e.target.value))} className={`${campo} !w-36`} aria-label="Círculo da nova magia">
-                    <option value={0}>Truque</option>
-                    {Array.from({ length: 9 }, (_, i) => <option key={i} value={i + 1}>{i + 1}º círculo</option>)}
-                  </select>
-                  <button
-                    title={(novaMagia === 0 ? cont.truquesCheio : cont.magiasCheio) ? "Limite de ativas atingido: a nova entra como inativa" : undefined}
-                    onClick={() => set({ magias: [...f.magias, { id: uid(), nome: "", nivel: novaMagia, ativa: !(novaMagia === 0 ? cont.truquesCheio : cont.magiasCheio), escola: "", tempo: "1 ação", alcance: "", componentes: "", duracao: "", descricao: "", tipo: "nenhum", dano: "", salvaguarda: "des" }] })}
-                    className="text-accent-hover hover:underline"
-                  >
-                    + Adicionar {novaMagia === 0 ? "truque" : "magia"}
-                  </button>
-                  <button onClick={() => setCompendio(true)} className="ml-auto text-accent-hover hover:underline">Do catálogo…</button>
-                </div>
-              </div>
-            </section>
-          )}
+          {abaAtual === "magias" && secMagias}
 
           {abaAtual === "tracos" && (
             <section className={`${cartao} space-y-4`}>
+              <HabilidadesUsos ficha={f} defs={defsRecursos} recursos={recursos} onMudar={set} />
               {calc && <CaracteristicasPorFonte calc={calc} />}
               <fieldset disabled={travada} className="m-0 min-w-0 space-y-4 border-0 p-0">
                 <Texto rotulo="Características, traços de raça e classe, talentos" valor={f.tracos} onChange={(v) => set({ tracos: v })} linhas={10} />
@@ -992,6 +1101,9 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
               </div>}
             </section>
           )}
+          </>
+          )}
+          {compacto && painelCompacto}
         </div>
       </div>
 

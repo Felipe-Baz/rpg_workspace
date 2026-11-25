@@ -254,7 +254,7 @@ export default function ShellBase({ mesa, modo, inicio, grupos: gruposBrutos, ro
             </div>
           </header>
 
-          <main id="conteudo" tabIndex={-1} key={pathname} className={`anim-surgir mx-auto w-full min-w-0 flex-1 px-4 pb-24 pt-6 sm:px-8 sm:py-8 md:pb-8 ${pathname.endsWith("/marcas") ? "max-w-7xl" : "max-w-5xl"}`}>{children}</main>
+          <main id="conteudo" tabIndex={-1} key={pathname} className={`anim-surgir mx-auto w-full min-w-0 flex-1 px-4 pb-24 pt-6 sm:px-8 sm:py-8 md:pb-8 ${/\/(ficha|personagens)$/.test(pathname) ? "max-w-none" : pathname.endsWith("/marcas") ? "max-w-7xl" : "max-w-5xl"}`}>{children}</main>
         </div>
       </div>
       {/* Rolador de dados flutuante (disponível em qualquer tela da mesa) */}
