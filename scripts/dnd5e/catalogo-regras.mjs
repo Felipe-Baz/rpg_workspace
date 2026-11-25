@@ -119,6 +119,18 @@ const RACAS = {
   "Tiefling": {
     atr: { int: 1, car: 2 }, desl: 9, tamanho: "Médio",
     concede: { idiomas: ["Comum", "Infernal"], resistencias: ["fogo"] },
+    // Legado Ctônico (Livro do Jogador 2024, D&D Beyond). Substitui a Resistência Infernal e a Linhagem Infernal da base:
+    // `retira` tira a resistência a fogo que a raça base concede. Os bônus de atributo continuam os da raça base (livro 2014).
+    variantes: {
+      chthonic: {
+        nome: "Tiefling Ctônico (Chthonic)", atr: {}, concede: { resistencias: ["necrótico"] },
+        retira: { resistencias: ["fogo"] },
+        texto: [
+          "**Legado Ctônico.** Seu legado vem de Carceri, Gehenna e Hades. Você tem resistência a dano necrótico e conhece o truque toque arrepiante. Ao alcançar o 3º nível de personagem, você aprende a magia vitalidade falsa e, ao alcançar o 5º nível, a magia raio do enfraquecimento: ambas ficam sempre preparadas. Você pode conjurar cada uma uma vez sem gastar espaço de magia e recupera esse uso ao terminar um descanso longo; também pode conjurá-las com espaços de magia do círculo adequado. Inteligência, Sabedoria ou Carisma é sua habilidade de conjuração para essas magias (escolha ao selecionar o legado).",
+          "**Presença de Outro Mundo.** Você conhece o truque taumaturgia. Ao conjurá-lo com esta característica, usa a mesma habilidade de conjuração do Legado Ctônico.",
+        ].join("\n\n"),
+      },
+    },
   },
 };
 
@@ -143,6 +155,7 @@ function racas(md, avisos) {
       efeitos: [...somar(d.atr ?? {}), ...(d.efeitos ?? []), ...(d.deslocamento ? [desloc(d.deslocamento)] : [])],
       ...(d.concede ? { concede: d.concede } : {}),
       ...(d.escolhas ? { escolhas: d.escolhas } : {}),
+      ...(d.retira ? { retira: d.retira } : {}),
       tracos: tracos(texto),
       ...extra,
     });
@@ -157,7 +170,7 @@ function racas(md, avisos) {
       subs.push(mk(slug(sn), sn, sd, t));
     }
     for (const [vid, vd] of Object.entries(def.variantes ?? {})) {
-      const t = vd.tracosDe ? porTitulo.get(vd.tracosDe) ?? "" : "";
+      const t = vd.texto ?? (vd.tracosDe ? porTitulo.get(vd.tracosDe) ?? "" : "");
       if (vd.tracosDe && !t) avisos.push(`Variante sem traços no livro: ${vd.nome}`);
       subs.push(mk(`${slug(nome)}-${vid}`, vd.nome, vd, t, vd.requer ? { requer: vd.requer } : {}));
     }

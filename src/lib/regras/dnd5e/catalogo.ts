@@ -45,7 +45,12 @@ export type ConteudoComEfeitos = Conteudo & {
   tracos?: Traco[];
 };
 
-export type SubRaca = ConteudoComEfeitos & { /** regra opcional da mesa que precisa estar ligada (ex.: "talentos") */ requer?: string };
+export type SubRaca = ConteudoComEfeitos & {
+  /** regra opcional da mesa que precisa estar ligada (ex.: "talentos") */
+  requer?: string;
+  /** Concessões da raça base que esta sub-raça substitui (ex.: Tiefling Ctônico troca a resistência a fogo). */
+  retira?: Concessoes;
+};
 export type Raca = ConteudoComEfeitos & { tamanho?: string; deslocamento?: number; sub?: SubRaca[] };
 export type Antecedente = ConteudoComEfeitos & {
   equipamento?: string;

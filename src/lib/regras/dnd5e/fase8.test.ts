@@ -87,6 +87,14 @@ test("dano do mestre respeita resistência da raça e imunidade manual", () => {
   assert.deepEqual(danoDoMestre(ef, calc, { valor: 10, tipo: "veneno" }).patch, {}); // imunidade manual
 });
 
+test("Tiefling Ctônico troca a resistência a fogo por necrótico", () => {
+  const f = comBuild("Tia", "guerreiro", 5, { build: { raca: { id: "tiefling", sub: "tiefling-chthonic" }, classes: [{ id: "guerreiro", nivel: 5, escolhas: { pericias: [] } }], atributosBase: { for: 10, des: 10, con: 10, int: 10, sab: 10, car: 10 } } });
+  const calc = derivar(f, cat);
+  assert.deepEqual(calc.resistencias.map((x) => x.nome), ["necrótico"]);
+  assert.equal(calc.atributos.car.total, 12); // os bônus da raça base continuam
+  assert.ok(calc.fontes.some((x) => x.tracos.some((t) => t.id === "legado-ctonico")));
+});
+
 test("rótulo da rolagem de magia leva a CD da salvaguarda (origem no histórico)", () => {
   const mago = normalizar({ ...FICHA_VAZIA, nome: "Aria", classe: "mago", nivel: 5, atrConjuracao: "int", atributos: { ...FICHA_VAZIA.atributos, int: 16 } });
   const m = magiaParaFicha(magias.find((x) => x.id === "bola-de-fogo")!, "m1", true);

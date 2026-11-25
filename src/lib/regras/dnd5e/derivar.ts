@@ -120,7 +120,17 @@ export function fontesDoBuild(b: Build, cat: Catalogo, opcoes?: OpcoesMesa): Fon
   if (raca) {
     fontes.push(fonteDe("raca", raca, b.raca?.escolhas));
     const sub = raca.sub?.find((s) => s.id === b.raca?.sub);
-    if (sub) fontes.push(fonteDe("subraca", sub, b.raca?.escolhas));
+    if (sub) {
+      fontes.push(fonteDe("subraca", sub, b.raca?.escolhas));
+      // a sub-raça pode substituir concessões da raça base (ex.: resistência do legado)
+      if (sub.retira) {
+        const base = fontes[fontes.length - 2].concede;
+        for (const k of Object.keys(sub.retira) as (keyof Concessoes)[]) {
+          const fora = (sub.retira[k] ?? []).map((x) => x.toLowerCase());
+          base[k] = base[k].filter((x) => !fora.includes(x.toLowerCase()));
+        }
+      }
+    }
   }
   const ant = b.antecedente && cat.antecedente(b.antecedente.id);
   if (ant) {

@@ -29,6 +29,8 @@ export const USOS_CATALOGO: UsoCatalogo[] = [
   // raça
   { id: "magia-drow-fogo-das-fadas", nome: "Magia Drow: Fogo das Fadas", fonte: "Elfo Negro (Drow)", raca: "elfo", subRaca: "elfo-negro-drow", nivel: 3, max: um, recarga: "longo", descricao: "Conjura fogo das fadas sem gastar espaço de magia." },
   { id: "magia-drow-escuridao", nome: "Magia Drow: Escuridão", fonte: "Elfo Negro (Drow)", raca: "elfo", subRaca: "elfo-negro-drow", nivel: 5, max: um, recarga: "longo", descricao: "Conjura escuridão sem gastar espaço de magia." },
+  { id: "magia-ctonico-vitalidade-falsa", nome: "Legado Ctônico: Vitalidade Falsa", fonte: "Tiefling Ctônico", raca: "tiefling", subRaca: "tiefling-chthonic", nivel: 3, max: um, recarga: "longo", descricao: "Conjura vitalidade falsa sem gastar espaço de magia." },
+  { id: "magia-ctonico-raio-do-enfraquecimento", nome: "Legado Ctônico: Raio do Enfraquecimento", fonte: "Tiefling Ctônico", raca: "tiefling", subRaca: "tiefling-chthonic", nivel: 5, max: um, recarga: "longo", descricao: "Conjura raio do enfraquecimento sem gastar espaço de magia." },
   // classe
   { id: "canalizar-divindade-paladino", nome: "Canalizar Divindade", fonte: "Paladino", classe: "paladino", nivel: 3, max: um, recarga: "curto", descricao: "Opção do seu juramento sagrado." },
   { id: "intervencao-divina", nome: "Intervenção Divina", fonte: "Clérigo", classe: "clerigo", nivel: 10, max: um, recarga: "longo", descricao: "Pede a ajuda da divindade; se ela intervir, não dá para usar por 7 dias." },

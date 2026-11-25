@@ -1084,6 +1084,36 @@
       }
     ],
     "tamanho": "Médio",
-    "deslocamento": 9
+    "deslocamento": 9,
+    "sub": [
+      {
+        "id": "tiefling-chthonic",
+        "nome": "Tiefling Ctônico (Chthonic)",
+        "pacote": "phb",
+        "efeitos": [],
+        "concede": {
+          "resistencias": [
+            "necrótico"
+          ]
+        },
+        "retira": {
+          "resistencias": [
+            "fogo"
+          ]
+        },
+        "tracos": [
+          {
+            "id": "legado-ctonico",
+            "nome": "Legado Ctônico",
+            "texto": "Seu legado vem de Carceri, Gehenna e Hades. Você tem resistência a dano necrótico e conhece o truque toque arrepiante. Ao alcançar o 3º nível de personagem, você aprende a magia vitalidade falsa e, ao alcançar o 5º nível, a magia raio do enfraquecimento: ambas ficam sempre preparadas. Você pode conjurar cada uma uma vez sem gastar espaço de magia e recupera esse uso ao terminar um descanso longo; também pode conjurá-las com espaços de magia do círculo adequado. Inteligência, Sabedoria ou Carisma é sua habilidade de conjuração para essas magias (escolha ao selecionar o legado)."
+          },
+          {
+            "id": "presenca-de-outro-mundo",
+            "nome": "Presença de Outro Mundo",
+            "texto": "Você conhece o truque taumaturgia. Ao conjurá-lo com esta característica, usa a mesma habilidade de conjuração do Legado Ctônico."
+          }
+        ]
+      }
+    ]
   }
 ]
