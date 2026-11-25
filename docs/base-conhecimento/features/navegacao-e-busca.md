@@ -9,7 +9,7 @@ Dois eixos separados: o seletor de mesa (cabeçalho) nunca se mistura com as fer
 ## Como funciona
 - `ShellMesa` (mestre): valida que o usuário é dono, fornece `MesaProvider` e monta `gruposNav`. Destaque fixo "Iniciar sessão" (→ sessão ao vivo). Rodapé: Configurações e "Ver como jogador".
 - `ShellJogador`: exige ser membro; sem personagem mostra `EscolherPersonagem`; `gruposNavJogador` mostra Mapas, Imagens, Mundo, Quadro, Missões e Fichas (o que o mestre liberou). O dono pode "Ver como mestre".
-- **Grupos do mestre:** Aventura (Mundo, Missões, Mapas, Imagens); Elenco e itens (NPCs, Pessoas importantes, Inimigos, Itens); Mesa (Jogadores, Fichas D&D, Sessões, Timeline, Segredos); Extensões (instaladas + "Gerenciar extensões"). "Visão geral" é o início.
+- **Grupos do mestre:** Aventura (Mundo, Missões, Mapas, Imagens); Elenco e itens (NPCs, Pessoas importantes, Inimigos, Itens); Mesa (Jogadores, Fichas D&D, Sessões, Timeline, Segredos, Livros; Fichas D&D e Livros só em mesa D&D 5e); Extensões (instaladas + "Gerenciar extensões"). "Visão geral" é o início.
 - **Grupos do jogador** (só o que o mestre liberou): Personagem (Minha ficha + Itens, que se consultam juntos); Aventura (Missões, Quadro, Mundo); Pessoas (NPCs, importantes, inimigos); Mapas e imagens; Extensões.
 - **Grupos recolhíveis:** clicar no título do grupo recolhe/expande; a escolha é por navegador (`localStorage`, `sidebar-grupos-recolhidos`, por título). Grupo recolhido ainda mostra o item da tela atual e soma as novidades (badges) no título. Com a sidebar estreita (só ícones) todos os itens aparecem.
 - **Menu moldado por extensões (E5):** `ShellBase` filtra e renomeia os itens com a chave (`ItemNav.chave`) conforme `ocultar`/`termos` dos efeitos combinados; tipos de recurso entram no grupo Extensões (`/recursos/{extId}/{recId}`). A busca Ctrl+K usa o mesmo menu já filtrado.
@@ -26,4 +26,4 @@ Dois eixos separados: o seletor de mesa (cabeçalho) nunca se mistura com as fer
 `src/components/shell/*`, `src/components/ui/*`, `src/app/mesas/[id]/(workspace)/layout.tsx`, `jogador/layout.tsx`.
 
 ## Relações
-[extensoes](extensoes.md), [liberacao-de-conteudo](liberacao-de-conteudo.md).
+[extensoes](extensoes.md), [liberacao-de-conteudo](liberacao-de-conteudo.md), [livros](livros.md).

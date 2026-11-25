@@ -1,0 +1,291 @@
+# Bestiário (Manual dos Monstros, D&D 5e)
+
+Conversão do PDF `docs/referencias/dnd_bestiario.pdf` para markdown, uma página por entrada do sumário do livro, com blocos de estatísticas completos, texto de ambientação, barras laterais e ilustrações. Gerado por `scripts/bestiario/` (veja o README de lá); não edite à mão, rode o gerador de novo.
+
+- **428 blocos de estatísticas** em 272 arquivos, 289 ilustrações em `imagens/`.
+- [Introdução](introducao.md): como ler um bloco de estatísticas (tamanho, tipo, tendência, CA, PV, ações, ND...).
+- [Índice de criaturas](indice-de-criaturas.md): tabela com tipo, CA, PV e ND de cada bloco.
+- `index.json`: os mesmos blocos em JSON (nome, família, arquivo, âncora, página, tipo, CA, PV, ND, XP), pensado para a futura aba do Livro.
+
+Cada arquivo começa com um cabeçalho YAML (`nome`, `pagina`, `categoria`). Dentro dele, cada criatura aparece como `## Bloco de estatísticas: <nome>`; entradas com várias criaturas (Dragões, Demônios, Gigantes...) trazem todos os blocos no mesmo arquivo.
+
+## Monstros (A–Z)
+
+- [Aarakocra](monstros/aarakocra.md) (p. 12)
+- [Abocanhador Matraqueante](monstros/abocanhador-matraqueante.md) (p. 13)
+- [Abolete](monstros/abolete.md) (p. 14)
+- [Anjos](monstros/anjos.md) (p. 16) — 3 blocos
+- [Ankheg](monstros/ankheg.md) (p. 20)
+- [Anomalia da Água](monstros/anomalia-da-agua.md) (p. 21)
+- [Aparição](monstros/aparicao.md) (p. 22)
+- [Arbusto Errante](monstros/arbusto-errante.md) (p. 23)
+- [Azer](monstros/azer.md) (p. 24)
+- [Banshee](monstros/banshee.md) (p. 25)
+- [Basilisco](monstros/basilisco.md) (p. 26)
+- [Behir](monstros/behir.md) (p. 27)
+- [Bruxas](monstros/bruxas.md) (p. 28) — 3 blocos
+- [Bugbears](monstros/bugbears.md) (p. 32) — 2 blocos
+- [Bulette](monstros/bulette.md) (p. 33)
+- [Bullywug](monstros/bullywug.md) (p. 34)
+- [Caçador Invisível](monstros/cacador-invisivel.md) (p. 35)
+- [Cambion](monstros/cambion.md) (p. 36)
+- [Cão Infernal](monstros/cao-infernal.md) (p. 37)
+- [Carniçais](monstros/carnicais.md) (p. 38) — 2 blocos
+- [Cavaleiro da Morte](monstros/cavaleiro-da-morte.md) (p. 39)
+- [Caveira Flamejante](monstros/caveira-flamejante.md) (p. 40)
+- [Centauro](monstros/centauro.md) (p. 41)
+- [Chuul](monstros/chuul.md) (p. 42)
+- [Ciclope](monstros/ciclope.md) (p. 43)
+- [Cocatriz](monstros/cocatriz.md) (p. 44)
+- [Couatl](monstros/couatl.md) (p. 45)
+- [Demilich](monstros/demilich.md) (p. 46)
+- [Demônios](monstros/demonios.md) (p. 48) — 14 blocos
+- [Devorador de Intelecto](monstros/devorador-de-intelecto.md) (p. 64)
+- [Devorador de Mentes](monstros/devorador-de-mentes.md) (p. 65)
+- [Diabos](monstros/diabos.md) (p. 67) — 11 blocos
+- [Dinossauros](monstros/dinossauros.md) (p. 80) — 6 blocos
+- [Dracolich](monstros/dracolich.md) (p. 82)
+- [Dragão das Sombras](monstros/dragao-das-sombras.md) (p. 83)
+- [Dragões](monstros/dragoes.md) (p. 85) — 40 blocos
+- [Dragão-Fada](monstros/dragao-fada.md) (p. 118)
+- [Dríade](monstros/driade.md) (p. 119)
+- [Drider](monstros/drider.md) (p. 120)
+- [Duergar](monstros/duergar.md) (p. 121)
+- [Duplo](monstros/duplo.md) (p. 122)
+- [Elementais](monstros/elementais.md) (p. 123) — 4 blocos
+- [Elfos: Drow](monstros/elfos-drow.md) (p. 126) — 4 blocos
+- [Empírico](monstros/empirico.md) (p. 130)
+- [Ente](monstros/ente.md) (p. 131)
+- [Esfinges](monstros/esfinges.md) (p. 132) — 2 blocos
+- [Espantalho](monstros/espantalho.md) (p. 135)
+- [Espectro](monstros/espectro.md) (p. 136)
+- [Esqueletos](monstros/esqueletos.md) (p. 137) — 3 blocos
+- [Estrangulador](monstros/estrangulador.md) (p. 139)
+- [Ettercap](monstros/ettercap.md) (p. 140)
+- [Ettin](monstros/ettin.md) (p. 141)
+- [Fantasma](monstros/fantasma.md) (p. 142)
+- [Flumph](monstros/flumph.md) (p. 143)
+- [Fogo-Fátuo](monstros/fogo-fatuo.md) (p. 144)
+- [Fomori](monstros/fomori.md) (p. 145)
+- [Fungos](monstros/fungos.md) (p. 146) — 3 blocos
+- [Galeb Duhr](monstros/galeb-duhr.md) (p. 148)
+- [Gárgula](monstros/gargula.md) (p. 149)
+- [Garra Rastejante](monstros/garra-rastejante.md) (p. 150)
+- [Gênios](monstros/genios.md) (p. 151) — 4 blocos
+- [Gigantes](monstros/gigantes.md) (p. 157) — 6 blocos
+- [Gith](monstros/gith.md) (p. 165) — 4 blocos
+- [Gnolls](monstros/gnolls.md) (p. 169) — 3 blocos
+- [Gnomo das Profundezas (Svirfneblin)](monstros/gnomo-das-profundezas-svirfneblin.md) (p. 171)
+- [Goblins](monstros/goblins.md) (p. 172) — 2 blocos
+- [Golens](monstros/golens.md) (p. 174) — 4 blocos
+- [Gorgon](monstros/gorgon.md) (p. 178)
+- [Grell](monstros/grell.md) (p. 179)
+- [Grick](monstros/grick.md) (p. 180) — 2 blocos
+- [Grifo](monstros/grifo.md) (p. 181)
+- [Grimlock](monstros/grimlock.md) (p. 182)
+- [Guardião do Escudo](monstros/guardiao-do-escudo.md) (p. 183)
+- [Harpia](monstros/harpia.md) (p. 184)
+- [Hidra](monstros/hidra.md) (p. 185)
+- [Hipogrifo](monstros/hipogrifo.md) (p. 186)
+- [Hobgoblins](monstros/hobgoblins.md) (p. 187) — 3 blocos
+- [Homem Chacal](monstros/homem-chacal.md) (p. 190)
+- [Homúnculo](monstros/homunculo.md) (p. 191)
+- [Horror de Elmo](monstros/horror-de-elmo.md) (p. 192)
+- [Horror de Gancho](monstros/horror-de-gancho.md) (p. 193)
+- [Infectados](monstros/infectados.md) (p. 194) — 3 blocos
+- [Inumano](monstros/inumano.md) (p. 196)
+- [Kenku](monstros/kenku.md) (p. 197)
+- [Kobolds](monstros/kobolds.md) (p. 198) — 2 blocos
+- [Kraken](monstros/kraken.md) (p. 199)
+- [Kuo-toa](monstros/kuo-toa.md) (p. 201) — 3 blocos
+- [Lâmia](monstros/lamia.md) (p. 204)
+- [Licantropos](monstros/licantropos.md) (p. 205) — 5 blocos
+- [Lich](monstros/lich.md) (p. 211)
+- [Limos](monstros/limos.md) (p. 213) — 4 blocos
+- [Magmin](monstros/magmin.md) (p. 217)
+- [Manticora](monstros/manticora.md) (p. 218)
+- [Manto Negro](monstros/manto-negro.md) (p. 219)
+- [Mantor](monstros/mantor.md) (p. 220)
+- [Medusa](monstros/medusa.md) (p. 221)
+- [Meio-Dragão](monstros/meio-dragao.md) (p. 222)
+- [Mephits](monstros/mephits.md) (p. 223) — 6 blocos
+- [Miconides](monstros/miconides.md) (p. 226) — 4 blocos
+- [Mímico](monstros/mimico.md) (p. 229)
+- [Minotauro](monstros/minotauro.md) (p. 230)
+- [Modrons](monstros/modrons.md) (p. 231) — 5 blocos
+- [Monstro da Ferrugem](monstros/monstro-da-ferrugem.md) (p. 234)
+- [Múmias](monstros/mumias.md) (p. 235) — 2 blocos
+- [Nagas](monstros/nagas.md) (p. 238) — 3 blocos
+- [Nótico](monstros/notico.md) (p. 240)
+- [Objetos Animados](monstros/objetos-animados.md) (p. 241) — 3 blocos
+- [Observadores](monstros/observadores.md) (p. 243) — 3 blocos
+- [Ogros](monstros/ogros.md) (p. 248) — 2 blocos
+- [Oni](monstros/oni.md) (p. 250)
+- [Orcs](monstros/orcs.md) (p. 251) — 4 blocos
+- [Otyugh](monstros/otyugh.md) (p. 255)
+- [Pantera Deslocadora](monstros/pantera-deslocadora.md) (p. 256)
+- [Pégaso](monstros/pegaso.md) (p. 257)
+- [Perfurador](monstros/perfurador.md) (p. 258)
+- [Peryton](monstros/peryton.md) (p. 259)
+- [Pesadelo](monstros/pesadelo.md) (p. 260)
+- [Pixie](monstros/pixie.md) (p. 261)
+- [Povo do Mar](monstros/povo-do-mar.md) (p. 262)
+- [Povo Lagarto](monstros/povo-lagarto.md) (p. 263) — 3 blocos
+- [Pseudodragão](monstros/pseudodragao.md) (p. 265)
+- [Quaggoth](monstros/quaggoth.md) (p. 266)
+- [Quimera](monstros/quimera.md) (p. 267)
+- [Rakshasa](monstros/rakshasa.md) (p. 268)
+- [Remorhazes](monstros/remorhazes.md) (p. 269) — 2 blocos
+- [Ressurgido](monstros/ressurgido.md) (p. 270)
+- [Roca](monstros/roca.md) (p. 271)
+- [Sahuagin](monstros/sahuagin.md) (p. 272) — 3 blocos
+- [Salamandras](monstros/salamandras.md) (p. 274) — 2 blocos
+- [Sátiro](monstros/satiro.md) (p. 276)
+- [Sirenídeo](monstros/sirenideo.md) (p. 277)
+- [Slaadi](monstros/slaadi.md) (p. 278) — 6 blocos
+- [Sombra](monstros/sombra.md) (p. 282)
+- [Sprite](monstros/sprite.md) (p. 283)
+- [Stirge](monstros/stirge.md) (p. 284)
+- [Súcubo/Íncubo](monstros/sucubo-incubo.md) (p. 284)
+- [Tarrasque](monstros/tarrasque.md) (p. 286)
+- [Tartaruga Dragão](monstros/tartaruga-dragao.md) (p. 288)
+- [Thri-kreen](monstros/thri-kreen.md) (p. 289)
+- [Tribulo Brutal](monstros/tribulo-brutal.md) (p. 290)
+- [Troglodita](monstros/troglodita.md) (p. 291)
+- [Troll](monstros/troll.md) (p. 292)
+- [Unicórnio](monstros/unicornio.md) (p. 293)
+- [Urso-Coruja](monstros/urso-coruja.md) (p. 295)
+- [Vampiros](monstros/vampiros.md) (p. 296) — 2 blocos
+- [Verme da Carniça](monstros/verme-da-carnica.md) (p. 300)
+- [Verme Púrpura](monstros/verme-purpura.md) (p. 301)
+- [Wyvern](monstros/wyvern.md) (p. 302)
+- [Xorn](monstros/xorn.md) (p. 303)
+- [Yetis](monstros/yetis.md) (p. 304) — 2 blocos
+- [Yuan-ti](monstros/yuan-ti.md) (p. 306) — 3 blocos
+- [Yugoloths](monstros/yugoloths.md) (p. 310) — 4 blocos
+- [Zumbis](monstros/zumbis.md) (p. 315) — 3 blocos
+
+## Apêndice A: Criaturas Diversas
+
+- [Introdução do apêndice](apendice-a-criaturas-diversas/introducao.md) (p. 317)
+- [Abutre](apendice-a-criaturas-diversas/abutre.md) (p. 317)
+- [Abutre Gigante](apendice-a-criaturas-diversas/abutre-gigante.md) (p. 317)
+- [Águia](apendice-a-criaturas-diversas/aguia.md) (p. 317)
+- [Águia Gigante](apendice-a-criaturas-diversas/aguia-gigante.md) (p. 317)
+- [Alce](apendice-a-criaturas-diversas/alce.md) (p. 318)
+- [Alce Gigante](apendice-a-criaturas-diversas/alce-gigante.md) (p. 318)
+- [Aranha](apendice-a-criaturas-diversas/aranha.md) (p. 318)
+- [Aranha Gigante](apendice-a-criaturas-diversas/aranha-gigante.md) (p. 319)
+- [Aranha Interplanar](apendice-a-criaturas-diversas/aranha-interplanar.md) (p. 319)
+- [Aranha-Lobo Gigante](apendice-a-criaturas-diversas/aranha-lobo-gigante.md) (p. 320)
+- [Arbusto Desperto](apendice-a-criaturas-diversas/arbusto-desperto.md) (p. 320)
+- [Arminho](apendice-a-criaturas-diversas/arminho.md) (p. 320)
+- [Arminho Gigante](apendice-a-criaturas-diversas/arminho-gigante.md) (p. 320)
+- [Árvore Desperta](apendice-a-criaturas-diversas/arvore-desperta.md) (p. 320)
+- [Babuíno](apendice-a-criaturas-diversas/babuino.md) (p. 321)
+- [Baleia Assassina](apendice-a-criaturas-diversas/baleia-assassina.md) (p. 321)
+- [Besouro de Fogo Gigante](apendice-a-criaturas-diversas/besouro-de-fogo-gigante.md) (p. 321)
+- [Bico de Machado](apendice-a-criaturas-diversas/bico-de-machado.md) (p. 321)
+- [Bode](apendice-a-criaturas-diversas/bode.md) (p. 322)
+- [Bode Gigante](apendice-a-criaturas-diversas/bode-gigante.md) (p. 322)
+- [Cão da Morte](apendice-a-criaturas-diversas/cao-da-morte.md) (p. 322)
+- [Cão Teleportador](apendice-a-criaturas-diversas/cao-teleportador.md) (p. 322)
+- [Camelo](apendice-a-criaturas-diversas/camelo.md) (p. 323)
+- [Caranguejo](apendice-a-criaturas-diversas/caranguejo.md) (p. 323)
+- [Caranguejo Gigante](apendice-a-criaturas-diversas/caranguejo-gigante.md) (p. 323)
+- [Cavalo de Carga](apendice-a-criaturas-diversas/cavalo-de-carga.md) (p. 323)
+- [Cavalo de Guerra](apendice-a-criaturas-diversas/cavalo-de-guerra.md) (p. 324)
+- [Cavalo de Montaria](apendice-a-criaturas-diversas/cavalo-de-montaria.md) (p. 324)
+- [Cavalo Marinho](apendice-a-criaturas-diversas/cavalo-marinho.md) (p. 324)
+- [Cavalo Marinho Gigante](apendice-a-criaturas-diversas/cavalo-marinho-gigante.md) (p. 324)
+- [Centopeia Gigante](apendice-a-criaturas-diversas/centopeia-gigante.md) (p. 324)
+- [Chacal](apendice-a-criaturas-diversas/chacal.md) (p. 325)
+- [Cobra Constritora](apendice-a-criaturas-diversas/cobra-constritora.md) (p. 325)
+- [Cobra Constritora Gigante](apendice-a-criaturas-diversas/cobra-constritora-gigante.md) (p. 325)
+- [Cobra Voadora](apendice-a-criaturas-diversas/cobra-voadora.md) (p. 325)
+- [Coruja](apendice-a-criaturas-diversas/coruja.md) (p. 325)
+- [Coruja Gigante](apendice-a-criaturas-diversas/coruja-gigante.md) (p. 326)
+- [Corvo](apendice-a-criaturas-diversas/corvo.md) (p. 326)
+- [Crocodilo](apendice-a-criaturas-diversas/crocodilo.md) (p. 326)
+- [Crocodilo Gigante](apendice-a-criaturas-diversas/crocodilo-gigante.md) (p. 326)
+- [Elefante](apendice-a-criaturas-diversas/elefante.md) (p. 326)
+- [Enxame de Corvos](apendice-a-criaturas-diversas/enxame-de-corvos.md) (p. 327)
+- [Enxame de Insetos](apendice-a-criaturas-diversas/enxame-de-insetos.md) (p. 327)
+- [Enxame de Morcegos](apendice-a-criaturas-diversas/enxame-de-morcegos.md) (p. 327)
+- [Enxame de Piranhas](apendice-a-criaturas-diversas/enxame-de-piranhas.md) (p. 328)
+- [Enxame de Ratos](apendice-a-criaturas-diversas/enxame-de-ratos.md) (p. 328)
+- [Enxame de Serpentes Venenosas](apendice-a-criaturas-diversas/enxame-de-serpentes-venenosas.md) (p. 328)
+- [Escorpião](apendice-a-criaturas-diversas/escorpiao.md) (p. 328)
+- [Escorpião Gigante](apendice-a-criaturas-diversas/escorpiao-gigante.md) (p. 329)
+- [Falcão](apendice-a-criaturas-diversas/falcao.md) (p. 329)
+- [Falcão de Sangue](apendice-a-criaturas-diversas/falcao-de-sangue.md) (p. 329)
+- [Gato](apendice-a-criaturas-diversas/gato.md) (p. 329)
+- [Gorila](apendice-a-criaturas-diversas/gorila.md) (p. 330)
+- [Gorila Gigante](apendice-a-criaturas-diversas/gorila-gigante.md) (p. 330)
+- [Hiena](apendice-a-criaturas-diversas/hiena.md) (p. 330)
+- [Hiena Gigante](apendice-a-criaturas-diversas/hiena-gigante.md) (p. 330)
+- [Javali](apendice-a-criaturas-diversas/javali.md) (p. 331)
+- [Javali Gigante](apendice-a-criaturas-diversas/javali-gigante.md) (p. 331)
+- [Lagarto](apendice-a-criaturas-diversas/lagarto.md) (p. 331)
+- [Lagarto Gigante](apendice-a-criaturas-diversas/lagarto-gigante.md) (p. 331)
+- [Leão](apendice-a-criaturas-diversas/leao.md) (p. 331)
+- [Lobo](apendice-a-criaturas-diversas/lobo.md) (p. 332)
+- [Lobo Atroz](apendice-a-criaturas-diversas/lobo-atroz.md) (p. 332)
+- [Lobo Invernal](apendice-a-criaturas-diversas/lobo-invernal.md) (p. 332)
+- [Mamute](apendice-a-criaturas-diversas/mamute.md) (p. 333)
+- [Mastim](apendice-a-criaturas-diversas/mastim.md) (p. 333)
+- [Morcego](apendice-a-criaturas-diversas/morcego.md) (p. 333)
+- [Morcego Gigante](apendice-a-criaturas-diversas/morcego-gigante.md) (p. 333)
+- [Mula](apendice-a-criaturas-diversas/mula.md) (p. 334)
+- [Pantera](apendice-a-criaturas-diversas/pantera.md) (p. 334)
+- [Piranha](apendice-a-criaturas-diversas/piranha.md) (p. 334)
+- [Polvo](apendice-a-criaturas-diversas/polvo.md) (p. 335)
+- [Polvo Gigante](apendice-a-criaturas-diversas/polvo-gigante.md) (p. 335)
+- [Pônei](apendice-a-criaturas-diversas/ponei.md) (p. 335)
+- [Rã Gigante](apendice-a-criaturas-diversas/ra-gigante.md) (p. 335)
+- [Rato](apendice-a-criaturas-diversas/rato.md) (p. 336)
+- [Rato Gigante](apendice-a-criaturas-diversas/rato-gigante.md) (p. 336)
+- [Rinoceronte](apendice-a-criaturas-diversas/rinoceronte.md) (p. 336)
+- [Sapo](apendice-a-criaturas-diversas/sapo.md) (p. 336)
+- [Sapo Gigante](apendice-a-criaturas-diversas/sapo-gigante.md) (p. 337)
+- [Serpente Venenosa](apendice-a-criaturas-diversas/serpente-venenosa.md) (p. 337)
+- [Serpente Venenosa Gigante](apendice-a-criaturas-diversas/serpente-venenosa-gigante.md) (p. 337)
+- [Texugo](apendice-a-criaturas-diversas/texugo.md) (p. 337)
+- [Texugo Gigante](apendice-a-criaturas-diversas/texugo-gigante.md) (p. 337)
+- [Tigre](apendice-a-criaturas-diversas/tigre.md) (p. 338)
+- [Tigre Dentes-de-Sabre](apendice-a-criaturas-diversas/tigre-dentes-de-sabre.md) (p. 338)
+- [Tubarão Caçador](apendice-a-criaturas-diversas/tubarao-cacador.md) (p. 338)
+- [Tubarão dos Arrecifes](apendice-a-criaturas-diversas/tubarao-dos-arrecifes.md) (p. 338)
+- [Tubarão Gigante](apendice-a-criaturas-diversas/tubarao-gigante.md) (p. 339)
+- [Urso Marrom](apendice-a-criaturas-diversas/urso-marrom.md) (p. 339)
+- [Urso Negro](apendice-a-criaturas-diversas/urso-negro.md) (p. 339)
+- [Urso Polar](apendice-a-criaturas-diversas/urso-polar.md) (p. 339)
+- [Veado](apendice-a-criaturas-diversas/veado.md) (p. 340)
+- [Vespa Gigante](apendice-a-criaturas-diversas/vespa-gigante.md) (p. 340)
+- [Worg](apendice-a-criaturas-diversas/worg.md) (p. 340)
+
+## Apêndice B: Personagens do Mestre
+
+- [Introdução do apêndice](apendice-b-personagens-do-mestre/introducao.md) (p. 341)
+- [Acólito](apendice-b-personagens-do-mestre/acolito.md) (p. 341)
+- [Arcano](apendice-b-personagens-do-mestre/arcano.md) (p. 341)
+- [Arquimago](apendice-b-personagens-do-mestre/arquimago.md) (p. 341)
+- [Assassino](apendice-b-personagens-do-mestre/assassino.md) (p. 342)
+- [Bandido](apendice-b-personagens-do-mestre/bandido.md) (p. 343)
+- [Batedor](apendice-b-personagens-do-mestre/batedor.md) (p. 343)
+- [Capitão dos Bandidos](apendice-b-personagens-do-mestre/capitao-dos-bandidos.md) (p. 343)
+- [Cavaleiro](apendice-b-personagens-do-mestre/cavaleiro.md) (p. 344)
+- [Cultista](apendice-b-personagens-do-mestre/cultista.md) (p. 344)
+- [Druida](apendice-b-personagens-do-mestre/druida.md) (p. 345)
+- [Espião](apendice-b-personagens-do-mestre/espiao.md) (p. 345)
+- [Fanático do Culto](apendice-b-personagens-do-mestre/fanatico-do-culto.md) (p. 346)
+- [Furioso](apendice-b-personagens-do-mestre/furioso.md) (p. 346)
+- [Gladiador](apendice-b-personagens-do-mestre/gladiador.md) (p. 346)
+- [Guarda](apendice-b-personagens-do-mestre/guarda.md) (p. 347)
+- [Guerreiro Tribal](apendice-b-personagens-do-mestre/guerreiro-tribal.md) (p. 347)
+- [Nobre](apendice-b-personagens-do-mestre/nobre.md) (p. 348)
+- [Plebeu](apendice-b-personagens-do-mestre/plebeu.md) (p. 348)
+- [Rufião](apendice-b-personagens-do-mestre/rufiao.md) (p. 348)
+- [Sacerdote](apendice-b-personagens-do-mestre/sacerdote.md) (p. 349)
+- [Veterano](apendice-b-personagens-do-mestre/veterano.md) (p. 349)
+

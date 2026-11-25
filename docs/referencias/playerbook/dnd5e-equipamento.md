@@ -70,6 +70,66 @@ A moeda padrão pesa cerca de 10 gramas, assim, cem moedas pesam aproximadamente
 | Ouro (po) | 100 | 10 | 2 | 1 | 1/10 |
 | Platina (pl) | 1.000 | 100 | 20 | 10 | 1 |
 
+### Riqueza na vida real (guia do mestre)
+
+> **Âncora usada aqui.** O próprio livro diz que um artesão hábil (mas não excepcional) ganha **1 po por dia**. Tomando uma diária de profissional qualificado no Brasil como cerca de **R$ 150**, fica **1 po ≈ R$ 150**. Não é regra do livro: é uma régua para o mestre sentir o peso do dinheiro. Se a sua realidade é outra, troque só o valor da peça de ouro e refaça as contas.
+
+**Quanto vale cada moeda**
+
+| Moeda | Aproximadamente | Dá para comprar (preços do livro) |
+|---|---|---|
+| Cobre (1 pc) | R$ 1,50 | Uma vela, uma tocha ou um giz; um pedaço de pão (2 pc ≈ R$ 3); uma caneca de cerveja (4 pc ≈ R$ 6); uma corrida dentro da cidade |
+| Prata (1 pp) | R$ 15 | Um conjunto de dados, um frasco de óleo, uma noite em hospedaria pobre; uma refeição confortável custa 5 pp (≈ R$ 75) |
+| Electro (1 pe) | R$ 75 | Moeda rara de impérios caídos: metade de um dia de trabalho de artesão |
+| Ouro (1 po) | R$ 150 | Uma diária de artesão, uma aljava, 15 m de corda de cânhamo, uma cabra, um saco de dormir |
+| Platina (1 pl) | R$ 1.500 | Dez dias de trabalho de artesão; uma moeda assim em mão de plebeu levanta suspeita |
+
+**Custo de vida por mês (30 dias)**
+
+| Estilo de vida | Em po | Aproximadamente | Como seria na vida real |
+|---|---|---|---|
+| Esquálido | 3 po | R$ 450 | Dormir em abrigo ou cômodo improvisado, comer pouco |
+| Pobre | 6 po | R$ 900 | Quarto alugado simples e comida básica |
+| Modesto | 30 po | R$ 4.500 | Vida de trabalhador qualificado: aluguel pequeno, contas e mercado em dia |
+| Confortável | 60 po | R$ 9.000 | Classe média: boa moradia, lazer, sobra algo |
+| Rico | 120 po | R$ 18.000 | Casa ampla, serviço doméstico, jantares fora com frequência |
+| Aristocrático | 300 po ou mais | R$ 45.000 ou mais | Vida de elite, com criados e eventos sociais |
+
+Um profissional com ofício vive no estilo **modesto** com o que ganha (1 po/dia): quem exerce uma profissão entre aventuras não paga manutenção modesta. Um serviçal treinado custa 2 po por dia (≈ R$ 300) e um destreinado 2 pp por dia (≈ R$ 30).
+
+**Quanto custam coisas grandes**
+
+| Item | Preço | Aproximadamente | Equivale a |
+|---|---|---|---|
+| Carroça | 15 po | R$ 2.250 | Uma moto usada |
+| Espada longa | 15 po | R$ 2.250 | Um notebook bom |
+| Besta leve | 25 po | R$ 3.750 | Uma moto popular nova |
+| Poção de cura | 50 po | R$ 7.500 | Um mês de salário bom: um remédio caríssimo |
+| Arco longo | 50 po | R$ 7.500 | Uma entrada de financiamento de carro |
+| Cota de malha | 75 po | R$ 11.250 | Um carro popular usado, quase |
+| Cavalo de montaria | 75 po | R$ 11.250 | Uma moto nova ou um carro bem usado |
+| Cavalo de guerra | 400 po | R$ 60.000 | Um carro popular novo |
+| Armadura de placas | 1.500 po | R$ 225.000 | Um apartamento pequeno |
+| Veleiro | 10.000 po | R$ 1.500.000 | Uma casa boa em bairro nobre |
+| Navio de guerra | 25.000 po | R$ 3.750.000 | Um prédio comercial |
+
+**Como não deixar o grupo rico demais nem pobre demais** _(sugestão de mesa, não é regra do livro)_
+
+- **Pense em meses de vida, não em pilhas de ouro.** Divida o que o grupo tem pelo custo do estilo de vida. Pouco mais de 1 mês de vida modesta (30 po por pessoa) é um grupo apertado; alguns meses é saudável; anos de vida rica sem trabalhar é sinal de que o ouro passou do ponto.
+- **Sinal de "rico demais":** compram armadura pesada ou itens caros antes de a campanha precisar disso; o dinheiro já não muda decisões; ninguém liga para o custo do estilo de vida. Corrija com ralos que façam sentido na história: manutenção de estilo de vida, treinamento (250 dias a 1 po por dia = 250 po), pesquisa (1 po por dia), construir itens (5 po por dia, gastando metade em material), propriedades e tropas, impostos, subornos, resgates, preços inflados em lugar remoto, serviços de conjuração caros.
+- **Sinal de "pobre demais":** não conseguem sustentar o estilo de vida, consertar equipamento ou comprar poções e suprimentos para o próximo trecho. Corrija com contratos melhor pagos, um patrono que cubra a hospedagem, tesouro mais generoso na próxima masmorra ou bens que possam ser vendidos (o livro diz que equipamento vale **metade do preço** ao vender; arte e gemas valem o preço cheio).
+- **Faixas de patrimônio por personagem** _(ponto de partida; ajuste ao tom da campanha)_:
+
+| Fase da campanha | Patrimônio acumulado típico | Sensação |
+|---|---|---|
+| Níveis 1–4 | dezenas a poucas centenas de po (alguns milhares a dezenas de milhares de reais) | Cada compra é uma escolha; vale a pena brigar por 10 po |
+| Níveis 5–10 | centenas a poucos milhares de po (dezenas a centenas de milhares de reais) | Já dá para armadura boa e propriedade modesta, não para tudo |
+| Níveis 11–16 | milhares a dezenas de milhares de po (centenas de milhares a milhões de reais) | Podem fundar uma base, financiar uma tropa ou um navio |
+| Níveis 17–20 | dezenas de milhares de po ou mais (milhões de reais) | O dinheiro compra influência política, não força pessoal |
+
+- **O peso é um freio natural.** Cem moedas pesam 1 kg: 1.500 po são 15 kg e 10.000 po são 100 kg. Recompensas em gemas, obras de arte, letras de câmbio e bens comerciais são mais fáceis de carregar, mas obrigam o grupo a procurar comprador.
+- **Dê dinheiro como história.** Pagamento em bens (um navio, um terreno, um favor de um nobre) vale mais que ouro e já chega com consequências.
+
 ### Vendendo Tesouro
 
 Oportunidades não faltam para encontrar tesouros, equipamentos, armas, armaduras e muito mais nas masmorras que você explorar. Normalmente, é possível vender seus tesouros e bugigangas quando seu grupo retornar a uma cidade ou outro povoado, desde que seu personagem possa encontrar compradores e comerciantes interessados no que você trouxe.

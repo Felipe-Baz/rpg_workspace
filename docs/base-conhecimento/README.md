@@ -20,6 +20,7 @@ Ponto de entrada para qualquer agente (ou pessoa) que precise entender o site r�
 - [jogadores-e-personagens](features/jogadores-e-personagens.md): personagens, quem controla qual.
 - [ficha-dnd5e](features/ficha-dnd5e.md): ficha automatizada de D&D 5e (rolagens mostradas como conta, espaços de magia).
 - [navegacao-e-busca](features/navegacao-e-busca.md): sidebar por grupos, Ctrl+K, visão mestre × jogador.
+- [livros](features/livros.md): biblioteca de regras do mestre (uma aba por livro; hoje o Livro do Jogador), com busca e compêndio de magias.
 - [liberacao-de-conteudo](features/liberacao-de-conteudo.md): o padrão "mestre libera, jogador lê" e o aviso de novidades.
 
 **Conteúdo da campanha**
