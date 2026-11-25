@@ -4,6 +4,7 @@ Registro curto de **mudanças de comportamento** que alteraram esta base (mais r
 
 Se uma alteração de código **não** afeta nenhuma feature, fluxo, regra de acesso, modelo de dados ou rota, registre mesmo assim com `sem impacto na base` (isso marca a revisão como feita).
 
+- 2026-11-25: ficha D&D 5e: fichas manuais (sem `build`) passam a calcular a CA por armadura/escudo/bônus equipados e a gerar linhas de ataque das armas equipadas do catálogo (`equipamentoManual`; CA calculada e ataques nunca gravados), com proficiências lidas do texto "Outras proficiências e idiomas". Páginas: features/ficha-dnd5e.md.
 - 2026-11-25: ficha D&D 5e: aba Magias volta a aparecer para o Guerreiro Cavaleiro Arcano (o teste procurava "Cavaleiro Místico"; o catálogo usa "Cavaleiro Arcano"). Páginas: sem impacto na base (correção interna).
 - 2026-11-25: `package.json` ganha `overrides` fixando `jwks-rsa` 3.2.2 (usa `jose` 4, com build CommonJS) para o `firebase-admin` não depender de `require()` de ESM no servidor da Vercel: sem impacto na base.
 - 2026-11-25: `package.json` fixa `engines.node` em 26.x (a Vercel rodava Node antigo e o `firebase-admin` falhava com ERR_REQUIRE_ESM em `jose`/`jwks-rsa`): sem impacto na base.

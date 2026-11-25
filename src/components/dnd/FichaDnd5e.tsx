@@ -28,7 +28,7 @@ import { MAX_SINTONIZADOS, emOuro, pagar, reembolsar, totalEmCobre, trocarMoedas
 import type { Moeda } from "@/lib/regras/dnd5e/catalogo";
 import { CaracteristicasPorFonte } from "./ConstrucaoPersonagem";
 import { carregarCatalogoPhb, type Catalogo } from "@/lib/regras/dnd5e/catalogo";
-import { derivar } from "@/lib/regras/dnd5e/derivar";
+import { derivar, equipamentoManual } from "@/lib/regras/dnd5e/derivar";
 import { fichaEfetiva, gravavel } from "@/lib/regras/dnd5e/efetiva";
 import { opcaoAtiva, type OpcoesMesa } from "@/lib/regras/sistema";
 import { dnd5e } from "@/lib/regras/dnd5e/sistema";
@@ -143,9 +143,14 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   }, [precisaCatalogo]);
   // ficha com os valores calculados pelo livro (se houver `build`); `salvar` devolve os derivados antes de gravar
   const calc = useMemo(() => (bruta.build && catLivro ? derivar(bruta, catLivro, opcoes) : null), [bruta, catLivro, opcoes]);
-  const f = bruta.build && catLivro && calc ? fichaEfetiva(bruta, calc, catLivro) : bruta;
+  // ficha manual (sem build): só a CA e os ataques vêm do que está equipado no inventário
+  const equipManual = useMemo(() => (!bruta.build && catLivro ? equipamentoManual(bruta, catLivro) : null), [bruta, catLivro]);
+  const f = bruta.build && catLivro && calc ? fichaEfetiva(bruta, calc, catLivro)
+    : equipManual ? { ...bruta, ca: equipManual.ca?.total ?? bruta.ca, ataques: [...equipManual.ataques, ...bruta.ataques.filter((a) => !a.derivado)] } : bruta;
   const auto = !!bruta.build;
-  const salvar = (x: FichaDnd) => salvarBruto(gravavel(bruta, x));
+  const caDoEquipamento = !!equipManual?.ca;
+  // a CA calculada pelo equipamento nunca é gravada (a gravada continua sendo a do jogador)
+  const salvar = (x: FichaDnd) => { const g = gravavel(bruta, x); salvarBruto(!bruta.build && caDoEquipamento && x.ca === f.ca ? { ...g, ca: bruta.ca } : g); };
   useEffect(() => {
     if (aba !== "magias") return;
     let vivo = true;
@@ -195,7 +200,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   const nomesRacas = catLivro ? catLivro.racas().flatMap((r) => [r.nome, ...(r.sub ?? []).filter((s) => s.id !== `${r.id}-padrao` && s.nome !== r.nome).map((s) => s.nome)]) : [];
   const antecedenteCat = catLivro?.antecedentes().find((a) => a.nome === f.antecedente);
   const nomesAntecedentes = catLivro ? catLivro.antecedentes().map((a) => a.nome) : [];
-  const estado: EstadoJogo = { ...f, armaduraSemProf: calc?.armaduraSemProf };
+  const estado: EstadoJogo = { ...f, armaduraSemProf: calc?.armaduraSemProf ?? equipManual?.armaduraSemProf };
   const rolar = (t: Teste, j?: Jogada) => setRolando({ t: j ? comSugestao(t, modoDaJogada(estado, j)) : t, seq: (rolando?.seq ?? 0) + 1 });
   const defsRecursos = recursosDaFicha(f, {
     racaId: bruta.build?.raca?.id, subRacaId: bruta.build?.raca?.sub, talentos: bruta.build?.talentos,
@@ -269,7 +274,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   const secStats = (
       <section className={`grid grid-cols-2 gap-3 sm:grid-cols-4 ${compacto ? "xl:grid-cols-8" : ""}`}>
         <div className={`${cartao} cartao-stat`}>
-          <Escudo valor={f.ca} disabled={auto || travada} titulo={calc ? calc.ca.partes.map((p, i) => `${i ? (p.valor >= 0 ? "+ " : "− ") : ""}${i ? Math.abs(p.valor) : p.valor} ${p.rotulo}`).join(" ") : undefined} onChange={(n) => set({ ca: n })} />
+          <Escudo valor={f.ca} disabled={auto || caDoEquipamento || travada} titulo={(calc?.ca ?? equipManual?.ca)?.partes.map((p, i) => `${i ? (p.valor >= 0 ? "+ " : "− ") : ""}${i ? Math.abs(p.valor) : p.valor} ${p.rotulo}`).join(" ")} onChange={(n) => set({ ca: n })} />
           <p className="stat-rotulo">Classe de armadura</p>
         </div>
         <div className={`${cartao} cartao-stat`}>
@@ -404,7 +409,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
         <section className={cartao}>
           <h2 className={titulo}><Swords size={14} /> Ataques</h2>
           {f.ataques.length === 0 && <p className="mb-3 text-sm text-muted">Nenhum ataque ainda. Adicione sua arma ou ataque natural.</p>}
-          {auto && !compacto && <p className="mb-3 text-xs text-muted">Armas equipadas no inventário viram linhas de ataque sozinhas, com proficiência, acuidade e versátil.</p>}
+          {(auto || equipManual) && !compacto && <p className="mb-3 text-xs text-muted">Armas equipadas no inventário viram linhas de ataque sozinhas, com {auto ? "proficiência, " : ""}acuidade e versátil.</p>}
           <ul className="space-y-3">
             {f.ataques.map((a) => {
               const modDano = modDe(f, a.atr) + a.bonusDano;
@@ -1034,10 +1039,10 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
                   <button onClick={() => { const novas = trocarMoedas(f.moedas, troca.de, troca.para, troca.qtd); if (novas === f.moedas) window.alert("Não dá para trocar essa quantidade sem sobrar fração de moeda."); else set({ moedas: novas }); }} className="text-accent-hover hover:underline">trocar</button>
                 </span>
               </div>
-              {!auto && f.itens.some((i) => i.catalogoId) && <p className="text-xs text-muted">Há itens do catálogo, mas a CA e os ataques das armas só são calculados com a construção pelo livro ativa (aba Personagem).</p>}
-              {calc && calc.avisos.length > 0 && (
+              {!auto && f.itens.some((i) => i.catalogoId) && <p className="text-xs text-muted">Armadura, escudo e armas do catálogo marcados como equipados definem a CA e os ataques desta ficha. As proficiências vêm do texto "Outras proficiências e idiomas" (aba Traços); carga e sintonia só são conferidas com a construção pelo livro.</p>}
+              {(calc?.avisos ?? equipManual?.avisos ?? []).length > 0 && (
                 <ul className="space-y-0.5 rounded-lg border border-gold/40 bg-gold/10 px-3 py-2 text-xs">
-                  {calc.avisos.map((a) => <li key={a}>⚠ {a}</li>)}
+                  {(calc?.avisos ?? equipManual?.avisos ?? []).map((a) => <li key={a}>⚠ {a}</li>)}
                 </ul>
               )}
               <div>

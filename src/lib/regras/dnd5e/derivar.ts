@@ -332,6 +332,49 @@ export function derivar(ficha: FichaDnd, cat: Catalogo, opcoes?: OpcoesMesa): Fi
   };
 }
 
+/**
+ * Equipamento de uma ficha SEM `build` (manual ou importada do PDF): a CA e as linhas de ataque vêm do que está
+ * equipado no inventário (itens do catálogo), sem mexer no resto da ficha. Sem armadura/escudo do catálogo
+ * equipados, a CA gravada vale (somando só `bonusCa` de itens equipados). Proficiência de arma é presumida
+ * (quem equipou, sabe usar): a ficha manual não tem lista de proficiências.
+ */
+export function equipamentoManual(ficha: FichaDnd, cat: Catalogo): { ca?: Valor; ataques: Ataque[]; avisos: string[]; armaduraSemProf: boolean } {
+  // proficiências: o texto livre "Outras proficiências e idiomas" (Traços), ex.: "Armaduras leves e médias, escudos, armas simples"
+  const texto = ficha.proficienciasIdiomas ?? "";
+  const profs = [...texto.split(/[\n,;]+|\s+e\s+/).map((x) => x.trim().replace(/\.$/, "")).filter(Boolean),
+    ...(/simples/i.test(texto) ? ["Armas simples"] : []), ...(/marciais/i.test(texto) ? ["Armas marciais"] : [])];
+  const mods = {} as Record<Atributo, number>;
+  for (const a of ATRIBUTOS) mods[a] = modificador(ficha.atributos[a]);
+  const equipados = ficha.itens.filter((i) => i.equipado && i.catalogoId);
+  const achar = <T extends { tipo: string }>(tipo: T["tipo"]) => equipados.map((i) => ({ i, c: cat.item(i.catalogoId!) })).find((x) => x.c?.tipo === tipo) as { i: (typeof equipados)[number]; c: T } | undefined;
+  const armadura = achar<ArmaduraCat>("armadura");
+  const escudo = achar<EscudoCat>("escudo");
+  const bonusCaItens: Efeito[] = ficha.itens.filter((i) => i.equipado && i.bonusCa && !(i.catalogoId && ["armadura", "escudo"].includes(cat.item(i.catalogoId)?.tipo ?? ""))).map((i) => ({ alvo: "ca", op: "somar", valor: i.bonusCa!, origem: i.nome || "Item" }));
+  let ca: Valor | undefined;
+  if (armadura || escudo) {
+    const classeIds = [ficha.classe, ...(ficha.classes ?? []).map((c) => c.id)].filter((x): x is string => !!x);
+    const pc = partesDeCa({
+      mods, classeIds, armaduraArcana: (ficha.ativos ?? []).includes("armadura-arcana"),
+      armadura: armadura ? { cat: armadura.c, bonusMagico: armadura.i.bonusMagico ?? 0, nome: armadura.i.nome || armadura.c.nome } : undefined,
+      escudo: escudo ? { cat: escudo.c, bonusMagico: escudo.i.bonusMagico ?? 0 } : undefined,
+    });
+    ca = resolver("ca", pc.base, [...bonusCaItens, ...pc.extras.map((p) => ({ alvo: "ca", op: "somar" as const, valor: p.valor, origem: p.rotulo }))]);
+  } else if (bonusCaItens.length) {
+    ca = resolver("ca", { rotulo: "Ficha", valor: ficha.ca }, bonusCaItens);
+  }
+  const ataques = ataquesDeArmas({
+    itens: ficha.itens, mods, proficiencias: profs,
+    arma: (id) => { const x = cat.item(id); return x?.tipo === "arma" ? (x as ArmaCat) : undefined; },
+  });
+  const avisos: string[] = [];
+  let armaduraSemProf = false;
+  if (armadura && !proficienteEmArmadura(armadura.c.categoria, profs)) { armaduraSemProf = true; avisos.push(`Sem proficiência em armadura ${armadura.c.categoria === "media" ? "média" : armadura.c.categoria} (confira "Outras proficiências e idiomas" na aba Traços): desvantagem em testes de Força e Destreza e não conjura magias.`); }
+  if (escudo && !proficienteEmArmadura("escudo", profs)) { armaduraSemProf = true; avisos.push(`Sem proficiência em escudos (confira "Outras proficiências e idiomas" na aba Traços): desvantagem em testes de Força e Destreza e não conjura magias.`); }
+  if (armadura?.c.forca && ficha.atributos.for < armadura.c.forca) avisos.push(`Força ${ficha.atributos.for} é menor que a exigida por ${armadura.c.nome} (${armadura.c.forca}): deslocamento −3 m.`);
+  if (armadura?.c.furtividadeDesv) avisos.push(`${armadura.c.nome} impõe desvantagem em Furtividade.`);
+  return { ca, ataques, avisos, armaduraSemProf };
+}
+
 /** Confere o build contra as regras da mesa. O jogador é bloqueado por isto; o mestre só vê o aviso. */
 export function validar(ficha: FichaDnd, cat: Catalogo, opcoes?: OpcoesMesa): Violacao[] {
   const b = ficha.build;

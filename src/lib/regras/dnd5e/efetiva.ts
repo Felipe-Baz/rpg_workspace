@@ -54,7 +54,8 @@ export function fichaEfetiva(ficha: FichaDnd, calc: FichaCalculada, cat: Catalog
 
 /** Prepara a ficha editada (efetiva) para gravar: devolve os campos derivados aos valores gravados. */
 export function gravavel(bruta: FichaDnd, editada: FichaDnd): FichaDnd {
-  if (!bruta.build) return editada;
+  // sem build, as linhas de ataque das armas equipadas (`derivado`) também são recalculadas, nunca gravadas
+  if (!bruta.build) return editada.ataques.some((a) => a.derivado) ? { ...editada, ataques: editada.ataques.filter((a) => !a.derivado) } : editada;
   const out = { ...editada, build: editada.build ?? bruta.build } as FichaDnd & Record<string, unknown>;
   for (const k of DERIVADOS) (out as Record<string, unknown>)[k] = bruta[k];
   out.pv = Math.max(0, editada.pv);
