@@ -64,7 +64,7 @@ export default function TrocaMagias({ ficha: f, etapa, onMudar, onTrocar, onFech
                       const bloqueada = !m.ativa && cheio;
                       return (
                         <li key={m.id}>
-                          <label className={`flex items-center gap-2 rounded-lg px-2 py-1 text-sm ${bloqueada ? "opacity-50" : "hover:bg-background/60"}`} title={bloqueada ? "Limite atingido: desative outra primeiro" : undefined}>
+                          <label className={`flex items-center gap-2 rounded-lg px-2 py-1 text-sm ${bloqueada ? "opacity-50" : "hover:bg-background/60"}`} title={bloqueada ? "Limite atingido: desative outra primeiro" : "Ativa: magia preparada ou conhecida, que pode ser conjurada."}>
                             <input type="checkbox" checked={m.ativa} disabled={bloqueada} onChange={() => onMudar(alternarMagia(f, m.id))} />
                             <span className={m.ativa ? "text-foreground" : "text-muted"}>{m.nome || "Magia sem nome"}</span>
                           </label>

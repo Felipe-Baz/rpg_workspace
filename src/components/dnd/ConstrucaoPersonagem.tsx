@@ -10,6 +10,7 @@ import type { Catalogo, EscolhaDef, EscolhaOpcao } from "@/lib/regras/dnd5e/cata
 import { derivar, validar, type FichaCalculada } from "@/lib/regras/dnd5e/derivar";
 import { construirBuildDeFicha, fichaEfetiva } from "@/lib/regras/dnd5e/efetiva";
 import { carregarMagias, type MagiaCat } from "@/lib/regras/dnd5e/magias";
+import TextoLivro from "./TextoLivro";
 
 const campo = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
 const rotulo = "block text-[11px] uppercase tracking-wider text-muted";
@@ -309,11 +310,11 @@ export function CaracteristicasPorFonte({ calc }: { calc: FichaCalculada }) {
         <div key={`${f.tipo}-${f.id}`}>
           <h3 className="mb-1 border-b border-gold/20 pb-1 font-display text-sm text-gold">{ROTULO_FONTE[f.tipo]}: {f.nome}</h3>
           <ul className="space-y-1">
-            {f.tracos.map((t) => (
-              <li key={t.id}>
+            {f.tracos.map((t, k) => (
+              <li key={`${t.id}-${k}`}>
                 <details>
                   <summary className="cursor-pointer font-semibold">{t.nome}</summary>
-                  <p className="mt-1 whitespace-pre-line text-muted">{t.texto}</p>
+                  <TextoLivro texto={t.texto} className="mt-1" />
                 </details>
               </li>
             ))}

@@ -199,7 +199,8 @@ function calcularPv(b: Build, cat: Catalogo, nivel: number, modCon: number, efei
   const seq = sequenciaDeClasses(b);
   const dado = (id: string | undefined) => cat.classe(id ?? "")?.dadoVida ?? 8;
   const dv1 = dado(seq[0]);
-  const partes = [{ rotulo: `Nível 1 (dado máximo d${dv1})`, valor: dv1 }];
+  const v1 = b.pvNivel1 !== undefined ? Math.min(dv1, Math.max(1, b.pvNivel1)) : dv1;
+  const partes = [{ rotulo: b.pvNivel1 !== undefined ? `Nível 1 (d${dv1}: ${v1})` : `Nível 1 (dado máximo d${dv1})`, valor: v1 }];
   let niveis2 = 0;
   for (let i = 1; i < nivel; i++) {
     const passo = b.historicoNiveis?.[i - 1];

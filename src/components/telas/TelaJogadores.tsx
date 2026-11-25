@@ -1,6 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import LivroNotas from "../LivroNotas";
+import { confirmar } from "../ui/Dialogos";
+import { toast } from "../ui/Toasts";
+import { agirSobreMembro, listarPessoas, type AcaoMembro, type PessoaMesa } from "@/lib/membros-cliente";
 import AvatarPersonagem from "../AvatarPersonagem";
 import { atualizarMesa, paginasDe, uid, useSegredos } from "@/lib/mesas";
 import { useMesaAtual } from "../shell/MesaContext";
@@ -63,6 +67,81 @@ export default function TelaJogadores() {
           + Adicionar jogador
         </button>
       </section>
+      <ContasDaMesa mesaId={mesa.id} nMembros={mesa.membros.length} />
     </>
+  );
+}
+
+/** Gestão das contas que entraram por código: remover, apagar ficha, bloquear/desbloquear. */
+function ContasDaMesa({ mesaId, nMembros }: { mesaId: string; nMembros: number }) {
+  const [dados, setDados] = useState<{ membros: PessoaMesa[]; bloqueados: PessoaMesa[] } | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+
+  // Recarrega quando alguém entra ou sai (muda a quantidade de membros).
+  useEffect(() => {
+    let vivo = true;
+    listarPessoas(mesaId)
+      .then((d) => vivo && setDados(d))
+      .catch((e) => vivo && toast(e instanceof Error ? e.message : "Não foi possível listar as contas.", "erro"));
+    return () => {
+      vivo = false;
+    };
+  }, [mesaId, nMembros]);
+
+  async function agir(acao: AcaoMembro, p: PessoaMesa, texto: string, ok: string, rotulo: string) {
+    if (!(await confirmar({ titulo: `${rotulo}: ${p.nome}`, texto, confirmar: rotulo, perigo: acao !== "desbloquear" }))) return;
+    setOcupado(true);
+    try {
+      await agirSobreMembro(mesaId, acao, p.uid, p.nome);
+      toast(ok);
+      setDados(await listarPessoas(mesaId));
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Não foi possível concluir.", "erro");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  const btn = "rounded-lg border border-border px-3 py-1 text-xs hover:border-accent-hover disabled:opacity-50";
+  return (
+    <section className="mt-10 space-y-3">
+      <h2 className="font-semibold">Contas na mesa</h2>
+      <p className="text-sm text-muted">
+        Remover apaga tudo o que é só da pessoa (diário, pinos, ficha, rolagens…) e não mexe no conteúdo da mesa. Bloquear remove e impede de voltar pelo código.
+      </p>
+      {dados === null ? (
+        <p className="text-sm text-muted">Carregando…</p>
+      ) : dados.membros.length === 0 ? (
+        <p className="text-sm text-muted">Ninguém além de você entrou na mesa ainda.</p>
+      ) : (
+        dados.membros.map((p) => (
+          <div key={p.uid} className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
+            <span className="mr-auto font-medium">{p.nome}</span>
+            <button disabled={ocupado} className={btn} onClick={() => agir("apagarFicha", p, "Apaga somente a ficha de D&D 5e desta pessoa. Isso não pode ser desfeito.", "Ficha apagada", "Apagar ficha")}>
+              Apagar ficha
+            </button>
+            <button disabled={ocupado} className={btn} onClick={() => agir("remover", p, "Tira a pessoa da mesa e apaga os dados dela (personagem, diário, ficha, pinos, rolagens). Ela ainda poderá voltar com o código.", "Jogador removido", "Remover")}>
+              Remover
+            </button>
+            <button disabled={ocupado} className={`${btn} text-danger`} onClick={() => agir("bloquear", p, "Remove a pessoa, apaga os dados dela e impede que entre de novo pelo código.", "Conta bloqueada", "Bloquear")}>
+              Bloquear
+            </button>
+          </div>
+        ))
+      )}
+      {!!dados?.bloqueados.length && (
+        <div className="space-y-2 pt-2">
+          <h3 className="text-sm font-semibold text-muted">Bloqueadas</h3>
+          {dados.bloqueados.map((p) => (
+            <div key={p.uid} className="flex items-center gap-2 rounded-xl border border-dashed border-border p-3">
+              <span className="mr-auto">{p.nome}</span>
+              <button disabled={ocupado} className={btn} onClick={() => agir("desbloquear", p, "A pessoa poderá entrar de novo com o código de convite.", "Conta desbloqueada", "Desbloquear")}>
+                Desbloquear
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

@@ -1,7 +1,4 @@
-* Cadastrar lista de magias do dnd 5ed
-* Cadastrar lista de monstros do dnd 5ed
-* Combat tracker com mapa, grid, iniciativa e etc
-
+- Cadastrar lista de monstros do dnd 5ed
 
 Sentry (plano gratuito), a opção mais completa
 

@@ -26,7 +26,7 @@ export default function ResumoDoGrupo({ mesaId, jogadores, opcoes, aoAbrir }: { 
     <section className="mb-5 space-y-3 rounded-2xl border border-border bg-card p-4" aria-label="Resumo do grupo">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-gold">O grupo</h2>
-        <label className="ml-auto flex items-center gap-1.5 text-xs text-muted">
+        <label className="ml-auto flex items-center gap-1.5 text-xs text-muted" title="Mostra só as fichas com algo fora do livro: ficha manual, ajustes, escolhas pendentes, alertas de armadura/carga/sintonização ou magias acima do limite.">
           <input type="checkbox" checked={soConferir} onChange={(e) => setSoConferir(e.target.checked)} />
           Só quem preciso conferir {resumo.aConferir > 0 && <span className="rounded-full bg-gold/20 px-1.5 text-gold">{resumo.aConferir}</span>}
         </label>
@@ -93,11 +93,12 @@ function Linha({ mesaId, jogador, opcoes, oculta, informar, aoAbrir }: { mesaId:
     <li className="rounded-xl border border-border bg-background/50 p-3">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         <button onClick={() => aoAbrir(jogador.uid)} className="font-display text-base font-semibold text-gold hover:underline" title="Abrir a ficha">{l.nome}</button>
+        <span className={`rounded-full border px-2 text-[10px] ${l.publicada ? "border-ok/50 text-ok" : "border-border text-muted"}`} title={l.publicada ? "Ficha publicada: o jogador não edita identidade, atributos e proficiências" : "Ficha em rascunho: o jogador ainda pode editar tudo"}>{l.publicada ? "publicada" : "rascunho"}</span>
         <span className="text-xs text-muted">{l.classe ? `${l.classe} · ` : ""}nível {l.nivel}{semFicha ? " · ficha ainda não preenchida" : ""}</span>
-        <span className="flex items-center gap-1 text-sm" title="Classe de armadura"><Shield size={13} className="text-gold" aria-hidden /> {l.ca}</span>
+        <span className="flex items-center gap-1 text-sm" title="Classe de armadura"><Shield size={13} className="text-gold" aria-hidden /> CA {l.ca}</span>
         {l.cd !== null && <span className="text-sm text-muted" title="CD de magia">CD {l.cd}</span>}
         <span className="text-sm text-muted" title="Percepção passiva">Perc. {l.percepcao}</span>
-        <span className="text-sm text-muted">{l.deslocamento}</span>
+        <span className="text-sm text-muted" title="Deslocamento">Desl. {l.deslocamento}</span>
         {l.vital !== "vivo" && <span className="rounded-full border border-danger/60 px-2 text-xs text-danger">{l.vital === "morto" ? "Morto" : l.vital === "estavel" ? "Estável" : "Inconsciente"}</span>}
         {l.podeSubir && <span className="rounded-full border border-gold px-2 text-xs text-gold">pode subir de nível</span>}
         {l.conferir.length > 0 && (
@@ -120,19 +121,28 @@ function Linha({ mesaId, jogador, opcoes, oculta, informar, aoAbrir }: { mesaId:
         </div>
       )}
 
-      <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-        <input type="number" min={1} value={valor} onChange={(e) => setValor(Math.max(1, Number(e.target.value) || 1))} aria-label={`Valor para ${l.nome}`} className={`${campo} !w-20 text-center`} />
-        <select value={tipo} onChange={(e) => setTipo(e.target.value)} aria-label="Tipo do dano" className={`${campo} !w-auto text-xs`}>
-          <option value="">tipo…</option>
-          {TIPOS_DE_DANO.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
-        <label className="flex items-center gap-1 text-xs text-muted"><input type="checkbox" checked={critico} onChange={(e) => setCritico(e.target.checked)} />crítico</label>
-        <button disabled={ocupado} onClick={() => aplicar(danoDoMestre(ficha, calc, { valor, tipo: tipo || undefined, critico }))} className="rounded-lg border border-danger/50 px-3 py-1 text-danger hover:bg-danger/10 disabled:opacity-50">Dano</button>
-        <button disabled={ocupado} onClick={() => aplicar(curaDoMestre(ficha, valor))} className="rounded-lg border border-ok/50 px-3 py-1 text-ok hover:bg-ok/10 disabled:opacity-50">Cura</button>
-        <select value="" onChange={(e) => e.target.value && aplicar({ patch: alternarCondicaoDoMestre(ficha, e.target.value), texto: [`${CONDICOES.find((c) => c.id === e.target.value)?.nome} alternada em ${l.nome}.`] })} aria-label="Alternar condição" className={`${campo} !w-auto text-xs`}>
-          <option value="">condição…</option>
-          {CONDICOES.map((c) => <option key={c.id} value={c.id}>{(ficha.condicoes ?? []).includes(c.id) ? "✓ " : ""}{c.nome}</option>)}
-        </select>
+      <div className="mt-2 flex flex-wrap items-end gap-2 text-sm">
+        <label className="flex flex-col gap-0.5 text-[10px] uppercase tracking-wider text-muted">
+          Valor (dano ou cura)
+          <input type="number" min={1} value={valor} onChange={(e) => setValor(Math.max(1, Number(e.target.value) || 1))} aria-label={`Valor de dano ou cura para ${l.nome}`} className={`${campo} !w-24 text-center normal-case tracking-normal text-foreground`} />
+        </label>
+        <label className="flex flex-col gap-0.5 text-[10px] uppercase tracking-wider text-muted">
+          Tipo de dano
+          <select value={tipo} onChange={(e) => setTipo(e.target.value)} aria-label="Tipo do dano" className={`${campo} !w-auto text-xs normal-case tracking-normal text-foreground`}>
+            <option value="">sem tipo</option>
+            {TIPOS_DE_DANO.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-1 pb-1.5 text-xs text-muted" title="Dobra os dados do dano"><input type="checkbox" checked={critico} onChange={(e) => setCritico(e.target.checked)} />acerto crítico</label>
+        <button disabled={ocupado} onClick={() => aplicar(danoDoMestre(ficha, calc, { valor, tipo: tipo || undefined, critico }))} className="rounded-lg border border-danger/50 px-3 py-1 text-danger hover:bg-danger/10 disabled:opacity-50" title="Tira o valor dos PV (passa por resistências e PV temporários)">Aplicar dano</button>
+        <button disabled={ocupado} onClick={() => aplicar(curaDoMestre(ficha, valor))} className="rounded-lg border border-ok/50 px-3 py-1 text-ok hover:bg-ok/10 disabled:opacity-50" title="Soma o valor aos PV">Aplicar cura</button>
+        <label className="flex flex-col gap-0.5 text-[10px] uppercase tracking-wider text-muted">
+          Condição
+          <select value="" onChange={(e) => e.target.value && aplicar({ patch: alternarCondicaoDoMestre(ficha, e.target.value), texto: [`${CONDICOES.find((c) => c.id === e.target.value)?.nome} alternada em ${l.nome}.`] })} aria-label="Alternar condição" className={`${campo} !w-auto text-xs normal-case tracking-normal text-foreground`}>
+            <option value="">adicionar/remover…</option>
+            {CONDICOES.map((c) => <option key={c.id} value={c.id}>{(ficha.condicoes ?? []).includes(c.id) ? "✓ " : ""}{c.nome}</option>)}
+          </select>
+        </label>
       </div>
       {aviso.length > 0 && <ul role="status" className="mt-1 space-y-0.5 text-xs text-gold">{aviso.map((a, i) => <li key={i}>{a}</li>)}</ul>}
       {l.conferir.length > 0 && <details className="mt-1 text-xs text-muted"><summary className="cursor-pointer">Por que conferir</summary><ul className="mt-1 list-disc pl-5">{l.conferir.map((c, i) => <li key={i}>{c}</li>)}</ul></details>}

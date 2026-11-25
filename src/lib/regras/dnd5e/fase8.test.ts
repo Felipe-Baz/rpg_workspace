@@ -57,7 +57,7 @@ test("resumo do grupo: PV, CA, perícias cobertas e sem cobertura, idiomas e con
   assert.ok(!r.periciasSemCobertura.includes("Atletismo"));
   assert.deepEqual(r.condicoes, [{ nome: "Envenenado", quem: ["Aria"] }]);
   assert.ok(r.idiomas.some((i) => i.nome === "Élfico" && i.quem[0] === "Aria"));
-  assert.equal(r.cds.length, 0);
+  assert.deepEqual(r.cds, [{ nome: "Bruno", cd: 13 }]); // só o mago conjura: Int 16 (+3), proficiência +2
   assert.equal(r.aConferir, 1); // Aria ainda não escolheu o truque do alto elfo
   assert.ok(a.conferir.some((c) => /truque de mago/i.test(c)));
   assert.equal(resumoDoGrupo([]).ca.max, 0);

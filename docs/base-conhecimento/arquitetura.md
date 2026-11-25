@@ -61,6 +61,7 @@ mesas/{mesaId}                       Mesa: nome, sistema, cor, status, donoUid, 
   ├─ recursosDados/{registroId}       registros dos tipos de dado criados por extensões (liberado)
   ├─ extensoesPedidos/{pedidoId}      pedidos de jogadores por extensões (mestre aprova/recusa)
   ├─ extensoesLotes/{loteId}          conteúdo criado por extensões (itens + origem), para desfazer
+  ├─ bloqueados/{uid}                 contas banidas da mesa ({nome, em}); só o servidor escreve, mestre lê
   ├─ extensoesNativas/{idNativa}      liberação de extensões nativas aos jogadores (mestre grava, membros leem)
   └─ Marcas: players, assignments, notes, lore, puzzles, released, puzzleResp, puzzleStatus
 convites/{codigo}                    código → mesa (get por código exato; sem listar)
@@ -87,6 +88,8 @@ usuarios/{uid}/...                   config de IA e chaves cifradas (NINGUÉM no
 - `GET /api/saude` diz se Storage/Admin estão configurados, sem expor valores.
 
 ## Rotas de servidor (`/api/ia/*`)
+
+Fora de `ia`: `GET/POST /api/mesas/membros` (gestão de contas da mesa pelo mestre; ver [mesas-e-convites](features/mesas-e-convites.md)).
 
 Todas exigem `Authorization: Bearer <ID token>` (`verificarToken`) e, para ações da mesa, `exigirMestre` (uid == `donoUid`). Jogador recebe 403.
 

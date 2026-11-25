@@ -27,16 +27,19 @@ A barreira real é **Firestore Rules + Storage Rules + rotas de servidor**. A in
 | Lotes criados por extensões: `extensoesLotes/{id}` | lê e grava | nada | Histórico para listar e desfazer |
 | Extensões nativas: `extensoesNativas/{id}` | grava | lê (para saber o que mostrar) | Mestre pode ocultar as Marcas de Pacto dos jogadores; sem registro = visível |
 | `uso`, `usoRegistros`, `jobs` | lê | nada | Só o servidor escreve (Admin SDK) |
+| `bloqueados/{uid}` | lê | nada | Contas banidas da mesa; só o servidor escreve. A regra de "entrar na mesa" nega quem tem registro aqui |
 | Marcas (todas as coleções) | só na mesa `MESA_PADRAO` | só na mesa `MESA_PADRAO` e se o mestre não ocultou | Exclusividade e ocultação impostas pelas regras do Firestore |
 | Marcas: `lore`, `puzzles` | só ele | nada | Gabarito nunca vai ao cliente de jogador |
 | Marcas: `assignments`, `released`, `puzzleStatus` | escreve | lê o próprio | Mestre controla a progressão |
 | Marcas: `notes`, `puzzleResp` | lê | escreve o próprio (precisa ter Marca atribuída) | Jogador responde, mestre avalia |
 
+**Gestão de contas pelo mestre:** `POST/GET /api/mesas/membros` (token + `exigirMestre`, Admin SDK) remove jogador, apaga ficha, bloqueia e desbloqueia. Vai por servidor porque as regras do cliente não deixam o mestre apagar dados de outra pessoa. O mestre nunca pode ser alvo.
+
 Fora de `mesas`:
 - `convites/{codigo}`: `get` por código exato para qualquer logado, **sem `list`**. Quem não tem o código não enumera mesas.
 - `extensoes/{id}` (biblioteca): só o `donoUid`.
 - `assetsPublicos`: qualquer logado lê; ninguém no cliente escreve.
-- `mesas/{id}/personagens/{uid}` (ficha D&D 5e): o dono (jogador membro) lê e edita; o mestre lê e edita todas.
+- `mesas/{id}/personagens/{uid}` (ficha D&D 5e): o dono (jogador membro) lê e edita; o mestre lê e edita todas. A **ficha publicada** (`status`) é travada só na interface para o jogador; a regra não impede a gravação (confiança na mesa), então o travamento organiza a mesa, não é barreira contra adulteração.
   - **Regras opcionais da mesa** (`Mesa.opcoesRegras`, ex.: talentos, multiclasse): o bloqueio ao jogador (talento/multiclasse com a opção desligada) é feito **só na interface**, não nas regras do Firestore; serve para guiar a mesa (confiança na mesa), não como barreira de segurança. O mestre ignora o bloqueio.
 - `sistemas`: qualquer logado lê; ninguém no cliente escreve. `sistemasPessoais`: só o dono (`donoUid`) lê, cria e apaga.
 - `usuarios/{uid}/**`: **bloqueado** ao cliente (configuração de IA e chaves cifradas).

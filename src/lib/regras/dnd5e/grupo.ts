@@ -32,6 +32,8 @@ export type LinhaGrupo = {
   pericias: string[];
   idiomas: string[];
   automatica: boolean;
+  /** A ficha foi publicada (travada para o jogador). */
+  publicada: boolean;
   /** Motivos para o mestre conferir esta ficha (valor fora do livro, ficha manual, alertas). */
   conferir: string[];
 };
@@ -66,7 +68,7 @@ export function linhaDoGrupo(uid: string, nomePadrao: string, bruta: FichaDnd, e
     podeSubir: podeSubirDeNivel(efetiva.xp, efetiva.nivel),
     pericias: PERICIAS.filter((p) => (efetiva.pericias[p.id] ?? 0) > 0).map((p) => p.id),
     idiomas: (calc?.idiomas ?? []).map((i) => i.nome),
-    automatica: !!b, conferir,
+    automatica: !!b, publicada: efetiva.status === "publicada", conferir,
   };
 }
 

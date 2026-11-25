@@ -151,3 +151,43 @@ export function magiaParaFicha(m: MagiaCat, id: string, ativa: boolean): Magia {
     salvaguarda: mec?.salvaguarda ?? "des",
   };
 }
+
+// ---------- categorias (para navegar no compêndio) ----------
+export const CATEGORIAS_MAGIA = ["Dano", "Cura", "Suporte", "Controle", "Invocação", "Adivinhação", "Ilusão", "Utilidade"] as const;
+export type CategoriaMagia = (typeof CATEGORIAS_MAGIA)[number];
+export type ClasseMagia = { categoria: CategoriaMagia; sub: string };
+
+const cap1 = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/**
+ * Categoria e subcategoria de uma magia, deduzidas da mecânica (dano, cura) e do texto. É uma ajuda de navegação,
+ * não uma regra do livro: uma magia aparece em uma só categoria (a mais característica).
+ */
+export function categoriaDaMagia(m: MagiaCat): ClasseMagia {
+  const t = semAcento(`${m.nome} ${m.descricao}`);
+  const mec = m.mecanica;
+  if (mec?.danos?.length) {
+    const tipos = [...new Set(mec.danos.map((d) => d.tipo))];
+    return { categoria: "Dano", sub: tipos.length === 1 && !/escolhido|da arma/.test(tipos[0]) ? cap1(tipos[0]) : "Variado" };
+  }
+  if (mec?.cura) return { categoria: "Cura", sub: "Recuperar pontos de vida" };
+  if (/\b(remove|encerra|cura)\b.*\b(doenca|veneno|maldicao|cego|surdo|paralis|condicao)/.test(t) || /\b(revive|ressuscit|retorna a vida|restaura)/.test(t)) {
+    return { categoria: "Cura", sub: /revive|ressuscit|retorna a vida/.test(t) ? "Reviver" : "Remover condições" };
+  }
+  if (/convoc|invoca|conjura (um|uma|o|a) |chama um|surge|aparece (um|uma)|espirito|elemental|servo/.test(t) && m.escola === "conjuração" && !/teletransport|portal|muralha|nuvem|neblina|nevoa/.test(t)) {
+    return { categoria: "Invocação", sub: /espirito|elemental|servo|criatura/.test(t) ? "Criaturas e espíritos" : "Objetos e efeitos" };
+  }
+  if (m.escola === "adivinhação") {
+    return { categoria: "Adivinhação", sub: /detect|localiz|sentir|percebe|conhece a (localizacao|direcao)/.test(t) ? "Detecção e localização" : /fala|comunic|compreende|idioma|telepat|mensagem|sussurr|entende/.test(t) ? "Comunicação" : "Previsão e conhecimento" };
+  }
+  if (/pontos de vida temporarios|bonus (de \+?\d+ )?(na|em) (ca|classe de armadura)|\+\d+ (na|de) ca|resistencia (a|contra) |vantagem (em|nas|nos|nas jogadas)|abencoa|protege|escudo|armadura|barreira/.test(t) && !/desvantagem/.test(t.slice(0, 80))) {
+    return { categoria: "Suporte", sub: /resistencia|ca\b|armadura|escudo|barreira|protege|pontos de vida temporarios/.test(t) ? "Proteção" : "Bônus e aprimoramento" };
+  }
+  if (/\b(enfeiticad|amedrontad|paralisad|atordoad|contid|impedid|incapacitad|cego|surdo|caid|dormir|inconsciente|aprisiona|prende|imobiliz|compele|domina|silencio)/.test(t) || mec?.salvaguarda) {
+    return { categoria: "Controle", sub: /enfeiticad|amedrontad|compele|domina|dormir|inconsciente|atordoad/.test(t) ? "Mente e emoções" : /paralisad|contid|impedid|aprisiona|prende|imobiliz|caid/.test(t) ? "Imobilização" : "Condições e penalidades" };
+  }
+  if (m.escola === "ilusão") return { categoria: "Ilusão", sub: /invisivel|disfarc|aparencia|imagem|forma/.test(t) ? "Disfarce e invisibilidade" : "Ilusões e sons" };
+  if (/teletransport|voo|voar|voa |velocidade|saltar|salto|passo|escalar|caminhar|portal|plano/.test(t)) return { categoria: "Utilidade", sub: "Movimento" };
+  if (/luz|ilumina|chama|objeto|conserta|limpa|cria|esculpe|modela|fabrica|alimento|agua|ferramenta/.test(t)) return { categoria: "Utilidade", sub: "Objetos e ambiente" };
+  return { categoria: "Utilidade", sub: m.escola === "transmutação" ? "Transformação" : "Outros efeitos" };
+}

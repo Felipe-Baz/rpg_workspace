@@ -34,6 +34,8 @@ export type Build = {
   classes: EscolhaClasse[];
   atributosBase: Record<Atributo, number>;
   metodoAtributos?: MetodoAtributos;
+  /** Valor do dado de vida do 1º nível (rolado ou média). Ausente = dado máximo, como o livro manda. */
+  pvNivel1?: number;
   /** Um passo por nível a partir do 2º (índice 0 = 2º nível). Sem passo, vale a média do dado. */
   historicoNiveis?: PassoNivel[];
   /** Talentos (regra opcional da mesa). */

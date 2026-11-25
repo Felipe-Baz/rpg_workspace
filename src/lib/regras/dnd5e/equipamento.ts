@@ -2,7 +2,7 @@
 // e moedas. Funções puras; `derivar` as usa com os itens equipados da ficha.
 
 import { type Ataque, type Atributo, type Item } from "../../dnd5e.ts";
-import type { ArmaCat, ArmaduraCat, EscudoCat, Moeda, Preco } from "./catalogo.ts";
+import type { ArmaCat, ArmaduraCat, EscudoCat, Moeda, ObjetoCat, Preco } from "./catalogo.ts";
 
 const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
 /** Tira o plural simples de cada palavra ("espadas longas" → "espada longa", "bordões" → "bordao"). */
@@ -19,6 +19,16 @@ export function proficienteEmArma(arma: ArmaCat, proficiencias: readonly string[
   return proficiencias.some((p) => {
     const r = raiz(p);
     return r === categoria || r === nome || ALIAS[r] === nome;
+  });
+}
+
+/** Proficiência em ferramenta, kit ou instrumento: pelo nome do item ou pelo grupo ("Instrumentos musicais"). */
+export function proficienteEmFerramenta(item: ObjetoCat, proficiencias: readonly string[]): boolean {
+  const nome = raiz(item.nome);
+  const grupo = item.grupo ? raiz(item.grupo) : "";
+  return proficiencias.some((p) => {
+    const r = raiz(p);
+    return r === nome || (!!grupo && (r === grupo || r.startsWith(grupo) || grupo.startsWith(r))) || nome.includes(r) || r.includes(nome);
   });
 }
 
@@ -117,7 +127,7 @@ export function ataquesDeArmas(e: EntradaAtaques): Ataque[] {
     out.push({ ...base, id: `arma:${item.id}`, nome, dano: arma.dado, notas });
     if (arma.propriedades.versatil) out.push({ ...base, id: `arma:${item.id}:2m`, nome: `${nome} (duas mãos)`, dano: arma.propriedades.versatil, notas });
   }
-  out.push({ id: "arma:desarmado", nome: "Ataque desarmado", atr: "for", proficiente: true, bonusAtaque: 0, dano: "1d1", bonusDano: 0, tipoDano: "concussão", notas: "dano fixo 1 + Força", derivado: true });
+  out.push({ id: "arma:desarmado", nome: "Ataque desarmado", atr: "for", proficiente: true, bonusAtaque: 0, dano: "1", bonusDano: 0, tipoDano: "concussão", notas: "dano fixo 1 + Força", derivado: true });
   return out;
 }
 
@@ -172,3 +182,8 @@ export function pagar(m: Record<Moeda, number>, custoCobre: number): Record<Moed
   return novo;
 }
 
+
+/** Devolve um valor (em cobre) às moedas, em ouro, prata e cobre (cancelar uma compra). */
+export function reembolsar(m: Record<Moeda, number>, cobre: number): Record<Moeda, number> {
+  return { ...m, po: m.po + Math.floor(cobre / 100), pp: m.pp + Math.floor((cobre % 100) / 10), pc: m.pc + (cobre % 10) };
+}

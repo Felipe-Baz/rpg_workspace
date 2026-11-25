@@ -18,8 +18,9 @@ service cloud.firestore {
           && request.resource.data.donoUid == resource.data.donoUid
           && request.auth.uid in request.resource.data.membros)
         ||
-        // entrar na mesa
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['membros'])
+        // entrar na mesa (conta bloqueada pelo mestre não entra)
+        (!exists(/databases/$(database)/documents/mesas/$(mesaId)/bloqueados/$(request.auth.uid))
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['membros'])
           && request.resource.data.membros.hasAll(resource.data.membros)
           && request.resource.data.membros.size() == resource.data.membros.size() + 1
           && request.auth.uid in request.resource.data.membros)
@@ -259,6 +260,13 @@ service cloud.firestore {
       match /personagens/{donoId} {
         allow read: if mestreMesa() || (membroMesa() && request.auth.uid == donoId);
         allow write: if mestreMesa() || (membroMesa() && request.auth.uid == donoId);
+      }
+
+      // Contas bloqueadas pela mesa: só o servidor (Admin SDK) escreve; o mestre lê.
+      // A regra de "entrar na mesa" consulta a existência de bloqueados/{uid}.
+      match /bloqueados/{blocId} {
+        allow read: if mestreMesa();
+        allow write: if false;
       }
 
       // Notas e segredos: somente o mestre.

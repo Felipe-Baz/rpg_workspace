@@ -8,5 +8,6 @@ export const dnd5e: SistemaRegras = {
   opcoes: [
     { id: "talentos", nome: "Talentos", descricao: "Permite escolher talentos no lugar de aumentos de atributo.", padrao: false },
     { id: "multiclasse", nome: "Multiclasse", descricao: "Permite combinar níveis de mais de uma classe.", padrao: false },
+    { id: "compras", nome: "Compras no catálogo", descricao: "Permite aos jogadores comprarem itens do catálogo pela própria ficha (o mestre sempre pode).", padrao: false },
   ],
 };

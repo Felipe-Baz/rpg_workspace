@@ -122,7 +122,7 @@ export function conjurarMagia(f: FichaDnd, m: Magia, circulo: number, opcoes: { 
 
 // ---------- o que a classe pode aprender ----------
 /** Maior círculo com espaços na ficha (0 = nenhum configurado). */
-const maiorCirculo = (f: FichaDnd) => f.espacos.reduce((a, e, i) => (e.total > 0 ? i + 1 : a), 0);
+export const maiorCirculo = (f: FichaDnd) => f.espacos.reduce((a, e, i) => (e.total > 0 ? i + 1 : a), 0);
 
 /**
  * A magia do catálogo serve para esta ficha? Classe conjuradora só aprende da própria lista e até o círculo que já

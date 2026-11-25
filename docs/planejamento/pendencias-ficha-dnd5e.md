@@ -9,7 +9,7 @@
 - [ ] **Teste visual no navegador de tudo da Fase 1 em diante.** Todo o trabalho foi checado por testes automatizados (351), `tsc`, lint e `next build`, mas as telas (compêndio, painel de construção, assistentes, catálogo de equipamento, card de estado, tema, modo combate) **não foram abertas num navegador**: a ficha exige login no Firebase. *(validação)*
 - [ ] **Conferir os dois temas (claro e escuro) e o celular** com a ficha real de um personagem, incluindo o modo combate. *(validação)*
 - [ ] **Lint:** 2 erros pré-existentes de `react-hooks/set-state-in-effect` em `FichasJogador.tsx` e `MapasJogador.tsx` (não fazem parte desta iniciativa). *(risco)*
-- [ ] **Commit/PR:** nada foi commitado; tudo está na branch `feature/melhorias-dnd-5ed`, com arquivos novos sem rastreio. Revisar o diff antes. *(validação)*
+- [X] **Commit/PR:** nada foi commitado; tudo está na branch `feature/melhorias-dnd-5ed`, com arquivos novos sem rastreio. Revisar o diff antes. *(validação)*
 - [ ] **Testes de interface:** só o motor (`src/lib/regras`) tem testes; os componentes React não têm teste automatizado. *(limitação)*
 - [ ] **Regras do Firestore:** o bloqueio de talentos/multiclasse e o limite de sintonização valem **só na interface**. Um jogador que escrevesse direto no banco passaria por cima. Serve como guia da mesa, não como segurança. *(limitação)*
 
@@ -61,19 +61,19 @@
 - [ ] **Itens mágicos**: só bônus numérico (+N em arma/armadura/CA) e marcador de sintonização. Sem efeitos próprios (anel de resistência, manto, cinto de Força...), **sem cargas** nem recarga. *(despriorizado)*
 - [ ] **Capacidade de carga** (7,5 kg × Força, conversão da edição brasileira) é só aviso; a regra variante de **sobrecarga com penalidade de deslocamento** não está implementada. O valor 7,5 foi inferido (o `.md` não traz a regra): conferir com a mesa. *(limitação)*
 - [ ] **Munição** não é descontada nem contada; arremesso e alcance viram só nota na linha de ataque. *(despriorizado)*
-- [ ] **Ataque desarmado** usa dado fixo 1 + Força (`1d1`); **Artes Marciais do monge** (dado e Destreza) não entram. *(despriorizado)*
+- [ ] **Ataque desarmado** usa dado fixo 1 + Força (dano `1`); **Artes Marciais do monge** (dado e Destreza) não entram. *(despriorizado)*
 - [ ] **Estilo de luta, Ataque Furtivo automático no dano, Ataque Extra** como contagem de ataques por ação: não aplicados (Ataque Furtivo existe só como botão de rolagem). *(despriorizado)*
 - [ ] **Armas improvisadas, de prata, especiais** (Rede, Lança de Montaria): sem regras próprias. *(limitação)*
 - [ ] **Pacotes de equipamento**: alguns itens do pacote não existem no catálogo e entram como item avulso sem peso (ex.: "Fantasias", "Vidro de tinta"). *(limitação)*
-- [ ] **Equipamento inicial da classe e do antecedente** não é cadastrado automaticamente (o assistente oferece só a riqueza inicial em ouro). *(despriorizado)*
+- [~] **Equipamento inicial:** feito para a classe (opções A/B e compra com a riqueza no assistente); o equipamento do **antecedente** segue só como texto nas anotações (ouro da algibeira entra nas moedas).
 - [ ] **Transferir item entre jogadores/mestre** (usando a liberação de conteúdo): não avaliado. *(despriorizado)*
 - [ ] **Montarias, veículos, comércio, despesas, serviços e bugigangas** do capítulo 5 não estão no catálogo (só armas, armaduras, aventura, ferramentas, pacotes). *(despriorizado)*
 - [ ] **Conversão de moedas** só troca quando não sobra fração; não há "trocar tudo" nem registro de compras. *(limitação)*
 
 ## Fase 5: recursos, condições e combate
 
-- [x] ~~Dano/cura do mestre como atualização atômica por campo~~ — feito na Fase 8 para o painel "O grupo" e a iniciativa. **Resta:** o botão de dano na própria ficha aberta pelo mestre, e qualquer edição do jogador, ainda regravam a ficha inteira com debounce. *(risco parcial)*
-- [x] ~~Condições e PV na iniciativa e na tela do mestre~~ — feito na Fase 8 (só mesas D&D 5e; inimigos continuam com valores locais).
+- [X] ~~Dano/cura do mestre como atualização atômica por campo~~ — feito na Fase 8 para o painel "O grupo" e a iniciativa. **Resta:** o botão de dano na própria ficha aberta pelo mestre, e qualquer edição do jogador, ainda regravam a ficha inteira com debounce. *(risco parcial)*
+- [X] ~~Condições e PV na iniciativa e na tela do mestre~~ — feito na Fase 8 (só mesas D&D 5e; inimigos continuam com valores locais).
 - [ ] **Exaustão** afeta deslocamento e PV máximos **só na exibição**; os números gravados não mudam. Exaustão 6 marca morto, mas não há fluxo de reviver. *(limitação)*
 - [ ] **Vantagem/desvantagem automáticas cobrem** condições, exaustão, Fúria, Ataque Descuidado e armadura sem proficiência. **Não cobrem**: Astúcia Ardilosa, ataque à distância a 1,5 m de inimigo, alvo caído (de longe/perto), cobertura, luz/escuridão, Esconder, ajuda de aliado, características de raça (Ancestral Feérico etc.). Condições que dependem de contexto (amedrontado: fonte à vista; cego: testes de visão) são só sugestão. *(limitação)*
 - [ ] **Ataques contra você** (vantagem/desvantagem/crítico) são só uma lista informativa; não afetam nenhuma rolagem. *(limitação)*
@@ -87,13 +87,13 @@
 ## Fase 6: assistentes
 
 - [ ] **Criar já em nível acima de 1**, com o histórico completo de PV/aumentos de atributo/talentos por nível (hoje: criar no 1º e subir pelo assistente). *(despriorizado)*
-- [ ] **Equipamento inicial da classe** e escolhas do tipo "(a) ou (b)" do livro. *(despriorizado)*
+- [x] **Equipamento inicial da classe** e escolhas do tipo "(a) ou (b)" do livro (assistente de criação).
 - [ ] **Escolher magias** (truques e 1º círculo) e **personalidade** (traços, ideais, vínculos e defeitos por tabela) dentro do assistente. *(despriorizado)*
 - [ ] **Desfazer uma subida de nível** (hoje só dá para editar o `build` à mão ou remover passos de dado). *(despriorizado)*
 - [ ] **Subir de nível não pergunta**: aprender magias novas, trocar magias, feitiços de espaço, escolhas de classe do nível (estilo de luta, invocações, metamagia, manobras), nem aplica a regra "Con par sobe PV retroativos" (isso já sai do cálculo de PV, mas não é anunciado). *(despriorizado)*
 - [ ] **Método de atributos 4d6**: sem opção de "rerrolar" regras da mesa (ex.: repetir se a soma for baixa) nem rolar com o rolador 3D (usa o rolador simples). *(limitação)*
 - [ ] **Compra de pontos e distribuição padrão** não sugerem o atributo principal da classe. *(despriorizado)*
-- [x] ~~Multiclasse no assistente de nível~~ — feito na Fase 9.
+- [X] ~~Multiclasse no assistente de nível~~ — feito na Fase 9.
 - [ ] **XP**: o nível não sobe sozinho (decisão); sem divisão automática de XP entre jogadores pelo mestre. *(despriorizado)*
 
 ## Fase 7: tema visual
@@ -112,8 +112,8 @@
 - [ ] **Teste de grupo/contestado** e **testes com ferramenta** (escolher perícia + ferramenta e somar a proficiência da ferramenta). *(despriorizado)*
 - [ ] **Testes passivos** além de Percepção (Intuição, Investigação), **Pau pra toda obra do bardo** (Jack of All Trades), Mão Leve e outros bônus de perícia por característica. *(despriorizado)*
 - [ ] **Perícias com fonte da proficiência**: o motor sabe a fonte; a lista de ferramentas e idiomas por fonte aparece só na aba Traços. *(limitação)*
-- [x] ~~Histórico de rolagens com origem e iniciativa/PV ao vivo~~ — feito na Fase 8.
-- [x] ~~Painel do mestre com fichas calculadas, filtro "preciso conferir" e resumo do grupo~~ — feito na Fase 8.
+- [X] ~~Histórico de rolagens com origem e iniciativa/PV ao vivo~~ — feito na Fase 8.
+- [X] ~~Painel do mestre com fichas calculadas, filtro "preciso conferir" e resumo do grupo~~ — feito na Fase 8.
 - [ ] **Importador de PDF** continua escrevendo o formato antigo; não gera `build`. *(limitação)*
 - [ ] **Pergunta em aberto do plano**: "Dádiva" (Fase 8+), conteúdo homebrew do mestre por mesa, e material extra (Xanathar/Tasha). *(despriorizado)*
 - [ ] **Medir bundle** antes/depois do catálogo (o JSON é carregado sob demanda, mas não houve medição do tamanho final nem do tempo de abertura da ficha). *(validação)*

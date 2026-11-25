@@ -22,8 +22,8 @@ export function IconeEscola({ escola, size = 14 }: { escola: string; size?: numb
   return Icone ? <Icone size={size} aria-hidden style={{ color: "var(--escola, var(--gold))" }} /> : null;
 }
 
-/** Escudo da classe de armadura: o número fica em texto, o desenho é só moldura. */
-export function Escudo({ valor, titulo }: { valor: number; titulo?: string }) {
+/** Escudo da classe de armadura: o número fica dentro do desenho (editável quando `onChange` é passado). */
+export function Escudo({ valor, titulo, onChange, disabled }: { valor: number; titulo?: string; onChange?: (n: number) => void; disabled?: boolean }) {
   return (
     <div className="escudo" title={titulo}>
       <svg viewBox="0 0 64 76" aria-hidden className="escudo-svg">
@@ -31,7 +31,11 @@ export function Escudo({ valor, titulo }: { valor: number; titulo?: string }) {
         <path d="M32 9 53 16v20c0 14-9 25-21 31C20 61 11 50 11 36V16z" className="escudo-miolo" />
         <path d="M32 9v58" className="escudo-linha" />
       </svg>
-      <span className="escudo-valor">{valor}</span>
+      {onChange && !disabled ? (
+        <input type="number" value={valor} onChange={(e) => onChange(Number(e.target.value) || 0)} aria-label="Classe de armadura" className="escudo-valor escudo-input" />
+      ) : (
+        <span className="escudo-valor">{valor}</span>
+      )}
     </div>
   );
 }

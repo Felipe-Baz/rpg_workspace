@@ -96,6 +96,8 @@ export type Item = {
 
 export type Espaco = { total: number; usados: number };
 
+export const ALINHAMENTOS = ["Leal e Bom", "Neutro e Bom", "Caótico e Bom", "Leal e Neutro", "Neutro", "Caótico e Neutro", "Leal e Mau", "Neutro e Mau", "Caótico e Mau"];
+
 export type FichaDnd = {
   nome: string;
   /** Classe do personagem (uma das classes do livro). "" = não escolhida. */
@@ -149,6 +151,8 @@ export type FichaDnd = {
   notas: string;
   /** Escolhas do jogador para a ficha automatizada (opcional: fichas antigas não têm). Ver `regras/dnd5e`. */
   build?: Build;
+  /** `rascunho` (padrão, tudo editável) ou `publicada` (identidade, atributos e proficiências travados para o jogador). */
+  status?: "rascunho" | "publicada";
   /** Só na ficha efetiva e só com multiclasse: o nível em cada classe (nunca gravado). */
   classes?: { id: string; nivel: number }[];
   /** Magia mantida em concentração (id da magia na ficha). Só uma por vez. */

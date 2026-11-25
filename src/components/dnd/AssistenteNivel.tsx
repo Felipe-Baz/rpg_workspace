@@ -14,6 +14,7 @@ import { carregarMagias, type MagiaCat } from "@/lib/regras/dnd5e/magias";
 import { ajustarConjuracao, adicionarClasse, classesNovas, conferirRequisitos, PROF_MULTICLASSE, textoRequisito, lerRequisito } from "@/lib/regras/dnd5e/multiclasse";
 import { incrementoValido, incrementosDisponiveis, incrementosUsados, resumoSubida, subirNivel, type EscolhasSubida } from "@/lib/regras/dnd5e/progressao";
 import { EscolhaCampos } from "./ConstrucaoPersonagem";
+import TextoLivro from "./TextoLivro";
 
 const campo = "rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
 const secao = "rounded-xl border border-border bg-background/40 p-3";
@@ -133,8 +134,8 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
           <p className="text-xs text-muted">Bônus de proficiência {sinal(resumo.proficiencia.antes)}{resumo.proficiencia.depois !== resumo.proficiencia.antes ? <> → <strong className="text-gold">{sinal(resumo.proficiencia.depois)}</strong></> : " (igual)"} · Dado de vida d{resumo.dadoVida}</p>
           {resumo.caracteristicas.length === 0 ? <p className="mt-1 text-xs text-muted">Nenhuma característica nova neste nível.</p> : (
             <ul className="mt-1 space-y-1">
-              {resumo.caracteristicas.map((c) => (
-                <li key={c.nome}><details><summary className="cursor-pointer font-semibold">{c.nome}</summary>{c.texto && <p className="mt-1 whitespace-pre-line text-muted">{c.texto}</p>}</details></li>
+              {resumo.caracteristicas.map((c, k) => (
+                <li key={`${c.nome}-${k}`}><details><summary className="cursor-pointer font-semibold">{c.nome}</summary>{c.texto && <TextoLivro texto={c.texto} className="mt-1" />}</details></li>
               ))}
             </ul>
           )}
@@ -162,7 +163,7 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
               <option value="">Escolha…</option>
               {novaSub.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
             </select>
-            {subclasse && <p className="mt-1 whitespace-pre-line text-xs text-muted">{novaSub.find((s) => s.id === subclasse)?.caracteristicas[0]?.texto}</p>}
+            {subclasse && <TextoLivro texto={novaSub.find((s) => s.id === subclasse)?.caracteristicas[0]?.texto ?? ""} className="mt-1" />}
           </section>
         )}
 
@@ -189,7 +190,7 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
                   {cat.talentos().map((t) => <option key={t.id} value={t.id}>{t.nome}{t.prerequisito ? ` (${t.prerequisito})` : ""}</option>)}
                 </select>
                 {tal?.escolhas?.map((d) => <EscolhaCampos key={d.id} def={d} valores={escTalento[d.id] ?? []} cat={cat} opcoesMesa={opcoes} magias={magias} onChange={(v) => setEscTalento({ ...escTalento, [d.id]: v })} />)}
-                {tal?.texto && <p className="line-clamp-4 whitespace-pre-line text-xs text-muted">{tal.texto}</p>}
+                {tal?.texto && <TextoLivro texto={tal.texto} />}
               </div>
             )}
             {erroInc && <p className="mt-1 text-xs text-gold">{erroInc}</p>}
@@ -221,15 +222,14 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
 }
 
 export function Moldura({ titulo: t, onFechar, children }: { titulo?: string; onFechar: () => void; children: React.ReactNode }) {
+  // o assistente é uma página no lugar da ficha, dentro do layout do site (não um popup nem um portal)
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3" role="dialog" aria-modal="true" aria-label={t ?? "Assistente"}>
-      <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border-2 border-gold/50 bg-card p-5 shadow-xl">
-        <header className="mb-3 flex items-center gap-3">
-          <h2 className="font-display text-lg font-bold text-gold">{t ?? "Assistente"}</h2>
-          <button onClick={onFechar} aria-label="Fechar" className="ml-auto rounded-lg p-1.5 text-muted hover:text-foreground"><X className="h-5 w-5" /></button>
-        </header>
-        {children}
-      </div>
-    </div>
+    <section className="ficha-rpg mx-auto w-full max-w-3xl rounded-2xl border-2 border-gold/50 bg-card p-5 shadow-xl" aria-label={t ?? "Assistente"}>
+      <header className="mb-4 flex items-center gap-3 border-b border-gold/30 pb-3">
+        <h2 className="font-display text-xl font-bold text-gold">{t ?? "Assistente"}</h2>
+        <button onClick={onFechar} className="ml-auto inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-sm text-muted hover:text-foreground"><X className="h-4 w-4" aria-hidden /> Sair do assistente</button>
+      </header>
+      {children}
+    </section>
   );
 }

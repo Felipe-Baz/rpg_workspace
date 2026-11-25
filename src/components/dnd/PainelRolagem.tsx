@@ -60,7 +60,7 @@ export default function PainelRolagem({ teste, onFechar, aoAplicar, origem }: { 
           </>
         )}
         {teste.dano && (
-          <label className="flex items-center gap-1.5 text-xs text-muted"><input type="checkbox" checked={critico} onChange={(e) => { setCritico(e.target.checked); setResultado(null); }} /> Crítico (dobra os dados)</label>
+          <label className="flex items-center gap-1.5 text-xs text-muted" title="Acerto crítico (20 natural no ataque): os dados de dano são rolados em dobro."><input type="checkbox" checked={critico} onChange={(e) => { setCritico(e.target.checked); setResultado(null); }} /> Crítico (dobra os dados)</label>
         )}
         <button onClick={rolarAqui} disabled={rolando} className="ml-auto flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 font-semibold text-white hover:bg-accent-strong disabled:opacity-60"><Dices size={15} /> Rolar aqui</button>
         <button
