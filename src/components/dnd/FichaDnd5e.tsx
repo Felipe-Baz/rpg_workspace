@@ -183,8 +183,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   }
 
   // a aba Magias some para quem não conjura: classes sem conjuração, sem magias cadastradas e sem atributo de conjuração
-  // (subclasses conjuradoras como Cavaleiro Místico e Trapaceiro Arcano, ou itens que dão magias, mantêm a aba)
-  const conjura = !f.classe || classesDaFicha(f).some((c) => ehConjuradora(c.id as ClasseId)) || f.magias.length > 0 || !!f.atrConjuracao || /cavaleiro místico|trapaceiro arcano/i.test(f.subclasse);
+  // (subclasses conjuradoras como Cavaleiro Arcano e Trapaceiro Arcano, ou itens que dão magias, mantêm a aba)
+  const conjura = !f.classe || classesDaFicha(f).some((c) => ehConjuradora(c.id as ClasseId)) || f.magias.length > 0 || !!f.atrConjuracao || /cavaleiro (místico|arcano)|trapaceiro arcano/i.test(f.subclasse);
   const abaAtual: Aba = aba === "magias" && !conjura ? "combate" : aba;
   // o jogador só compra pela ficha se o mestre liberar a opção da mesa (desligada por padrão); o mestre sempre pode
   const podeComprar = papel === "mestre" || opcaoAtiva(dnd5e, opcoes, "compras");
@@ -456,7 +456,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
         <section className="space-y-4">
           {!compacto && <div className={cartao}>
             <h2 className={titulo}>Conjuração</h2>
-            {!!f.classe && !ehConjuradora(f.classe) && <p className="mb-3 text-xs text-muted">{nomeClasse(f.classe)} não conjura magias por padrão. Você ainda pode cadastrar magias (itens, talentos, subclasses como Cavaleiro Místico) e escolher o atributo de conjuração abaixo.</p>}
+            {!!f.classe && !ehConjuradora(f.classe) && <p className="mb-3 text-xs text-muted">{nomeClasse(f.classe)} não conjura magias por padrão. Você ainda pode cadastrar magias (itens, talentos, subclasses como Cavaleiro Arcano) e escolher o atributo de conjuração abaixo.</p>}
             <div className="flex flex-wrap items-end gap-4">
               <label className="text-[11px] uppercase tracking-wider text-muted">
                 Atributo
