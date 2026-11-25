@@ -20,12 +20,13 @@ import { Escudo, Gema, IconeEscola, Losango, Medalhao, corDaEscola } from "./orn
 import { usePersistido } from "@/lib/persistido";
 import AssistenteNivel from "./AssistenteNivel";
 import AssistenteCriacao from "./AssistenteCriacao";
-import { nivelPorXp, podeSubirDeNivel } from "@/lib/regras/dnd5e/progressao";
+import { nivelPorXp, podeSubirDeNivel, xpParaNivel } from "@/lib/regras/dnd5e/progressao";
 import { TIPOS_DE_DANO, aplicarCura, aplicarDano, comSugestao, danoDeFuria, defesasDe, estabilizar, estadoVital, modoDaJogada, salvaguardaDeMorte, type EstadoJogo, type Jogada } from "@/lib/regras/dnd5e/combate";
 import HabilidadesUsos from "./HabilidadesUsos";
 import { recursosCalculados, recursosDaFicha, restaurarRecursos } from "@/lib/regras/dnd5e/recursos";
 import { MAX_SINTONIZADOS, emOuro, pagar, reembolsar, totalEmCobre, trocarMoedas } from "@/lib/regras/dnd5e/equipamento";
 import type { Moeda } from "@/lib/regras/dnd5e/catalogo";
+import { PARTES_IMPORTACAO, mesclarPartes, type ParteImportacao } from "@/lib/importarFichaPdf";
 import { CaracteristicasPorFonte } from "./ConstrucaoPersonagem";
 import { carregarCatalogoPhb, type Catalogo } from "@/lib/regras/dnd5e/catalogo";
 import { derivar, equipamentoManual } from "@/lib/regras/dnd5e/derivar";
@@ -111,6 +112,15 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   const [circuloConj, setCirculoConj] = useState<Record<string, number>>({});
   const [importacao, setImportacao] = useState<{ ok: boolean; texto: string } | null>(null);
   const [importando, setImportando] = useState(false);
+  const [pendente, setPendente] = useState<{ nome: string; ficha: FichaDnd; resumo: string } | null>(null);
+  const [partesSel, setPartesSel] = useState<Set<ParteImportacao>>(new Set());
+  const aplicarImportacao = () => {
+    if (!pendente || partesSel.size === 0) return;
+    const partes = [...partesSel];
+    salvarBruto(mesclarPartes(f, pendente.ficha, partes));
+    setImportacao({ ok: true, texto: `Importado (${partes.map((p) => PARTES_IMPORTACAO.find((x) => x.id === p)!.rotulo).join(", ")}). ${pendente.resumo}` });
+    setPendente(null);
+  };
   // após o descanso longo: "perguntar" se quer trocar as magias ativas, "trocar" com o painel aberto
   const [trocaMagias, setTrocaMagias] = useState<"perguntar" | "trocar" | null>(null);
   const [compendio, setCompendio] = useState(false);
@@ -195,6 +205,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   const podeComprar = papel === "mestre" || opcaoAtiva(dnd5e, opcoes, "compras");
   // ficha publicada: identidade, atributos e proficiências travados para o jogador (o mestre edita sempre; subir de nível segue liberado)
   const travada = f.status === "publicada" && papel !== "mestre";
+  /** o jogador só sobe de nível com XP suficiente; o mestre pode sempre */
+  const xpLiberaNivel = papel === "mestre" || podeSubirDeNivel(f.xp, f.nivel);
   const atrDaClasse = auto && !(f.classes && f.classes.length > 1) && !!f.classe && ehConjuradora(f.classe);
   const set = (p: Partial<FichaDnd>) => salvar({ ...f, ...p });
   const nomesRacas = catLivro ? catLivro.racas().flatMap((r) => [r.nome, ...(r.sub ?? []).filter((s) => s.id !== `${r.id}-padrao` && s.nome !== r.nome).map((s) => s.nome)]) : [];
@@ -259,9 +271,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
       const { lerCamposPdf, fichaDeCampos } = await import("@/lib/importarFichaPdf");
       const campos = await lerCamposPdf(await arquivo.arrayBuffer());
       const { ficha: nova, resumo } = fichaDeCampos(campos, uid, f);
-      if (!window.confirm(`Importar "${arquivo.name}" vai substituir todos os dados atuais desta ficha.\n\n${resumo}\n\nContinuar?`)) return;
-      salvarBruto({ ...nova, build: undefined }); // a importação substitui tudo, inclusive a construção pelo livro
-      setImportacao({ ok: true, texto: `Ficha importada. ${resumo}` });
+      setPendente({ nome: arquivo.name, ficha: nova, resumo });
+      setPartesSel(new Set(PARTES_IMPORTACAO.map((p) => p.id)));
     } catch (e) {
       setImportacao({ ok: false, texto: e instanceof Error ? e.message : "Não consegui importar esse PDF." });
     } finally {
@@ -790,6 +801,29 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
             </label>
           )}
         </div>
+        {pendente && (
+          <div role="dialog" aria-label="Escolher o que importar" className="relative mt-3 rounded-lg border border-border p-3 text-sm">
+            <p className="mb-2 text-foreground">Importar de “{pendente.nome}”: escolha as partes que substituem os dados atuais.</p>
+            <div className="grid gap-1.5 sm:grid-cols-2">
+              {PARTES_IMPORTACAO.map((p) => (
+                <label key={p.id} className="flex cursor-pointer items-start gap-2">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={partesSel.has(p.id)}
+                    onChange={(e) => setPartesSel((s) => { const n = new Set(s); if (e.target.checked) n.add(p.id); else n.delete(p.id); return n; })}
+                  />
+                  <span><span className="text-foreground">{p.rotulo}</span> <span className="text-muted">— {p.detalhe}</span></span>
+                </label>
+              ))}
+            </div>
+            <p className="mt-2 text-muted">{pendente.resumo}</p>
+            <div className="mt-2 flex gap-2">
+              <button onClick={aplicarImportacao} disabled={partesSel.size === 0} className="rounded-full border border-gold px-3 py-1 text-gold disabled:opacity-50">Importar selecionadas</button>
+              <button onClick={() => setPendente(null)} className="rounded-full border border-border px-3 py-1 text-muted hover:text-foreground">Cancelar</button>
+            </div>
+          </div>
+        )}
         {importacao && (
           <p role="status" className={`relative mt-3 text-sm ${importacao.ok ? "text-gold" : "text-red-400"}`}>{importacao.texto}</p>
         )}
@@ -894,7 +928,12 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
           )}
           {podeSubirDeNivel(f.xp, f.nivel) && <span role="status" className="rounded-full border border-gold bg-gold/15 px-3 py-0.5 font-semibold text-gold">XP suficiente para o nível {nivelPorXp(f.xp)}!</span>}
           {f.nivel < 20 && (
-            <button onClick={() => setAssistente("nivel")} className="rounded-md border border-gold/40 bg-gold/10 px-2 py-0.5 font-semibold text-gold hover:bg-gold/20" title={auto ? "Assistente de subida de nível" : "Ative a construção pelo livro na aba Personagem para usar o assistente"}>Subir de nível</button>
+            <button
+              onClick={() => setAssistente("nivel")}
+              disabled={!xpLiberaNivel}
+              className="rounded-md border border-gold/40 bg-gold/10 px-2 py-0.5 font-semibold text-gold hover:bg-gold/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-gold/10"
+              title={!xpLiberaNivel ? `XP insuficiente: o nível ${f.nivel + 1} pede ${xpParaNivel(f.nivel + 1)} XP (você tem ${f.xp})` : auto ? "Assistente de subida de nível" : "Ative a construção pelo livro na aba Personagem para usar o assistente"}
+            >Subir de nível</button>
           )}
           {papel === "mestre" && (
             <span className="ml-auto flex items-center gap-1 text-muted">

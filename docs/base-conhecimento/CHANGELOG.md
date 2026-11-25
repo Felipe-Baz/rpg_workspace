@@ -4,6 +4,10 @@ Registro curto de **mudanças de comportamento** que alteraram esta base (mais r
 
 Se uma alteração de código **não** afeta nenhuma feature, fluxo, regra de acesso, modelo de dados ou rota, registre mesmo assim com `sem impacto na base` (isso marca a revisão como feita).
 
+- 2026-11-25: ficha D&D 5e: "Subir de nível" fica bloqueado para o jogador sem XP suficiente para o próximo nível (mestre não é limitado). Páginas: `features/ficha-dnd5e.md`.
+- 2026-11-25: ficha D&D 5e: "Importar PDF" agora deixa escolher partes (Personagem, Combate, Magias, Equipamento, História) em vez de substituir a ficha inteira. Páginas: `features/ficha-dnd5e.md`.
+- 2026-11-25: ficha D&D 5e: Tiefling ganha as sub-raças **Infernal** (padrão) e **Abissal** ao lado do Ctônico; antes o Ctônico era a única e vinha pré-selecionada no assistente, tirando a resistência a fogo sem escolha. Páginas: ficha-dnd5e.
+- 2026-11-25: ficha D&D 5e: duas subclasses do **Guia do Mestre** entram no catálogo, **Paladino: Quebrador de Juramento** e **Clérigo: Domínio da Morte** (pacote `dmg`, geradas de `docs/referencias/master_guide/`); Senhor do Pavor vira uso de descanso longo. Páginas: ficha-dnd5e.
 - 2026-11-25: ficha D&D 5e: nova sub-raça **Tiefling Ctônico (Chthonic)** (resistência necrótica no lugar da a fogo, magias de 3º/5º nível como usos de descanso longo); `SubRaca.retira` permite a uma sub-raça substituir concessões da base. Páginas: ficha-dnd5e.
 - 2026-11-25: ficha D&D 5e: fichas manuais (sem `build`) passam a calcular a CA por armadura/escudo/bônus equipados e a gerar linhas de ataque das armas equipadas do catálogo (`equipamentoManual`; CA calculada e ataques nunca gravados), com proficiências lidas do texto "Outras proficiências e idiomas". Páginas: features/ficha-dnd5e.md.
 - 2026-11-25: ficha D&D 5e: aba Magias volta a aparecer para o Guerreiro Cavaleiro Arcano (o teste procurava "Cavaleiro Místico"; o catálogo usa "Cavaleiro Arcano"). Páginas: sem impacto na base (correção interna).

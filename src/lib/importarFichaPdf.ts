@@ -213,6 +213,33 @@ export function fichaDeCampos(c: CamposPdf, novoId: () => string, base?: Partial
   return { ficha: f, resumo };
 }
 
+/** Partes da ficha que podem ser importadas separadamente. */
+export const PARTES_IMPORTACAO = [
+  { id: "personagem", rotulo: "Personagem", detalhe: "Identificação, atributos, salvaguardas, perícias, idiomas" },
+  { id: "combate", rotulo: "Combate", detalhe: "CA, PV, dados de vida, iniciativa, ataques" },
+  { id: "magias", rotulo: "Magias", detalhe: "Atributo de conjuração, espaços e lista de magias" },
+  { id: "equipamento", rotulo: "Equipamento", detalhe: "Moedas e texto de equipamento" },
+  { id: "historia", rotulo: "História", detalhe: "Traços, personalidade, aparência, anotações" },
+] as const;
+export type ParteImportacao = (typeof PARTES_IMPORTACAO)[number]["id"];
+
+const CAMPOS_PARTE: Record<ParteImportacao, (keyof FichaDnd)[]> = {
+  personagem: ["nome", "classe", "nivel", "subclasse", "antecedente", "raca", "alinhamento", "xp", "inspiracao", "atributos", "salvaguardas", "pericias", "bonusPericias", "proficienciasIdiomas"],
+  combate: ["ca", "bonusIniciativa", "deslocamento", "pvMax", "pv", "pvTemp", "dadoVida", "dadosVidaTotal", "morteSucessos", "morteFalhas", "ataques"],
+  magias: ["atrConjuracao", "espacos", "magias"],
+  equipamento: ["moedas", "equipamento"],
+  historia: ["tracos", "personalidade", "ideais", "vinculos", "defeitos", "aparencia", "livro", "notas"],
+};
+
+/** Aplica sobre a ficha atual só as partes escolhidas da ficha importada. */
+export function mesclarPartes(atual: FichaDnd, importada: FichaDnd, partes: ParteImportacao[]): FichaDnd {
+  const r: Record<string, unknown> = { ...atual };
+  for (const p of partes) for (const k of CAMPOS_PARTE[p]) r[k] = importada[k];
+  // a construção pelo livro deixa de valer se a identidade ou os números do personagem mudaram
+  if (partes.includes("personagem") || partes.includes("combate")) r.build = undefined;
+  return r as unknown as FichaDnd;
+}
+
 /** Lê os campos do formulário PDF. Lança `Error` com mensagem para o usuário se não for a ficha. */
 export async function lerCamposPdf(dados: ArrayBuffer): Promise<CamposPdf> {
   const { PDFDocument, PDFTextField, PDFCheckBox } = await import("pdf-lib");
