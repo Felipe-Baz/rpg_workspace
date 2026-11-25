@@ -42,6 +42,8 @@ export type Mesa = {
   codigo: string; // código de convite para jogadores
   jogadores: Jogador[];
   sessoes: Sessao[];
+  /** Regras opcionais do sistema ligadas pelo mestre (ex.: D&D 5e: `talentos`, `multiclasse`). Ausente = padrão do sistema. */
+  opcoesRegras?: Record<string, boolean>;
 };
 
 // Documento mesas/{id}/segredos/mestre — só o mestre lê e escreve.
@@ -239,6 +241,7 @@ export async function excluirMesa(mesa: Mesa) {
   pendentes.delete(mesa.id);
   const batch = writeBatch(db);
   batch.delete(doc(db, COLECAO, mesa.id, "segredos", "mestre"));
+  batch.delete(doc(db, COLECAO, mesa.id, "segredos", "timeline"));
   batch.delete(doc(db, CONVITES, mesa.codigo));
   batch.delete(doc(db, COLECAO, mesa.id));
   await batch.commit().catch((e) => console.error("excluirMesa:", e));
@@ -254,7 +257,7 @@ export async function sairDaMesa(mesa: Mesa, usuarioUid: string) {
 // ---------- segredos do mestre (documento separado) ----------
 const SEGREDOS_VAZIOS: Segredos = { segredosMestre: "", notasSessoes: {} };
 
-export function useDocSincronizado<T extends object>(caminho: string[], vazio: T, habilitado: boolean) {
+export function useDocSincronizado<T extends object>(caminho: string[], vazio: T, habilitado: boolean, somenteLeitura = false) {
   const [dados, setDados] = useState<T>(vazio);
   const [carregado, setCarregado] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -296,6 +299,7 @@ export function useDocSincronizado<T extends object>(caminho: string[], vazio: T
   }, [chave, habilitado]);
 
   function atualizar(proximo: T) {
+    if (somenteLeitura) return;
     setDados(proximo);
     sujo.current = proximo;
     clearTimeout(timer.current);
@@ -324,11 +328,12 @@ export type Anotacoes = {
 };
 const ANOTACOES_VAZIAS: Anotacoes = { notas: {}, notasJogadores: {} };
 
-export function useAnotacoes(mesaId: string, usuarioUid: string, habilitado: boolean) {
+export function useAnotacoes(mesaId: string, usuarioUid: string, habilitado: boolean, somenteLeitura = false) {
   const { dados, carregado, atualizar } = useDocSincronizado<Anotacoes>(
     [COLECAO, mesaId, "anotacoes", usuarioUid],
     ANOTACOES_VAZIAS,
     habilitado,
+    somenteLeitura,
   );
   return {
     notas: dados.notas,

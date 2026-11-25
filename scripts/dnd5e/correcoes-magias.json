@@ -1,0 +1,53 @@
+{
+  "misseis-magicos": {
+    "mecanica": { "danos": [{ "dado": "1d4+1", "tipo": "energia", "porDardo": true }], "dardos": 3, "escalaNivel": { "dardosExtras": 1, "porNivel": 1 } }
+  },
+  "orbe-cromatica": {
+    "mecanica": { "ataque": "distancia", "danos": [{ "dado": "3d8", "tipo": "escolhido" }], "escalaNivel": { "dado": "1d8", "porNivel": 1 } }
+  },
+  "dissipar-o-bem-e-mal": { "mecanica": { "ataque": null } },
+  "viagem-planar": { "mecanica": { "ataque": null } },
+
+  "raio-ardente": {
+    "mecanica": { "dardos": 3, "escalaNivel": { "dardosExtras": 1, "porNivel": 1 } }
+  },
+  "rajada-mistica": {
+    "mecanica": { "dardos": 1, "escalaPersonagem": [{ "nivel": 5, "dardos": 2 }, { "nivel": 11, "dardos": 3 }, { "nivel": 17, "dardos": 4 }] }
+  },
+  "onda-destrutiva": {
+    "mecanica": { "danos": [{ "dado": "5d6", "tipo": "trovejante" }, { "dado": "5d6", "tipo": "radiante ou necrótico" }] }
+  },
+  "conjurar-rajada": {
+    "mecanica": { "danos": [{ "dado": "3d8", "tipo": "da arma ou munição" }] }
+  },
+  "conjurar-saraivada": {
+    "mecanica": { "danos": [{ "dado": "8d8", "tipo": "da arma ou munição" }] }
+  },
+  "bola-de-fogo-controlavel": {
+    "mecanica": { "danos": [{ "dado": "12d6", "tipo": "fogo" }] }
+  },
+  "arma-elemental": {
+    "mecanica": { "danos": [{ "dado": "1d4", "tipo": "escolhido" }], "escalaNivel": { "dado": "1d4", "porNivel": 2 } }
+  },
+  "marca-do-cacador": {
+    "mecanica": { "danos": [{ "dado": "1d6", "tipo": "da arma" }] }
+  },
+  "desejo": { "mecanica": { "danos": null } },
+  "teletransporte": { "mecanica": { "danos": null } },
+
+  "sono": {
+    "mecanica": { "extras": [{ "rotulo": "PV afetados", "dado": "5d8" }], "escalaNivel": { "dado": "2d8", "porNivel": 1 } }
+  },
+  "leque-cromatico": {
+    "mecanica": { "extras": [{ "rotulo": "PV afetados", "dado": "6d10" }] }
+  },
+  "vitalidade-falsa": {
+    "mecanica": { "extras": [{ "rotulo": "PV temporários", "dado": "1d4+4" }], "escalaNivel": { "fixo": 5, "porNivel": 1 } }
+  },
+  "aprimorar-habilidade": {
+    "mecanica": { "extras": [{ "rotulo": "PV temporários (Vigor do Urso)", "dado": "2d6" }] }
+  },
+  "banquete-de-herois": {
+    "mecanica": { "extras": [{ "rotulo": "PV máximos extras", "dado": "2d10" }] }
+  }
+}

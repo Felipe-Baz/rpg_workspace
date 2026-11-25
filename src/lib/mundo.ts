@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { deleteDoc, doc, onSnapshot, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
-import { MUNDO_PADRAO } from "@/content/valgreth";
 
 // ===== Modelo (o que o mestre cadastra como JSON) =====
 
@@ -154,22 +153,24 @@ export function useMundo(mesaId: string, habilitado: boolean) {
     );
   }, [mesaId, habilitado]);
 
-  let mundo: Mundo = MUNDO_PADRAO;
-  let personalizado = false;
+  // Sem conteúdo cadastrado pelo mestre, não há mundo: cada mesa é um universo próprio.
+  let mundo: Mundo | null = null;
   if (json) {
     try {
       mundo = lerMundoJson(json);
-      personalizado = true;
     } catch (e) {
       console.error("mundo salvo inválido:", e);
     }
   }
-  return { mundo, personalizado, json, carregado };
+  return { mundo, json, carregado };
 }
+
+/** Mundo vazio, ponto de partida do editor do mestre. */
+export const mundoVazio = (): Mundo => ({ titulo: "", subtitulo: "", introducao: "", secoes: [] });
 
 export async function salvarMundo(mesaId: string, json: string) {
   const mundo = lerMundoJson(json); // valida antes de gravar
   await setDoc(ref(mesaId), { json: JSON.stringify(mundo), atualizadoEm: Date.now() });
 }
 
-export const restaurarMundoPadrao = (mesaId: string) => deleteDoc(ref(mesaId));
+export const apagarMundo = (mesaId: string) => deleteDoc(ref(mesaId));

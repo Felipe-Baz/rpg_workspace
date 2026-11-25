@@ -1,5 +1,5 @@
 // Parte pura do broker: dados de exemplo (modo ensaio), reduções de dados e limites. Sem Firebase.
-import { rolar } from "../dados.ts";
+import { rolar, type Rolagem } from "../dados.ts";
 import type { Acao } from "./acoes.ts";
 import { autorizar, type AlvoLeitura, type Pedido, type Permissao } from "./capacidades.ts";
 import type { PedidoEstado } from "./estado.ts";
@@ -64,12 +64,15 @@ export type Proponente = (acoes: Acao[]) => Promise<unknown>;
 export type Leitor = (alvo: AlvoLeitura, args: Record<string, unknown> | null) => Promise<unknown>;
 
 /** Executa um pedido já validado: confere a permissão aprovada, lê pela fonte e limita a resposta. */
+/** Quem rola de verdade na tela (dados 3D compartilhados). Sem isso, `RPG.rolar` só sorteia o número. */
+export type Rolador = (expressao: string) => Promise<Rolagem | null>;
+
 export type Perguntador = (texto: string) => Promise<unknown>;
 
 /** Atende `RPG.estado.*` (ler/salvar/listar), com o escopo já validado; ver `atenderEstado` em estado.ts. */
 export type AtendenteEstado = (p: PedidoEstado) => Promise<unknown>;
 
-export async function atender(pedido: Pedido, aprovadas: readonly Permissao[], ler: Leitor, propor?: Proponente, perguntar?: Perguntador, estado?: AtendenteEstado): Promise<unknown> {
+export async function atender(pedido: Pedido, aprovadas: readonly Permissao[], ler: Leitor, propor?: Proponente, perguntar?: Perguntador, estado?: AtendenteEstado, rolarCom?: Rolador): Promise<unknown> {
   const aut = autorizar(aprovadas, pedido);
   if (!aut.ok) throw new Error(aut.erro);
   if (pedido.op === "estado") {
@@ -85,7 +88,7 @@ export async function atender(pedido: Pedido, aprovadas: readonly Permissao[], l
     return propor(pedido.args.acoes);
   }
   if (pedido.op === "rolar") {
-    const r = rolar(pedido.args.expressao);
+    const r = rolarCom ? await rolarCom(pedido.args.expressao) : rolar(pedido.args.expressao);
     if (!r) throw new Error("Expressão de dados inválida. Exemplos: d20, 2d6+3, 4d6kh3.");
     return r;
   }

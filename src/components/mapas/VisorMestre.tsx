@@ -148,16 +148,15 @@ export default function VisorMestre({
   const previa = ferramenta === "poli" && cursor && rascunho.length ? [...rascunho, cursor] : rascunho;
 
   return (
-    <div className="fixed inset-0 z-50 flex bg-black">
-      <div className="flex min-w-0 flex-1 items-center justify-center p-2">
+    <div className="fixed inset-0 z-50 flex flex-col bg-black md:flex-row">
+      <div className="flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden p-2">
         <div ref={caixa} className="relative leading-[0]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={mapa.imagem}
             alt={mapa.nome}
             draggable={false}
-            className="block max-w-full select-none"
-            style={{ maxHeight: "calc(100vh - 1rem)" }}
+            className={`block max-w-full select-none max-h-[calc(100dvh-1rem)] ${editar ? "max-md:max-h-[calc(50dvh-1rem)]" : ""}`}
           />
           <CamadaCobertura
             cobertas={cobertas}
@@ -213,7 +212,7 @@ export default function VisorMestre({
       )}
 
       {editar && (
-        <aside className="w-80 space-y-4 overflow-y-auto border-l border-border bg-card p-3 text-sm">
+        <aside className="max-h-[50dvh] w-full shrink-0 space-y-4 overflow-y-auto border-t border-border bg-card p-3 text-sm md:max-h-none md:w-80 md:border-l md:border-t-0">
           <div className="flex items-center justify-between gap-2">
             <button onClick={() => { setEditar(false); setRascunho([]); setSelId(null); }} className={btnAtivo}>
               👁 Voltar ao modo mesa

@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   BookOpenText, Dices, Download, EyeOff, Image as ImageIcon, KeyRound, Map as MapIcon, Scroll,
   Skull, Sparkles, Swords, UserRound, Users, WandSparkles, type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { LogoIcone } from "../Logo";
 import ThemeToggle from "../ThemeToggle";
 import Brasas from "./Brasas";
 
@@ -88,7 +89,10 @@ const PASSOS = [
 /* ---------- página ---------- */
 
 export default function Landing() {
-  const { user } = useAuth();
+  const { user: usuarioAuth } = useAuth();
+  // A hidratação pode acontecer depois do login ser resolvido; durante ela vale o estado "deslogado" do HTML do servidor.
+  const hidratado = useSyncExternalStore(() => () => {}, () => true, () => false);
+  const user = hidratado ? usuarioAuth : null;
   const entrada = user ? "/mesas" : "/login";
   const rotuloEntrada = user ? "Abrir minhas mesas" : "Entrar";
 
@@ -98,7 +102,7 @@ export default function Landing() {
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-md">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
           <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold tracking-wide">
-            <Sparkles size={18} className="text-gold" /> RPG Workspace
+            <LogoIcone altura={30} /> RPG Workspace
           </Link>
           <div className="hidden items-center gap-6 text-sm text-muted md:flex">
             <a href="#recursos" className="hover:text-foreground">Recursos</a>

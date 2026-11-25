@@ -1,3 +1,4 @@
+import { LogoCompleta } from "../Logo";
 // Placeholders de carregamento (substituem o texto "Carregando…" e telas em branco).
 export function Skeleton({ className = "" }: { className?: string }) {
   return <div aria-hidden className={`animate-pulse rounded-lg bg-card-2 ${className}`} />;
@@ -18,8 +19,8 @@ export function ListaSkeleton({ linhas = 3 }: { linhas?: number }) {
 export function TelaCarregando() {
   return (
     <div role="status" className="flex min-h-screen flex-col items-center justify-center gap-4">
-      <span className="font-display text-xl tracking-wide text-gold" style={{ animation: "brilho 1.6s ease-in-out infinite" }}>
-        ✦ RPG Workspace
+      <span style={{ animation: "brilho 1.6s ease-in-out infinite" }}>
+        <LogoCompleta altura={140} />
       </span>
       <span className="sr-only">Carregando…</span>
     </div>

@@ -6,11 +6,10 @@
 // e devolve uma versão reduzida dos dados.
 
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
-import { MUNDO_PADRAO } from "@/content/valgreth";
 import { db } from "../firebase";
-import { lerMundoJson } from "../mundo";
+import { lerMundoJson, type Mundo } from "../mundo";
 import type { Mesa } from "../mesas";
-import { atender, leitorExemplo, type Leitor, type Perguntador, type Proponente } from "./broker-puro";
+import { atender, leitorExemplo, type Leitor, type Perguntador, type Proponente, type Rolador } from "./broker-puro";
 import type { Pedido, Permissao } from "./capacidades";
 import { atenderEstado, type ContextoEstado, type PedidoEstado } from "./estado";
 
@@ -76,9 +75,9 @@ function leitorReal(mesa: Mesa, papel: "mestre" | "jogador", uid: string): Leito
       case "mundo": {
         const snap = await getDoc(doc(db, "mesas", mesa.id, "mundo", "principal"));
         const json = snap.exists() ? str(snap.data().json) : "";
-        let mundo = MUNDO_PADRAO;
+        let mundo: Mundo = { titulo: "", secoes: [] };
         if (json) {
-          try { mundo = lerMundoJson(json); } catch { /* inválido: usa o padrão, como a tela do Mundo */ }
+          try { mundo = lerMundoJson(json); } catch { /* inválido: trata como vazio, como a tela do Mundo */ }
         }
         if (typeof args?.secao === "string") {
           const s = mundo.secoes.find((x) => x.id === args.secao);
@@ -111,6 +110,8 @@ export function criarBroker(opcoes: {
   perguntar?: Perguntador;
   /** Estado por escopo (RPG.estado.*): armazém, escopos aprovados e quem é quem. Sem isso, a extensão não guarda nada além do `compartilhado` legado. */
   estado?: ContextoEstado;
+  /** `RPG.rolar` com os dados 3D da mesa. Sem isso (prévia, automações em segundo plano), só sorteia o número. */
+  rolar?: Rolador;
 }) {
   const leitor = opcoes.fonte === "exemplo" ? leitorExemplo : leitorReal(opcoes.mesa, opcoes.papel, opcoes.uid);
   const ctx = opcoes.estado;
@@ -119,7 +120,7 @@ export function criarBroker(opcoes: {
     const alvo = pedido.op === "estado" ? `${pedido.args.op} ${pedido.args.escopo}${pedido.args.jogador ? ` (${pedido.args.jogador})` : ""}` : pedido.alvo;
     const registro = (ok: boolean, detalhe: string) => opcoes.aoRegistrar?.({ quando: Date.now(), op: pedido.op, alvo, ok, detalhe });
     try {
-      const r = await atender(pedido, opcoes.aprovadas, leitor, opcoes.propor, opcoes.perguntar, atendenteEstado);
+      const r = await atender(pedido, opcoes.aprovadas, leitor, opcoes.propor, opcoes.perguntar, atendenteEstado, opcoes.rolar);
       const n = r && typeof r === "object" && "total" in r ? ` · ${(r as { total: number }).total} itens` : r && typeof r === "object" && "criados" in r ? ` · ${(r as { criados: unknown[] }).criados.length} criado(s)` : "";
       registro(true, `ok${n}`);
       return r;

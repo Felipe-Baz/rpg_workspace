@@ -41,6 +41,7 @@ Regra de ouro: `lib/` mistura dois tipos de arquivo. Os que têm hooks `use…` 
 mesas/{mesaId}                       Mesa: nome, sistema, cor, status, donoUid, membros[], codigo,
                                       jogadores[] (embutido), sessoes[] (embutido)
   ├─ segredos/mestre                  segredosMestre, notasSessoes, notasJogadores   (só mestre)
+  ├─ segredos/timeline                ramos, eventos, agora, unidade   (só mestre)
   ├─ anotacoes/{uid}                  diário privado do jogador
   ├─ pinos/{uid}                      pinos privados do jogador nos mapas
   ├─ mapas/{id}  imagens/{id}         imagem (data URL ou Storage), todos, liberadoPara[], cobertas, zonas, cenaId?
@@ -56,14 +57,19 @@ mesas/{mesaId}                       Mesa: nome, sistema, cor, status, donoUid, 
   ├─ quadro/{noId}                    quadro de investigação do jogador
   ├─ extensoes/{id}                   extensões instaladas (cópia do HTML; estadoAprovado)
   │   └─ estado/{mestre|para_uid|de_uid}  estado por escopo (só mestre / entregue ao jogador / escrito pelo jogador)
+  ├─ rolagens/{rolagemId}             rolagens de dados da mesa (uid, nome, expressao, total, rolagem, jogada{semente,dados}, em, criadoEm); membros leem e criam as próprias
   ├─ recursosDados/{registroId}       registros dos tipos de dado criados por extensões (liberado)
   ├─ extensoesPedidos/{pedidoId}      pedidos de jogadores por extensões (mestre aprova/recusa)
   ├─ extensoesLotes/{loteId}          conteúdo criado por extensões (itens + origem), para desfazer
+  ├─ bloqueados/{uid}                 contas banidas da mesa ({nome, em}); só o servidor escreve, mestre lê
   ├─ extensoesNativas/{idNativa}      liberação de extensões nativas aos jogadores (mestre grava, membros leem)
   └─ Marcas: players, assignments, notes, lore, puzzles, released, puzzleResp, puzzleStatus
 convites/{codigo}                    código → mesa (get por código exato; sem listar)
 extensoes/{id}                       biblioteca do mestre (donoUid; reaproveitável entre mesas)
 assetsPublicos/{id}                  assets gerados, legíveis por qualquer usuário logado
+mesas/{id}/personagens/{uid}        ficha D&D 5e do jogador (dono e mestre)
+sistemas/{id}                        sistemas de jogo públicos (dropdown da nova mesa), só o servidor escreve
+sistemasPessoais/{id}                sistemas cadastrados por um usuário ({donoUid, nome}), só ele lê/escreve
 usuarios/{uid}/...                   config de IA e chaves cifradas (NINGUÉM no cliente lê/escreve)
 ```
 
@@ -82,6 +88,8 @@ usuarios/{uid}/...                   config de IA e chaves cifradas (NINGUÉM no
 - `GET /api/saude` diz se Storage/Admin estão configurados, sem expor valores.
 
 ## Rotas de servidor (`/api/ia/*`)
+
+Fora de `ia`: `GET/POST /api/mesas/membros` (gestão de contas da mesa pelo mestre; ver [mesas-e-convites](features/mesas-e-convites.md)).
 
 Todas exigem `Authorization: Bearer <ID token>` (`verificarToken`) e, para ações da mesa, `exigirMestre` (uid == `donoUid`). Jogador recebe 403.
 

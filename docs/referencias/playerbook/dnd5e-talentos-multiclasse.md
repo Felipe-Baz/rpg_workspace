@@ -1,0 +1,513 @@
+# D&D 5e: Talentos e Multiclasse
+
+Fonte: _Livro do Jogador_ de D&D 5ª edição (tradução em PT-BR), arquivo `docs/referencias/dnd 5ed.pdf`.
+Este documento reúne **as regras de multiclasse** (pré-requisitos de atributo, PV e dados de vida, bônus de proficiência, proficiências ganhas, características que se combinam e a tabela de espaços de magia para multiclasse) e **todos os 42 talentos** do Livro do Jogador (cap. 6), com pré-requisitos e benefícios. Ambos são **regras opcionais**: o Mestre decide se estão em uso na mesa. Um talento substitui um Incremento no Valor de Habilidade.
+
+COMBINAÇÃO DE VALORES DE HABILIDADE, RAÇA, classes e antecedentes definem as capacidades do seu personagem no jogo e, os detalhes pessoais que você criou, diferenciam seu personagem de todos os outros personagens.
+
+Mesmo dentro da sua classe e raça, você terá opções de afinar o que seu personagem é capaz de fazer. Mas, esse capítulo é para jogadores que – com a permissão do Mestre – querem dar um passo adiante.
+
+Esse capítulo define dois conjuntos opcionais de regras para personalizar seu personagem: multiclasse e talentos. Multiclasse permite que você combine duas classes juntas e os talentos são opções especiais que você pode escolher, ao invés de incrementar seus valores de habilidade, à medida que você ganha níveis. Seu Mestre decide quais dessas opções estão disponíveis na campanha.
+
+# Multiclasse (cap. 6)
+
+Multiclasse permite que você ganhe níveis em múltiplas classes. Fazer isso, permite que você misture as habilidades dessas classes para conceber um conceito de personagem que poderia não ser refletido em uma das opções de classe padrão.
+
+Com essa regra, você tem a opção de ganhar um nível em uma nova classe sempre que você avançar de nível, ao invés de ganhar um nível da sua classe atual. Seus níveis em todas as classes são somados para determinar seu nível de personagem. Por exemplo, se você tiver três níveis de mago e dois de guerreiro, você será um personagem de 5° nível.
+
+À medida que você avança de nível, você pode permanecer, primariamente, um membro da sua classe original, com alguns níveis em outra classe, ou você pode mudar de curso completamente, nunca mais evoluindo a classe que você deixou pra trás. Você pode, até mesmo, começar a progredir em uma terceira ou quarta classe. Comparando com um personagem de única classe do mesmo nível, você sacrificou parte do seu foco em troca de versatilidade.
+
+Você só recebe o equipamento inicial da sua primeira classe.
+
+#### Exemplo de Multiclasse
+
+Gary está jogando com um guerreiro de 4° nível. Quando seu personagem adquire pontos de experiência suficientes para alcançar o 5° nível, Gary decide que seu personagem se tornará multiclasse, ao invés de continuar a progredir como guerreiro. O guerreiro de Gary tem gasto bastante tempo com o ladino de Dave e tem, até mesmo, feito alguns trabalhos ao seu lado para a guilda de ladrões local, como um brutamontes. Gary decide que seu personagem irá fazer multiclasse com a classe ladino e, então, seu personagem se torna um guerreiro de 4° nível e ladino de 1° nível (escrito assim guerreiro 4/ladino 1).
+
+Quando o personagem de Gary adquirir experiência suficiente para alcançar o 6° nível, ele poderá decidir entre adicionar outro nível de guerreiro (se tornando um guerreiro 5/ladino 1), outro nível de ladino (se tornando um guerreiro 4/ladino 2), ou um nível em uma terceira classe, talvez intrometendo-se na área de feitiçaria através de um tomo de misterioso conhecimento que ele adquiriu (se tornando um guerreiro 4/ladino 1/mago 1).
+
+### Pré-requisitos
+
+Para se qualificar para uma nova classe, você deve atender aos pré-requisitos de valor de habilidade tanto para sua classe atual, quanto para a nova classe, como mostrado na tabela Pré-Requisitos de Multiclasse. Por exemplo, um bárbaro que decida fazer multiclasse com a classe druida, deve ter ambos os valores de Força e Sabedoria 13 ou maior. Sem o treinamento completo que um personagem inicial recebe, você deve ter um estudo rápido da sua nova classe, tendo uma aptidão natural que é refletida por um valor de habilidade maior que a média.
+
+#### Pré-requisitos de Multiclasse
+
+| Classe | Valor de Habilidade Mínimo |
+| Bárbaro | Força 13 |
+| Bardo | Carisma 13 |
+| Bruxo | Carisma 13 |
+| Clérigo | Sabedoria 13 |
+| Druida | Sabedoria 13 |
+| Feiticeiro | Carisma 13 |
+| Guerreiro | Força 13 ou Destreza 13 |
+| Ladino | Destreza 13 |
+| Mago | Inteligência 13 |
+| Monge | Destreza 13 e Sabedoria 13 |
+| Paladino | Força 13 e Carisma 13 |
+| Patrulheiro | Destreza 13 e Sabedoria 13 |
+
+### Pontos de Experiência
+
+Os pontos de experiência necessários para ganhar um nível sempre será baseado no seu nível de personagem total, como mostrado na tabela Avanço de Personagem, no capítulo 1, não no seu nível em uma classe em particular. Portanto, se você for um clérigo 6/guerreiro 1, você deve ganhar XP suficiente para alcançar o 8° nível, antes de poder adquirir seu segundo nível como guerreiro ou seu sétimo nível como clérigo.
+
+### Pontos de Vida e Dados de Vida
+
+Você ganha os pontos de vida da sua nova classe como descrito para níveis após o 1°. Você ganha os pontos de vida de 1° nível de uma classe apenas quando você for um personagem de 1° nível.
+
+Você adiciona os Dados de Vida concedidos por todas as suas classes, juntos, para formar seu poço de Dados de Vida. Se os Dados de Vida forem de mesmo tipo, você pode, simplesmente, coloca-los juntos. Por exemplo, tanto o guerreiro quanto o paladino tem um d10, portanto, se você for um paladino 5/guerreiro 5, você terá dez d10 Dados de Vida. Se suas classes tiverem Dados de Vida de tipos diferentes, monitore-os separadamente. Se você fosse um paladino 5/clérigo 5, por exemplo, você teria cinco d10 Dados de Vida e cinco d8 Dados de Vida.
+
+### Bônus de Proficiência
+
+Seu bônus de proficiência sempre será baseado no seu nível de personagem total, como mostrado na tabela Avanço de Personagem, no capítulo 1, não no seu nível de uma classe em particular. Por exemplo, se você for um guerreiro 3/ladino 2, você terá bônus de proficiência de um personagem de 5° nível, o que seria +3.
+
+### Proficiências
+
+Quando você ganha um nível em uma classe diferente da sua primeira, você ganha apenas algumas das proficiências iniciais da classe, como mostrado na tabela Proficiências de Multiclasse.
+
+#### Proficiências de Multiclasse
+
+| Classe | Proficiência Adquirida |
+| Bárbaro | Escudos, armas simples, armas marciais |
+| Bardo | Armadura leve, uma perícia de sua escolha, um instrumento musical de sua escolha |
+| Bruxo | Armadura leve, armas simples |
+| Clérigo | Armadura leve, armadura média, escudos |
+| Druida | Armadura leve, armadura média, escudos (druidas não usarão armaduras ou escudos feitos de metal) |
+| Feiticeiro | – |
+| Guerreiro | Armadura leve, armadura média, escudos, armas simples, armas marciais |
+| Ladino | Armaduras leve, uma perícia da lista de perícias da classe, ferramentas de ladrão |
+| Mago | – |
+| Monge | Armas simples, espadas curtas |
+| Paladino | Armadura leve, armadura média, escudos, armas simples, armas marciais |
+| Patrulheiro | Armadura leve, armadura média, escudos, armas simples, armas marciais, uma perícia da lista de perícias da classe |
+
+### Características de Classe
+
+Quando você ganha um novo nível em uma classe, você adquire suas características daquele nível. Algumas características, no entanto, possuem regras adicionais quando você faz multiclasse: Canalizar Divindade, Ataque Extra, Defesa sem Armadura e Conjuração.
+
+#### Canalizar Divindade
+
+Se você já tiver a característica Canalizar Divindade e ganhar um nível em uma classe que também garanta essa característica, você ganha os efeitos de Canalizar Divindade de ambas as classes, mas adquirir a característica novamente não lhe dá usos adicionais dela. Você ganha usos adicionais apenas quando alcançar um nível de classe que explicitamente diga isso. Por exemplo, se você for um clérigo 6/paladino 4, você pode usar Canalizar Divindade duas vezes entre descansos, porque você seu nível de clérigo é alto o suficiente para te conceder mais usos. Sempre que você usar essa característica, você pode escolher qualquer efeito de Canalizar Divindade disponível a você por suas duas classes.
+
+#### Ataque Extra
+
+Se você ganhar a característica de classe Ataque Extra de mais de uma classe, as características não se somam. Você não poderá fazer mais de dois ataques com essa característica, a não ser que esteja especificado que você pode (como na versão de guerreiro de Ataque Extra). Similarmente, a invocação mística de bruxo Lâmina Sedenta não lhe concede ataques adicionais se você também tiver Ataque Extra.
+
+#### Defesa sem Armadura
+
+Se você já tiver a característica Defesa sem Armadura, você não pode ganha-la de outra classe.
+
+#### Conjuração
+
+Sua capacidade de conjuração depende, parcialmente, da combinação de níveis em todas as suas classes conjuradoras e, parcialmente, no nível individual dessas classes. Uma vez que você tenha a característica Conjuração de mais de uma classe, use as regras abaixo. Se você for multiclasse, mas tiver a característica Conjuração apenas em uma classe, você segue as regras descritas na classe.
+
+**Magias Conhecidas e Preparadas.** Você determina quais magias você conhece e quais pode preparar de cada classe individualmente, como se você fosse um membro de única classe dessa classe. Se você for um patrulheiro 4/mago 3, por exemplo, você sabe três magias de patrulheiro de 1° nível, baseadas no seu nível de patrulheiro. Como um mago de 3° nível, você conhece três truques e seu grimório contem dez magias de mago, duas das quais (as duas adquiridas quando você alcança o 3° nível de mago) podem ser magias de 2° nível. Se sua Inteligência for 16, você pode preparar seis magias de mago do seu grimório.
+
+Cada magia que você conhece e prepara está associada com uma das suas classes e você usa a habilidade de conjuração dessa classe quando você conjura a magia. Da mesma forma, um foco de conjuração, como um símbolo sagrado, pode ser usado apenas para as magias da classe associada a esse foco.
+
+**Espaços de Magia.** Você determina seus espaços de magia disponíveis juntando todos os seus níveis nas classes bardo, clérigo, druida, feiticeiro e mago, metade do seus níveis (arredondado para baixo) nas classes paladino e patrulheiro e um terço dos seus níveis de guerreiro ou ladino (arredondado para baixo) se você tiver a característica Cavaleiro Arcano ou a característica Trapaceiro Arcano. Use esse total para determinar seus espaços de magia consultando a tabela Multiclasse para Conjurador.
+
+Se você tiver mais de uma classe conjuradora, essa tabela pode conceder a você espaços de magia de níveis mais altos que as magias que você conhece ou pode preparar. Você pode usar esses espaços, mas apenas para conjurar suas magias de nível inferior. Se uma magia de nível inferior que você conjurar, como _mãos flamejantes_, tiver o efeito de aprimoramento quando conjurada usando um espaço de magia mais alto, você pode usar o efeito desse aprimoramento, mesmo que você não possua nenhuma magia de nível tão elevado.
+
+Por exemplo, se você fosse o supracitado patrulheiro 4/ mago 3, você contaria como um personagem de 5° nível para determinar seus espaços de magia: você teria quatro espaços de 1° nível, três espaços de 2° nível e dois espaços de 3° nível. No entanto, você não conhece qualquer magia de 3° nível, nem conhece qualquer magia de 2° nível de patrulheiro. Você pode usar os espaços de magia desses níveis para conjurar as magias que você conhece – e, potencialmente, aprimorando seus efeitos.
+
+**Magia de Pacto.** Se você tiver tanto a característica de classe Conjuração quanto a característica de classe Magia de Pacto da classe bruxo, você pode usar os espaços de magia que você ganhar da sua característica Magia de Pacto para conjurar magias que você conhece ou tem preparadas de classes com a característica de classe Conjuração, e você pode usar os espaços de magia adquiridos da característica de classe Conjuração para conjurar as magias de bruxo que você conhece.
+
+#### Multiclasse para Conjurador: Espaço de Magia por Nível de Magia
+
+| Nível de conjurador | 1° | 2° | 3° | 4° | 5° | 6° | 7° | 8° | 9° |
+|---|---|---|---|---|---|---|---|---|---|
+| 1° | 2 | – | – | – | – | – | – | – | – |
+| 2° | 3 | – | – | – | – | – | – | – | – |
+| 3° | 4 | 2 | – | – | – | – | – | – | – |
+| 4° | 4 | 3 | – | – | – | – | – | – | – |
+| 5° | 4 | 3 | 2 | – | – | – | – | – | – |
+| 6° | 4 | 3 | 3 | – | – | – | – | – | – |
+| 7° | 4 | 3 | 3 | 1 | – | – | – | – | – |
+| 8° | 4 | 3 | 3 | 2 | – | – | – | – | – |
+| 9° | 4 | 3 | 3 | 3 | 1 | – | – | – | – |
+| 10° | 4 | 3 | 3 | 3 | 2 | – | – | – | – |
+| 11° | 4 | 3 | 3 | 3 | 2 | 1 | – | – | – |
+| 12° | 4 | 3 | 3 | 3 | 2 | 1 | – | – | – |
+| 13° | 4 | 3 | 3 | 3 | 2 | 1 | 1 | – | – |
+| 14° | 4 | 3 | 3 | 3 | 2 | 1 | 1 | – | – |
+| 15° | 4 | 3 | 3 | 3 | 2 | 1 | 1 | 1 | – |
+| 16° | 4 | 3 | 3 | 3 | 2 | 1 | 1 | 1 | – |
+| 17° | 4 | 3 | 3 | 3 | 2 | 1 | 1 | 1 | 1 |
+| 18° | 4 | 3 | 3 | 3 | 3 | 1 | 1 | 1 | 1 |
+| 19° | 4 | 3 | 3 | 3 | 3 | 2 | 1 | 1 | 1 |
+| 20° | 4 | 3 | 3 | 3 | 3 | 2 | 2 | 1 | 1 |
+
+# Talentos (cap. 6)
+
+Um talento representa um dom ou especialidade em uma área que concede capacidades especiais ao personagem. Ele encarna treinamento, experiência e habilidades além do que uma classe permite.
+
+Em determinados níveis, sua classe lhe concede a característica Incremento no Valor de Habilidade. Usando a regra opcional de talentos, você pode desistir de receber essa característica para adquirir um talento, à sua escolha, em troca. Você só pode escolher um talento uma vez, a não ser que a descrição do talento diga o contrário.
+
+Você deve atender aos pré-requisitos especificados no talento para adquiri-lo. Se você perder o pré-requisito de um talento, você não poderá utilizar esse talento até recuperar seu pré-requisito. Por exemplo, o talento Imobilizador requer Força 13 ou maior. Se seu valor de Força for reduzido abaixo de 13, por algum motivo – talvez por uma maldição de enfraquecer – você não poderá receber os benefícios do talento Imobilizador até restaurar sua Força.
+
+### Adepto Elemental
+
+_Pré-requisito: Capacidade de conjurar pelo menos uma magia_ Quando você ganha esse talento, escolha um dos tipos de dano a seguir: ácido, elétrico, fogo, frio ou trovão.
+
+As magias que você conjurar ignoram resistência a dano do tipo escolhido. Além disso, quando você rola o dano para uma magia que você conjurar que causar dano desse tipo, você pode tratar qualquer 1 num dado de dano como um 2.
+
+Você pode escolher esse talento diversas vezes. A cada vez que o fizer, você deve escolher um tipo diferente de dano.
+
+### Adepto Marcial
+
+Você tem treinamento marcial que permite a você realizar manobras de combate especiais. Você ganha os seguintes benefícios:
+
+- Você aprende duas manobras, à sua escolha, das que estão disponíveis ao arquétipo Mestre de Batalha na classe guerreiro. Se a manobra que você usar obrigar um alvo a realizar um teste de resistência, a CD do teste de resistência será igual a 8 + seu bônus de proficiência + seu modificador de Força ou Destreza (à sua escolha).
+
+- Se você já tiver dados de superioridade, você ganha um adicional; do contrário, você terá um dado de superioridade, que é um d6. Esse dado é usado para abastecer suas manobras. Um dado de superioridade é gasto quando você o usa. Você recupera seus dados de superioridade gastos quando termina um descanso curto ou longo.
+
+### Alerta
+
+Sempre a espera de perigo, você ganha os seguintes benefícios:
+
+- Você recebe +5 de bônus em iniciativa.
+
+- Você não pode ser surpreso enquanto estiver consciente.
+
+- Outras criaturas não ganham vantagem nas jogadas de ataque contra você por estarem escondidas de você.
+
+### Ambidestro
+
+Você dominou o estilo de luta com duas armas, ganhando os seguintes benefícios:
+
+- Você ganha +1 de bônus na CA enquanto estiver empunhando uma arma corpo-a-corpo em cada mão.
+
+- Você pode usar combater com duas armas mesmo que a arma de uma mão que você está empunhando não seja leve.
+
+- Você pode sacar ou guardar duas armas de uma mão quando você, normalmente, seria capaz de sacar ou guardar apenas uma.
+
+### Atacante Bestial
+
+Uma vez por turno, quando você rolar o dano para um ataque corpo-a-corpo com arma, você pode jogar novamente o dado de dano da arma e usar qualquer dos valores.
+
+### Atirador Aguçado
+
+Você dominou o uso de armas à distância e pode realizar tiros que seriam impossíveis para outros. Você ganha os seguintes benefícios:
+
+- Atacar um alvo além da distância normal não impõem desvantagem nas suas jogadas de ataque com armas à distância.
+
+- Seus ataques com armas à distância ignoram meia- cobertura e três-quartos de cobertura.
+
+- Antes de realizar um ataque com uma arma à distância na qual você seja proficiente, você pode escolher sofrer –5 de penalidade na jogada de ataque.
+
+Se o ataque atingir, você adiciona +10 no dano do ataque.
+
+### Atirador de Magia
+
+_Pré-requisito: Capacidade de conjurar pelo menos uma magia_ Você aprendeu técnicas para aprimorar seus ataques com certos tipos de magia, ganhando os seguintes benefícios:
+
+- Quando você conjura uma magia que requer que você realize uma jogada de ataque, o alcance da magia é dobrada.
+
+- Seus ataques à distância com magia ignoram meia- cobertura ou três-quartos de cobertura.
+
+- Você aprende um truque que requer uma jogada de ataque. Escolha o truque da lista de magias do bardo, bruxo, clérigo, druida, feiticeiro ou mago. Sua habilidade de conjuração para esse truque depende da lista de magia a qual você escolheu o truque: Carisma para bardo, bruxo ou feiticeiro; Sabedoria para clérigo ou druida; ou Inteligência para mago.
+
+### Atleta
+
+Você passou por extenso treinamento físico para ganhar os seguintes benefícios:
+
+- Aumente seu valor de Força ou Destreza em 1, até o máximo de 20.
+
+- Quando você estiver caído, se levantar requer apenas 1,5 metro do seu deslocamento.
+
+- Escalar não custa movimento adicional a você.
+
+- Você pode realizar um salto em distância correndo ou um salto em altura correndo se movendo apenas um passo de ajuste de 1,5 metro, ao invés de 3 metros.
+
+### Ator
+
+Perito em mimica e dramaturgia, você recebe os seguintes benefícios:
+
+- Aumente seu valor de Carisma em 1, até o máximo de 20.
+
+- Você tem vantagem em testes de Carisma (Atuação) e Carisma (Enganação) quando você estiver tentando se passar por uma pessoa diferente.
+
+- Você pode imitar a articulação de outra pessoa ou os sons feitos por outras criaturas. Você deve ter ouvido a pessoa falando ou ouvido a criatura fazendo o som por, pelo menos, 1 minuto. Um sucesso num teste de Sabedoria (Intuição) resistido pelo seu teste de Carisma (Enganação) permite que um ouvinte determine que o efeito é falso.
+
+### Combatente Montado
+
+Você é um oponente perigoso de se enfrentar quando está montado. Enquanto estiver montado e não estiver incapacitado, você ganha os seguintes benefícios:
+
+- Você tem vantagem nas jogadas de ataque corpo-a- corpo contra qualquer criatura desmontada que seja menor que a sua montaria.
+
+- Você pode forçar que um ataque direcionado a sua montaria seja direcionado a você, em seu lugar.
+
+- Se sua montaria for alvo de um efeito que permita a ela realizar um teste de resistência de Destreza para reduzir o dano à metade, ao invés disso, ela não sofre qualquer dano se for bem sucedida no teste de resistência, e apenas metade se falhar.
+
+### Conjurador de Guerra
+
+_Pré-requisito: Capacidade de conjurar pelo menos uma magia_ Você praticou a conjuração de magias no meio do combate, aprendendo técnicas que lhe concedem os seguintes benefícios:
+
+- Você tem vantagem em testes de resistência de Constituição para manter sua concentração em uma magia quando você sofrer dano.
+
+- Você pode realizar os componentes somáticos de uma magia mesmo quando está com armas ou um escudo em uma ou ambas as mãos.
+
+- Quando o movimento de uma criatura hostil provocar um ataque de oportunidade para você, você pode usar sua reação para conjurar uma magia na criatura, ao invés de realizar o ataque de oportunidade. A magia deve ter um tempo de conjuração de 1 ação e deve ter apenas uma criatura como alvo.
+
+### Conjurador de Ritual
+
+_Pré-requisito: Inteligência ou Sabedoria 13 ou maior_ Você aprendeu um número de magias que você pode conjurar como rituais. Essas magias são escritas em um livro de rituais, o qual deve estar em suas mãos enquanto você conjura uma dessas magias.
+
+Quando você escolhe esse talento, você adquire um livro de rituais que contem duas magias de 1° nível, à sua escolha. Escolha uma das seguintes classes: bardo, bruxo, clérigo, druida, feiticeiro ou mago. Você deve escolher suas magias da lista de magias dessa classe e as magias escolhidas devem ter o descritor ritual. A classe que você escolheu também determina a habilidade de conjuração dessas magias: Carisma para bardo, bruxo ou feiticeiro; Sabedoria para clérigo ou druida; ou Inteligência para mago.
+
+Se você encontrar uma magia na forma escrita, como a contida em um _pergaminho de magia_ ou o grimório de um mago, você é capaz de adicioná-la ao seu livro de rituais. A magia deve estar na lista de magias da classe escolhida, o nível da magia não pode ser maior que metade do seu nível (arredondado para cima) e deve conter o descritor ritual. O processo para copiar a magia no seu livro de rituais leva 2 horas por nível da magia e custa 50 po por nível. O custo representa os componentes materiais que você gasta para experimentar a magia até dominá-la, bem como as finas tintas utilizadas para escrevê-la.
+
+### Curandeiro
+
+Você é um cirurgião capacitado, permitindo que você trate de ferimentos rapidamente, trazendo seus aliados de volta à luta. Você adquire os seguintes benefícios:
+
+- Quando você usar um kit de primeiros-socorros para estabilizar uma criatura morrendo, a criatura recupera 1 ponto de vida, ao invés disso.
+
+- Com uma ação, você pode gastar um uso do kit de primeiros-socorros para tratar de uma criatura e restaurar 1d6 + 4 pontos de vida mais uma quantidade de pontos de vida adicionais igual ao número total de Dados de Vida da criatura. A criatura não pode recuperar pontos de vida através desse talento novamente até ter terminado um descanso curto ou longo.
+
+### Duelista Defensivo
+
+_Pré-requisito: Destreza 13 ou maior_ Quando você estiver empunhando uma arma de acuidade com a qual você seja proficiente e outra criatura atingir você com um ataque corpo-a-corpo, você pode usar sua reação para adicionar seu bônus de proficiência a sua CA para esse ataque, potencialmente fazendo o ataque errar.
+
+### Especialista em Besta
+
+Graças a sua pratica extensiva com bestas, você ganha os seguintes benefícios:
+
+- Você ignora a qualidade de recarga de bestas nas quais você é proficiente.
+
+- Estar a 1,5 metro de uma criatura hostil não impõem desvantagem nas suas jogadas de ataque à distância.
+
+- Quando você usa a ação de Ataque e ataca com uma arma de uma mão, você pode usar sua ação bônus para atacar com uma besta de mão carregada que você esteja empunhando.
+
+### Especialista em Briga
+
+Acostumado a brigas de bar usando qualquer coisa como armas, e na falta, os punhos, você ganha os seguintes benefícios:
+
+- Aumente o valor de Força ou Constituição em 1, até o máximo de 20.
+
+- Seus ataques desarmados causam 1d4 de dano.
+
+- Quando você atinge uma criatura com um ataque desarmado ou com uma arma improvisada, no seu turno, você pode usar uma ação bônus para tentar agarrar o alvo.
+
+### Explorador de Cavernas
+
+Alerta às armadilhas escondidas e portas secretas encontradas em muitas masmorras, você ganha os seguintes benefícios:
+
+- Você tem vantagem em testes de Sabedoria (Percepção) e de Inteligência (Investigação) feitos para detectar a presença de portas secretas.
+
+- Você tem vantagem em testes de resistência feitos para evitar ou resistir a armadilhas.
+
+- Você tem resistência ao dano causado por armadilhas.
+
+- Você pode procurar armadilhas enquanto viaja a um ritmo normal, ao invés de metade do ritmo.
+
+### Imobilizador
+
+_Pré-requisito: Força 13 ou maior_ Você desenvolveu a perícia necessária para se prender a alguém em um combate engajado. Você recebe os seguintes benefícios:
+
+- Você tem vantagem nas jogadas de ataque contra uma criatura agarrada.
+
+- Você pode usar sua ação para tentar imobilizar uma criatura agarrada por você. Para tanto, realize outro teste de agarrar. Se você for bem sucedido, você e a criatura estarão ambos impedidos até o agarre terminar.
+
+### Iniciado em Magia
+
+Escolha uma classe: bardo, bruxo, clérigo, druida, feiticeiro ou mago. Você aprende dois truques da lista de magias da classe escolhida.
+
+Além disso, escolha uma magia de 1° nível da mesma lista. Você aprende essa magia e pode conjura-la com o menor nível possível. Uma vez que a conjure, você precisa terminar um descanso longo para poder conjura-la novamente. Essa restrição aplica-se apenas à magia adquirida através desse talento.
+
+Sua habilidade de conjuração depende da classe que você escolher: Carisma para bardo, bruxo ou feiticeiro; Sabedoria para clérigo ou druida; ou Inteligência para mago.
+
+### Investida Poderosa
+
+Quando você usa a ação de Disparada, você pode usar sua ação bônus para realizar um ataque corpo-a-corpo com arma ou para empurrar uma criatura.
+
+Se você se mover, pelo menos, 3 metros em linha reta, imediatamente antes de realizar essa ação bônus, você pode tanto ganhar +5 de bônus na jogada de dano do ataque (se você escolher realizar um ataque corpo-a-corpo e atingir) ou empurrar o alvo até 3 metros de você (se você escolher empurrar e for bem sucedido).
+
+### Líder Inspirador
+
+_Pré-requisito: Carisma 13 ou maior_ Você pode gastar 10 minutos inspirando seus companheiros, suportando a vontade deles de lutar.
+
+Quando fizer isso, escolha até seis criaturas amigáveis (que pode incluir você) a até 9 metros de você que possam ver ou ouvir você e possam te compreender. Cada criatura ganha pontos de vida temporários igual ao seu nível + seu modificador de Carisma. Uma criatura não pode ganhar pontos de vida temporários desse talento novamente até terminar um descanso curto ou longo.
+
+### Maestria em Arma de Haste
+
+Você consegue manter seus inimigos afastados utilizando armas de haste. Você ganha os seguintes benefícios:
+
+- Quando você realiza a ação de Ataque e ataca com uma glaive, alabarda ou bordão, você pode usar uma ação bônus para realizar um ataque corpo-a-corpo com a outra extremidade da arma. Esse ataque usa o mesmo modificador de habilidade do ataque primário.
+
+O dado de dano da arma para esse ataque é um d4 e o ataque causa dano de concussão.
+
+- Enquanto você estiver empunhando uma glaive, alabarda, lança longa ou bastão, as outras criaturas provocam um ataque de oportunidade a você quando entrarem no seu alcance.
+
+### Maestria em Armadura Média
+
+_Pré-requisito: Proficiência em armadura média_ Você praticou seus movimentos usando armaduras pesadas para ganhar os seguintes benefícios:
+
+- Vestir uma armadura média não lhe impõe desvantagem em testes de Destreza (Furtividade).
+
+- Quando você estiver vestindo uma armadura média, você pode adicionar 3, ao invés de 2, à sua CA, se você tiver Destreza 16 ou maior.
+
+### Maestria em Armadura Pesada
+
+_Pré-requisito: Proficiência em armadura pesada_ Você pode usar sua armadura para defletir ataques potencialmente fatais a outros. Você ganha os seguintes benefícios:
+
+- Aumente seu valor de Força em 1, até o máximo de 20.
+
+- Quando você estiver vestindo uma armadura pesada, dano de concussão, cortante e perfurante que você receba de ataques não-mágicos será reduzido em 3.
+
+### Matador de Conjuradores
+
+Você praticou técnicas úteis em combate corpo-a-corpo contra conjuradores, ganhando os seguintes benefícios:
+
+- Quando uma criatura a até 1,5 metro de você conjurar uma magia, você pode usar sua reação para realizar um ataque corpo-a-corpo contra ela.
+
+- Quando você causa dano em uma criatura que está se concentrando em uma magia, a criatura terá desvantagem no teste de resistência que ela fizer para manter a concentração.
+
+- Você tem vantagem em testes de resistência contra magias conjuradas por criaturas a até 1,5 metro de você.
+
+### Mente Afiada
+
+Você tem uma mente que pode cronometrar o tempo e memorizar direção e detalhes com precisão absurda. Você ganha os seguintes benefícios:
+
+- Aumente seu valor de Inteligência em 1, até o máximo de 20.
+
+- Você sempre sabe qual a direção do norte.
+
+- Você sempre sabe o número de horas restantes para o próximo nascer ou pôr do sol.
+
+- Você pode relembrar, com precisão, qualquer coisa que você tenha visto ou ouvido no último mês.
+
+### Mestre de Armas
+
+Você tem praticado extensamente com uma variedade de armas, ganhando os seguintes benefícios:
+
+- Aumente o valor de Força ou Destreza em 1, até o máximo de 20.
+
+- Você ganha proficiência com quatro armas simples ou marciais, à sua escolha.
+
+### Mestre de Armas Grandes
+
+Você aprendeu a usar o peso em sua vantagem, deixando o balanço potencializar seus golpes. Você recebe os seguintes benefícios:
+
+- No seu turno, quando você atingir um acerto crítico com uma arma corpo-a-corpo ou reduzir os pontos de vida de uma criatura a 0, você pode realizar um ataque corpo-a-corpo com arma, com uma ação bônus.
+
+- Antes de você realizar um ataque corpo-a-corpo com uma arma pesada na qual você seja proficiente, você pode escolher sofrer –5 de penalidade em sua jogada de ataque. Se o ataque atingir, você adiciona +10 ao dano do ataque.
+
+### Mestre de Escudo
+
+Você não usa escudos apenas para proteção, mas também de forma ofensiva. Você ganha os seguintes benefícios enquanto estiver empunhando um escudo:
+
+- Se você realizar a ação de Ataque no seu turno, você pode usar uma ação bônus para tentar empurrar uma criatura, a até 1,5 metro de você, com seu escudo.
+
+- Se você não estiver incapacitado, você pode adicionar seu bônus de CA do escudo a qualquer teste de resistência de Destreza que você fizer contra uma magia ou outro efeito nocivo que tenha você como alvo.
+
+- Se você for alvo de um efeito que permita realizar um teste de resistência de Destreza para sofrer apenas metade do dano, você pode usar sua reação para não sofrer dano se passar no teste de resistência, interpondo seu escudo entre você e a fonte do efeito.
+
+### Mobilidade
+
+Você é excepcionalmente rápido e ágil. Você ganha os seguintes benefícios:
+
+- Seu deslocamento aumenta em 3 metros.
+
+- Quando você usa a ação de Disparada, mover-se através de terreno difícil não lhe custa qualquer movimento adicional neste turno.
+
+- Quando você realiza um ataque corpo-a-corpo contra uma criatura, você não provoca ataques de oportunidade para essa criatura pelo resto do turno, independentemente de ter atingido ou não.
+
+### Observador
+
+Rápido em perceber os detalhes do ambiente, você ganha os seguintes benefícios:
+
+- Aumente seu valor de Inteligência ou Sabedoria em 1, até o máximo de 20.
+
+- Se você puder ver a boca de uma criatura enquanto ela fala um idioma que você compreende, você pode interpretar o que ela está dizendo ao ler os seus lábios.
+
+- Você tem +5 de bônus nos seus valores passivos de Sabedoria (Percepção) e Inteligência (Investigação).
+
+### Perito
+
+Você ganha proficiência em qualquer combinação de três perícias ou ferramentas, à sua escolha.
+
+### Poliglota
+
+Você estudou línguas e códigos, ganhando os seguintes benefícios:
+
+- Aumente seu valor de Inteligência em 1, até o máximo de 20.
+
+- Você aprende três idiomas, à sua escolha.
+
+- Você é capaz de criar criptogramas escritos. Outros não podem decifrar um código criado por você a não ser que você os ensine, elas sejam bem sucedidas num teste de inteligência (CD igual ao seu valor de Inteligência + seu bônus de proficiência) ou usem mágica para decifrá-lo.
+
+### Proteção Leve
+
+Você treinou até dominar o uso de armaduras leves, ganhando os seguintes benefícios:
+
+- Aumente seu valor de Força em 1, até o máximo de 20.
+
+- Você ganha proficiência com armadura leves.
+
+### Proteção Moderada
+
+_Pré-requisito: Proficiência em armadura leve_ Você treinou até dominar o uso de armaduras médias e escudos, ganhando os seguintes benefícios:
+
+- Aumente seu valor de Força em 1, até o máximo de 20.
+
+- Você ganha proficiência com armadura média e escudos.
+
+### Proteção Pesada
+
+_Pré-requisito: Proficiência em armadura média_ Você treinou até dominar o uso de armaduras pesadas, ganhando os seguintes benefícios:
+
+- Aumente seu valor de Força em 1, até o máximo de 20.
+
+- Você ganha proficiência com armadura pesada.
+
+### Resiliente
+
+Escolha um valor de habilidade. Você ganha os seguintes benefícios:
+
+- Aumente o valor de habilidade escolhido em 1, até o máximo de 20.
+
+- Você ganha proficiência em testes de resistência usando a habilidade escolhida.
+
+### Resistente
+
+Duro e resistente, você ganha os seguintes benefícios:
+
+- Aumente seu valor de Constituição em 1, até o máximo de 20.
+
+- Quando você rolar um Dado de Vida para recuperar pontos de vida, o valor mínimo de pontos de vida que você recupera dessa rolagem será igual a duas vezes seu modificador de Constituição (mínimo de 2).
+
+### Robusto
+
+Seu máximo de pontos de vida aumenta em um valor igual a duas vezes seu nível quando você adquire esse talento. Toda vez que você ganhar um nível, após isso, seu máximo de pontos de vida aumenta em 2 pontos de vida adicionais.
+
+### Sentinela
+
+Você domina técnicas para obter vantagem a cada vez que qualquer inimigo baixar a guarda, ganhando os seguintes benefícios:
+
+- Quando você atinge uma criatura com um ataque de oportunidade, o deslocamento da criatura se torna 0 pelo resto do turno.
+
+- As criaturas provocam ataques de oportunidade de você mesmo se realizarem a ação de Desengajar antes de saírem do seu alcance.
+
+- Quando uma criatura a até 1,5 metro de você realizar um ataque contra um alvo diferente de você (e o alvo não possuir esse talento), você pode usar sua reação para realizar um ataque corpo-a-corpo com arma contra a criatura atacante.
+
+### Sorrateiro
+
+_Pré-requisito: Destreza 13 ou maior_ Você é especialista em espreitar através das sombras. Você ganha os seguintes benefícios:
+
+- Você pode tentar se esconder quando estiver levemente obscurecido para a criatura de quem você está tentando se esconder.
+
+- Quando você estiver escondido de uma criatura e errar um ataque à distância contra ela, realizar esse ataque não revelará sua posição.
+
+- Penumbra não impõem desvantagem nos seus testes de Sabedoria (Percepção) relacionados a visão.
+
+### Sortudo
+
+Você tem uma sorte inexplicável que parece surgir nos momentos exatos.
+
+Você tem 3 pontos de sorte. A qualquer momento que você realizar uma jogada de ataque, teste de habilidade ou teste de resistência, você pode gastar um ponto de sorte para rolar um d20 adicional. Você pode escolher gastar um dos seus pontos de sorte depois de rolar o dado, mas antes de saber o resultado da jogada. Você escolhe qual dos d20s irá usar para a jogada de ataque, teste de habilidade ou teste de resistência.
+
+Você também pode gastar um ponto de sorte quando uma jogada de ataque for feita contra você. Role um d20, e então escolha se o ataque irá usar a jogada do atacante ou a sua.
+
+Se mais de uma criatura gastar um ponto de sorte para influenciar uma mesma jogada, os pontos se cancelam mutuamente; nenhum dado adicional é rolado.
+
+Você recupera seus pontos de sorte gastos após terminar um descanso longo.

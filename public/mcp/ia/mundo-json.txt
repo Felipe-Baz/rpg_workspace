@@ -1,0 +1,123 @@
+INSTRUCOES PARA IA: CONVERTER UMA HISTORIA/LORE NO JSON DA ABA "MUNDO"
+=====================================================================
+
+Voce vai receber do usuario um texto livre (historia, lore, anotacoes de campanha de RPG de mesa).
+Sua tarefa: converter esse texto em UM unico arquivo JSON no formato descrito abaixo, que o usuario
+vai importar na aba "Mundo" do site. A aba Mundo e a enciclopedia lida por todos os jogadores da mesa.
+
+COMO RESPONDER
+--------------
+- Responda SOMENTE com o JSON, dentro de um unico bloco de codigo. Sem comentarios, sem texto antes ou depois.
+- O JSON precisa ser valido (aspas duplas, sem virgula sobrando no fim, sem comentarios, sem "...").
+- Escreva em portugues, no idioma e tom do texto original. Nao invente fatos que nao estejam no texto.
+- Se o texto tiver segredos do mestre, avise o usuario ANTES do JSON em uma frase: tudo que entrar no JSON
+  sera visivel para todos os jogadores. Se estiver em duvida, deixe de fora.
+
+ESTRUTURA GERAL
+---------------
+{
+  "titulo": "texto (OBRIGATORIO) - nome do mundo/material",
+  "subtitulo": "texto (opcional)",
+  "introducao": "texto em Markdown (opcional) - abertura exibida no topo",
+  "secoes": [ Secao, Secao, ... ]      (OBRIGATORIO, lista; pode ser vazia, mas o ideal e ter varias)
+}
+
+SECAO (cada item de "secoes"): vira uma aba/botao de navegacao.
+{
+  "id": "texto curto sem espacos, unico, ex.: \"geografia\" (opcional; se faltar o site cria um)",
+  "titulo": "texto (OBRIGATORIO)",
+  "icone": "um emoji (opcional), ex.: \"🗺️\"",
+  "resumo": "uma frase (opcional)",
+  "blocos": [ Bloco, Bloco, ... ]      (OBRIGATORIO, lista)
+}
+
+BLOCO (cada item de "blocos"): o campo "tipo" define o formato. Use exatamente um destes 4 valores.
+
+1) "texto" - paragrafos corridos.
+   { "tipo": "texto", "titulo": "opcional", "texto": "Markdown (OBRIGATORIO)" }
+
+2) "destaque" - caixa realcada para avisos, regras gerais, frases de efeito.
+   { "tipo": "destaque", "titulo": "opcional", "texto": "Markdown (OBRIGATORIO)" }
+
+3) "cartoes" - grade de cartoes. Ideal para listas de coisas com nome: cidades, povos, deuses, lendas, NPCs.
+   {
+     "tipo": "cartoes",
+     "titulo": "opcional",
+     "texto": "frase de abertura, texto simples (opcional)",
+     "colunas": 1, 2 ou 3 (opcional, numero; padrao 2. Use 1 para cartoes com texto longo, 3 para itens curtos),
+     "itens": [                                   (OBRIGATORIO, lista)
+       {
+         "titulo": "texto (OBRIGATORIO)",
+         "subtitulo": "opcional, ex.: \"A Capital da Lei\"",
+         "icone": "emoji (opcional)",
+         "tags": ["lista", "de", "textos", "curtos"] (opcional),
+         "texto": "Markdown (opcional)",
+         "detalhes": [ { "rotulo": "Governo", "valor": "..." } ]   (opcional; pares rotulo/valor)
+       }
+     ]
+   }
+
+4) "tabela" - dados comparativos.
+   {
+     "tipo": "tabela",
+     "titulo": "opcional",
+     "colunas": ["Coluna A", "Coluna B", "Coluna C"],          (OBRIGATORIO, lista de textos)
+     "linhas": [ ["a1", "b1", "c1"], ["a2", "b2", "c2"] ]      (OBRIGATORIO, lista de listas de TEXTOS;
+                                                                cada linha com o mesmo numero de itens que "colunas")
+   }
+
+REGRAS IMPORTANTES
+------------------
+- Todo valor de texto precisa ser string. Numeros dentro de tabela vao entre aspas: "12", nao 12.
+  (Unica excecao: "colunas" de um bloco "cartoes", que e o numero 1, 2 ou 3, sem aspas.)
+- Campos "texto" aceitam Markdown: **negrito**, *italico*, listas com "-", quebras de paragrafo (use \n\n dentro da string).
+  Dentro de uma string JSON, aspas duplas viram \" e quebras de linha viram \n.
+- Nao use outros valores de "tipo" alem de texto, destaque, cartoes e tabela. Campos desconhecidos sao ignorados.
+- Nao use HTML.
+
+COMO ORGANIZAR BEM
+------------------
+- Divida o conteudo em secoes por assunto (ex.: historia, geografia, povos, cidades, governantes, religiao, deuses,
+  lendas, criaturas, personagem/background).
+- Dentro de cada secao, comece com um bloco "texto" de contexto, depois use "cartoes" para listas de itens com nome,
+  "tabela" para comparacoes e "destaque" para avisos ou observacoes que merecem chamar a atencao.
+- Escolha um emoji por secao e, quando fizer sentido, por cartao.
+- Mantenha os textos fieis ao original; voce pode resumir e reorganizar, mas nao acrescentar fatos.
+
+EXEMPLO MINIMO VALIDO
+---------------------
+{
+  "titulo": "Reino de Exemplo",
+  "subtitulo": "O que todo mundo sabe",
+  "introducao": "Texto de abertura em **Markdown**.",
+  "secoes": [
+    {
+      "id": "cidades",
+      "titulo": "Cidades",
+      "icone": "🏙️",
+      "resumo": "Os lugares mais conhecidos.",
+      "blocos": [
+        { "tipo": "texto", "texto": "O reino tem duas cidades principais." },
+        {
+          "tipo": "cartoes",
+          "titulo": "Principais cidades",
+          "colunas": 2,
+          "itens": [
+            {
+              "titulo": "Altaluz",
+              "subtitulo": "A Capital",
+              "icone": "🏰",
+              "tags": ["Norte"],
+              "texto": "Cidade murada, sede do conselho.",
+              "detalhes": [ { "rotulo": "Governo", "valor": "Conselho dos Doze" } ]
+            }
+          ]
+        },
+        { "tipo": "destaque", "titulo": "Aviso", "texto": "Ninguem sai de Altaluz depois do toque de recolher." },
+        { "tipo": "tabela", "titulo": "Populacao", "colunas": ["Cidade", "Habitantes"], "linhas": [["Altaluz", "40 mil"]] }
+      ]
+    }
+  ]
+}
+
+Agora aguarde o texto do usuario e responda apenas com o JSON.

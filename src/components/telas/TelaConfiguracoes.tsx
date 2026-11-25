@@ -5,12 +5,15 @@ import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { CORES, STATUS_LABEL, atualizarMesa, type Status } from "@/lib/mesas";
 import { useMesaAtual } from "../shell/MesaContext";
+import { regrasDoSistema } from "@/lib/regras/registro";
+import { opcaoAtiva } from "@/lib/regras/sistema";
 import Titulo, { campo } from "./Titulo";
 
 export default function TelaConfiguracoes() {
   const mesa = useMesaAtual();
   const [copiado, setCopiado] = useState(false);
   const set = (patch: Parameters<typeof atualizarMesa>[1]) => atualizarMesa(mesa.id, patch);
+  const regras = regrasDoSistema(mesa.sistema);
 
   async function copiar() {
     try {
@@ -62,6 +65,28 @@ export default function TelaConfiguracoes() {
           </div>
         </div>
       </div>
+
+      {regras && regras.opcoes.length > 0 && (
+        <div className="mt-5 rounded-xl border border-border bg-card p-5">
+          <p className="font-semibold">Regras opcionais de {regras.nome}</p>
+          <p className="mb-3 text-sm text-muted">Valem para as fichas automatizadas dos jogadores. Desligada: a ficha bloqueia o jogador; você, como mestre, pode editar de qualquer forma.</p>
+          <ul className="space-y-2">
+            {regras.opcoes.map((o) => (
+              <li key={o.id}>
+                <label className="flex cursor-pointer items-start gap-3 text-sm">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={opcaoAtiva(regras, mesa.opcoesRegras, o.id)}
+                    onChange={(e) => set({ opcoesRegras: { ...mesa.opcoesRegras, [o.id]: e.target.checked } })}
+                  />
+                  <span><strong>{o.nome}</strong><br /><span className="text-muted">{o.descricao}</span></span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-5">
         <div>

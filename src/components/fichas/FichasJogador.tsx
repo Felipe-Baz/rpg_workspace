@@ -5,6 +5,7 @@ import IconeCategoria from "./IconeCategoria";
 import AcoesSlot from "@/components/shell/AcoesSlot";
 import { confirmar } from "@/components/ui/Dialogos";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import EditorMarkdown from "../EditorMarkdown";
 import Markdown from "../Markdown";
 import { comprimirImagem } from "@/lib/mapas";
@@ -38,6 +39,8 @@ export default function FichasJogador({
   const { fichas, carregado } = useFichas(mesaId, usuarioUid, true, !!mesa);
   const [abertaId, setAbertaId] = useState<string | null>(null);
   const [criando, setCriando] = useState(false);
+  const itemUrl = useSearchParams().get("item"); // atalho do sino/toast
+  useEffect(() => { if (itemUrl) setAbertaId(itemUrl); }, [itemUrl]);
   const lista = fichas.filter((f) => f.categoria === categoria);
   const aberta = fichas.find((f) => f.id === abertaId);
 

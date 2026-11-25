@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { KeyRound, Plus, Search, Settings2, Sparkles } from "lucide-react";
+import { LogoIcone } from "./Logo";
 import { sair, useAuth } from "@/lib/auth";
 import { excluirMesa, sairDaMesa, useMesas, type Mesa, type Status } from "@/lib/mesas";
 import ThemeToggle from "./ThemeToggle";
@@ -64,13 +65,13 @@ export default function Dashboard() {
   const nome = (user?.displayName || user?.email || "").split(/[ @]/)[0];
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-dvh">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(ellipse_at_50%_-20%,color-mix(in_srgb,var(--accent)_28%,transparent),transparent_70%)]" />
 
       <header className="border-b border-border/60 bg-background/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
           <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold tracking-wide">
-            <Sparkles size={18} className="text-gold" /> RPG Workspace
+            <LogoIcone altura={30} /> RPG Workspace
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
             <Link href="/configuracoes/ia" className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted hover:text-foreground" title="Configurar IA">

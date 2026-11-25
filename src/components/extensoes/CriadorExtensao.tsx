@@ -347,7 +347,7 @@ function PainelEncaixes({ manifesto, onChange, estadoInicial, onEstadoInicial }:
               </label>
               {enc && (
                 <div className="mt-3 flex flex-wrap items-center gap-3 pl-7 text-sm">
-                  <label className="flex items-center gap-2">Nome <input value={enc.rotulo} onChange={(e) => atualizar(slot, { rotulo: e.target.value })} placeholder="(título da extensão)" maxLength={40} className="w-48 rounded-lg border border-border bg-background px-2 py-1" /></label>
+                  <label className="flex items-center gap-2">Nome <input value={enc.rotulo} onChange={(e) => atualizar(slot, { rotulo: e.target.value })} placeholder="(título da extensão)" maxLength={40} className="w-full min-w-0 rounded-lg border border-border bg-background px-2 py-1 sm:w-48" /></label>
                   {SLOTS_INLINE.includes(slot) && (
                     <label className="flex items-center gap-2">Altura <input type="number" min={160} max={900} step={20} value={enc.altura || ALTURA_PADRAO} onChange={(e) => atualizar(slot, { altura: Number(e.target.value) || ALTURA_PADRAO })} className="w-24 rounded-lg border border-border bg-background px-2 py-1" /> px</label>
                   )}

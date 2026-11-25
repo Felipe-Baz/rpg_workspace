@@ -1,5 +1,6 @@
 "use client";
 
+import { ehDnd5e } from "@/lib/dnd5e";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BookOpenText, Flag, Lock, Map as MapIcon, Scroll, Skull, Users } from "lucide-react";
@@ -9,12 +10,13 @@ import { usePersistido } from "@/lib/persistido";
 import Cronometro from "../sessao/Cronometro";
 import Iniciativa from "../sessao/Iniciativa";
 import PainelDados from "../sessao/PainelDados";
+import PedirTeste from "../sessao/PedirTeste";
 import { useMesaAtual } from "../shell/MesaContext";
 import Slot from "../shell/Slot";
 import Titulo, { campo } from "./Titulo";
 
 const Painel = ({ titulo, children, className = "" }: { titulo: string; children: React.ReactNode; className?: string }) => (
-  <section className={`rounded-2xl border border-border bg-card p-4 ${className}`}>
+  <section className={`min-w-0 rounded-2xl border border-border bg-card p-3 sm:p-4 ${className}`}>
     <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-gold">{titulo}</h2>
     {children}
   </section>
@@ -58,28 +60,29 @@ export default function SessaoAoVivo() {
     <>
       <Titulo
         titulo="Sessão ao vivo"
-        texto="Tudo o que você precisa durante o jogo, num só lugar. Os dados ficam salvos neste navegador."
+        texto="Tudo o que você precisa durante o jogo, num só lugar. Iniciativa, cronômetro e notas ficam salvos neste navegador."
         acao={
-          <button onClick={encerrar} className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium hover:border-accent-hover hover:bg-card">
+          <button onClick={encerrar} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:border-accent-hover hover:bg-card sm:px-4">
             <Flag size={15} /> Encerrar e registrar
           </button>
         }
       />
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <Painel titulo="Iniciativa e combate">
-            <Iniciativa mesaId={mesa.id} jogadores={mesa.jogadores.map((j) => j.personagem || j.nome).filter(Boolean)} />
+            <Iniciativa mesaId={mesa.id} opcoes={mesa.opcoesRegras} aoVivo={ehDnd5e(mesa.sistema)} jogadores={mesa.jogadores.map((j) => ({ nome: j.personagem || j.nome, uid: j.uid })).filter((j) => j.nome)} />
           </Painel>
+          <Painel titulo="Pedir teste"><PedirTeste /></Painel>
           <Painel titulo="Notas rápidas">
             <textarea value={notas} onChange={(e) => setNotas(e.target.value)} rows={7} placeholder="O que aconteceu, ideias, nomes improvisados… Vira nota secreta da sessão ao encerrar." className={campo} />
           </Painel>
         </div>
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <Painel titulo="Dados"><PainelDados mesaId={mesa.id} /></Painel>
           <Painel titulo="Duração"><Cronometro /></Painel>
           <Slot nome="sessao.painel" />
           <Painel titulo="Atalhos">
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
               {atalhos.map((a) => (
                 <Link key={a.href} href={a.href} className="elevar flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
                   <a.icone size={16} className="text-gold" /> {a.rotulo}

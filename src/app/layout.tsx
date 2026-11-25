@@ -1,11 +1,13 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Cinzel, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import RequireAuth from "@/components/RequireAuth";
 import { DialogosProvider } from "@/components/ui/Dialogos";
 import { ToastHost } from "@/components/ui/Toasts";
+import OfflineAviso from "@/components/ui/OfflineAviso";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,16 +45,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable} h-full antialiased`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
-      </head>
       <body className="min-h-full flex flex-col">
+        <Script id="tema" strategy="beforeInteractive">{SCRIPT_TEMA}</Script>
         <AuthProvider>
           <Suspense fallback={null}>
             <DialogosProvider>
               <a href="#conteudo" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-white">Pular para o conteúdo</a>
               <RequireAuth>{children}</RequireAuth>
               <ToastHost />
+              <OfflineAviso />
             </DialogosProvider>
           </Suspense>
         </AuthProvider>

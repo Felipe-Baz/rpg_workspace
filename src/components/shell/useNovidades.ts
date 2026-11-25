@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { toast } from "../ui/Toasts";
 import { usePathname } from "next/navigation";
 import { CATEGORIAS, useFichas } from "@/lib/fichas";
 import { useMapasJogador } from "@/lib/mapas";
@@ -54,7 +55,23 @@ export function useNovidades(mesaId: string, uid: string, base: string) {
     if (!vistos) continue;
     const novos = s.itens.filter((i) => !vistos.includes(i.id));
     if (novos.length) badges[s.href] = novos.length;
-    novos.forEach((n) => avisos.push({ texto: `${s.rotulo}: ${n.nome}`, href: s.href }));
+    novos.forEach((n) => avisos.push({ texto: `${s.rotulo}: ${n.nome}`, href: `${s.href}?item=${encodeURIComponent(n.id)}` }));
   }
+
+  // Toast com atalho quando algo novo aparece com a mesa aberta (o que já estava pendente ao carregar fica só no sino).
+  const conhecidos = useRef<Record<string, Set<string>>>({});
+  useEffect(() => {
+    for (const s of secoes) {
+      if (!s.pronto || !uid) continue;
+      const ja = conhecidos.current[s.chave];
+      if (!ja) { conhecidos.current[s.chave] = new Set(s.itens.map((i) => i.id)); continue; }
+      for (const i of s.itens) {
+        if (ja.has(i.id)) continue;
+        ja.add(i.id);
+        if (pathname.startsWith(s.href)) continue; // já está na seção: vê direto
+        toast(`${s.rotulo}: ${i.nome}`, "info", { rotulo: "Abrir", href: `${s.href}?item=${encodeURIComponent(i.id)}` });
+      }
+    }
+  });
   return { badges, avisos };
 }
