@@ -2901,5 +2901,660 @@
         "qtd": 1
       }
     ]
+  },
+  {
+    "id": "montarias-e-outros-animais-burro-ou-mula",
+    "nome": "Burro ou mula",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Montarias e outros animais",
+    "preco": {
+      "valor": 8,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "deslocamento 12m, carga 210 kg"
+  },
+  {
+    "id": "montarias-e-outros-animais-camelo",
+    "nome": "Camelo",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Montarias e outros animais",
+    "preco": {
+      "valor": 50,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "deslocamento 15m, carga 240 kg"
+  },
+  {
+    "id": "montarias-e-outros-animais-cavalo-de-guerra",
+    "nome": "Cavalo de guerra",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Montarias e outros animais",
+    "preco": {
+      "valor": 400,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "deslocamento 18m, carga 270 kg"
+  },
+  {
+    "id": "montarias-e-outros-animais-cavalo-de-montaria",
+    "nome": "Cavalo de montaria",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Montarias e outros animais",
+    "preco": {
+      "valor": 75,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "deslocamento 18m, carga 220 kg"
+  },
+  {
+    "id": "montarias-e-outros-animais-cavalo-pesado",
+    "nome": "Cavalo pesado",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Montarias e outros animais",
+    "preco": {
+      "valor": 50,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "deslocamento 12m, carga 270 kg"
+  },
+  {
+    "id": "montarias-e-outros-animais-elefante",
+    "nome": "Elefante",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Montarias e outros animais",
+    "preco": {
+      "valor": 200,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "deslocamento 12m, carga 660 kg"
+  },
+  {
+    "id": "montarias-e-outros-animais-mastim",
+    "nome": "Mastim",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Montarias e outros animais",
+    "preco": {
+      "valor": 25,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "deslocamento 12m, carga 100 kg"
+  },
+  {
+    "id": "montarias-e-outros-animais-ponei",
+    "nome": "Pônei",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Montarias e outros animais",
+    "preco": {
+      "valor": 30,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "deslocamento 12m, carga 115 kg"
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-alforje",
+    "nome": "Alforje",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 4,
+      "moeda": "po"
+    },
+    "peso": 4
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-biga",
+    "nome": "Biga",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 250,
+      "moeda": "po"
+    },
+    "peso": 50
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-carroca",
+    "nome": "Carroça",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 15,
+      "moeda": "po"
+    },
+    "peso": 100
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-carruagem",
+    "nome": "Carruagem",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 100,
+      "moeda": "po"
+    },
+    "peso": 300
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-estabulo",
+    "nome": "Estábulo",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 5,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-freio-e-redea",
+    "nome": "Freio e rédea",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 2,
+      "moeda": "po"
+    },
+    "peso": 0.5
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-racao-1-dia",
+    "nome": "Ração (1 dia)",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 5,
+      "moeda": "pc"
+    },
+    "peso": 5
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-sela-compacta",
+    "nome": "Sela compacta",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 5,
+      "moeda": "po"
+    },
+    "peso": 7.5
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-sela-exotica",
+    "nome": "Sela exótica",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 60,
+      "moeda": "po"
+    },
+    "peso": 20
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-sela-militar",
+    "nome": "Sela militar",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 20,
+      "moeda": "po"
+    },
+    "peso": 15
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-sela-de-viagem",
+    "nome": "Sela de viagem",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 10,
+      "moeda": "po"
+    },
+    "peso": 12.5
+  },
+  {
+    "id": "arreios-selas-e-veiculos-de-tracao-treno",
+    "nome": "Trenó",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Arreios, selas e veículos de tração",
+    "preco": {
+      "valor": 20,
+      "moeda": "po"
+    },
+    "peso": 150
+  },
+  {
+    "id": "veiculos-aquaticos-barco-de-quilha",
+    "nome": "Barco de quilha",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Veículos aquáticos",
+    "preco": {
+      "valor": 3000,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "velocidade 1,5 km/h"
+  },
+  {
+    "id": "veiculos-aquaticos-barco-a-remo",
+    "nome": "Barco a remo",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Veículos aquáticos",
+    "preco": {
+      "valor": 50,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "velocidade 2 km/h"
+  },
+  {
+    "id": "veiculos-aquaticos-dracar",
+    "nome": "Dracar",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Veículos aquáticos",
+    "preco": {
+      "valor": 10000,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "velocidade 5 km/h"
+  },
+  {
+    "id": "veiculos-aquaticos-galera",
+    "nome": "Galera",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Veículos aquáticos",
+    "preco": {
+      "valor": 30000,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "velocidade 6,5 km/h"
+  },
+  {
+    "id": "veiculos-aquaticos-navio-de-guerra",
+    "nome": "Navio de guerra",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Veículos aquáticos",
+    "preco": {
+      "valor": 25000,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "velocidade 4 km/h"
+  },
+  {
+    "id": "veiculos-aquaticos-veleiro",
+    "nome": "Veleiro",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Veículos aquáticos",
+    "preco": {
+      "valor": 10000,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "velocidade 3 km/h"
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-acomodacao-em-estalagem-diaria-esqualida",
+    "nome": "Acomodação em estalagem (diária): Esquálida",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 7,
+      "moeda": "pc"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-acomodacao-em-estalagem-diaria-pobre",
+    "nome": "Acomodação em estalagem (diária): Pobre",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 1,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-acomodacao-em-estalagem-diaria-modesta",
+    "nome": "Acomodação em estalagem (diária): Modesta",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 5,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-acomodacao-em-estalagem-diaria-confortavel",
+    "nome": "Acomodação em estalagem (diária): Confortável",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 8,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-acomodacao-em-estalagem-diaria-rica",
+    "nome": "Acomodação em estalagem (diária): Rica",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 2,
+      "moeda": "po"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-acomodacao-em-estalagem-diaria-aristocratica",
+    "nome": "Acomodação em estalagem (diária): Aristocrática",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 4,
+      "moeda": "po"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-banquete-por-pessoa",
+    "nome": "Banquete (por pessoa)",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 10,
+      "moeda": "po"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-carne-pedaco",
+    "nome": "Carne, pedaço",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 3,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-cerveja-galao",
+    "nome": "Cerveja: Galão",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 2,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-cerveja-caneca",
+    "nome": "Cerveja: Caneca",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 4,
+      "moeda": "pc"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-pao-pedaco",
+    "nome": "Pão, pedaço",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 2,
+      "moeda": "pc"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-queijo-pedaco",
+    "nome": "Queijo, pedaço",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 1,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-refeicao-diaria-esqualida",
+    "nome": "Refeição (diária): Esquálida",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 3,
+      "moeda": "pc"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-refeicao-diaria-pobre",
+    "nome": "Refeição (diária): Pobre",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 6,
+      "moeda": "pc"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-refeicao-diaria-modesta",
+    "nome": "Refeição (diária): Modesta",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 3,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-refeicao-diaria-confortavel",
+    "nome": "Refeição (diária): Confortável",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 5,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-refeicao-diaria-rica",
+    "nome": "Refeição (diária): Rica",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 8,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-refeicao-diaria-aristocratica",
+    "nome": "Refeição (diária): Aristocrática",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 2,
+      "moeda": "po"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-vinho-comum-jarra",
+    "nome": "Vinho: Comum (jarra)",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 2,
+      "moeda": "pp"
+    },
+    "peso": 0
+  },
+  {
+    "id": "comida-bebida-e-hospedagem-vinho-fino-garrafa",
+    "nome": "Vinho: Fino (garrafa)",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Comida, bebida e hospedagem",
+    "preco": {
+      "valor": 10,
+      "moeda": "po"
+    },
+    "peso": 0
+  },
+  {
+    "id": "servicos-condutor-dentro-da-cidade",
+    "nome": "Condutor: Dentro da cidade",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Serviços",
+    "preco": {
+      "valor": 1,
+      "moeda": "pc"
+    },
+    "peso": 0
+  },
+  {
+    "id": "servicos-condutor-entre-cidades",
+    "nome": "Condutor: Entre cidades",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Serviços",
+    "preco": {
+      "valor": 2,
+      "moeda": "pc"
+    },
+    "peso": 0,
+    "nota": "por km"
+  },
+  {
+    "id": "servicos-mensageiro",
+    "nome": "Mensageiro",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Serviços",
+    "preco": {
+      "valor": 1,
+      "moeda": "pc"
+    },
+    "peso": 0,
+    "nota": "por km"
+  },
+  {
+    "id": "servicos-passagem-de-navio",
+    "nome": "Passagem de navio",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Serviços",
+    "preco": {
+      "valor": 6,
+      "moeda": "pc"
+    },
+    "peso": 0,
+    "nota": "por km"
+  },
+  {
+    "id": "servicos-pedagio",
+    "nome": "Pedágio",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Serviços",
+    "preco": {
+      "valor": 1,
+      "moeda": "pc"
+    },
+    "peso": 0
+  },
+  {
+    "id": "servicos-servical-destreinado",
+    "nome": "Serviçal: Destreinado",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Serviços",
+    "preco": {
+      "valor": 2,
+      "moeda": "pp"
+    },
+    "peso": 0,
+    "nota": "por dia"
+  },
+  {
+    "id": "servicos-servical-treinado",
+    "nome": "Serviçal: Treinado",
+    "pacote": "phb",
+    "tipo": "item",
+    "grupo": "Serviços",
+    "preco": {
+      "valor": 2,
+      "moeda": "po"
+    },
+    "peso": 0,
+    "nota": "por dia"
   }
 ]

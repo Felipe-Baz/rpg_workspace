@@ -16,6 +16,9 @@
       }
     ],
     "concede": {
+      "sentidos": [
+        "Visão no Escuro 18 m"
+      ],
       "idiomas": [
         "Comum",
         "Anão"
@@ -98,11 +101,6 @@
         "id": "idiomas",
         "nome": "Idiomas",
         "texto": "Você pode falar, ler e escrever Comum e Anão. O idioma Anão é repleto de consoantes duras e sons guturais, e essa característica influencia, como um sotaque, qualquer outro idioma que o anão falar."
-      },
-      {
-        "id": "sub-raca",
-        "nome": "Sub-raça",
-        "texto": "Existem duas sub-raças principais de anões nos mundos de D&D: anões da colina e anões da montanha. Você deve escolher uma dessas sub-raças."
       }
     ],
     "tamanho": "Médio",
@@ -186,6 +184,9 @@
       }
     ],
     "concede": {
+      "sentidos": [
+        "Visão no Escuro 18 m"
+      ],
       "idiomas": [
         "Comum",
         "Élfico"
@@ -244,11 +245,6 @@
         "id": "idiomas",
         "nome": "Idiomas",
         "texto": "Você pode falar, ler e escrever Comum e Élfico. O Élfico é um idioma fluido, com entonações sutis e gramática complexa. A literatura élfica é rica e diversa, e suas canções e poemas são famosos entre outras raças. Muitos bardos aprendem essa língua para que possam adicionar canções élficas ao seu repertório."
-      },
-      {
-        "id": "sub-raca",
-        "nome": "Sub-raça",
-        "texto": "Antigas divisões entre os povos élficos resultaram em três sub-raças principais: os altos elfos, os elfos da floresta, e os elfos negros, que são comumente chamados de drow. Escolha uma dessas sub-raças. Em alguns mundos, essas sub-raças são ainda mais divididas (como os elfos do sol e elfos da lua nos Reinos Esquecidos), então se você desejar, você pode escolher uma sub-raça ainda mais específica."
       }
     ],
     "tamanho": "Médio",
@@ -374,6 +370,14 @@
             "rapieira",
             "espada curta",
             "besta de mão"
+          ],
+          "sentidos": [
+            "Visão no Escuro Superior 36 m"
+          ]
+        },
+        "retira": {
+          "sentidos": [
+            "Visão no Escuro 18 m"
           ]
         },
         "tracos": [
@@ -473,11 +477,6 @@
         "id": "idiomas",
         "nome": "Idiomas",
         "texto": "Você pode falar, ler e escrever Comum e Halfling. A linguagem Halfling não é secreta, mas os halflings são relutantes em compartilhá-la com os outros. Eles escrevem muito pouco, por isso eles não possuem uma literatura rica. No entanto, sua tradição oral é muito forte. Quase todos os halflings falam o idioma Comum para conversar com as pessoas das terras que habitam, ou através das quais eles estejam viajando."
-      },
-      {
-        "id": "sub-raca",
-        "nome": "Sub-raça",
-        "texto": "Os dois tipos principais de halflings, Pés- Leves e Robustos, são mais como famílias bem próximas do que verdadeiras sub-raças. Escolha uma destas sub-raças."
       }
     ],
     "tamanho": "Pequeno",
@@ -839,6 +838,31 @@
         "id": "tamanho",
         "nome": "Tamanho",
         "texto": "Os draconatos são mais altos e mais pesados que os humanos, geralmente possuindo mais de 1,80 metro e normalmente pesando mais de 125 kg. Seu tamanho é Médio."
+      },
+      {
+        "id": "deslocamento",
+        "nome": "Deslocamento",
+        "texto": "Seu deslocamento base de caminhada é 9 metros."
+      },
+      {
+        "id": "ancestral-draconico",
+        "nome": "Ancestral Dracônico",
+        "texto": "Você possui um ancestral dracônico. Escolha um tipo de dragão da tabela Ancestral Dracônico. Sua arma de sopro e resistência a dano são determinadas pelo tipo de dragão, como mostrado na tabela."
+      },
+      {
+        "id": "arma-de-sopro",
+        "nome": "Arma de Sopro",
+        "texto": "Você pode usar uma ação para exalar energia destrutiva. Seu ancestral dracônico determina o tamanho, formado e tipo de dano que você expele.\n\nQuando você usa sua arma de sopro, cada criatura na área exalada deve realizar um teste de resistência, o tipo do teste é determinado pelo seu ancestral dracônico. A CD do teste de resistência é 8 + seu modificador de Constituição + seu bônus de proficiência. Uma criatura sofre 2d6 de dano num fracasso e metade desse dano num sucesso. O dano aumenta para 3d6 no 6° nível, 4d6 no 11° nível e 5d6 no 16° nível.\n\nDepois de usar sua arma de sopro, você não poderá utilizá-la novamente até completar um descanso curto ou longo."
+      },
+      {
+        "id": "resistencia-a-dano",
+        "nome": "Resistência a Dano",
+        "texto": "Você possui resistência ao tipo de dano associado ao seu ancestral dracônico."
+      },
+      {
+        "id": "idiomas",
+        "nome": "Idiomas",
+        "texto": "Você pode falar, ler e escrever Comum e Dracônico. O idioma Dracônico é conhecido por ser uma das mais antigas línguas e ainda é usado no estudo de magia. A linguagem soa áspera para a maioria das criaturas, incluindo várias consoantes e silabas firmes."
       }
     ],
     "tamanho": "Médio",
@@ -861,6 +885,9 @@
       }
     ],
     "concede": {
+      "sentidos": [
+        "Visão no Escuro 18 m"
+      ],
       "idiomas": [
         "Comum",
         "Gnômico"
@@ -886,6 +913,26 @@
         "id": "tamanho",
         "nome": "Tamanho",
         "texto": "Os gnomos tem entre 0,90 e 1,20 metro e seu peso médio é de 20 kg. Seu tamanho é Pequeno."
+      },
+      {
+        "id": "deslocamento",
+        "nome": "Deslocamento",
+        "texto": "Seu deslocamento base de caminhada é 7,5 metros."
+      },
+      {
+        "id": "visao-no-escuro",
+        "nome": "Visão no Escuro",
+        "texto": "Acostumado à vida subterrânea, você tem uma visão superior no escuro e na penumbra. Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse na penumbra. Você não pode discernir cores no escuro, apenas tons de cinza."
+      },
+      {
+        "id": "esperteza-gnomica",
+        "nome": "Esperteza Gnômica",
+        "texto": "Você possui vantagem em todos os testes de resistência de Inteligência, Sabedoria e Carisma contra magia."
+      },
+      {
+        "id": "idiomas",
+        "nome": "Idiomas",
+        "texto": "Você sabe falar, ler e escrever Comum e Gnômico. A linguagem Gnômica, que usa o alfabeto Anão, é conhecida por suas técnicas de dissertação e por seus catálogos de conhecimento sobre o mundo natural."
       }
     ],
     "tamanho": "Pequeno",
@@ -968,6 +1015,9 @@
       }
     ],
     "concede": {
+      "sentidos": [
+        "Visão no Escuro 18 m"
+      ],
       "idiomas": [
         "Comum",
         "Élfico"
@@ -1007,6 +1057,41 @@
         "id": "idade",
         "nome": "Idade",
         "texto": "Meio-elfos atingem a maturidade ao mesmo tempo que os humanos atingem a idade adulta, por volta dos 20 anos. Eles vivem muito mais que os humanos, no entanto, raramente ultrapassam os 180 anos."
+      },
+      {
+        "id": "tendencia",
+        "nome": "Tendência",
+        "texto": "Meio-elfos compartilham a veia caótica da sua herança élfica. Eles valorizam tanto a sua liberdade quanto sua expressão criativa, não demonstrando qualquer apresso por líderes ou seguidores. Eles se irritam com regras, ressentindo com exigências de outros e, as vezes, se provam incertos, ou pelo menos, imprevisíveis."
+      },
+      {
+        "id": "tamanho",
+        "nome": "Tamanho",
+        "texto": "Meio-elfos tem aproximadamente a mesma altura dos humanos, variando entre 1,50 metro e 1,80 metro. Seu tamanho é Médio."
+      },
+      {
+        "id": "deslocamento",
+        "nome": "Deslocamento",
+        "texto": "Seu deslocamento base de caminhada é 9 metros."
+      },
+      {
+        "id": "visao-no-escuro",
+        "nome": "Visão no Escuro",
+        "texto": "Graças ao seu sangue élfico, você tem uma visão superior no escuro e na penumbra. Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse na penumbra. Você não pode discernir cores no escuro, apenas tons de cinza."
+      },
+      {
+        "id": "ancestral-feerico",
+        "nome": "Ancestral Feérico",
+        "texto": "Você possui vantagem em testes de resistência contra encantamento e magia não pode colocar você pra dormir."
+      },
+      {
+        "id": "versatilidade-em-pericia",
+        "nome": "Versatilidade em Perícia",
+        "texto": "Você ganha proficiência em duas perícias, à sua escolha."
+      },
+      {
+        "id": "idiomas",
+        "nome": "Idiomas",
+        "texto": "Você sabe falar, ler e escrever Comum, Élfico e um idioma adicional, à sua escolha."
       }
     ],
     "tamanho": "Médio",
@@ -1034,6 +1119,9 @@
       }
     ],
     "concede": {
+      "sentidos": [
+        "Visão no Escuro 18 m"
+      ],
       "idiomas": [
         "Comum",
         "Orc"
@@ -1042,7 +1130,58 @@
         "intimidacao"
       ]
     },
-    "tracos": [],
+    "tracos": [
+      {
+        "id": "aumento-no-valor-de-habilidade",
+        "nome": "Aumento no Valor de Habilidade",
+        "texto": "Seu valor de Força aumenta em 2 e seu valor de Constituição aumenta em 1."
+      },
+      {
+        "id": "idade",
+        "nome": "Idade",
+        "texto": "Os meio-orcs amadurecem um pouco antes dos humanos, atingindo a idade adulta aos 14 anos. Eles envelhecem notavelmente mais rápido e, raramente, vivem mais de 75 anos."
+      },
+      {
+        "id": "tendencia",
+        "nome": "Tendência",
+        "texto": "Meio-orcs tem uma tendência inata ao caos devido aos seus parentes orcs e não são fortemente inclinados ao bem. Meio-orcs que cresceram entre orcs e desejam viver e estão dispostos a passar sua vida entre eles, tendem a ser malignos."
+      },
+      {
+        "id": "tamanho",
+        "nome": "Tamanho",
+        "texto": "Meio-orcs são de certa forma maiores e mais largos que os humanos, medindo entre 1,80 metro e 2,10 metros. Seu tamanho é Médio."
+      },
+      {
+        "id": "deslocamento",
+        "nome": "Deslocamento",
+        "texto": "Seu deslocamento base de caminhada é 9 metros."
+      },
+      {
+        "id": "visao-no-escuro",
+        "nome": "Visão no Escuro",
+        "texto": "Graças ao seu sangue orc, você tem uma visão superior no escuro e na penumbra. Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse na penumbra. Você não pode discernir cores no escuro, apenas tons de cinza."
+      },
+      {
+        "id": "ameacador",
+        "nome": "Ameaçador",
+        "texto": "Você adquire proficiência na perícia Intimidação."
+      },
+      {
+        "id": "resistencia-implacavel",
+        "nome": "Resistência Implacável",
+        "texto": "Quando você é reduzido a 0 pontos de vida mas não é completamente morto, você pode voltar para 1 ponto de vida. Você não pode usar essa característica novamente até completar um descanso longo."
+      },
+      {
+        "id": "ataques-selvagens",
+        "nome": "Ataques Selvagens",
+        "texto": "Quando você atinge um ataque crítico com uma arma corpo-a-corpo, você pode rolar um dos dados de dano da arma mais uma vez e adicioná-lo ao dano extra causado pelo acerto crítico."
+      },
+      {
+        "id": "idiomas",
+        "nome": "Idiomas",
+        "texto": "Você sabe falar, ler e escrever Comum, Orc. O Orc é um idioma ríspido, possuindo uma linguagem de consoantes duras. Ele não possui alfabeto próprio, mas usa o alfabeto Anão."
+      }
+    ],
     "tamanho": "Médio",
     "deslocamento": 9
   },
@@ -1068,6 +1207,9 @@
       }
     ],
     "concede": {
+      "sentidos": [
+        "Visão no Escuro 18 m"
+      ],
       "idiomas": [
         "Comum",
         "Infernal"
@@ -1081,6 +1223,46 @@
         "id": "aumento-no-valor-de-habilidade",
         "nome": "Aumento no Valor de Habilidade",
         "texto": "Seu valor de Inteligência aumenta em 1 e seu valor de Carisma aumenta em 2."
+      },
+      {
+        "id": "idade",
+        "nome": "Idade",
+        "texto": "Os tieflings amadurecem ao mesmo tempo que os humanos, mas vivem alguns anos a mais."
+      },
+      {
+        "id": "tendencia",
+        "nome": "Tendência",
+        "texto": "Tieflings não possuem uma tendência inata ao mal, mas muitos acabam por abraçá-lo. Maligno ou não, uma natureza independente inclina a maioria dos tieflings ao alinhamento caótico."
+      },
+      {
+        "id": "tamanho",
+        "nome": "Tamanho",
+        "texto": "Os tieflings possuem o mesmo tamanho e compleição dos humanos. Seu tamanho é Médio."
+      },
+      {
+        "id": "deslocamento",
+        "nome": "Deslocamento",
+        "texto": "Seu deslocamento base de caminhada é 9 metros."
+      },
+      {
+        "id": "visao-no-escuro",
+        "nome": "Visão no Escuro",
+        "texto": "Graças a sua herança infernal, você tem uma visão superior no escuro e na penumbra. Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse na penumbra. Você não pode discernir cores no escuro, apenas tons de cinza."
+      },
+      {
+        "id": "resistencia-infernal",
+        "nome": "Resistência Infernal",
+        "texto": "Você possui resistência a dano de fogo."
+      },
+      {
+        "id": "legado-infernal",
+        "nome": "Legado Infernal",
+        "texto": "Você conhece o truque _taumaturgia_. Quando você atingir o 3° nível, você poderá conjurar a magia _repreensão infernal_ como uma magia de 2° nível. Quando você atingir o 5° nível, você também poderá conjurar a magia _escuridão_. Você precisa terminar um descanso longo para poder usar as magias desse traço novamente. Sua habilidade de conjuração para essas magias é Carisma."
+      },
+      {
+        "id": "idiomas",
+        "nome": "Idiomas",
+        "texto": "Você sabe falar, ler e escrever Comum e Infernal."
       }
     ],
     "tamanho": "Médio",
@@ -1110,6 +1292,28 @@
             "veneno"
           ]
         },
+        "escolhas": [
+          {
+            "id": "atributo-conjuracao",
+            "rotulo": "Habilidade de conjuração do legado",
+            "tipo": "opcao",
+            "qtd": 1,
+            "opcoes": [
+              {
+                "id": "int",
+                "nome": "Inteligência"
+              },
+              {
+                "id": "sab",
+                "nome": "Sabedoria"
+              },
+              {
+                "id": "car",
+                "nome": "Carisma"
+              }
+            ]
+          }
+        ],
         "retira": {
           "resistencias": [
             "fogo"
@@ -1138,6 +1342,28 @@
             "necrótico"
           ]
         },
+        "escolhas": [
+          {
+            "id": "atributo-conjuracao",
+            "rotulo": "Habilidade de conjuração do legado",
+            "tipo": "opcao",
+            "qtd": 1,
+            "opcoes": [
+              {
+                "id": "int",
+                "nome": "Inteligência"
+              },
+              {
+                "id": "sab",
+                "nome": "Sabedoria"
+              },
+              {
+                "id": "car",
+                "nome": "Carisma"
+              }
+            ]
+          }
+        ],
         "retira": {
           "resistencias": [
             "fogo"

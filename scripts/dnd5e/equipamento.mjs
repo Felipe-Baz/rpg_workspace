@@ -152,6 +152,72 @@ function pacotes(md, todos, avisos) {
   return out;
 }
 
+/** Linhas de uma tabela que começa em "## Seção" ou "#### Título" e tem o cabeçalho dado. */
+function linhasDaTabela(md, ini, cabecalho) {
+  const i = md.indexOf(ini);
+  if (i < 0) return [];
+  const linhas = md.slice(i).split("\n");
+  const k = linhas.findIndex((l) => l.startsWith(cabecalho));
+  if (k < 0) return [];
+  const rows = [];
+  for (const l of linhas.slice(k + 2)) { if (!l.startsWith("|")) break; rows.push(celulas(l)); }
+  return rows;
+}
+
+/** Montarias, arreios, veículos, comida/hospedagem e serviços do capítulo 5: itens de preço com uma nota (deslocamento, carga...). */
+function outrosItens(md, avisos) {
+  const out = [];
+  const guarda = (grupo, nome, preco, pesoKg, nota) => out.push({ id: slug(`${grupo}-${nome}`), nome, pacote: "phb", tipo: "item", grupo, preco, peso: pesoKg, ...(nota ? { nota } : {}) });
+  // montarias: Item | Custo | Deslocamento | Capacidade de Carga
+  for (const c of linhasDaTabela(md, "#### Montarias e Outros Animais", "| Item | Custo | Deslocamento |")) {
+    const p = dinheiro(c[1], avisos, c[0]); if (p) guarda("Montarias e outros animais", c[0], p, 0, `deslocamento ${c[2]}, carga ${c[3]}`);
+  }
+  // arreios e veículos de tração: Item | Custo | Peso; "**Sela**" abre um subgrupo
+  let sub = "";
+  for (const c of linhasDaTabela(md, "#### Arreios, Selas e Veículos de Tração", "| Item | Custo | Peso |")) {
+    const g = negrito(c[0]); if (g) { sub = g; continue; }
+    if (/^X\d/.test(c[1])) continue; // armadura de montaria: preço e peso são multiplicadores da armadura comum
+    const p = dinheiro(c[1], avisos, c[0]); if (!p) continue;
+    const nome = sub && /^(Compacta|Exótica|Militar|Viagem)$/.test(c[0]) ? `${sub} ${c[0] === "Viagem" ? "de viagem" : c[0].toLowerCase()}` : c[0];
+    guarda("Arreios, selas e veículos de tração", nome, p, peso(c[2], avisos, c[0]), "");
+  }
+  // veículos aquáticos: Item | Custo | Velocidade
+  for (const c of linhasDaTabela(md, "**Veículos Aquáticos**", "| Item | Custo | Velocidade |")) {
+    const p = dinheiro(c[1], avisos, c[0]); if (p) guarda("Veículos aquáticos", c[0], p, 0, `velocidade ${c[2]}`);
+  }
+  // comida, bebida e hospedagem: linhas sem custo abrem um subgrupo
+  sub = "";
+  for (const c of linhasDaTabela(md, "#### Comida, Bebida e Hospedagem", "| Item | Custo |")) {
+    if (!c[1]) { sub = c[0]; continue; }
+    const p = dinheiro(c[1], avisos, c[0]); if (!p) continue;
+    const filho = /^(Esquálid|Pobre|Modest|Confortável|Rica|Aristocrát|Galão|Caneca|Comum|Fino)/.test(c[0]);
+    guarda("Comida, bebida e hospedagem", filho && sub ? `${sub}: ${c[0]}` : c[0], p, 0, "");
+    if (!filho) sub = "";
+  }
+  // serviços: Serviço | Pagamento ("2 pc por km")
+  sub = "";
+  for (const c of linhasDaTabela(md, "**Serviços**", "| Serviço | Pagamento |")) {
+    if (!c[1]) { sub = c[0]; continue; }
+    const m = c[1].replace(/\./g, "").match(/^(\d+)\s*(pc|pp|pe|po|pl)\s*(.*)$/);
+    if (!m) { avisos.push(`Serviço não reconhecido: "${c[1]}"`); continue; }
+    guarda("Serviços", sub && /^(Dentro da cidade|Entre cidades|Destreinado|Treinado)$/.test(c[0]) ? `${sub}: ${c[0]}` : c[0], { valor: Number(m[1]), moeda: m[2] }, 0, m[3] || "");
+  }
+  return out;
+}
+
+/** Tabela Bugigangas (d100, duas partes): lista de textos na ordem do d100. */
+export function gerarBugigangas(dirFonte) {
+  const md = readFileSync(join(dirFonte, "dnd5e-equipamento.md"), "utf8").replace(/\r\n/g, "\n");
+  // a tabela vem em vários trechos: lê toda linha "| NN | texto |" depois do título, na ordem do d100
+  const ini = md.indexOf("#### Bugigangas");
+  const porNumero = new Map();
+  for (const l of md.slice(ini).split("\n")) {
+    const m = l.match(/^\|\s*(\d{1,3})\s*\|\s*(.+?)\s*\|\s*$/);
+    if (m) porNumero.set(Number(m[1]), m[2]);
+  }
+  return [...porNumero.entries()].sort((a, b) => a[0] - b[0]).map(([, t]) => t);
+}
+
 export function gerarEquipamento(dirFonte) {
   const avisos = [];
   const md = readFileSync(join(dirFonte, "dnd5e-equipamento.md"), "utf8").replace(/\r\n/g, "\n");
@@ -159,7 +225,9 @@ export function gerarEquipamento(dirFonte) {
   const wp = armas(md, avisos);
   const it = itens(md, avisos);
   const pk = pacotes(md, [...wp, ...arm, ...it], avisos);
+  const existentes = new Set([...wp, ...arm, ...it, ...pk].map((x) => x.id));
+  const outros = outrosItens(md, avisos).filter((x) => !existentes.has(x.id));
   const ids = new Set();
-  for (const x of [...arm, ...wp, ...it, ...pk]) { if (ids.has(x.id)) avisos.push(`Id repetido no equipamento: ${x.id}`); ids.add(x.id); }
-  return { equipamento: [...wp, ...arm, ...it, ...pk], avisos };
+  for (const x of [...arm, ...wp, ...it, ...pk, ...outros]) { if (ids.has(x.id)) avisos.push(`Id repetido no equipamento: ${x.id}`); ids.add(x.id); }
+  return { equipamento: [...wp, ...arm, ...it, ...pk, ...outros], avisos };
 }

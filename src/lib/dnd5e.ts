@@ -57,6 +57,8 @@ export type Magia = {
   catalogoId?: string;
   /** Classe pela qual a magia é conjurada (multiclasse): define o atributo de conjuração dela. */
   classeOrigem?: string;
+  /** Atributo de conjuração próprio (magia concedida pela raça: Legado Infernal, Magia Drow, alto elfo...). Vale mais que a classe. */
+  atributoConj?: Atributo;
   nome: string;
   nivel: number; // 0 = truque
   /** Ativa = conta nos limites da classe e pode ser conjurada. Inativas ficam só no "pool" da ficha. */
@@ -258,10 +260,10 @@ export const classesDaFicha = (f: Pick<FichaDnd, "classe" | "nivel" | "classes">
 export const nivelNaClasse = (f: Pick<FichaDnd, "classe" | "nivel" | "classes">, id: string) => classesDaFicha(f).find((c) => c.id === id)?.nivel ?? 0;
 
 /** Atributo de conjuração de uma magia: o da classe pela qual ela é conjurada (multiclasse) ou o da ficha. */
-export const atrDaMagia = (f: FichaDnd, m?: Pick<Magia, "classeOrigem">): Atributo | "" =>
-  m?.classeOrigem && ehConjuradora(m.classeOrigem as ClasseId) ? CLASSES_CONJ[m.classeOrigem as ClasseConjId].atr : f.atrConjuracao;
-export const cdMagia = (f: FichaDnd, m?: Pick<Magia, "classeOrigem">) => { const a = atrDaMagia(f, m); return a ? 8 + bonusProficiencia(f.nivel) + modDe(f, a) : 0; };
-export const bonusAtaqueMagia = (f: FichaDnd, m?: Pick<Magia, "classeOrigem">) => { const a = atrDaMagia(f, m); return a ? bonusProficiencia(f.nivel) + modDe(f, a) : 0; };
+export const atrDaMagia = (f: FichaDnd, m?: Pick<Magia, "classeOrigem" | "atributoConj">): Atributo | "" =>
+  m?.atributoConj ? m.atributoConj : m?.classeOrigem && ehConjuradora(m.classeOrigem as ClasseId) ? CLASSES_CONJ[m.classeOrigem as ClasseConjId].atr : f.atrConjuracao;
+export const cdMagia = (f: FichaDnd, m?: Pick<Magia, "classeOrigem" | "atributoConj">) => { const a = atrDaMagia(f, m); return a ? 8 + bonusProficiencia(f.nivel) + modDe(f, a) : 0; };
+export const bonusAtaqueMagia = (f: FichaDnd, m?: Pick<Magia, "classeOrigem" | "atributoConj">) => { const a = atrDaMagia(f, m); return a ? bonusProficiencia(f.nivel) + modDe(f, a) : 0; };
 
 // ---------- espaços de magia ----------
 // Índice = nível de conjurador - 1; cada linha = espaços do 1º ao 9º círculo.
@@ -432,7 +434,7 @@ export type Teste = {
   dano?: boolean; // permite dobrar os dados num crítico
   cura?: boolean; // o resultado pode ser aplicado aos PV
   /** Vantagem/desvantagem sugeridas pelas condições e características ativas (o jogador pode mudar). */
-  sugestao?: { modo: "v" | "d" | null; vantagens: string[]; desvantagens: string[]; falhaAutomatica?: string };
+  sugestao?: { modo: "v" | "d" | null; vantagens: string[]; desvantagens: string[]; falhaAutomatica?: string; lembretes?: string[] };
   /** Salvaguarda de morte: o resultado do d20 é aplicado à ficha, não aos PV. */
   morte?: boolean;
 };

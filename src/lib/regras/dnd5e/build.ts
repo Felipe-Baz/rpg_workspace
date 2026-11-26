@@ -29,7 +29,7 @@ export type Ajuste = { somar?: number; substituir?: number; rotulo?: string };
 
 export type Build = {
   raca?: { id: string; sub?: string; escolhas?: Escolhas };
-  antecedente?: { id: string; escolhas?: Escolhas };
+  antecedente?: { id: string; escolhas?: Escolhas; /** Variação opcional do livro (ex.: pirata, cavaleiro). */ variacao?: string };
   /** Array desde já: multiclasse (regra opcional da mesa) não exige mudar o modelo. */
   classes: EscolhaClasse[];
   atributosBase: Record<Atributo, number>;

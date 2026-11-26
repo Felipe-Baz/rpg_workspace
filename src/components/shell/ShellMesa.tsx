@@ -10,6 +10,7 @@ import { encaixeDe, normalizarManifesto } from "@/lib/extensoes/manifesto";
 import { usePedidosMestre } from "@/lib/extensoes/pedidos";
 import { toast } from "../ui/Toasts";
 import { useMesas } from "@/lib/mesas";
+import { useSessaoAtiva } from "@/lib/sessaoAtiva";
 import ShellBase, { Carregando } from "./ShellBase";
 import { ehDnd5e } from "@/lib/dnd5e";
 import { itensNativos, gruposNav } from "./navegacao";
@@ -28,6 +29,7 @@ export default function ShellMesa({ id, children }: { id: string; children: Reac
   const extensoes = todasExt.filter((e) => e.ativa !== false);
   const efeitos = combinarEfeitos(extensoes.map((e) => ({ id: e.id, titulo: e.titulo, efeitos: normalizarManifesto(e.manifesto).mesa })));
   const { pedidos, carregado: pedidosOk } = usePedidosMestre(id, ehMestre);
+  const sessaoAberta = !!useSessaoAtiva(id).sessao;
   const pendentes = pedidos.filter((p) => p.status === "pendente").length;
   // Avisa quando chega um pedido novo de jogador (a primeira leitura é só a base).
   const vistos = useRef<number | null>(null);
@@ -68,7 +70,7 @@ export default function ShellMesa({ id, children }: { id: string; children: Reac
       efeitos={efeitos}
       badges={pendentes ? { [`${base}/extensoes`]: pendentes } : {}}
       nativas={{ config: nativas.config, prontas: nativas.carregado, souMestre: true }}
-      destaque={{ href: `${base}/sessao`, rotulo: "Iniciar sessão", icone: Flame }}
+      destaque={{ href: `${base}/sessao`, rotulo: sessaoAberta ? "Sessão em andamento" : "Iniciar sessão", icone: Flame }}
       grupos={grupos}
       rodape={[
         { href: `${base}/configuracoes`, rotulo: "Configurações", icone: Settings },

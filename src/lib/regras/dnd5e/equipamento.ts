@@ -114,6 +114,14 @@ export type EntradaAtaques = {
   arma: (id: string) => ArmaCat | undefined;
   mods: Record<Atributo, number>;
   proficiencias: readonly string[];
+  /** Estilos de Luta escolhidos (ids): arquearia e duelismo somam bônus; os demais viram nota. */
+  estilos?: readonly string[];
+  /** Nota extra nas armas corpo a corpo (ex.: Ataques Selvagens do meio-orc). */
+  notaCorpoACorpo?: string;
+  /** Nota de Ataque Furtivo (ladino) nas armas de acuidade e à distância. */
+  notaFurtivo?: string;
+  /** Dado das Artes Marciais do monge (ex.: "1d6"): vira o ataque desarmado. */
+  artesMarciais?: string;
 };
 
 /** Linhas de ataque das armas equipadas (e do ataque desarmado). Versátil gera uma linha extra de duas mãos. */
@@ -128,11 +136,23 @@ export function ataquesDeArmas(e: EntradaAtaques): Ataque[] {
       bonusAtaque: item.bonusMagico ?? 0, bonusDano: item.bonusMagico ?? 0, tipoDano: arma.tipoDano ?? "", derivado: true as const,
     };
     const nome = item.nome || arma.nome;
-    const notas = notasDaArma(arma);
-    out.push({ ...base, id: `arma:${item.id}`, nome, dano: arma.dado, notas });
-    if (arma.propriedades.versatil) out.push({ ...base, id: `arma:${item.id}:2m`, nome: `${nome} (duas mãos)`, dano: arma.propriedades.versatil, notas });
+    const est = e.estilos ?? [];
+    const lembretes = (duasMaos: boolean) => [
+      notasDaArma(arma),
+      !arma.distancia && e.notaCorpoACorpo,
+      (arma.distancia || arma.propriedades.acuidade) && e.notaFurtivo,
+      arma.distancia && est.includes("arquearia") && "Arquearia: +2 no ataque",
+      !arma.distancia && !duasMaos && !arma.propriedades.duasMaos && est.includes("duelismo") && "Duelismo: +2 no dano se for a única arma empunhada (uma mão)",
+      duasMaos && est.includes("armas-grandes") && "Armas Grandes: jogue de novo 1 ou 2 no dado de dano",
+      arma.propriedades.leve && est.includes("duas-armas") && "Duas Armas: some o modificador ao dano da segunda arma",
+    ].filter(Boolean).join("; ");
+    const duelo = !arma.distancia && !arma.propriedades.duasMaos && est.includes("duelismo") ? 2 : 0;
+    const arco = arma.distancia && est.includes("arquearia") ? 2 : 0;
+    out.push({ ...base, id: `arma:${item.id}`, nome, dano: arma.dado, bonusAtaque: base.bonusAtaque + arco, bonusDano: base.bonusDano + duelo, notas: lembretes(!!arma.propriedades.duasMaos) });
+    if (arma.propriedades.versatil) out.push({ ...base, id: `arma:${item.id}:2m`, nome: `${nome} (duas mãos)`, dano: arma.propriedades.versatil, notas: lembretes(true) });
   }
-  out.push({ id: "arma:desarmado", nome: "Ataque desarmado", atr: "for", proficiente: true, bonusAtaque: 0, dano: "1", bonusDano: 0, tipoDano: "concussão", notas: "dano fixo 1 + Força", derivado: true });
+  if (e.artesMarciais) out.push({ id: "arma:desarmado", nome: "Ataque desarmado (Artes Marciais)", atr: e.mods.des > e.mods.for ? "des" : "for", proficiente: true, bonusAtaque: 0, dano: e.artesMarciais, bonusDano: 0, tipoDano: "concussão", notas: "Artes Marciais: usa Força ou Destreza; ataque desarmado como ação bônus depois de atacar", derivado: true });
+  else out.push({ id: "arma:desarmado", nome: "Ataque desarmado", atr: "for", proficiente: true, bonusAtaque: 0, dano: "1", bonusDano: 0, tipoDano: "concussão", notas: "dano fixo 1 + Força", derivado: true });
   return out;
 }
 

@@ -16,6 +16,8 @@ export type Concessoes = {
   armaduras?: string[];
   ferramentas?: string[];
   resistencias?: string[];
+  /** Sentidos especiais com alcance (ex.: "Visão no Escuro 18 m"). */
+  sentidos?: string[];
 };
 
 export type EscolhaOpcao = { id: string; nome: string; descricao?: string; concede?: Concessoes };
@@ -24,7 +26,7 @@ export type EscolhaOpcao = { id: string; nome: string; descricao?: string; conce
 export type EscolhaDef = {
   id: string;
   rotulo: string;
-  tipo: "atributo" | "pericia" | "idioma" | "ferramenta" | "talento" | "truque" | "opcao";
+  tipo: "atributo" | "pericia" | "idioma" | "ferramenta" | "talento" | "truque" | "opcao" | "especializacao";
   qtd: number;
   /** Para `atributo`: quanto soma a cada escolhido. */
   valor?: number;
@@ -101,7 +103,7 @@ export type ArmaduraCat = Conteudo & {
   maxDes?: number; forca?: number; furtividadeDesv?: boolean; peso: number;
 };
 export type EscudoCat = Conteudo & { tipo: "escudo"; categoria: "escudo"; preco?: Preco; bonusCa: number; peso: number };
-export type ObjetoCat = Conteudo & { tipo: "item" | "ferramenta"; grupo?: string; preco?: Preco; peso: number };
+export type ObjetoCat = Conteudo & { tipo: "item" | "ferramenta"; grupo?: string; preco?: Preco; peso: number; /** Montarias, veículos e serviços: deslocamento, carga, velocidade, unidade do preço. */ nota?: string };
 export type PacoteItens = Conteudo & { tipo: "pacote"; preco: Preco; itens: { ref?: string; nome: string; qtd: number }[] };
 export type ItemCat = ArmaCat | ArmaduraCat | EscudoCat | ObjetoCat | PacoteItens;
 

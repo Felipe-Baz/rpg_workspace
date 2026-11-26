@@ -118,6 +118,8 @@ export type EscolhasSubida = {
   /** Bruxo: invocações místicas e Dádiva do Pacto depois do nível (ausente = não muda). */
   invocacoes?: string[];
   pacto?: string;
+  /** Escolhas de classe/subclasse liberadas neste nível (Estilo de Luta, Especialização, Inimigo Favorito...). */
+  escolhasClasse?: Escolhas;
 };
 
 /** Sobe um nível: registra o passo no histórico e atualiza classe, subclasse e talento. Não valida regras da mesa (use `validar`). */
@@ -129,7 +131,7 @@ export function subirNivel(b: Build, e: EscolhasSubida): Build {
   const passo: PassoNivel = { classe: c.id, pv: e.pv, ...(incremento ? { incremento } : {}) };
   const subido: Build = {
     ...b,
-    classes: b.classes.map((k, j) => (j === i ? { ...k, nivel: k.nivel + 1, ...(e.subclasse ? { subclasse: e.subclasse } : {}) } : k)),
+    classes: b.classes.map((k, j) => (j === i ? { ...k, nivel: k.nivel + 1, ...(e.subclasse ? { subclasse: e.subclasse } : {}), ...(e.escolhasClasse && Object.keys(e.escolhasClasse).length ? { escolhas: { ...k.escolhas, ...e.escolhasClasse } } : {}) } : k)),
     historicoNiveis: [...(b.historicoNiveis ?? []), passo],
     ...(incremento?.talento && e.escolhasTalento ? { escolhasTalentos: { ...b.escolhasTalentos, [incremento.talento]: e.escolhasTalento } } : {}),
   };

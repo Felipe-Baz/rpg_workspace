@@ -46,6 +46,7 @@ export default function PainelRolagem({ teste, onFechar, aoAplicar, origem }: { 
           {teste.sugestao.falhaAutomatica && <strong className="mr-2 text-danger">{teste.sugestao.falhaAutomatica}.</strong>}
           {teste.sugestao.vantagens.length > 0 && <span className="mr-2 text-ok">Vantagem: {teste.sugestao.vantagens.join(", ")}.</span>}
           {teste.sugestao.desvantagens.length > 0 && <span className="mr-2 text-danger">Desvantagem: {teste.sugestao.desvantagens.join(", ")}.</span>}
+          {teste.sugestao.lembretes?.map((l) => <span key={l} className="mr-2 block text-gold">{l} (se valer para esta situação).</span>)}
           {!teste.sugestao.modo && teste.sugestao.vantagens.length > 0 && teste.sugestao.desvantagens.length > 0 && <span className="text-muted">Os dois lados se anulam.</span>}
         </p>
       )}

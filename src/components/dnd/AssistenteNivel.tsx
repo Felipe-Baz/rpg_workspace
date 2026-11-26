@@ -14,6 +14,9 @@ import { carregarMagias, type MagiaCat } from "@/lib/regras/dnd5e/magias";
 import { ajustarConjuracao, adicionarClasse, classesNovas, conferirRequisitos, PROF_MULTICLASSE, textoRequisito, lerRequisito } from "@/lib/regras/dnd5e/multiclasse";
 import { incrementoValido, incrementosDisponiveis, incrementosUsados, resumoSubida, subirNivel, type EscolhasSubida } from "@/lib/regras/dnd5e/progressao";
 import { BRUXO, NIVEL_PACTO, invocacoesConhecidas, invocacoesDaFicha, pactoDaFicha, truquesDaFicha } from "@/lib/regras/dnd5e/invocacoes";
+import { escolhasDaClasse, semRepeticao } from "@/lib/regras/dnd5e/escolhasClasse";
+import { aplicarMagiasConcedidas, magiasConcedidas } from "@/lib/regras/dnd5e/magiasConcedidas";
+import { uid } from "@/lib/mesas";
 import { EscolhaCampos } from "./ConstrucaoPersonagem";
 import { SeletorInvocacoes, SeletorPacto } from "./InvocacoesMisticas";
 import TextoLivro from "./TextoLivro";
@@ -34,6 +37,8 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
   // qual classe ganha o nível: uma que o personagem já tem ("0", "1"...) ou uma nova ("nova:mago", multiclasse)
   const [alvo, setAlvo] = useState("0");
   const [escNova, setEscNova] = useState<Escolhas>({});
+  // escolhas de classe/subclasse que o nível libera (Estilo de Luta, Especialização, Inimigo Favorito...)
+  const [escNivel, setEscNivel] = useState<Escolhas>({});
   const novaId = alvo.startsWith("nova:") ? alvo.slice(5) : "";
   const indice = novaId ? (b?.classes.length ?? 0) : Number(alvo) || 0;
   const resumo = useMemo(() => (b ? resumoSubida(novaId ? { ...b, classes: [...b.classes, { id: novaId, nivel: 0 }] } : b, cat, indice) : null), [b, cat, novaId, indice]);
@@ -64,6 +69,15 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
     );
   }
 
+  const classeAtual = novaId ? undefined : b.classes[indice];
+  const subFinal = subclasse || classeAtual?.subclasse;
+  const classeIdAlvo = novaId || classeAtual?.id || "";
+  const primeiraClasse = indice === 0 && !novaId;
+  const defsNivel = classeIdAlvo
+    ? escolhasDaClasse(classeIdAlvo, resumo.para, subFinal, primeiraClasse).filter((d) => !escolhasDaClasse(classeIdAlvo, resumo.de, classeAtual?.subclasse, primeiraClasse).some((x) => x.id === d.id))
+    : [];
+  const proficientes = Object.keys(calc.pericias);
+  const pendNivel = defsNivel.reduce((n, d) => n + Math.max(0, d.qtd - (escNivel[d.id] ?? []).length), 0);
   const conMod = modificador(calc.atributos.con.total);
   const pvGanho = Math.max(1, (pvModo === "medio" ? resumo.pvMedio : pvRolado) + conMod);
   const totais = Object.fromEntries(ATRIBUTOS.map((a) => [a, calc.atributos[a].total])) as Record<Atributo, number>;
@@ -91,9 +105,10 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
   const antesInv = invocacoesDaFicha(ficha);
   const trocas = antesInv.filter((id) => !invs.includes(id)).length;
   const novoBuild = () => novaId
-    ? adicionarClasse(b, { id: novaId, pv: pvEscolhido, subclasse: subclasse || undefined, escolhas: escNova })
+    ? adicionarClasse(b, { id: novaId, pv: pvEscolhido, subclasse: subclasse || undefined, escolhas: { ...escNova, ...escNivel } })
     : subirNivel(b, {
       classe: indice, pv: pvEscolhido, incremento: pedeIncremento ? incremento : undefined, subclasse: subclasse || undefined, escolhasTalento: talento ? escTalento : undefined,
+      escolhasClasse: escNivel,
       ...(pedeInvocacoes ? { invocacoes: invs } : {}), ...(pedePacto && pacto ? { pacto } : {}),
     });
 
@@ -110,11 +125,13 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
     if (novaId && requisitosFalhos.length && papel !== "mestre") { setErro(`Multiclasse: ${requisitosFalhos.map((r) => `${r.nome} pede ${textoRequisito(lerRequisito(r.requisito))}`).join("; ")}.`); return; }
     if (pedeInvocacoes && trocas > 1 && papel !== "mestre") { setErro("Ao subir de nível você pode trocar no máximo uma invocação por outra."); return; }
     if (pedeInvocacoes && invs.length > limiteInv) { setErro(`Neste nível o bruxo conhece ${limiteInv} invocações.`); return; }
+    if (pendNivel > 0 && papel !== "mestre") { setErro("Faça as escolhas de classe deste nível (estilo de luta, especialização, inimigo favorito...)."); return; }
     if (faltaSubclasse || pvInvalido || erroInc) { setErro(erroInc || (faltaSubclasse ? "Escolha a subclasse." : "Informe um PV válido.")); return; }
     const viol = validar(depois.t, cat, opcoes);
     if (bloqueia(papel, viol)) { setErro(viol.filter((v) => v.gravidade !== "aviso").map((v) => v.mensagem).join(" ")); return; }
     const ganho = depois.calc.pvMax.total - calc.pvMax.total;
-    onSalvar({ ...depois.t, atrConjuracao: depois.ef.atrConjuracao, espacos: depois.ef.espacos, pv: Math.min(depois.calc.pvMax.total, ficha.pv + Math.max(0, ganho)) });
+    const nova: FichaDnd = { ...depois.t, atrConjuracao: depois.ef.atrConjuracao, espacos: depois.ef.espacos, pv: Math.min(depois.calc.pvMax.total, ficha.pv + Math.max(0, ganho)) };
+    onSalvar(aplicarMagiasConcedidas(nova, magiasConcedidas(depois.t.build!, depois.calc.fontes), magias, uid));
     onFechar();
   };
 
@@ -127,7 +144,7 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
         {(b.classes.length > 1 || multiclasseOk) && (
           <section className={secao}>
             <h3 className={titulo}>Classe do nível</h3>
-            <select value={alvo} onChange={(e) => { setAlvo(e.target.value); setSubclasse(""); setErro(""); setEscNova({}); }} className={`${campo} w-full`} aria-label="Classe que ganha o nível">
+            <select value={alvo} onChange={(e) => { setAlvo(e.target.value); setSubclasse(""); setErro(""); setEscNova({}); setEscNivel({}); }} className={`${campo} w-full`} aria-label="Classe que ganha o nível">
               {b.classes.map((c, i) => <option key={c.id} value={String(i)} disabled={c.nivel >= 20}>{cat.classe(c.id)?.nome ?? c.id} (nível {c.nivel} → {c.nivel + 1})</option>)}
               {multiclasseOk && classesNovas(b, cat).length > 0 && <optgroup label="Nova classe (multiclasse)">
                 {classesNovas(b, cat).map((c) => <option key={c.id} value={`nova:${c.id}`}>{c.nome} (nível 1)</option>)}
@@ -181,6 +198,20 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
               {novaSub.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
             </select>
             {subclasse && <TextoLivro texto={novaSub.find((s) => s.id === subclasse)?.caracteristicas[0]?.texto ?? ""} className="mt-1" />}
+          </section>
+        )}
+
+        {defsNivel.length > 0 && (
+          <section className={secao}>
+            <h3 className={titulo}>Escolhas da classe neste nível</h3>
+            <div className="space-y-2">
+              {defsNivel.map((d) => (
+                <div key={d.id} className="space-y-1">
+                  <EscolhaCampos def={semRepeticao(d.tipo === "especializacao" ? { ...d, opcoes: proficientes } : d, { ...(classeAtual?.escolhas ?? {}), ...escNivel }, escolhasDaClasse(classeIdAlvo, resumo.para, subFinal, primeiraClasse))} valores={escNivel[d.id] ?? []} cat={cat} opcoesMesa={opcoes} magias={magias} onChange={(v) => setEscNivel((x) => ({ ...x, [d.id]: v }))} />
+                  {d.tipo === "opcao" && (escNivel[d.id] ?? []).map((v) => { const o = (d.opcoes ?? []).find((x) => typeof x !== "string" && x.id === v); return o && typeof o !== "string" && o.descricao ? <p key={v} className="text-[11px] text-muted">{o.descricao}</p> : null; })}
+                </div>
+              ))}
+            </div>
           </section>
         )}
 

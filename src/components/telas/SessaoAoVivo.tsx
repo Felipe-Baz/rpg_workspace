@@ -3,6 +3,8 @@
 import { ehDnd5e } from "@/lib/dnd5e";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useSessaoAtiva } from "@/lib/sessaoAtiva";
 import { BookOpenText, Flag, Lock, Map as MapIcon, Scroll, Skull, Users } from "lucide-react";
 import { confirmar } from "../ui/Dialogos";
 import { atualizarMesa, uid, useSegredos } from "@/lib/mesas";
@@ -29,6 +31,9 @@ export default function SessaoAoVivo() {
   const base = `/mesas/${mesa.id}`;
   const [notas, setNotas] = usePersistido<string>(`notas-sessao:${mesa.id}`, "");
   const { segredos, atualizar: atualizarSegredos } = useSegredos(mesa.id, true);
+  const { iniciar, encerrar: encerrarSessao } = useSessaoAtiva(mesa.id);
+  // Abrir a tela inicia a sessão; ela segue aberta ao navegar até o mestre encerrar ou fechar o site.
+  useEffect(() => { iniciar(); }, [iniciar]);
 
   const atalhos = [
     { href: `${base}/mapas`, rotulo: "Mapas", icone: MapIcon },
@@ -53,6 +58,7 @@ export default function SessaoAoVivo() {
     atualizarMesa(mesa.id, { sessoes: [...mesa.sessoes, { id, titulo: `Sessão ${mesa.sessoes.length + 1}`, data, resumoPublico: "" }] });
     if (notas.trim()) atualizarSegredos({ ...segredos, notasSessoes: { ...segredos.notasSessoes, [id]: notas } });
     setNotas("");
+    encerrarSessao();
     router.push(`${base}/sessoes`);
   }
 
@@ -79,7 +85,7 @@ export default function SessaoAoVivo() {
         </div>
         <div className="min-w-0 space-y-4">
           <Painel titulo="Dados"><PainelDados mesaId={mesa.id} /></Painel>
-          <Painel titulo="Duração"><Cronometro /></Painel>
+          <Painel titulo="Duração"><Cronometro mesaId={mesa.id} /></Painel>
           <Slot nome="sessao.painel" />
           <Painel titulo="Atalhos">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">

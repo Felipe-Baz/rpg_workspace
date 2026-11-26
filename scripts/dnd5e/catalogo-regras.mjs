@@ -42,7 +42,7 @@ const IDIOMA_EXTRA = { id: "idioma", rotulo: "Idioma adicional", tipo: "idioma",
 const RACAS = {
   "Anão": {
     atr: { con: 2 }, desl: 7.5, tamanho: "Médio",
-    concede: { idiomas: ["Comum", "Anão"], armas: ["machado de batalha", "machadinha", "martelo leve", "martelo de guerra"], resistencias: ["veneno"] },
+    concede: { sentidos: ["Visão no Escuro 18 m"], idiomas: ["Comum", "Anão"], armas: ["machado de batalha", "machadinha", "martelo leve", "martelo de guerra"], resistencias: ["veneno"] },
     escolhas: [{ id: "ferramenta", rotulo: "Ferramenta de artesão", tipo: "ferramenta", qtd: 1, opcoes: ["Ferramentas de ferreiro", "Suprimentos de cervejeiro", "Ferramentas de pedreiro"] }],
     subs: {
       "Anão da Colina": { atr: { sab: 1 }, efeitos: [{ alvo: "pv.porNivel", op: "somar", valor: 1 }] },
@@ -51,11 +51,11 @@ const RACAS = {
   },
   "Elfo": {
     atr: { des: 2 }, desl: 9, tamanho: "Médio",
-    concede: { idiomas: ["Comum", "Élfico"], pericias: ["percepcao"] },
+    concede: { sentidos: ["Visão no Escuro 18 m"], idiomas: ["Comum", "Élfico"], pericias: ["percepcao"] },
     subs: {
       "Alto Elfo": { atr: { int: 1 }, concede: { armas: ["espada longa", "espada curta", "arco longo", "arco curto"] }, escolhas: [{ id: "truque", rotulo: "Truque de mago", tipo: "truque", qtd: 1, lista: "mago" }, IDIOMA_EXTRA] },
       "Elfo da Floresta": { atr: { sab: 1 }, concede: { armas: ["espada longa", "espada curta", "arco longo", "arco curto"] }, deslocamento: 10.5 },
-      "Elfo Negro (Drow)": { atr: { car: 1 }, concede: { armas: ["rapieira", "espada curta", "besta de mão"] } },
+      "Elfo Negro (Drow)": { atr: { car: 1 }, concede: { armas: ["rapieira", "espada curta", "besta de mão"], sentidos: ["Visão no Escuro Superior 36 m"] }, retira: { sentidos: ["Visão no Escuro 18 m"] } },
     },
   },
   "Halfling": {
@@ -97,7 +97,7 @@ const RACAS = {
   },
   "Gnomo": {
     atr: { int: 2 }, desl: 7.5, tamanho: "Pequeno",
-    concede: { idiomas: ["Comum", "Gnômico"] },
+    concede: { sentidos: ["Visão no Escuro 18 m"], idiomas: ["Comum", "Gnômico"] },
     subs: {
       "Gnomo da Floresta": { atr: { des: 1 } },
       "Gnomo das Rochas": { atr: { con: 1 } },
@@ -105,7 +105,7 @@ const RACAS = {
   },
   "Meio-elfo": {
     atr: { car: 2 }, desl: 9, tamanho: "Médio",
-    concede: { idiomas: ["Comum", "Élfico"] },
+    concede: { sentidos: ["Visão no Escuro 18 m"], idiomas: ["Comum", "Élfico"] },
     escolhas: [
       { id: "atributos", rotulo: "Dois atributos (+1)", tipo: "atributo", qtd: 2, valor: 1, excluir: ["car"] },
       { id: "pericias", rotulo: "Duas perícias", tipo: "pericia", qtd: 2 },
@@ -114,11 +114,11 @@ const RACAS = {
   },
   "Meio-orc": {
     atr: { for: 2, con: 1 }, desl: 9, tamanho: "Médio",
-    concede: { idiomas: ["Comum", "Orc"], pericias: ["intimidacao"] },
+    concede: { sentidos: ["Visão no Escuro 18 m"], idiomas: ["Comum", "Orc"], pericias: ["intimidacao"] },
   },
   "Tiefling": {
     atr: { int: 1, car: 2 }, desl: 9, tamanho: "Médio",
-    concede: { idiomas: ["Comum", "Infernal"], resistencias: ["fogo"] },
+    concede: { sentidos: ["Visão no Escuro 18 m"], idiomas: ["Comum", "Infernal"], resistencias: ["fogo"] },
     // Legado Ctônico (Livro do Jogador 2024, D&D Beyond). Substitui a Resistência Infernal e a Linhagem Infernal da base:
     // `retira` tira a resistência a fogo que a raça base concede. Os bônus de atributo continuam os da raça base (livro 2014).
     variantes: {
@@ -131,6 +131,7 @@ const RACAS = {
       // Legado Abissal (Livro do Jogador 2024): troca fogo por veneno.
       abyssal: {
         nome: "Tiefling Abissal (Abyssal)", atr: {}, concede: { resistencias: ["veneno"] },
+        escolhas: [{ id: "atributo-conjuracao", rotulo: "Habilidade de conjuração do legado", tipo: "opcao", qtd: 1, opcoes: [{ id: "int", nome: "Inteligência" }, { id: "sab", nome: "Sabedoria" }, { id: "car", nome: "Carisma" }] }],
         retira: { resistencias: ["fogo"] },
         texto: [ "**Legado Abissal.** Seu legado vem dos Abismos. Você tem resistência a dano de veneno e conhece o truque rajada de veneno. Ao alcançar o 3º nível de personagem, você aprende a magia raio adoecente e, ao alcançar o 5º nível, a magia imobilizar pessoa: ambas ficam sempre preparadas. Você pode conjurar cada uma uma vez sem gastar espaço de magia e recupera esse uso ao terminar um descanso longo; também pode conjurá-las com espaços de magia do círculo adequado. Inteligência, Sabedoria ou Carisma é sua habilidade de conjuração para essas magias (escolha ao selecionar o legado).",
           "**Presença de Outro Mundo.** Você conhece o truque taumaturgia. Ao conjurá-lo com esta característica, usa a mesma habilidade de conjuração do Legado Abissal.",
@@ -138,6 +139,7 @@ const RACAS = {
       },
       chthonic: {
         nome: "Tiefling Ctônico (Chthonic)", atr: {}, concede: { resistencias: ["necrótico"] },
+        escolhas: [{ id: "atributo-conjuracao", rotulo: "Habilidade de conjuração do legado", tipo: "opcao", qtd: 1, opcoes: [{ id: "int", nome: "Inteligência" }, { id: "sab", nome: "Sabedoria" }, { id: "car", nome: "Carisma" }] }],
         retira: { resistencias: ["fogo"] },
         texto: [
           "**Legado Ctônico.** Seu legado vem de Carceri, Gehenna e Hades. Você tem resistência a dano necrótico e conhece o truque toque arrepiante. Ao alcançar o 3º nível de personagem, você aprende a magia vitalidade falsa e, ao alcançar o 5º nível, a magia raio do enfraquecimento: ambas ficam sempre preparadas. Você pode conjurar cada uma uma vez sem gastar espaço de magia e recupera esse uso ao terminar um descanso longo; também pode conjurá-las com espaços de magia do círculo adequado. Inteligência, Sabedoria ou Carisma é sua habilidade de conjuração para essas magias (escolha ao selecionar o legado).",
@@ -161,8 +163,18 @@ function racas(md, avisos) {
     const fim = corpo.search(/\n### |\n## /);
     if (fim >= 0) corpo = corpo.slice(0, fim);
     const blocos = corpo.split(/\n#### /);
-    const principais = tracos(blocos[0]);
     const porTitulo = new Map(blocos.slice(1).map((b) => [b.split("\n")[0].trim(), b.split("\n").slice(1).join("\n")]));
+    // Os traços ficam no bloco principal e também nos blocos "####" que o livro intercala (ex.: "Desconfiança Recíproca" do
+    // Tiefling, "Ancestral Dracônico" do Draconato): de cada bloco que não é sub-raça/variante, vale o texto a partir do
+    // primeiro parágrafo que começa com "**Nome.**".
+    const titulosSub = new Set([...Object.keys(def.subs ?? {}), ...Object.values(def.variantes ?? {}).map((v) => v.tracosDe).filter(Boolean)]);
+    const principais = [
+      ...tracos(blocos[0]),
+      ...blocos.slice(1).filter((b) => !titulosSub.has(b.split("\n")[0].trim())).flatMap((b) => {
+        const m = b.match(/\n\*\*[^*\n]+?\.\*\*/);
+        return m ? tracos(b.slice(m.index + 1)) : [];
+      }),
+    ].filter((t) => !/^sub-racas?$/.test(t.id));
 
     const mk = (id, nomeSub, d, texto, extra = {}) => ({
       id, nome: nomeSub, pacote: "phb",

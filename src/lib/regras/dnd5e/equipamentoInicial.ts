@@ -143,3 +143,61 @@ export function equipamentoPendente(classeId: string, opcaoPorGrupo: Record<numb
 
 /** Ouro que a bolsa do antecedente traz ("uma algibeira contendo 15 po"). */
 export const ouroDoAntecedente = (equipamento?: string): number => Number(/(\d+)\s*po\b/i.exec(equipamento ?? "")?.[1] ?? 0);
+
+// ---------- equipamento do antecedente ----------
+export type ItemDoAntecedente = { nome: string; qtd: number; /** id do catálogo, quando o livro tem o item */ ref?: string; descricao?: string };
+
+const semAcentoMin = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+/** Frases do texto do livro que o catálogo de equipamento nomeia de outro jeito. */
+const SINONIMOS: [RegExp, string][] = [
+  [/roupas? finas?|trajes? finos?/, "roupas-finas"], [/roupas? (de )?viajante|trajes? de viajante/, "roupas-de-viajante"],
+  [/roupas? comuns?|trajes? comuns?|roupas? escuras/, "roupas-comuns"], [/^traje$|^um traje$/, "roupas-de-entretenimento"],
+  [/vidro de tinta/, "tinta-frasco-de-30ml"], [/malagueta|clava/, "clava"], [/corda de seda/, "corda-de-seda-15-metros"],
+  [/cobertor/, "cobertor-de-inverno"], [/kit de herbalismo/, "kit-de-herbalismo"], [/kit de disfarce/, "kit-de-disfarce"],
+  [/conjunto de dados/, "conjunto-de-dados"], [/baralho/, "baralho-de-cartas"],
+];
+
+/** Divide por vírgulas e "e" fora de parênteses. */
+function partesFora(texto: string): string[] {
+  const out: string[] = [];
+  let nivel = 0, atual = "";
+  for (const ch of texto) {
+    if (ch === "(") nivel++;
+    if (ch === ")") nivel = Math.max(0, nivel - 1);
+    if (ch === "," && nivel === 0) { out.push(atual); atual = ""; } else atual += ch;
+  }
+  out.push(atual);
+  return out.flatMap((p, i, a) => (i === a.length - 1 ? p.split(/\s+e\s+(?=(?:um|uma|\d|5))/i) : [p])).map((p) => p.trim()).filter(Boolean);
+}
+
+/**
+ * Itens do equipamento do antecedente ("Um pé de cabra, um conjunto de roupas escuras..."), como o livro escreve.
+ * A bolsa de moedas fica de fora (`ouroDoAntecedente`). `escolhidos` são as ferramentas/instrumentos que o jogador já escolheu
+ * no antecedente (entram no lugar de "ferramentas de artesão (à sua escolha)").
+ */
+export function itensDoAntecedente(texto: string | undefined, cat: Catalogo, escolhidos: string[] = []): ItemDoAntecedente[] {
+  if (!texto) return [];
+  const itens = cat.equipamento();
+  const out: ItemDoAntecedente[] = [];
+  const sobra = [...escolhidos];
+  for (const bruto of partesFora(texto.replace(/\.$/, ""))) {
+    if (/^(uma? )?algibeira|^\d+\s*po\b|^e?\s*\d+\s*po\b/i.test(bruto)) continue;
+    const obs = bruto.match(/\(([^)]*)\)/)?.[1];
+    const limpo = bruto.replace(/\([^)]*\)/g, "").replace(/\s+/g, " ").trim();
+    const qtd = Number(/^(\d+)\s/.exec(limpo)?.[1] ?? 1) || 1;
+    const nome = limpo.replace(/^(\d+|uma?|dois|duas)\s+/i, "").replace(/^(conjunto|par|estojo) (de )?/i, (m) => (/roupas|trajes/i.test(limpo) ? "" : m));
+    const chave = semAcentoMin(limpo);
+    if (/ferramentas de artesao|instrumento musical/.test(chave) && sobra.length) {
+      const esc = sobra.shift()!;
+      const ref = itens.find((i) => semAcentoMin(i.nome) === semAcentoMin(esc))?.id;
+      out.push({ nome: esc, qtd: 1, ...(ref ? { ref } : {}) });
+      continue;
+    }
+    const sin = SINONIMOS.find(([re]) => re.test(chave))?.[1];
+    const direto = itens.find((i) => i.id === sin) ?? itens.find((i) => semAcentoMin(i.nome) === semAcentoMin(nome));
+    const ref = direto?.id;
+    const nomeFinal = direto ? direto.nome : nome.charAt(0).toUpperCase() + nome.slice(1);
+    out.push({ nome: nomeFinal, qtd, ...(ref ? { ref } : {}), ...(obs ? { descricao: obs.charAt(0).toUpperCase() + obs.slice(1) } : {}) });
+  }
+  return out;
+}

@@ -88,9 +88,25 @@ export type Jogada =
   | { tipo: "salvaguarda"; atributo: Atributo }
   | { tipo: "iniciativa" };
 
-export type EstadoJogo = Pick<FichaDnd, "condicoes" | "pv" | "morteFalhas" | "morteSucessos" | "exaustao" | "ativos" | "classe" | "nivel"> & { armaduraSemProf?: boolean };
+export type EstadoJogo = Pick<FichaDnd, "condicoes" | "pv" | "morteFalhas" | "morteSucessos" | "exaustao" | "ativos" | "classe" | "nivel"> & { armaduraSemProf?: boolean; /** Raça e sub-raça do build, para os lembretes raciais. */ racaBuild?: { id: string; sub?: string } };
 
-export type SugestaoModo = { modo: "v" | "d" | null; vantagens: string[]; desvantagens: string[]; falhaAutomatica?: string };
+export type SugestaoModo = { modo: "v" | "d" | null; vantagens: string[]; desvantagens: string[]; falhaAutomatica?: string; /** Vantagens condicionais (dependem do alvo/situação): só lembrete, não mudam o modo. */ lembretes?: string[] };
+
+/** Vantagens de raça que dependem do contexto (contra veneno, medo, encantamento, magia...): o jogador decide se valem. */
+export function lembretesRaciais(raca: { id: string; sub?: string } | undefined, j: Jogada): string[] {
+  if (!raca) return [];
+  const out: string[] = [];
+  const salv = j.tipo === "salvaguarda";
+  const atr = j.tipo === "iniciativa" ? undefined : j.atributo;
+  if (salv) {
+    if (raca.id === "anao" || raca.sub === "robusto") out.push(raca.id === "anao" ? "Resiliência Anã: vantagem contra veneno" : "Resiliência dos Robustos: vantagem contra veneno");
+    if (raca.id === "elfo" || raca.id === "meio-elfo") out.push("Ancestral Feérico: vantagem contra ser enfeitiçado");
+    if (raca.id === "halfling") out.push("Bravura: vantagem contra ficar amedrontado");
+    if (raca.id === "gnomo" && (atr === "int" || atr === "sab" || atr === "car")) out.push("Esperteza Gnômica: vantagem contra magia");
+  }
+  if (raca.sub === "elfo-negro-drow" && (j.tipo === "ataque" || (j.tipo === "teste" && atr === "sab"))) out.push("Sensibilidade à Luz Solar: desvantagem em ataques e testes de Percepção baseados em visão sob luz solar direta");
+  return out;
+}
 
 /** Vantagem/desvantagem da jogada pelas condições, exaustão e características ativas. Os dois lados se anulam (regra do livro). */
 export function modoDaJogada(f: EstadoJogo, j: Jogada): SugestaoModo {
@@ -120,11 +136,12 @@ export function modoDaJogada(f: EstadoJogo, j: Jogada): SugestaoModo {
   if (ativo(f, "furia") && j.tipo !== "iniciativa" && j.tipo !== "ataque" && j.atributo === "for") vant.push("Fúria");
   if (ativo(f, "ataque-descuidado") && j.tipo === "ataque" && j.corpo && j.atributo === "for") vant.push("Ataque Descuidado");
   const modo = vant.length && desv.length ? null : vant.length ? "v" : desv.length ? "d" : null;
-  return { modo, vantagens: [...new Set(vant)], desvantagens: [...new Set(desv)], ...(falha ? { falhaAutomatica: falha } : {}) };
+  const lembretes = lembretesRaciais(f.racaBuild, j);
+  return { modo, vantagens: [...new Set(vant)], desvantagens: [...new Set(desv)], ...(falha ? { falhaAutomatica: falha } : {}), ...(lembretes.length ? { lembretes } : {}) };
 }
 
 /** Anexa a sugestão ao teste (o painel de rolagem a usa como ponto de partida). */
-export const comSugestao = (t: Teste, s: SugestaoModo): Teste => (s.modo || s.vantagens.length || s.desvantagens.length || s.falhaAutomatica ? { ...t, sugestao: s } : t);
+export const comSugestao = (t: Teste, s: SugestaoModo): Teste => (s.modo || s.vantagens.length || s.desvantagens.length || s.falhaAutomatica || s.lembretes?.length ? { ...t, sugestao: s } : t);
 
 /** Como atacam VOCÊ: lista de efeitos que o mestre/atacante deve considerar. */
 export function ataquesContraVoce(f: EstadoJogo): string[] {

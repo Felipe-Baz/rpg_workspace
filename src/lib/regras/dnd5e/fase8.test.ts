@@ -40,7 +40,7 @@ test("a linha sinaliza o que o mestre precisa conferir", () => {
   assert.ok(ajustada.conferir.some((c) => /Ajuste fora do livro em ca: \+2 \(Regra da casa\)/.test(c)));
   const pendente = linha(comBuild("Dana", "guerreiro", 1, { build: { classes: [{ id: "guerreiro", nivel: 1, escolhas: { pericias: [] } }], atributosBase: { for: 10, des: 10, con: 10, int: 10, sab: 10, car: 10 } } }));
   assert.ok(pendente.conferir.some((c) => /perícia/.test(c)));
-  const limpa = linha(comBuild("Eva", "guerreiro", 1, { build: { classes: [{ id: "guerreiro", nivel: 1, escolhas: { pericias: ["atletismo", "percepcao"] } }], atributosBase: { for: 10, des: 10, con: 10, int: 10, sab: 10, car: 10 } } }));
+  const limpa = linha(comBuild("Eva", "guerreiro", 1, { build: { classes: [{ id: "guerreiro", nivel: 1, escolhas: { pericias: ["atletismo", "percepcao"], "estilo-de-luta": ["defesa"] } }], atributosBase: { for: 10, des: 10, con: 10, int: 10, sab: 10, car: 10 } } }));
   assert.deepEqual(limpa.conferir, []);
 });
 

@@ -11,14 +11,17 @@ import type { Catalogo } from "@/lib/regras/dnd5e/catalogo";
 import { derivar, validar } from "@/lib/regras/dnd5e/derivar";
 import { fichaEfetiva } from "@/lib/regras/dnd5e/efetiva";
 import { carregarMagias, magiaParaFicha, type MagiaCat } from "@/lib/regras/dnd5e/magias";
-import { CUSTO_COMPRA, DISTRIBUICAO_PADRAO, ORCAMENTO_COMPRA, RIQUEZA_INICIAL, custoCompra, pvMedioDoDado, usaCadaValorUmaVez } from "@/lib/regras/dnd5e/progressao";
-import { EQUIPAMENTO_INICIAL, equipamentoPendente, itensDaOpcao, itensDoSeletor, chaveEscolha, ouroDoAntecedente } from "@/lib/regras/dnd5e/equipamentoInicial";
+import { CUSTO_COMPRA, DISTRIBUICAO_PADRAO, ORCAMENTO_COMPRA, RIQUEZA_INICIAL, custoCompra, pvMedioDoDado, usaCadaValorUmaVez, xpParaNivel } from "@/lib/regras/dnd5e/progressao";
+import { EQUIPAMENTO_INICIAL, equipamentoPendente, itensDaOpcao, itensDoSeletor, chaveEscolha, ouroDoAntecedente, itensDoAntecedente } from "@/lib/regras/dnd5e/equipamentoInicial";
 import { emOuro, pagar, totalEmCobre } from "@/lib/regras/dnd5e/equipamento";
 import { EscolhaCampos } from "./ConstrucaoPersonagem";
 import { Moldura } from "./AssistenteNivel";
 import TextoLivro from "./TextoLivro";
 import CatalogoEquipamento, { itensParaAdicionar } from "./CatalogoEquipamento";
 import CompendioMagias from "./CompendioMagias";
+import { variacoesDoAntecedente, variacaoEscolhida } from "@/lib/regras/dnd5e/variacoesAntecedente";
+import { escolhasDaClasse, semRepeticao } from "@/lib/regras/dnd5e/escolhasClasse";
+import { aplicarMagiasConcedidas, magiasConcedidas } from "@/lib/regras/dnd5e/magiasConcedidas";
 import { LISTA_EXPANDIDA } from "@/lib/regras/dnd5e/listaExpandida";
 
 const campo = "rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
@@ -61,6 +64,15 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
   const [classeId, setClasseId] = useState("");
   const [subclasse, setSubclasse] = useState<string | undefined>(undefined);
   const [periciasClasse, setPericiasClasse] = useState<string[]>([]);
+  // Estilo de Luta, Especialização, Inimigo Favorito, instrumentos etc. (ver `escolhasClasse.ts`)
+  // nível em que o personagem começa: o assistente cria o 1º nível e o XP libera o resto pelo assistente de subida
+  const [nivelInicial, setNivelInicial] = useState(1);
+  // bugiganga rolada na tabela do livro (opcional)
+  const [bugiganga, setBugiganga] = useState("");
+  const rolarBugiganga = () => { void import("../../data/dnd5e/phb/bugigangas.json").then((m) => { const l = (m.default ?? m) as unknown as string[]; setBugiganga(l[Math.floor(Math.random() * l.length)] ?? ""); }); };
+  const [escClasse, setEscClasse] = useState<Record<string, string[]>>({});
+  // personalidade do antecedente: 2 traços, 1 ideal, 1 vínculo, 1 defeito (escolhidos ou rolados nas tabelas do livro)
+  const [pers, setPers] = useState<{ tracos: string[]; ideal: string; vinculo: string; defeito: string }>({ tracos: [], ideal: "", vinculo: "", defeito: "" });
   const [antecedente, setAntecedente] = useState<Build["antecedente"]>(undefined);
   const [metodo, setMetodo] = useState<Metodo>("padrao");
   const [valores, setValores] = useState<Record<Atributo, number>>({ for: 15, des: 14, con: 13, int: 12, sab: 10, car: 8 });
@@ -92,10 +104,10 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
   const dadoVida = classeCat?.dadoVida ?? 8;
   const buildBase: Build = useMemo(() => ({
     raca, antecedente,
-    classes: classeId ? [{ id: classeId, nivel: 1, ...(subclasse ? { subclasse } : {}), escolhas: { pericias: periciasClasse } }] : [],
+    classes: classeId ? [{ id: classeId, nivel: 1, ...(subclasse ? { subclasse } : {}), escolhas: { ...escClasse, pericias: periciasClasse } }] : [],
     atributosBase: valores, metodoAtributos: metodo,
     ...(modoVida === "media" ? { pvNivel1: pvMedioDoDado(cat.classe(classeId)?.dadoVida ?? 8) } : modoVida === "rolar" && dadoVidaRolado !== null ? { pvNivel1: dadoVidaRolado } : {}),
-  }), [raca, antecedente, classeId, subclasse, periciasClasse, valores, metodo, modoVida, dadoVidaRolado, cat]);
+  }), [raca, antecedente, classeId, subclasse, periciasClasse, escClasse, valores, metodo, modoVida, dadoVidaRolado, cat]);
 
   // perícias que raça e antecedente já dão (a classe não deve repeti-las) e as que se repetem entre as fontes: o livro
   // manda trocar a repetida por outra à escolha
@@ -108,6 +120,10 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
   const build: Build = useMemo(() => ({ ...buildBase, ...(substitutasOk.length ? { periciasExtras: substitutasOk } : {}) }), [buildBase, substitutasOk]);
   const tentativa: FichaDnd = useMemo(() => ({ ...ficha, build }), [ficha, build]);
   const calc = useMemo(() => derivar(tentativa, cat, opcoes), [tentativa, cat, opcoes]);
+
+  const defsClasse = useMemo(() => (classeId ? escolhasDaClasse(classeId, 1, subclasse, true) : []), [classeId, subclasse]);
+  const proficientes = Object.keys(semExtras.pericias);
+  const pendClasse = defsClasse.reduce((n, d) => n + Math.max(0, d.qtd - (escClasse[d.id] ?? []).length), 0);
 
   // subclasse já no 1º nível (bruxo: Patrono; clérigo: Domínio; feiticeiro: Origem)
   const subclasses = classeCat?.subclasses ?? [];
@@ -157,7 +173,7 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
   const escolhasPendentes = (calc.fontes.flatMap((f) => f.pendentes).length) + Math.max(0, (classeCat?.pericias?.qtd ?? 0) - periciasClasse.length) + (repetidas - substitutasOk.length);
   const podeAvancar = {
     Raça: !!raca && (!racaCat?.sub || !!raca.sub),
-    Classe: !!classeCat && periciasClasse.length === (classeCat.pericias?.qtd ?? 0) && (!subclasseNo1 || !!subclasse),
+    Classe: !!classeCat && periciasClasse.length === (classeCat.pericias?.qtd ?? 0) && (!subclasseNo1 || !!subclasse) && pendClasse === 0,
     Antecedente: !!antecedente && substitutasOk.length === repetidas,
     Atributos: atributosOk,
     Vida: modoVida !== "rolar" || dadoVidaRolado !== null,
@@ -197,19 +213,28 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
     const ef = fichaEfetiva(tentativa, calc, cat);
     const comClasse = ef.classe ? definirClasse(ef, ef.classe) : ef;
     const daClasse = modoEquip === "classe";
-    const itensNovos = daClasse ? itensDaClasse() : equiparInicial(compras.flatMap((c) => c.itens), cat);
+    // equipamento do antecedente como itens (só no modo "equipamento da classe"; na compra com riqueza inicial não vem nada)
+    const doAntecedente: Item[] = daClasse ? itensDoAntecedente(antCat?.equipamento, cat, Object.values(antecedente?.escolhas ?? {}).flat()).flatMap((x) => {
+      const ref = x.ref ? cat.item(x.ref) : undefined;
+      return ref ? itensParaAdicionar(ref, cat).map((i) => ({ ...i, quantidade: i.quantidade * x.qtd })) : [{ id: uid(), nome: x.nome, quantidade: x.qtd, peso: 0, equipado: false, descricao: x.descricao ?? `Do antecedente ${antCat?.nome ?? ""}` }];
+    }) : [];
+    const doRolagem: Item[] = bugiganga ? [{ id: uid(), nome: "Bugiganga", quantidade: 1, peso: 0, equipado: false, descricao: bugiganga }] : [];
+    const itensNovos = [...(daClasse ? [...itensDaClasse(), ...doAntecedente] : equiparInicial(compras.flatMap((c) => c.itens), cat)), ...doRolagem];
     const moedas = daClasse
       ? { ...ficha.moedas, po: ficha.moedas.po + ouroDoAntecedente(antCat?.equipamento) }
       : { ...ficha.moedas, pc: ficha.moedas.pc + moedasCompra.pc, pp: ficha.moedas.pp + moedasCompra.pp, po: ficha.moedas.po + moedasCompra.po };
-    onSalvar({
+    const nova: FichaDnd = {
       ...tentativa, nome: nome || ficha.nome,
       atrConjuracao: comClasse.atrConjuracao, espacos: comClasse.espacos,
       pv: calc.pvMax.total, pvTemp: 0, morteSucessos: 0, morteFalhas: 0, dadosVidaUsados: 0, descansosCurtos: 0,
-      xp: 0, recursos: {}, ativos: [], condicoes: [], exaustao: 0,
+      xp: nivelInicial > 1 ? xpParaNivel(nivelInicial) : 0, recursos: {}, ativos: [], condicoes: [], exaustao: 0,
       itens: itensNovos, moedas,
       magias: [...truquesEsc, ...magiasEsc].map((m, i) => magiaParaFicha(m, uid(), m.nivel === 0 || i - truquesEsc.length < (lim?.magias ?? 0))),
-      equipamento: daClasse && antCat?.equipamento ? `Equipamento do antecedente (${antCat.nome}): ${antCat.equipamento}` : "",
-    });
+      personalidade: pers.tracos.filter(Boolean).join("\n"), ideais: pers.ideal, vinculos: pers.vinculo, defeitos: pers.defeito,
+      equipamento: "",
+    };
+    // magias que raça, domínio e círculo dão de graça (sempre preparadas, fora dos limites)
+    onSalvar(aplicarMagiasConcedidas(nova, magiasConcedidas(build, calc.fontes), magias, uid));
     onFechar();
   };
 
@@ -256,7 +281,7 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
         {atual === "Classe" && (
           <section className={secao}>
             <label className={rotulo}>Classe
-              <select value={classeId} onChange={(e) => { setClasseId(e.target.value); setPericiasClasse([]); setSubclasse(undefined); setEscolhidas([]); }} className={`${campo} mt-0.5 w-full normal-case tracking-normal text-foreground`}>
+              <select value={classeId} onChange={(e) => { setClasseId(e.target.value); setPericiasClasse([]); setEscClasse({}); setSubclasse(undefined); setEscolhidas([]); }} className={`${campo} mt-0.5 w-full normal-case tracking-normal text-foreground`}>
                 <option value="">Escolha…</option>
                 {cat.classes().map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
               </select>
@@ -273,7 +298,7 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
                 {subclasseNo1 && (
                   <div className="space-y-1.5">
                     <label className={rotulo}>{classeCat.subclasseRotulo ?? "Subclasse"} (1º nível)
-                      <select value={subclasse ?? ""} onChange={(e) => setSubclasse(e.target.value || undefined)} className={`${campo} mt-0.5 w-full normal-case tracking-normal text-foreground ${subclasse ? "" : "!border-gold"}`} aria-required>
+                      <select value={subclasse ?? ""} onChange={(e) => { setSubclasse(e.target.value || undefined); setEscClasse({}); }} className={`${campo} mt-0.5 w-full normal-case tracking-normal text-foreground ${subclasse ? "" : "!border-gold"}`} aria-required>
                         <option value="">Escolha (obrigatória)…</option>
                         {subclasses.map((x) => <option key={x.id} value={x.id}>{x.nome}</option>)}
                       </select>
@@ -285,6 +310,15 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
                     )}
                   </div>
                 )}
+                {defsClasse.map((d) => (
+                  <div key={d.id} className="space-y-1">
+                    <EscolhaCampos
+                      def={semRepeticao(d.tipo === "especializacao" ? { ...d, opcoes: proficientes } : d, escClasse, defsClasse)} valores={escClasse[d.id] ?? []} cat={cat} opcoesMesa={opcoes} magias={magias}
+                      onChange={(v) => setEscClasse((x) => ({ ...x, [d.id]: v }))}
+                    />
+                    {d.tipo === "opcao" && (escClasse[d.id] ?? []).map((v) => { const o = (d.opcoes ?? []).find((x) => typeof x !== "string" && x.id === v); return o && typeof o !== "string" && o.descricao ? <p key={v} className="text-[11px] text-muted">{o.descricao}</p> : null; })}
+                  </div>
+                ))}
               </div>
             )}
           </section>
@@ -293,7 +327,7 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
         {atual === "Antecedente" && (
           <section className={secao}>
             <label className={rotulo}>Antecedente
-              <select value={antecedente?.id ?? ""} onChange={(e) => { setAntecedente(e.target.value ? { id: e.target.value } : undefined); setSubstitutas([]); }} className={`${campo} mt-0.5 w-full normal-case tracking-normal text-foreground`}>
+              <select value={antecedente?.id ?? ""} onChange={(e) => { setAntecedente(e.target.value ? { id: e.target.value } : undefined); setSubstitutas([]); setPers({ tracos: [], ideal: "", vinculo: "", defeito: "" }); }} className={`${campo} mt-0.5 w-full normal-case tracking-normal text-foreground`}>
                 <option value="">Escolha…</option>
                 {cat.antecedentes().map((a) => <option key={a.id} value={a.id}>{a.nome}</option>)}
               </select>
@@ -309,8 +343,37 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
                     <EscolhaCampos def={{ id: "pericia-substituta", rotulo: "Perícia no lugar da repetida", tipo: "pericia", qtd: repetidas, opcoes: PERICIAS.map((p) => p.id as string).filter((id) => !jaTem.has(id) || substitutasOk.includes(id)) }} valores={substitutasOk} cat={cat} opcoesMesa={opcoes} magias={magias} onChange={setSubstitutas} />
                   </div>
                 )}
-                {(antCat.escolhas ?? []).map((d) => <EscolhaCampos key={d.id} def={d} valores={antecedente?.escolhas?.[d.id] ?? []} cat={cat} opcoesMesa={opcoes} magias={magias} onChange={(v) => mudaEscolhasAnt(d.id, v)} />)}
+                {variacoesDoAntecedente(antCat.id).length > 0 && (
+                  <label className={rotulo}>Variação do livro (opcional)
+                    <select value={antecedente?.variacao ?? ""} onChange={(e) => setAntecedente((a) => (a ? { ...a, variacao: e.target.value || undefined, escolhas: undefined } : a))} className={`${campo} mt-0.5 w-full normal-case tracking-normal text-foreground`}>
+                      <option value="">{antCat.nome} (padrão)</option>
+                      {variacoesDoAntecedente(antCat.id).map((v) => <option key={v.id} value={v.id}>{v.nome}</option>)}
+                    </select>
+                    {variacaoEscolhida(antCat.id, antecedente?.variacao) && <span className="mt-1 block text-xs font-normal normal-case tracking-normal text-muted">{variacaoEscolhida(antCat.id, antecedente?.variacao)!.descricao}</span>}
+                  </label>
+                )}
+                {[...(antCat.escolhas ?? []).filter((d) => !variacaoEscolhida(antCat.id, antecedente?.variacao)?.substitui?.includes(d.id)), ...(variacaoEscolhida(antCat.id, antecedente?.variacao)?.escolhas ?? [])].map((d) => <EscolhaCampos key={d.id} def={d} valores={antecedente?.escolhas?.[d.id] ?? []} cat={cat} opcoesMesa={opcoes} magias={magias} onChange={(v) => mudaEscolhasAnt(d.id, v)} />)}
                 {antCat.caracteristica && <div className="rounded-lg border border-border bg-background/50 px-2.5 py-1.5 text-xs"><details><summary className="cursor-pointer font-semibold">{antCat.caracteristica.nome}</summary><TextoLivro texto={antCat.caracteristica.texto} className="mt-1" /></details></div>}
+                {antCat.personalidade && (
+                  <div className="space-y-2 rounded-lg border border-border bg-background/50 p-2.5">
+                    <p className="text-xs font-semibold text-gold">Personalidade (tabelas do livro; opcional, dá para escrever depois)</p>
+                    {([
+                      { chave: "traco1", rot: "Traço de personalidade 1", lista: antCat.personalidade.tracos, valor: pers.tracos[0] ?? "", set: (v: string) => setPers((p) => ({ ...p, tracos: [v, p.tracos[1] ?? ""] })) },
+                      { chave: "traco2", rot: "Traço de personalidade 2", lista: antCat.personalidade.tracos, valor: pers.tracos[1] ?? "", set: (v: string) => setPers((p) => ({ ...p, tracos: [p.tracos[0] ?? "", v] })) },
+                      { chave: "ideal", rot: "Ideal", lista: antCat.personalidade.ideais, valor: pers.ideal, set: (v: string) => setPers((p) => ({ ...p, ideal: v })) },
+                      { chave: "vinculo", rot: "Vínculo", lista: antCat.personalidade.vinculos, valor: pers.vinculo, set: (v: string) => setPers((p) => ({ ...p, vinculo: v })) },
+                      { chave: "defeito", rot: "Defeito", lista: antCat.personalidade.defeitos, valor: pers.defeito, set: (v: string) => setPers((p) => ({ ...p, defeito: v })) },
+                    ]).map((c) => (
+                      <div key={c.chave} className="flex flex-wrap items-center gap-2">
+                        <select value={c.valor} onChange={(e) => c.set(e.target.value)} className={`${campo} min-w-0 flex-1 normal-case tracking-normal text-foreground`} aria-label={c.rot}>
+                          <option value="">{c.rot}…</option>
+                          {c.lista.map((t, k) => <option key={k} value={t}>{k + 1}. {t.length > 90 ? `${t.slice(0, 90)}…` : t}</option>)}
+                        </select>
+                        <button type="button" onClick={() => c.set(c.lista[Math.floor(Math.random() * c.lista.length)] ?? "")} className="rounded-md border border-gold/40 bg-gold/10 px-2 py-1 text-xs font-semibold text-gold hover:bg-gold/20">Rolar d{c.lista.length}</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {antCat.equipamento && <p className="text-xs text-muted"><strong className="text-foreground">Equipamento:</strong> {antCat.equipamento}</p>}
               </div>
             )}
@@ -415,6 +478,11 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
 
         {atual === "Equipamento" && (
           <section className={secao}>
+            <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background/50 p-2 text-xs">
+              <span className="font-semibold text-gold">Bugiganga (opcional, tabela do livro)</span>
+              <button type="button" onClick={rolarBugiganga} className="rounded-md border border-gold/40 bg-gold/10 px-2 py-1 font-semibold text-gold hover:bg-gold/20">Rolar d100</button>
+              {bugiganga && <><span className="text-muted">{bugiganga}</span><button type="button" onClick={() => setBugiganga("")} className="text-muted underline">remover</button></>}
+            </div>
             <div className="mb-3 flex flex-wrap gap-2">
               {([["classe", "Equipamento da classe"], ["compra", "Comprar com a riqueza inicial"]] as const).map(([m, r]) => (
                 <button key={m} aria-pressed={modoEquip === m} onClick={() => setModoEquip(m)} className={`rounded-full border px-3 py-1 text-xs ${modoEquip === m ? "border-gold bg-gold/20 font-semibold text-gold" : "border-border text-muted hover:text-foreground"}`}>{r}</button>
@@ -493,6 +561,12 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
 
         {atual === "Revisão" && (
           <section className={secao}>
+            <label className={rotulo}>Nível inicial do personagem
+              <select value={nivelInicial} onChange={(e) => setNivelInicial(Number(e.target.value))} className={`${campo} mt-0.5 w-full normal-case tracking-normal text-foreground`}>
+                {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n === 1 ? "1 (padrão)" : `${n} (suba pelo assistente de nível)`}</option>)}
+              </select>
+              {nivelInicial > 1 && <span className="mt-1 block text-xs font-normal normal-case tracking-normal text-muted">O personagem é criado no 1º nível com o XP do nível {nivelInicial} ({xpParaNivel(nivelInicial).toLocaleString("pt-BR")} XP). Depois use <strong>Subir de nível</strong> {nivelInicial - 1}× para escolher PV, subclasse, aumentos de atributo, magias e escolhas de cada nível, com o histórico completo.</span>}
+            </label>
             <label className={rotulo}>Nome do personagem
               <input value={nome} onChange={(e) => setNome(e.target.value)} className={`${campo} mt-0.5 w-full normal-case tracking-normal text-foreground`} />
             </label>

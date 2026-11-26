@@ -13,6 +13,8 @@ import type { ArmaCat, ArmaduraCat, Catalogo, Concessoes, EscolhaDef, EscolhaOpc
 import { opcaoAtiva, type OpcoesMesa, type Violacao } from "../sistema.ts";
 import { dnd5e } from "./sistema.ts";
 import { PACTOS, ataqueDaArmaDoPacto, conferirInvocacoes, invocacoesDaFicha, nomeDoPacto, pactoDaFicha, periciasDeInvocacoes, temArmaduraDeSombras } from "./invocacoes.ts";
+import { CONCESSOES_CLASSE, CONCESSOES_SUBCLASSE, escolhasDaClasse, especializacoesDaClasse, estilosDeLuta, temLinhagemDraconica, tracosDeEscolhas } from "./escolhasClasse.ts";
+import { variacaoEscolhida } from "./variacoesAntecedente.ts";
 import { PROF_MULTICLASSE, conferirRequisitos, textoRequisito, lerRequisito } from "./multiclasse.ts";
 
 export type TipoFonte = "raca" | "subraca" | "antecedente" | "classe" | "subclasse" | "talento";
@@ -55,9 +57,13 @@ export type FichaCalculada = {
   ferramentas: ItemComFonte[];
   idiomas: ItemComFonte[];
   resistencias: ItemComFonte[];
+  /** Visão no escuro e outros sentidos, com a fonte. */
+  sentidos: ItemComFonte[];
   fontes: FonteAtiva[];
   /** Linhas de ataque das armas equipadas (e desarmado), calculadas do inventário. */
   ataques: Ataque[];
+  /** Ataques por ação Atacar (Ataque Extra): o maior entre as classes, que não acumulam. */
+  ataquesPorAcao: number;
   /** Pesos em kg e capacidade pela Força. */
   carga: { peso: number; capacidade: number };
   /** Itens sintonizados (máximo 3). */
@@ -70,10 +76,32 @@ export type FichaCalculada = {
   ajustados: string[];
 };
 
+/** Dado das Artes Marciais pelo nível de monge (1d4, 1d6, 1d8, 1d10). */
+function dadoArtesMarciais(b: Build): string | undefined {
+  const n = b.classes.filter((c) => c.id === "monge").reduce((s, c) => s + c.nivel, 0);
+  return n ? (n >= 17 ? "1d10" : n >= 11 ? "1d8" : n >= 5 ? "1d6" : "1d4") : undefined;
+}
+/** Ataque Furtivo: metade do nível de ladino (para cima) em d6, uma vez por turno com vantagem ou aliado adjacente ao alvo. */
+function furtivoDe(b: Build): string | undefined {
+  const n = b.classes.filter((c) => c.id === "ladino").reduce((s, c) => s + c.nivel, 0);
+  return n ? `Ataque Furtivo: +${Math.ceil(n / 2)}d6 no dano (1×/turno, com vantagem ou aliado a 1,5 m do alvo)` : undefined;
+}
+/** Ataque Extra: guerreiro 5º/11º/20º (2/3/4); bárbaro, monge, paladino e patrulheiro 5º; Colégio da Bravura 6º. Não acumula entre classes. */
+export function ataquesPorAcaoDe(b: Build): number {
+  let n = 1;
+  for (const c of b.classes) {
+    if (c.id === "guerreiro") n = Math.max(n, c.nivel >= 20 ? 4 : c.nivel >= 11 ? 3 : c.nivel >= 5 ? 2 : 1);
+    else if (["barbaro", "monge", "paladino", "patrulheiro"].includes(c.id) && c.nivel >= 5) n = Math.max(n, 2);
+    else if (c.id === "bardo" && c.subclasse === "colegio-da-bravura" && c.nivel >= 6) n = Math.max(n, 2);
+  }
+  return n;
+}
+
 const alvoAtr = (a: Atributo) => `atr.${a}`;
-const vazio = (): Required<Concessoes> => ({ pericias: [], idiomas: [], armas: [], armaduras: [], ferramentas: [], resistencias: [] });
+const vazio = (): Required<Concessoes> => ({ pericias: [], idiomas: [], armas: [], armaduras: [], ferramentas: [], resistencias: [], sentidos: [] });
 const juntar = (a: Required<Concessoes>, b: Concessoes | undefined) => {
   for (const k of Object.keys(a) as (keyof Concessoes)[]) a[k].push(...(b?.[k] ?? []));
+  return a;
 };
 const opcaoId = (o: string | EscolhaOpcao) => (typeof o === "string" ? o : o.id);
 
@@ -135,8 +163,12 @@ export function fontesDoBuild(b: Build, cat: Catalogo, opcoes?: OpcoesMesa): Fon
   }
   const ant = b.antecedente && cat.antecedente(b.antecedente.id);
   if (ant) {
-    const f = fonteDe("antecedente", ant, b.antecedente?.escolhas);
-    if (ant.caracteristica) f.tracos = [{ id: "caracteristica", nome: ant.caracteristica.nome, texto: ant.caracteristica.texto }, ...f.tracos];
+    const vr = variacaoEscolhida(ant.id, b.antecedente?.variacao);
+    const antV = vr ? { ...ant, escolhas: [...(ant.escolhas ?? []).filter((e) => !vr.substitui?.includes(e.id)), ...(vr.escolhas ?? [])] } : ant;
+    const f = fonteDe("antecedente", antV, b.antecedente?.escolhas);
+    const carac = vr?.caracteristica ?? ant.caracteristica;
+    if (carac) f.tracos = [{ id: "caracteristica", nome: carac.nome, texto: carac.texto }, ...f.tracos];
+    if (vr) f.tracos = [{ id: `variacao-${vr.id}`, nome: `Variação: ${vr.nome}`, texto: vr.descricao }, ...f.tracos];
     fontes.push(f);
   }
   b.classes.forEach((c, i) => {
@@ -154,11 +186,16 @@ export function fontesDoBuild(b: Build, cat: Catalogo, opcoes?: OpcoesMesa): Fon
         if (pm.pericia) concede.pericias.push(...(c.escolhas?.pericias ?? []).slice(0, 1));
       }
     }
-    const tracos: Traco[] = (cl.caracteristicas ?? []).filter((x) => (x.nivel ?? 1) <= c.nivel).map((x) => ({ id: x.id, nome: x.nome, texto: x.texto }));
-    fontes.push({ id: cl.id, nome: b.classes.length > 1 ? `${cl.nome} ${c.nivel}${i > 0 ? " (multiclasse)" : ""}` : `${cl.nome} ${c.nivel}`, tipo: "classe", efeitos: [], concede, tracos, pendentes: [], talentos: [], truques: [] });
+    if (i === 0) juntar(concede, CONCESSOES_CLASSE[c.id]);
+    // escolhas do livro (Estilo de Luta, Especialização, Inimigo Favorito, instrumentos...) já liberadas neste nível
+    const defs = escolhasDaClasse(c.id, c.nivel, c.subclasse, i === 0);
+    const esc = aplicarEscolhas(defs, c.escolhas, cl.nome);
+    juntar(concede, esc.concede);
+    const tracos: Traco[] = [...(cl.caracteristicas ?? []).filter((x) => (x.nivel ?? 1) <= c.nivel).map((x) => ({ id: x.id, nome: x.nome, texto: x.texto })), ...tracosDeEscolhas(defs, c.escolhas)];
+    fontes.push({ id: cl.id, nome: b.classes.length > 1 ? `${cl.nome} ${c.nivel}${i > 0 ? " (multiclasse)" : ""}` : `${cl.nome} ${c.nivel}`, tipo: "classe", efeitos: esc.efeitos, concede, tracos, pendentes: esc.pendentes, talentos: esc.talentos, truques: esc.truques });
     const sub = c.subclasse ? cl.subclasses?.find((s) => s.id === c.subclasse) : undefined;
     if (sub && c.nivel >= (cl.subclasseNivel ?? 1)) {
-      fontes.push({ id: sub.id, nome: sub.nome, tipo: "subclasse", efeitos: [], concede: vazio(), tracos: caracteristicasSubAteNivel(sub, c.nivel, cl.subclasseNivel ?? 1), pendentes: [], talentos: [], truques: [] });
+      fontes.push({ id: sub.id, nome: sub.nome, tipo: "subclasse", efeitos: temLinhagemDraconica([c]) ? [{ alvo: "pv.porNivel", op: "somar", valor: 1, origem: "Resiliência Dracônica" }] : [], concede: juntar(vazio(), CONCESSOES_SUBCLASSE[sub.id]), tracos: caracteristicasSubAteNivel(sub, c.nivel, cl.subclasseNivel ?? 1), pendentes: [], talentos: [], truques: [] });
     }
   });
   // Invocações Místicas e Dádiva do Pacto do bruxo: traços de consulta e as perícias que concedem
@@ -277,7 +314,7 @@ export function derivar(ficha: FichaDnd, cat: Catalogo, opcoes?: OpcoesMesa): Fi
   const acumular = (lista: ItemComFonte[], itens: string[], fonte: string) => {
     for (const nome of itens) if (!lista.some((x) => x.nome.toLowerCase() === nome.toLowerCase())) lista.push({ nome, fonte });
   };
-  const armas: ItemComFonte[] = [], armaduras: ItemComFonte[] = [], ferramentas: ItemComFonte[] = [], idiomas: ItemComFonte[] = [], resistencias: ItemComFonte[] = [];
+  const armas: ItemComFonte[] = [], armaduras: ItemComFonte[] = [], ferramentas: ItemComFonte[] = [], idiomas: ItemComFonte[] = [], resistencias: ItemComFonte[] = [], sentidos: ItemComFonte[] = [];
   for (const f of fontes) {
     for (const id of f.concede.pericias) {
       const p = (pericias[id] ??= { nivel: 0, fontes: [] });
@@ -289,13 +326,14 @@ export function derivar(ficha: FichaDnd, cat: Catalogo, opcoes?: OpcoesMesa): Fi
     acumular(ferramentas, f.concede.ferramentas, f.nome);
     acumular(idiomas, f.concede.idiomas, f.nome);
     acumular(resistencias, f.concede.resistencias, f.nome);
+    acumular(sentidos, f.concede.sentidos, f.nome);
   }
   for (const id of b?.periciasExtras ?? []) {
     const p = (pericias[id] ??= { nivel: 0, fontes: [] });
     p.nivel = 1;
     p.fontes.push("Manual");
   }
-  for (const id of b?.especialistas ?? []) if (pericias[id]) { pericias[id].nivel = 2; pericias[id].fontes.push("Especialização"); }
+  for (const id of [...(b?.especialistas ?? []), ...(b?.classes ?? []).flatMap((c) => especializacoesDaClasse(c))]) if (pericias[id]) { pericias[id].nivel = 2; pericias[id].fontes.push("Especialização"); }
 
   // proficiências de armas, armaduras e ferramentas da primeira classe (só ela dá as iniciais)
   const cl0 = b && cat.classe(b.classes[0]?.id ?? "");
@@ -331,18 +369,20 @@ export function derivar(ficha: FichaDnd, cat: Catalogo, opcoes?: OpcoesMesa): Fi
   let ca: Valor;
   if (b) {
     const pc = partesDeCa({
-      mods, classeIds: b.classes.map((c) => c.id), armaduraArcana: (ficha.ativos ?? []).includes("armadura-arcana") || temArmaduraDeSombras(ficha),
-      rotuloArmaduraArcana: !(ficha.ativos ?? []).includes("armadura-arcana") && temArmaduraDeSombras(ficha) ? "Armadura de Sombras" : undefined,
+      mods, classeIds: b.classes.map((c) => c.id), armaduraArcana: (ficha.ativos ?? []).includes("armadura-arcana") || temArmaduraDeSombras(ficha) || temLinhagemDraconica(b.classes),
+      rotuloArmaduraArcana: !(ficha.ativos ?? []).includes("armadura-arcana") && temArmaduraDeSombras(ficha) ? "Armadura de Sombras" : !(ficha.ativos ?? []).includes("armadura-arcana") && temLinhagemDraconica(b.classes) ? "Resiliência Dracônica" : undefined,
       armadura: armadura ? { cat: armadura.c, bonusMagico: armadura.i.bonusMagico ?? 0, nome: armadura.i.nome || armadura.c.nome } : undefined,
       escudo: escudo ? { cat: escudo.c, bonusMagico: escudo.i.bonusMagico ?? 0 } : undefined,
     });
+    // Estilo de Luta: Defesa (+1 de CA enquanto usa armadura)
+    if (armadura && estilosDeLuta(b.classes).includes("defesa")) pc.extras.push({ rotulo: "Estilo de Luta: Defesa", valor: 1 });
     ca = resolver("ca", pc.base, [...efeitos, ...bonusCaItens, ...pc.extras.map((p) => ({ alvo: "ca", op: "somar" as const, valor: p.valor, origem: p.rotulo }))]);
   } else ca = fixo(ficha.ca, "Ficha");
 
   const deslocamento = b ? resolver("deslocamento", { rotulo: "Base", valor: 9 }, [...efeitos, ...efeitosEquip]) : fixo(parseFloat(ficha.deslocamento.replace(",", ".")) || 9, "Ficha");
   const pvMax = b ? calcularPv(b, cat, nivel, mods.con, efeitos) : fixo(ficha.pvMax, "Ficha");
 
-  const ataques = b ? ataquesDeArmas({ itens: ficha.itens, arma: (id) => { const x = cat.item(id); return x?.tipo === "arma" ? (x as ArmaCat) : undefined; }, mods, proficiencias: armas.map((x) => x.nome) }) : [];
+  const ataques = b ? ataquesDeArmas({ itens: ficha.itens, arma: (id) => { const x = cat.item(id); return x?.tipo === "arma" ? (x as ArmaCat) : undefined; }, mods, proficiencias: armas.map((x) => x.nome), estilos: estilosDeLuta(b.classes), notaCorpoACorpo: b.raca?.id === "meio-orc" ? "Ataques Selvagens: em acerto crítico corpo a corpo, role um dado de dano da arma a mais" : undefined, artesMarciais: dadoArtesMarciais(b), notaFurtivo: furtivoDe(b) }) : [];
   const armaPacto = b ? ataqueDaArmaDoPacto(ficha, cat, mods) : null;
   if (armaPacto) ataques.splice(Math.max(0, ataques.length - 1), 0, armaPacto); // antes do ataque desarmado
   const peso = pesoTotal(ficha.itens);
@@ -354,7 +394,7 @@ export function derivar(ficha: FichaDnd, cat: Catalogo, opcoes?: OpcoesMesa): Fi
   return {
     automatica, nivel, proficiencia, atributos, mods, salvaguardas, salvaguardasProf, iniciativa, ca, deslocamento, pvMax,
     dadoVida: dadoDeVidaPrincipal(b, cat) ?? (classe1 ? `d${classe1.dadoVida}` : ficha.dadoVida),
-    pericias, armas, armaduras, ferramentas, idiomas, resistencias, fontes, ataques, avisos, armaduraSemProf, sintonizados: sint, carga: { peso, capacidade },
+    pericias, armas, armaduras, ferramentas, idiomas, resistencias, sentidos, fontes, ataques, ataquesPorAcao: b ? ataquesPorAcaoDe(b) : 1, avisos, armaduraSemProf, sintonizados: sint, carga: { peso, capacidade },
     ajustados: Object.keys(b?.ajustes ?? {}),
   };
 }

@@ -228,7 +228,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   const nomesRacas = catLivro ? catLivro.racas().flatMap((r) => [r.nome, ...(r.sub ?? []).filter((s) => s.id !== `${r.id}-padrao` && s.nome !== r.nome).map((s) => s.nome)]) : [];
   const antecedenteCat = catLivro?.antecedentes().find((a) => a.nome === f.antecedente);
   const nomesAntecedentes = catLivro ? catLivro.antecedentes().map((a) => a.nome) : [];
-  const estado: EstadoJogo = { ...f, armaduraSemProf: calc?.armaduraSemProf ?? equipManual?.armaduraSemProf };
+  const estado: EstadoJogo = { ...f, armaduraSemProf: calc?.armaduraSemProf ?? equipManual?.armaduraSemProf, racaBuild: bruta.build?.raca };
   const rolar = (t: Teste, j?: Jogada) => setRolando({ t: j ? comSugestao(t, modoDaJogada(estado, j)) : t, seq: (rolando?.seq ?? 0) + 1 });
   const defsRecursos = recursosDaFicha(f, {
     racaId: bruta.build?.raca?.id, subRacaId: bruta.build?.raca?.sub, talentos: bruta.build?.talentos,
@@ -447,6 +447,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
         <section className={cartao}>
           <h2 className={titulo}><Swords size={14} /> Ataques</h2>
           {f.ataques.length === 0 && <p className="mb-3 text-sm text-muted">Nenhum ataque ainda. Adicione sua arma ou ataque natural.</p>}
+          {calc && calc.ataquesPorAcao > 1 && <p className="mb-3 text-xs font-semibold text-gold">Ataque Extra: {calc.ataquesPorAcao} ataques ao usar a ação Atacar.</p>}
           {(auto || equipManual) && !compacto && <p className="mb-3 text-xs text-muted">Armas equipadas no inventário viram linhas de ataque sozinhas, com {auto ? "proficiência, " : ""}acuidade e versátil.</p>}
           <ul className="space-y-3">
             {f.ataques.map((a) => {
@@ -940,7 +941,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
             Modo combate{compacto ? " ✓" : ""}
           </button>
           {f.status === "publicada" ? (
-            <span className="inline-flex items-center gap-1 rounded-md border border-ok/50 px-2 py-0.5 font-semibold text-ok" title="Ficha publicada: identidade, atributos, proficiências e textos de personagem estão travados (alinhamento e XP seguem livres). Vida, magias, inventário, rolagens e subir de nível continuam liberados.">
+            <span className="inline-flex items-center gap-1 rounded-md border border-ok/50 px-2 py-0.5 font-semibold text-ok" title="Ficha publicada: identidade, atributos e proficiências estão travados (alinhamento e XP seguem livres). Textos de personagem, história, vida, magias, inventário, rolagens e subir de nível continuam liberados.">
               <Lock size={12} aria-hidden /> Publicada
             </span>
           ) : (
@@ -948,7 +949,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
           )}
           {f.status !== "publicada" ? (
             <button
-              onClick={() => { if (window.confirm("Publicar a ficha? Identidade, atributos, proficiências e textos de personagem ficam travados e só o mestre pode reabrir. Vida, magias, inventário, rolagens e subir de nível continuam liberados.")) set({ status: "publicada" }); }}
+              onClick={() => { if (window.confirm("Publicar a ficha? Identidade, atributos e proficiências ficam travados e só o mestre pode reabrir. Textos de personagem, história, vida, magias, inventário, rolagens e subir de nível continuam liberados.")) set({ status: "publicada" }); }}
               className="inline-flex items-center gap-1 rounded-md border border-gold/40 bg-gold/10 px-2 py-0.5 font-semibold text-gold hover:bg-gold/20"
               title="Trava a ficha contra edições (só o mestre reabre)"
             ><Lock size={12} aria-hidden /> Publicar ficha</button>
@@ -1095,10 +1096,10 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
               {catLivro && <InvocacoesMisticas ficha={f} cat={catLivro} papel={papel === "mestre" ? "mestre" : "jogador"} travada={travada} onMudar={set} />}
               <HabilidadesUsos ficha={f} defs={defsRecursos} recursos={recursos} onMudar={set} />
               {calc && <CaracteristicasPorFonte calc={calc} />}
-              <fieldset disabled={travada} className="m-0 min-w-0 space-y-4 border-0 p-0">
+              <div className="m-0 min-w-0 space-y-4">
                 <Texto rotulo="Características, traços de raça e classe, talentos" valor={f.tracos} onChange={(v) => set({ tracos: v })} linhas={10} />
                 <Texto rotulo="Outras proficiências e idiomas" valor={f.proficienciasIdiomas} onChange={(v) => set({ proficienciasIdiomas: v })} linhas={5} />
-              </fieldset>
+              </div>
             </section>
           )}
 
@@ -1164,13 +1165,13 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
 
           {abaAtual === "personagem" && (
             <section className={`${cartao} space-y-5`}>
-              <fieldset disabled={travada} className="m-0 grid min-w-0 gap-4 border-0 p-0 sm:grid-cols-2">
+              <div className="m-0 grid min-w-0 gap-4 sm:grid-cols-2">
                 <Texto rotulo="Traços de personalidade" icone={Theater} dica="Como o personagem age e fala, seus hábitos e manias." valor={f.personalidade} onChange={(v) => set({ personalidade: v })} sugestoes={antecedenteCat?.personalidade?.tracos} />
                 <Texto rotulo="Ideais" icone={Scale} dica="Aquilo em que ele acredita e que move suas decisões." valor={f.ideais} onChange={(v) => set({ ideais: v })} sugestoes={antecedenteCat?.personalidade?.ideais} />
                 <Texto rotulo="Vínculos" icone={Link2} dica="Pessoas, lugares ou objetos a que ele é ligado." valor={f.vinculos} onChange={(v) => set({ vinculos: v })} sugestoes={antecedenteCat?.personalidade?.vinculos} />
                 <Texto rotulo="Defeitos" icone={Skull} dica="Vícios, medos e fraquezas que o colocam em apuros." valor={f.defeitos} onChange={(v) => set({ defeitos: v })} sugestoes={antecedenteCat?.personalidade?.defeitos} />
                 <div className="sm:col-span-2"><Texto rotulo="Aparência" icone={Eye} dica="Idade, altura, olhos, cabelo, marcas, trajes…" valor={f.aparencia} onChange={(v) => set({ aparencia: v })} /></div>
-              </fieldset>
+              </div>
               <Texto rotulo="Anotações" icone={NotebookPen} dica="Aliados, organizações, pistas e lembretes da campanha. Continua editável com a ficha publicada." valor={f.notas} onChange={(v) => set({ notas: v })} linhas={6} />
 
               {!travada && <div className="space-y-2 border-t border-gold/20 pt-4">
@@ -1232,7 +1233,21 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
             const nova = magiaParaFicha(m, uid(), !cheio);
             // multiclasse: a magia é conjurada pela primeira classe do personagem que a tem na lista (define o atributo de conjuração)
             const origem = classesDaFicha(f).map((c) => c.id).find((id) => ehConjuradora(id as ClasseId) && m.classes.includes(id));
-            set({ magias: [...f.magias, f.classes && f.classes.length > 1 && origem ? { ...nova, classeOrigem: origem } : nova] });
+            // Grimório do mago: copiar uma magia de livro ou pergaminho custa 50 po por círculo (e 2 h por círculo); as 2 magias
+            // que o mago ganha a cada nível entram sem custo (cancelar a pergunta de pagamento)
+            let moedas = f.moedas;
+            if (m.nivel >= 1 && m.classes.includes("mago") && classesDaFicha(f).some((c) => c.id === "mago")) {
+              const preco = 50 * m.nivel;
+              if (window.confirm(`Copiar "${m.nome}" para o grimório custa ${preco} po (50 po por círculo) e ${2 * m.nivel} h de estudo.
+
+OK = pagar agora.
+Cancelar = adicionar sem custo (magia ganha ao subir de nível).`)) {
+                const depois = pagar(f.moedas, preco * 100);
+                if (!depois) { window.alert("Moedas insuficientes para copiar a magia."); return; }
+                moedas = depois;
+              }
+            }
+            set({ moedas, magias: [...f.magias, f.classes && f.classes.length > 1 && origem ? { ...nova, classeOrigem: origem } : nova] });
           }}
           onFechar={() => setCompendio(false)}
         />

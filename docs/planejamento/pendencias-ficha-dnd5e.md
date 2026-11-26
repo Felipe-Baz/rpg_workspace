@@ -21,8 +21,8 @@
 
 ## Fase 1: catálogo de magias e compêndio
 
-- [ ] **Revisão humana da `mecanica` das magias.** A extração é por heurística (regex). Cerca de metade das 361 magias tem mecânica; as demais são em geral utilitárias, mas há casos com padrão de texto diferente (dano "extra", dano do tipo escolhido, valores fixos). Falta conferir magia por magia. Correções entram em `scripts/dnd5e/correcoes-magias.json` e o gerador reaplica. *(validação)*
-- [ ] **Valores fixos sem dado** (ex.: Cura Completa = 70 PV, 20 de dano fixo) não geram botão de rolagem. *(limitação)*
+- [X] **Revisão humana da `mecanica` das magias.** A extração é por heurística (regex). Cerca de metade das 361 magias tem mecânica; as demais são em geral utilitárias, mas há casos com padrão de texto diferente (dano "extra", dano do tipo escolhido, valores fixos). Falta conferir magia por magia. Correções entram em `scripts/dnd5e/correcoes-magias.json` e o gerador reaplica. *(validação)*
+- [ ] **Valores fixos sem dado** (ex.: Cura Completa = 70 PV, 20 de dano fixo) não geram botão de rolagem, mas devem ter opção de conjurar. *(limitação)*
 - [ ] **Magias com mais de um efeito/modo** (escolha de dano, de forma, de alvo) têm só a primeira interpretação extraída. *(limitação)*
 - [ ] **Dado de dano escalado só no primeiro tipo de dano** da magia (as demais parcelas não escalam por círculo). *(limitação)*
 - [ ] **Listas por classe de subclasses conjuradoras** (Cavaleiro Místico, Trapaceiro Arcano) usam a lista de mago, mas sem restrição de escola nem tabela de espaços própria. *(limitação)*
@@ -31,7 +31,7 @@
 
 ## Fase 2: conjuração completa
 
-- [ ] **Grimório do mago** (copiar magia custa 50 po e 2 h por círculo; opcional). *(despriorizado)*
+- [~] **Grimório do mago**: ao adicionar uma magia de 1º círculo ou mais pelo compêndio, o mago escolhe pagar 50 po por círculo (2 h por círculo, só aviso) ou adicionar sem custo (magias ganhas ao subir de nível). Não há livro separado nem limite de páginas: o "pool" de magias da ficha é o grimório. *(despriorizado)*
 - [ ] **Arcana Mística do bruxo** (uma magia de 6º a 9º círculo por descanso longo, sem espaço) e o ajuste fino dos espaços de pacto. *(despriorizado)*
 - [ ] **Subclasses conjuradoras** (Cavaleiro Místico, Trapaceiro Arcano): sem limites de magias nem tabela de espaços. *(despriorizado)*
 - [ ] **Componentes materiais com custo e foco**: não são checados ao conjurar. *(despriorizado)*
@@ -44,11 +44,11 @@
 ## Fase 3: raça, antecedente e classe
 
 - [ ] **Migração reconhece só texto de raça, antecedente e subclasse.** Outros campos livres (idiomas, ferramentas, traços) ficam como estão; escolhas da raça (ex.: o +1 do meio-elfo) ficam pendentes para o jogador completar. *(limitação)*
-- [ ] **Escolhas da classe além das perícias**: estilo de luta, especialização (ladino, bardo), invocações do bruxo, metamagia, manobras, pacto, expertise. Hoje as características aparecem como texto e a escolha é anotada à mão. *(despriorizado)*
+- [~] **Escolhas da classe além das perícias**: **feitas** estilo de luta, especialização (ladino, bardo), inimigo/terreno favorito, ancestral dracônico, instrumentos do bardo, ferramenta do monge, escolhas de domínio/círculo, metamagia, manobras do Mestre de Batalha, disciplinas do Caminho dos Quatro Elementos e invocações/pacto do bruxo (ver `escolhasClasse.ts`, `opcoesClasse.ts`). **Faltam** magias do Cavaleiro Místico e do Trapaceiro Arcano, idioma do inimigo favorito e os usos de cada manobra/disciplina (só texto). *(despriorizado)*
 - [ ] **Tabelas de subclasse por nível** (quando cada característica de subclasse chega): a ficha mostra todas as características da subclasse escolhida, sem filtrar pelo nível. *(limitação)*
 - [ ] **Características de classe sem efeito automático**: quase todas são só texto. Já valem Defesa sem Armadura (CA), Fúria, Ataque Descuidado, Armadura Arcana e os recursos listados na Fase 5. *(despriorizado)*
-- [ ] **Raça: traços sem efeito** (Visão no Escuro, Sensibilidade à Luz, vantagens em salvaguarda contra condição, Magia Drow, Legado Infernal, Ancestral Dracônico além da resistência) aparecem como texto; magias raciais não entram na ficha. O truque do alto elfo é escolhido mas não vira magia cadastrada. *(despriorizado)*
-- [ ] **Antecedente**: equipamento inicial só como texto; tabelas de personalidade (d8/d6) estão no catálogo mas **não há rolagem/escolha** delas na criação. Variações (Mercador de Guilda, Gladiador, Espião...) não estão no catálogo. *(despriorizado)*
+- [~] **Raça: traços sem efeito.** **Feitos:** texto completo dos traços de todas as raças (corrigido o gerador), Visão no Escuro como sentido da ficha, magias raciais e de legado (taumaturgia, Magia Drow, Legado Infernal/Abissal/Ctônico, truque do alto elfo) entram na ficha como sempre preparadas, usos de descanso longo do Legado Infernal e da Resistência Implacável. As vantagens de raça em salvaguarda (Esperteza Gnômica, Ancestral Feérico, Bravura, Resiliência Anã/dos Robustos) e a Sensibilidade à Luz Solar aparecem como **lembrete** no painel de rolagem (dependem da situação, não mudam o modo sozinhas); Ataques Selvagens é nota nas armas corpo a corpo. **Falta** o sopro do Ancestral Dracônico além do contador. *(despriorizado)*
+- [~] **Antecedente**: **feitos** escolha/rolagem da personalidade (traços, ideal, vínculo, defeito) na criação e as 5 variações do livro (Mercador de Guilda, Gladiador, Espião, Pirata, Cavaleiro). O **equipamento inicial do antecedente** vira itens (os do catálogo com `catalogoId`, o resto como item livre) e o ouro entra nas moedas. *(despriorizado)*
 - [ ] **Talentos**: só os efeitos numéricos óbvios (+1 de atributo, Alerta, Robusto, Mobilidade, armaduras) são aplicados; a maioria é texto. Pré-requisitos dos talentos **não são validados**. Resiliente não concede a proficiência em salvaguarda do atributo escolhido; Perito e Poliglota guardam as escolhas, mas ferramentas do Perito não entram. *(limitação)*
 - [ ] **Tamanho, idade, altura/peso e tendência** da raça não são usados (altura/peso aleatórios por raça não estão modelados). *(despriorizado)*
 - [ ] **Subraças de outros livros** (Duergar etc.) e raças opcionais não existem; só as 9 do Livro do Jogador (com 18 subraças e variantes). *(limitação)*
@@ -62,12 +62,14 @@
 - [ ] **Capacidade de carga** (7,5 kg × Força, conversão da edição brasileira) é só aviso; a regra variante de **sobrecarga com penalidade de deslocamento** não está implementada. O valor 7,5 foi inferido (o `.md` não traz a regra): conferir com a mesa. *(limitação)*
 - [ ] **Munição** não é descontada nem contada; arremesso e alcance viram só nota na linha de ataque. *(despriorizado)*
 - [ ] **Ataque desarmado** usa dado fixo 1 + Força (dano `1`); **Artes Marciais do monge** (dado e Destreza) não entram. *(despriorizado)*
-- [ ] **Estilo de luta, Ataque Furtivo automático no dano, Ataque Extra** como contagem de ataques por ação: não aplicados (Ataque Furtivo existe só como botão de rolagem). *(despriorizado)*
+- [~] **Estilo de luta, Ataque Furtivo automático no dano, Ataque Extra**: o estilo é escolhido; **Defesa** soma +1 de CA, **Arquearia** +2 no ataque à distância e **Duelismo** +2 no dano de arma de uma mão; Armas Grandes e Duas Armas são nota na arma e Proteção é só texto. **Ataque Extra** aparece como contagem no card de ataques; o **Ataque Furtivo** é nota nas armas de acuidade/à distância (e segue o botão de rolagem); **Artes Marciais** do monge viram o ataque desarmado. *(despriorizado)*
 - [ ] **Armas improvisadas, de prata, especiais** (Rede, Lança de Montaria): sem regras próprias. *(limitação)*
 - [ ] **Pacotes de equipamento**: alguns itens do pacote não existem no catálogo e entram como item avulso sem peso (ex.: "Fantasias", "Vidro de tinta"). *(limitação)*
+
 - [~] **Equipamento inicial:** feito para a classe (opções A/B e compra com a riqueza no assistente); o equipamento do **antecedente** segue só como texto nas anotações (ouro da algibeira entra nas moedas).
+
 - [ ] **Transferir item entre jogadores/mestre** (usando a liberação de conteúdo): não avaliado. *(despriorizado)*
-- [ ] **Montarias, veículos, comércio, despesas, serviços e bugigangas** do capítulo 5 não estão no catálogo (só armas, armaduras, aventura, ferramentas, pacotes). *(despriorizado)*
+- [~] **Capítulo 5**: **feitos** montarias, arreios/selas/veículos de tração, veículos aquáticos, comida/hospedagem e serviços no catálogo de equipamento (grupos com preço e nota) e a tabela de **bugigangas** (d100, opcional no assistente). **Faltam** comércio de bens (escambo), despesas de estilo de vida e serviços de conjuração (são regras de mestre, não itens). *(despriorizado)*
 - [ ] **Conversão de moedas** só troca quando não sobra fração; não há "trocar tudo" nem registro de compras. *(limitação)*
 
 ## Fase 5: recursos, condições e combate
@@ -86,9 +88,9 @@
 
 ## Fase 6: assistentes
 
-- [ ] **Criar já em nível acima de 1**, com o histórico completo de PV/aumentos de atributo/talentos por nível (hoje: criar no 1º e subir pelo assistente). *(despriorizado)*
-- [x] **Equipamento inicial da classe** e escolhas do tipo "(a) ou (b)" do livro (assistente de criação).
-- [ ] **Escolher magias** (truques e 1º círculo) e **personalidade** (traços, ideais, vínculos e defeitos por tabela) dentro do assistente. *(despriorizado)*
+- [~] **Criar já em nível acima de 1**: o assistente tem "Nível inicial"; ele cria o 1º nível com o XP do nível pedido e o jogador sobe com o assistente de nível (PV, subclasse, aumentos, escolhas por nível, histórico completo). Não há criação de uma vez só. *(despriorizado)*
+- [X] **Equipamento inicial da classe** e escolhas do tipo "(a) ou (b)" do livro (assistente de criação).
+- [X] **Escolher magias** (truques e 1º círculo) e **personalidade** (traços, ideais, vínculos e defeitos por tabela) dentro do assistente.
 - [ ] **Desfazer uma subida de nível** (hoje só dá para editar o `build` à mão ou remover passos de dado). *(despriorizado)*
 - [ ] **Subir de nível não pergunta**: aprender magias novas, trocar magias, feitiços de espaço, escolhas de classe do nível (estilo de luta, invocações, metamagia, manobras), nem aplica a regra "Con par sobe PV retroativos" (isso já sai do cálculo de PV, mas não é anunciado). *(despriorizado)*
 - [ ] **Método de atributos 4d6**: sem opção de "rerrolar" regras da mesa (ex.: repetir se a soma for baixa) nem rolar com o rolador 3D (usa o rolador simples). *(limitação)*
@@ -144,6 +146,6 @@
 - [ ] **Pré-requisitos** conferem na hora de entrar na classe (assistente) e viram aviso depois; se um atributo cair depois, nada bloqueia. *(limitação)*
 - [ ] **Subclasse conjuradora** (Cavaleiro Arcano, Trapaceiro Arcano) conta para os espaços de multiclasse, mas sozinha (sem outra conjuradora) continua sem espaços nem limites. *(limitação)*
 - [ ] **Remover classe** (só mestre) apaga o histórico de PV da classe; não há "trocar de classe" nem "desfazer subida". *(limitação)*
-- [ ] **Escolhas por classe adicional** além de perícia/instrumento (estilo de luta, especialização etc.) seguem como texto. *(despriorizado)*
+- [~] **Escolhas por classe adicional**: o assistente de nível pergunta as escolhas que a nova classe libera (estilo de luta no nível certo, etc.); instrumentos do bardo e ferramenta do monge só valem para a primeira classe (a multiclasse segue a tabela reduzida). *(despriorizado)*
 - [ ] **Criação guiada** continua só no 1º nível e numa classe; multiclasse entra depois pelo assistente de nível. *(limitação)*
 - [ ] **Validar no navegador** o seletor "Classe do nível", a conferência de pré-requisitos e a CD por classe. *(validação)*

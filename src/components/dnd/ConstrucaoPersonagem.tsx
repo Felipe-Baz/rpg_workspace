@@ -27,7 +27,8 @@ export function EscolhaCampos({ def, valores, onChange, cat, opcoesMesa, magias 
   let lista: Opcao[] | null = null;
   switch (def.tipo) {
     case "atributo": lista = (def.opcoes ? def.opcoes.map(String) : [...ATRIBUTOS]).filter((a) => !def.excluir?.includes(a)).map((a) => ({ id: a, nome: ATRIBUTO_NOME[a as Atributo] })); break;
-    case "pericia": lista = (def.opcoes?.map(String) ?? PERICIAS.map((p) => p.id as string)).map((id) => ({ id, nome: PERICIAS.find((p) => p.id === id)?.nome ?? id })); break;
+    case "pericia":
+    case "especializacao": lista = (def.opcoes?.map(String) ?? PERICIAS.map((p) => p.id as string)).map((id) => ({ id, nome: PERICIAS.find((p) => p.id === id)?.nome ?? id })); break;
     case "idioma": lista = IDIOMAS.map((n) => ({ id: n, nome: n })); break;
     case "ferramenta": lista = def.opcoes ? def.opcoes.map((o) => ({ id: String(o), nome: String(o) })) : null; break;
     case "talento": lista = opcaoAtiva(dnd5e, opcoesMesa, "talentos") ? cat.talentos().map((t) => ({ id: t.id, nome: t.nome })) : []; break;
@@ -298,7 +299,7 @@ const ROTULO_FONTE: Record<string, string> = { raca: "Raça", subraca: "Sub-raç
 
 /** Características e proficiências agrupadas pela fonte (raça, classe, antecedente, talentos), com o texto do livro. */
 export function CaracteristicasPorFonte({ calc }: { calc: FichaCalculada }) {
-  const listas: [string, FichaCalculada["armas"]][] = [["Armaduras", calc.armaduras], ["Armas", calc.armas], ["Ferramentas", calc.ferramentas], ["Idiomas", calc.idiomas], ["Resistências", calc.resistencias]];
+  const listas: [string, FichaCalculada["armas"]][] = [["Armaduras", calc.armaduras], ["Armas", calc.armas], ["Ferramentas", calc.ferramentas], ["Idiomas", calc.idiomas], ["Sentidos", calc.sentidos], ["Resistências", calc.resistencias]];
   return (
     <div className="space-y-4 text-sm">
       <div className="grid gap-2 sm:grid-cols-2">

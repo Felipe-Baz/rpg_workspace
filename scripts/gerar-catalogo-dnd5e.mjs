@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gerarRegras } from "./dnd5e/catalogo-regras.mjs";
-import { gerarEquipamento } from "./dnd5e/equipamento.mjs";
+import { gerarBugigangas, gerarEquipamento } from "./dnd5e/equipamento.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const FONTE = join(RAIZ, "docs/referencias/playerbook");
@@ -240,6 +240,9 @@ console.log(`${regras.racas.length} raças, ${regras.antecedentes.length} antece
 const equip = gerarEquipamento(FONTE);
 writeFileSync(join(SAIDA, "equipamento.json"), JSON.stringify(equip.equipamento, null, 2) + "\n");
 console.log(`${equip.equipamento.length} itens de equipamento`);
+const bugigangas = gerarBugigangas(FONTE);
+if (bugigangas.length !== 100) console.warn(`Bugigangas: esperadas 100, lidas ${bugigangas.length}`);
+writeFileSync(join(SAIDA, "bugigangas.json"), JSON.stringify(bugigangas, null, 2) + "\n");
 avisos.push(...regras.avisos, ...equip.avisos);
 if (avisos.length) {
   console.log(`\n${avisos.length} aviso(s):`);

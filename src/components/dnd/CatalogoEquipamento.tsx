@@ -25,7 +25,7 @@ export function resumoDoItem(i: ItemCat): string {
     case "armadura": return `CA ${i.caBase}${i.somaDes ? ` + Des${i.maxDes !== undefined ? ` (máx. +${i.maxDes})` : ""}` : ""}${i.forca ? ` · For ${i.forca}` : ""}${i.furtividadeDesv ? " · desv. em Furtividade" : ""}`;
     case "escudo": return `+${i.bonusCa} na CA`;
     case "pacote": return i.itens.map((x) => `${x.qtd > 1 ? `${x.qtd}× ` : ""}${x.nome}`).join(", ");
-    default: return i.grupo ?? "";
+    default: return [i.grupo, "nota" in i ? i.nota : undefined].filter(Boolean).join(" · ");
   }
 }
 

@@ -27,8 +27,11 @@ const modMin1 = (a: keyof FichaDnd["atributos"]) => (_n: number, f: FichaDnd) =>
 
 export const USOS_CATALOGO: UsoCatalogo[] = [
   // raça
+  { id: "resistencia-implacavel", nome: "Resistência Implacável", fonte: "Meio-orc", raca: "meio-orc", nivel: 1, max: um, recarga: "longo", descricao: "Ao cair a 0 PV sem morrer na hora, você fica com 1 PV." },
   { id: "magia-drow-fogo-das-fadas", nome: "Magia Drow: Fogo das Fadas", fonte: "Elfo Negro (Drow)", raca: "elfo", subRaca: "elfo-negro-drow", nivel: 3, max: um, recarga: "longo", descricao: "Conjura fogo das fadas sem gastar espaço de magia." },
   { id: "magia-drow-escuridao", nome: "Magia Drow: Escuridão", fonte: "Elfo Negro (Drow)", raca: "elfo", subRaca: "elfo-negro-drow", nivel: 5, max: um, recarga: "longo", descricao: "Conjura escuridão sem gastar espaço de magia." },
+  { id: "magia-infernal-repreensao-infernal", nome: "Legado Infernal: Repreensão Infernal", fonte: "Tiefling Infernal", raca: "tiefling", subRaca: "tiefling-infernal", nivel: 3, max: um, recarga: "longo", descricao: "Conjura repreensão infernal como magia de 2º círculo, sem gastar espaço de magia. Habilidade de conjuração: Carisma." },
+  { id: "magia-infernal-escuridao", nome: "Legado Infernal: Escuridão", fonte: "Tiefling Infernal", raca: "tiefling", subRaca: "tiefling-infernal", nivel: 5, max: um, recarga: "longo", descricao: "Conjura escuridão sem gastar espaço de magia. Habilidade de conjuração: Carisma." },
   { id: "magia-abissal-raio-adoecente", nome: "Legado Abissal: Raio Adoecente", fonte: "Tiefling Abissal", raca: "tiefling", subRaca: "tiefling-abyssal", nivel: 3, max: um, recarga: "longo", descricao: "Conjura raio adoecente sem gastar espaço de magia." },
   { id: "magia-abissal-imobilizar-pessoa", nome: "Legado Abissal: Imobilizar Pessoa", fonte: "Tiefling Abissal", raca: "tiefling", subRaca: "tiefling-abyssal", nivel: 5, max: um, recarga: "longo", descricao: "Conjura imobilizar pessoa sem gastar espaço de magia." },
   { id: "magia-ctonico-vitalidade-falsa", nome: "Legado Ctônico: Vitalidade Falsa", fonte: "Tiefling Ctônico", raca: "tiefling", subRaca: "tiefling-chthonic", nivel: 3, max: um, recarga: "longo", descricao: "Conjura vitalidade falsa sem gastar espaço de magia." },
