@@ -7,7 +7,7 @@ import { uid } from "@/lib/mesas";
 import { useFichaPersonagem } from "@/lib/fichaPersonagem";
 import {
   ATRIBUTOS, ATRIBUTO_NOME, FICHA_VAZIA, PERICIAS, bonusAtaqueMagia, bonusIniciativa, bonusPericia, bonusProficiencia, bonusSalvaguarda, cdMagia,
-  MAX_DESCANSOS_CURTOS, atrDaMagia, classesDaFicha, ehConjuradora, nivelNaClasse, comSinal, contagemMagias, CLASSES, alternarMagia, circulosDisponiveis, definirClasse, limitesMagia, magiaPronta, nomeClasse, type ClasseId, temDadoVida, descansoCurto, descansoLongo, podeDescansoCurto, testeDadoVida, ALINHAMENTOS, modDe, percepcaoPassiva, pesoTotal, testeAtaque, testeAtributo,
+  MAX_DESCANSOS_CURTOS, atrDaMagia, classesDaFicha, subConjuradora, ehConjuradora, nivelNaClasse, comSinal, contagemMagias, contagemPorClasse, podeAtivar, CLASSES, alternarMagia, circulosDisponiveis, definirClasse, limitesMagia, magiaPronta, nomeClasse, type ClasseId, temDadoVida, descansoCurto, descansoLongo, podeDescansoCurto, testeDadoVida, ALINHAMENTOS, modDe, percepcaoPassiva, pesoTotal, testeAtaque, testeAtributo,
   testeDano, testeDanoMagia, testeIniciativa, testePericia, testeSalvaguarda, type Atributo, type Ataque, type FichaDnd, type Item, type Magia, type NivelProf, type Teste,
 } from "@/lib/dnd5e";
 import LivroHistoria from "./LivroHistoria";
@@ -23,6 +23,7 @@ import AssistenteCriacao from "./AssistenteCriacao";
 import { nivelPorXp, podeSubirDeNivel, xpParaNivel } from "@/lib/regras/dnd5e/progressao";
 import { TIPOS_DE_DANO, aplicarCura, aplicarDano, comSugestao, danoDeFuria, defesasDe, estabilizar, estadoVital, modoDaJogada, salvaguardaDeMorte, type EstadoJogo, type Jogada } from "@/lib/regras/dnd5e/combate";
 import HabilidadesUsos from "./HabilidadesUsos";
+import OpcoesDeClasse from "./OpcoesDeClasse";
 import InvocacoesMisticas from "./InvocacoesMisticas";
 import { recursosCalculados, recursosDaFicha, restaurarRecursos } from "@/lib/regras/dnd5e/recursos";
 import { carregarFeras, comForma, danoNaForma, reverterForma, type Fera } from "@/lib/regras/dnd5e/formaSelvagem";
@@ -216,6 +217,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   // a aba Magias some para quem não conjura: classes sem conjuração, sem magias cadastradas e sem atributo de conjuração
   // (subclasses conjuradoras como Cavaleiro Arcano e Trapaceiro Arcano, ou itens que dão magias, mantêm a aba)
   const conjura = !f.classe || classesDaFicha(f).some((c) => ehConjuradora(c.id as ClasseId)) || f.magias.length > 0 || !!f.atrConjuracao || /cavaleiro (místico|arcano)|trapaceiro arcano/i.test(f.subclasse);
+  const subConj = !(f.classes && f.classes.length > 1) ? subConjuradora(f.classe, f.subclasse) : undefined;
   const abaAtual: Aba = aba === "magias" && !conjura ? "combate" : aba;
   // o jogador só compra pela ficha se o mestre liberar a opção da mesa (desligada por padrão); o mestre sempre pode
   const podeComprar = papel === "mestre" || opcaoAtiva(dnd5e, opcoes, "compras");
@@ -500,7 +502,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
         <section className="space-y-4">
           {!compacto && <div className={cartao}>
             <h2 className={titulo}>Conjuração</h2>
-            {!!f.classe && !ehConjuradora(f.classe) && <p className="mb-3 text-xs text-muted">{nomeClasse(f.classe)} não conjura magias por padrão. Você ainda pode cadastrar magias (itens, talentos, subclasses como Cavaleiro Arcano) e escolher o atributo de conjuração abaixo.</p>}
+            {!!f.classe && !ehConjuradora(f.classe) && !subConj && <p className="mb-3 text-xs text-muted">{nomeClasse(f.classe)} não conjura magias por padrão. Você ainda pode cadastrar magias (itens, talentos) e escolher o atributo de conjuração abaixo.</p>}
+            {subConj && <p className="mb-3 text-xs text-muted">{subConj.nome}: conjura com a lista do mago, mas as magias de 1º círculo em diante são de {subConj.escolasTexto} (uma magia livre de qualquer escola no 3º, 8º, 14º e 20º nível). Atributo de conjuração: Inteligência. Só conjura a partir do 3º nível.</p>}
             <div className="flex flex-wrap items-end gap-4">
               <label className="text-[11px] uppercase tracking-wider text-muted">
                 Atributo
@@ -555,6 +558,11 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
                   <span>Magias ativas <strong className={cont.magias > cont.lim.magias ? "text-danger" : cont.magiasCheio ? "text-gold" : "text-foreground"}>{cont.magias}/{cont.lim.magias}</strong></span>
                   <button onClick={() => setTrocaMagias("trocar")} className="ml-auto text-accent-hover hover:underline">Trocar magias ativas</button>
                 </p>
+                {f.classes && f.classes.length > 1 && (
+                  <p className="flex flex-wrap gap-x-4 gap-y-0.5" title="Em multiclasse cada classe tem o próprio limite de magias ativas; a magia conta na classe pela qual é conjurada.">
+                    {contagemPorClasse(f).map((c) => <span key={c.classe}>{c.nome}: truques <strong className={c.truquesAtivos > c.truques ? "text-danger" : "text-foreground"}>{c.truquesAtivos}/{c.truques}</strong>, magias <strong className={c.magiasAtivas > c.magias ? "text-danger" : "text-foreground"}>{c.magiasAtivas}/{c.magias}</strong></span>)}
+                  </p>
+                )}
                 <p>Cadastre quantas magias quiser: o limite da classe e do nível vale só para as <strong>ativas</strong>. Só magias ativas podem ser conjuradas. A troca é feita no descanso longo.</p>
                 <details>
                   <summary className="cursor-pointer hover:text-foreground">Ajustes especiais (itens mágicos, talentos)</summary>
@@ -599,7 +607,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
                               <input
                                 type="checkbox"
                                 checked={m.ativa}
-                                disabled={!m.ativa && cheio}
+                                disabled={!m.ativa && (cheio || !podeAtivar(f, m))}
                                 onChange={() => set(alternarMagia(f, m.id))}
                                 aria-label="Ativa"
                                 title={!m.ativa && cheio ? "Limite de ativas atingido: desative outra primeiro" : m.ativa ? "Magia ativa (preparada ou conhecida): pode ser conjurada. Clique para desativar." : "Magia inativa: está cadastrada mas não pode ser conjurada. Clique para ativar (respeita o limite da classe)."}
@@ -1094,6 +1102,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
           {abaAtual === "tracos" && (
             <section className={`${cartao} space-y-4`}>
               {catLivro && <InvocacoesMisticas ficha={f} cat={catLivro} papel={papel === "mestre" ? "mestre" : "jogador"} travada={travada} onMudar={set} />}
+              <OpcoesDeClasse ficha={f} defs={defsRecursos} recursos={recursos} onMudar={set} onRolar={(t) => rolar(t)} />
               <HabilidadesUsos ficha={f} defs={defsRecursos} recursos={recursos} onMudar={set} />
               {calc && <CaracteristicasPorFonte calc={calc} />}
               <div className="m-0 min-w-0 space-y-4">
@@ -1223,16 +1232,18 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
       )}
       {compendio && (
         <CompendioMagias
-          classeInicial={f.classe}
+          classeInicial={subConj ? "mago" : f.classe}
           extras={magiasExpandidas(f)}
-          circuloMax={ehConjuradora(f.classe) && maiorCirculo(f) > 0 ? maiorCirculo(f) : undefined}
+          circuloMax={(ehConjuradora(f.classe) || subConj) && maiorCirculo(f) > 0 ? maiorCirculo(f) : undefined}
           avaliar={(m) => (papel === "mestre" ? { ok: true } : podeAprender(f, m))}
           jaNaFicha={new Set(f.magias.map((m) => m.catalogoId).filter((x): x is string => !!x))}
           onAdicionar={(m) => {
-            const cheio = m.nivel === 0 ? contagemMagias(f).truquesCheio : contagemMagias(f).magiasCheio;
-            const nova = magiaParaFicha(m, uid(), !cheio);
             // multiclasse: a magia é conjurada pela primeira classe do personagem que a tem na lista (define o atributo de conjuração)
             const origem = classesDaFicha(f).map((c) => c.id).find((id) => ehConjuradora(id as ClasseId) && m.classes.includes(id));
+            const inativa = magiaParaFicha(m, uid(), false);
+            const comOrigem = f.classes && f.classes.length > 1 && origem ? { ...inativa, classeOrigem: origem } : inativa;
+            // entra ativa só se couber no limite (em multiclasse, no limite da classe de origem)
+            const nova = { ...comOrigem, ativa: podeAtivar(f, comOrigem) };
             // Grimório do mago: copiar uma magia de livro ou pergaminho custa 50 po por círculo (e 2 h por círculo); as 2 magias
             // que o mago ganha a cada nível entram sem custo (cancelar a pergunta de pagamento)
             let moedas = f.moedas;
@@ -1247,7 +1258,7 @@ Cancelar = adicionar sem custo (magia ganha ao subir de nível).`)) {
                 moedas = depois;
               }
             }
-            set({ moedas, magias: [...f.magias, f.classes && f.classes.length > 1 && origem ? { ...nova, classeOrigem: origem } : nova] });
+            set({ moedas, magias: [...f.magias, nova] });
           }}
           onFechar={() => setCompendio(false)}
         />

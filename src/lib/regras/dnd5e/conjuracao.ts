@@ -2,7 +2,7 @@
 // quais magias a classe pode aprender. Puro e testável; a ficha só guarda `catalogoId` e as escolhas.
 
 import {
-  ATRIBUTO_NOME, atrDaMagia, classesDaFicha, cdMagia, conjurar, ehConjuradora, magiaPronta, modDe, testeAtaqueMagia, testeSalvaguarda,
+  ATRIBUTO_NOME, atrDaMagia, classesDaFicha, cdMagia, conjurar, ehConjuradora, magiaPronta, magiasLivresDaSub, modDe, subConjuradora, testeAtaqueMagia, testeSalvaguarda,
   type Atributo, type ClasseId, type FichaDnd, type Magia, type Teste,
 } from "../../dnd5e.ts";
 import { dadoDoTruque, dadoNoCirculo, dardosDoTruque, type MagiaCat } from "./magias.ts";
@@ -143,6 +143,19 @@ export const maiorCirculo = (f: FichaDnd) => f.espacos.reduce((a, e, i) => (e.to
  * tem espaços. Sem classe conjuradora (ou classes sem lista, como o guerreiro) não restringe.
  */
 export function podeAprender(f: FichaDnd, cat: MagiaCat): { ok: boolean; motivo?: string } {
+  // Cavaleiro Arcano e Trapaceiro Arcano: lista do mago, só duas escolas (menos as magias livres de cada nível da tabela)
+  const sc = !(f.classes && f.classes.length > 1) ? subConjuradora(f.classe, f.subclasse) : undefined;
+  if (sc) {
+    if (!cat.classes.includes("mago")) return { ok: false, motivo: `Não está na lista de magias de mago (a lista do ${sc.nome}).` };
+    const maxC = maiorCirculo(f);
+    if (cat.nivel > 0 && maxC > 0 && cat.nivel > maxC) return { ok: false, motivo: `Você ainda não tem espaços de ${cat.nivel}º círculo.` };
+    const dentro = (escola: string) => sc.escolas.includes(escola.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase());
+    if (cat.nivel > 0 && !dentro(cat.escola)) {
+      const livresUsadas = f.magias.filter((m) => m.nivel > 0 && !dentro(m.escola)).length;
+      if (livresUsadas >= magiasLivresDaSub(f.nivel)) return { ok: false, motivo: `${sc.nome}: as magias de 1º círculo em diante são de ${sc.escolasTexto}, exceto uma livre no 3º, 8º, 14º e 20º nível (já usada).` };
+    }
+    return { ok: true };
+  }
   const conj = classesDaFicha(f).map((c) => c.id).filter((id) => ehConjuradora(id as ClasseId));
   if (!conj.length) return { ok: true };
   if (!conj.some((id) => cat.classes.includes(id)) && !magiasExpandidas(f).includes(cat.id)) {

@@ -344,6 +344,39 @@ export function espacosDaClasse(id: ClasseConjId, nivel: number): number[] {
   return Array.from({ length: 9 }, (_, i) => (i + 1 === circulo ? total : 0));
 }
 
+// ---------- subclasses conjuradoras (Cavaleiro Arcano do guerreiro, Trapaceiro Arcano do ladino) ----------
+// Conjuram como um terço de conjurador, com a lista do mago restrita a duas escolas (menos algumas magias livres).
+export type SubConjId = "cavaleiro-arcano" | "trapaceiro-arcano";
+export type SubConj = { id: SubConjId; nome: string; classe: "guerreiro" | "ladino"; atr: Atributo; escolas: string[]; escolasTexto: string };
+export const SUBCLASSES_CONJ: Record<SubConjId, SubConj> = {
+  "cavaleiro-arcano": { id: "cavaleiro-arcano", nome: "Cavaleiro Arcano", classe: "guerreiro", atr: "int", escolas: ["abjuracao", "evocacao"], escolasTexto: "abjuração e evocação" },
+  "trapaceiro-arcano": { id: "trapaceiro-arcano", nome: "Trapaceiro Arcano", classe: "ladino", atr: "int", escolas: ["encantamento", "ilusao"], escolasTexto: "encantamento e ilusão" },
+};
+/** Espaços por nível da classe (índice = nível - 1), círculos 1 a 4: tabela de um terço de conjurador do livro. */
+const ESPACOS_TERCO: number[][] = [
+  [], [], [2], [3], [3], [3], [4, 2], [4, 2], [4, 2], [4, 3], [4, 3], [4, 3], [4, 3, 2], [4, 3, 2], [4, 3, 2], [4, 3, 3], [4, 3, 3], [4, 3, 3], [4, 3, 3, 1], [4, 3, 3, 1],
+];
+const CONHECIDAS_TERCO = [0, 0, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13];
+/** Níveis em que o livro libera uma magia de qualquer escola (as demais seguem as duas escolas da subclasse). */
+export const NIVEIS_MAGIA_LIVRE = [3, 8, 14, 20];
+const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+/** A classe e a subclasse (nome ou id) conjuram? Cavaleiro Arcano (guerreiro) e Trapaceiro Arcano (ladino); "Cavaleiro Místico" também vale. */
+export function subConjuradora(classe: string, subclasse?: string): SubConj | undefined {
+  const t = norm(subclasse ?? "").replace(/-/g, " ");
+  if (classe === "guerreiro" && /cavaleiro (arcano|mistico)/.test(t)) return SUBCLASSES_CONJ["cavaleiro-arcano"];
+  if (classe === "ladino" && /trapaceiro arcano/.test(t)) return SUBCLASSES_CONJ["trapaceiro-arcano"];
+  return undefined;
+}
+export const espacosDaSub = (nivel: number): number[] => {
+  const linha = ESPACOS_TERCO[Math.min(Math.max(Math.floor(nivel), 1), 20) - 1];
+  return Array.from({ length: 9 }, (_, i) => linha[i] ?? 0);
+};
+export const truquesDaSub = (nivel: number) => (nivel >= 10 ? 3 : nivel >= 3 ? 2 : 0);
+export const conhecidasDaSub = (nivel: number) => CONHECIDAS_TERCO[Math.min(Math.max(Math.floor(nivel), 1), 20) - 1];
+/** Quantas magias de qualquer escola o personagem já pode ter (uma em cada nível da lista, até o nível atual). */
+export const magiasLivresDaSub = (nivel: number) => NIVEIS_MAGIA_LIVRE.filter((n) => nivel >= n).length;
+
 export const ehConjuradora = (id: ClasseId | ""): id is ClasseConjId => id in CLASSES_CONJ;
 export const modoDe = (id: ClasseId | ""): ModoConj | undefined => (ehConjuradora(id) ? CLASSES_CONJ[id].modo : undefined);
 
@@ -354,9 +387,42 @@ export type LimitesMagia = {
   magias: number;
 };
 
-/** Limites de magias ATIVAS (classe + nível + ajustes). null = classe sem conjuração ou não escolhida (sem limites). */
+export type LimitesClasse = { classe: string; nome: string; truques: number; magias: number };
+
+/** Multiclasse: o limite de magias ativas de CADA classe conjuradora, pelo nível e pelo atributo dela (classes de subclasse conjuradora incluídas). */
+export function limitesPorClasse(f: FichaDnd): LimitesClasse[] | null {
+  if (!(f.classes && f.classes.length > 1)) return null;
+  const out: LimitesClasse[] = [];
+  for (const c of f.classes) {
+    const n = nivelValido(c.nivel);
+    if (ehConjuradora(c.id as ClasseId)) {
+      const def = CLASSES_CONJ[c.id as ClasseConjId];
+      const base = def.modo === "conhecidas" ? def.conhecidas![n - 1] : Math.max(1, (c.id === "paladino" ? Math.floor(n / 2) : n) + modDe(f, def.atr));
+      out.push({ classe: c.id, nome: def.nome, truques: def.truques(n), magias: base });
+      continue;
+    }
+    const sc = subConjuradora(c.id, f.subclasse);
+    if (sc && n >= 3) out.push({ classe: c.id, nome: `${sc.nome}`, truques: truquesDaSub(n), magias: conhecidasDaSub(n) });
+  }
+  return out.length ? out : null;
+}
+
+/** A classe pela qual a magia é conjurada: a escolhida nela (`classeOrigem`) ou a primeira classe conjuradora. */
+export function origemDaMagia(f: FichaDnd, m: Pick<Magia, "classeOrigem">): string | undefined {
+  if (m.classeOrigem) return m.classeOrigem;
+  const l = limitesPorClasse(f);
+  return l?.[0]?.classe;
+}
+
+/** Limites de magias ATIVAS (classe + nível + ajustes). null = classe sem conjuração ou não escolhida (sem limites). Multiclasse: soma dos limites de cada classe. */
 export function limitesMagia(f: FichaDnd): LimitesMagia | null {
-  if (f.classes && f.classes.length > 1) return null; // multiclasse: limites por classe ainda não são calculados (ver pendências)
+  const sc = !(f.classes && f.classes.length > 1) ? subConjuradora(f.classe, f.subclasse) : undefined;
+  if (sc && f.nivel >= 3) return { truques: Math.max(0, truquesDaSub(f.nivel) + f.ajusteLimites.truques), magias: Math.max(0, conhecidasDaSub(f.nivel) + f.ajusteLimites.magias) };
+  if (f.classes && f.classes.length > 1) {
+    const l = limitesPorClasse(f);
+    if (!l) return null;
+    return { truques: Math.max(0, l.reduce((s, x) => s + x.truques, 0) + f.ajusteLimites.truques), magias: Math.max(0, l.reduce((s, x) => s + x.magias, 0) + f.ajusteLimites.magias) };
+  }
   if (!ehConjuradora(f.classe)) return null;
   const c = CLASSES_CONJ[f.classe];
   const n = nivelValido(f.nivel);
@@ -386,7 +452,27 @@ export function contagemMagias(f: FichaDnd) {
 export function podeAtivar(f: FichaDnd, m: Magia): boolean {
   if (m.ativa) return false;
   const c = contagemMagias(f);
-  return !(m.nivel === 0 ? c.truquesCheio : c.magiasCheio);
+  if (m.nivel === 0 ? c.truquesCheio : c.magiasCheio) return false;
+  // multiclasse: o limite vale por classe (a magia conta na classe pela qual é conjurada)
+  const porClasse = limitesPorClasse(f);
+  if (porClasse && !m.sempre) {
+    const origem = origemDaMagia(f, m);
+    const lim = porClasse.find((l) => l.classe === origem);
+    if (lim) {
+      const ativas = f.magias.filter((x) => x.ativa && !x.sempre && (x.nivel === 0) === (m.nivel === 0) && origemDaMagia(f, x) === origem).length;
+      if (ativas >= (m.nivel === 0 ? lim.truques : lim.magias)) return false;
+    }
+  }
+  return true;
+}
+
+/** Magias ativas de cada classe contra o limite dela (só multiclasse). */
+export function contagemPorClasse(f: FichaDnd) {
+  return (limitesPorClasse(f) ?? []).map((l) => ({
+    ...l,
+    truquesAtivos: f.magias.filter((x) => x.nivel === 0 && x.ativa && !x.sempre && origemDaMagia(f, x) === l.classe).length,
+    magiasAtivas: f.magias.filter((x) => x.nivel > 0 && x.ativa && !x.sempre && origemDaMagia(f, x) === l.classe).length,
+  }));
 }
 
 /** Liga/desliga uma magia. Ativar além do limite não acontece: devolve a ficha igual. Desativar é sempre permitido. */
@@ -398,6 +484,11 @@ export function alternarMagia(f: FichaDnd, id: string): FichaDnd {
 
 /** Escolhe a classe. Classes conjuradoras ajustam o atributo de conjuração e os espaços ao nível (mantém os já gastos). */
 export function definirClasse(f: FichaDnd, id: ClasseId | ""): FichaDnd {
+  const sc = subConjuradora(id, f.subclasse);
+  if (sc) {
+    const t = espacosDaSub(f.nivel);
+    return { ...f, classe: id, atrConjuracao: sc.atr, espacos: f.espacos.map((e, i) => ({ total: t[i], usados: Math.min(e.usados, t[i]) })) };
+  }
   if (!ehConjuradora(id)) return { ...f, classe: id };
   const t = espacosDaClasse(id, f.nivel);
   return {

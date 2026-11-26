@@ -10,6 +10,8 @@ export type EscolhaDeClasse = EscolhaDef & {
   nivel: number; subclasse?: string; apenasPrimeiraClasse?: boolean;
   /** Escolhas do mesmo grupo não repetem a mesma opção (ex.: as metamágicas dos níveis 3, 10 e 17). */
   grupo?: string;
+  /** Pode ficar sem resposta (não vira pendência): ex.: o idioma do inimigo favorito, quando ele não fala nenhum. */
+  opcional?: boolean;
 };
 
 const op = (id: string, nome: string, descricao: string, concede?: Concessoes): EscolhaOpcao => ({ id, nome, descricao, ...(concede ? { concede } : {}) });
@@ -33,6 +35,7 @@ const INIMIGO_HUMANOIDES = op("humanoides", "Dois tipos de humanoides", "Inimigo
 const TERRENOS = ["Ártico", "Costa", "Deserto", "Floresta", "Pradaria", "Montanha", "Pântano", "Subterrâneo"]
   .map((n) => op(n.toLowerCase(), n, `Terreno favorito: ${n.toLowerCase()}. Benefícios de Explorador Nato nesse terreno (o dobro da proficiência em testes de Inteligência e Sabedoria ligados a ele, ao viajar etc.).`));
 const inimigo = (id: string, nivel: number, rotulo = "Inimigo favorito"): EscolhaDeClasse => ({ id, rotulo, tipo: "opcao", qtd: 1, opcoes: [...INIMIGOS, INIMIGO_HUMANOIDES], nivel, grupo: "inimigo" });
+const idiomaInimigo = (id: string, nivel: number): EscolhaDeClasse => ({ id, rotulo: "Idioma do inimigo favorito (se ele falar algum)", tipo: "idioma", qtd: 1, nivel, opcional: true });
 const terreno = (id: string, nivel: number, rotulo = "Terreno favorito"): EscolhaDeClasse => ({ id, rotulo, tipo: "opcao", qtd: 1, opcoes: TERRENOS, nivel, grupo: "terreno" });
 
 // ---------- Feiticeiro: Linhagem Dracônica ----------
@@ -64,10 +67,10 @@ export const ESCOLHAS_CLASSE: Record<string, EscolhaDeClasse[]> = {
     { id: "estilo-de-luta", rotulo: "Estilo de Luta", tipo: "opcao", qtd: 1, opcoes: estilos("arquearia", "defesa", "duelismo", "armas-grandes", "protecao", "duas-armas"), nivel: 1 }],
   paladino: [{ id: "estilo-de-luta", rotulo: "Estilo de Luta", tipo: "opcao", qtd: 1, opcoes: estilos("defesa", "duelismo", "armas-grandes", "protecao"), nivel: 2 }],
   patrulheiro: [
-    inimigo("inimigo-favorito", 1), terreno("terreno-favorito", 1, "Explorador Nato (terreno favorito)"),
+    inimigo("inimigo-favorito", 1), idiomaInimigo("idioma-inimigo", 1), terreno("terreno-favorito", 1, "Explorador Nato (terreno favorito)"),
     { id: "estilo-de-luta", rotulo: "Estilo de Luta", tipo: "opcao", qtd: 1, opcoes: estilos("arquearia", "defesa", "duelismo", "duas-armas"), nivel: 2 },
-    terreno("terreno-favorito-6", 6, "Terreno favorito adicional"), inimigo("inimigo-favorito-6", 6, "Inimigo favorito adicional"),
-    terreno("terreno-favorito-10", 10, "Terreno favorito adicional"), inimigo("inimigo-favorito-14", 14, "Inimigo favorito adicional"),
+    terreno("terreno-favorito-6", 6, "Terreno favorito adicional"), inimigo("inimigo-favorito-6", 6, "Inimigo favorito adicional"), idiomaInimigo("idioma-inimigo-6", 6),
+    terreno("terreno-favorito-10", 10, "Terreno favorito adicional"), inimigo("inimigo-favorito-14", 14, "Inimigo favorito adicional"), idiomaInimigo("idioma-inimigo-14", 14),
   ],
   ladino: [
     { id: "especializacao", rotulo: "Especialização (2 perícias)", tipo: "especializacao", qtd: 2, nivel: 1, grupo: "especializacao" },

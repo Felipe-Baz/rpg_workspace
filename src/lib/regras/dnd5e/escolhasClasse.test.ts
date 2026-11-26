@@ -36,7 +36,7 @@ test("escolhas liberadas por nível e subclasse", () => {
   assert.deepEqual(escolhasDaClasse("guerreiro", 1).map((e) => e.id), ["estilo-de-luta"]);
   assert.deepEqual(escolhasDaClasse("paladino", 1).map((e) => e.id), []);
   assert.deepEqual(escolhasDoNivel("paladino", 2).map((e) => e.id), ["estilo-de-luta"]);
-  assert.deepEqual(escolhasDaClasse("patrulheiro", 1).map((e) => e.id), ["inimigo-favorito", "terreno-favorito"]);
+  assert.deepEqual(escolhasDaClasse("patrulheiro", 1).map((e) => e.id), ["inimigo-favorito", "idioma-inimigo", "terreno-favorito"]);
   assert.deepEqual(escolhasDaClasse("ladino", 1).map((e) => e.id), ["especializacao"]);
   assert.deepEqual(escolhasDaClasse("feiticeiro", 1, "magia-selvagem").map((e) => e.id), []);
   assert.deepEqual(escolhasDaClasse("feiticeiro", 1, "linhagem-draconica").map((e) => e.id), ["ancestral-draconico"]);
@@ -229,4 +229,108 @@ test("capítulo 5: montarias, veículos, comida e serviços entram no catálogo;
   assert.deepEqual(cavalo.preco, { valor: 75, moeda: "po" });
   assert.match(cavalo.nota ?? "", /deslocamento 18m/);
   assert.equal(lerJson<string[]>("bugigangas").length, 100);
+});
+
+// ---------- subclasses conjuradoras, ações de opções, duas armas ----------
+import { acoesDeOpcoes, custoDeChi } from "./opcoesAtivas.ts";
+import { espacosDaSub, limitesMagia, subConjuradora } from "../../dnd5e.ts";
+import { podeAprender } from "./conjuracao.ts";
+import { fichaEfetiva } from "./efetiva.ts";
+import { ajustarConjuracao } from "./multiclasse.ts";
+
+const efetiva = (f: FichaDnd) => { const ef = fichaEfetiva(f, derivar(f, cat), cat); return { ...ef, ...ajustarConjuracao(ef, f.build!, cat) }; };
+
+test("Cavaleiro Arcano: espaços, truques e magias conhecidas de um terço de conjurador", () => {
+  assert.equal(subConjuradora("guerreiro", "Cavaleiro Arcano")?.id, "cavaleiro-arcano");
+  assert.equal(subConjuradora("guerreiro", "Cavaleiro Místico")?.id, "cavaleiro-arcano");
+  assert.equal(subConjuradora("guerreiro", "Campeão"), undefined);
+  assert.equal(subConjuradora("ladino", "Trapaceiro Arcano")?.id, "trapaceiro-arcano");
+  assert.deepEqual(espacosDaSub(3).slice(0, 2), [2, 0]);
+  assert.deepEqual(espacosDaSub(7).slice(0, 3), [4, 2, 0]);
+  assert.deepEqual(espacosDaSub(19).slice(0, 4), [4, 3, 3, 1]);
+  const ek = efetiva(ficha("guerreiro", 7, "cavaleiro-arcano", {}));
+  assert.equal(ek.atrConjuracao, "int");
+  assert.deepEqual(ek.espacos.slice(0, 3).map((e) => e.total), [4, 2, 0]);
+  assert.deepEqual(limitesMagia(ek), { truques: 2, magias: 5 });
+  assert.deepEqual(limitesMagia(efetiva(ficha("ladino", 10, "trapaceiro-arcano", {}))), { truques: 3, magias: 7 });
+  assert.equal(limitesMagia(efetiva(ficha("guerreiro", 2, "cavaleiro-arcano", {}))), null);
+  assert.equal(limitesMagia(efetiva(ficha("guerreiro", 7, "campeao", {}))), null);
+});
+
+test("Cavaleiro Arcano só aprende abjuração/evocação (mais uma magia livre por nível da tabela)", () => {
+  const magias = lerJson<MagiaCat[]>("magias");
+  const doMago = (escola: string, nivel = 1) => magias.find((m) => m.classes.includes("mago") && m.escola === escola && m.nivel === nivel)!;
+  const base = efetiva(ficha("guerreiro", 3, "cavaleiro-arcano", {}));
+  assert.ok(podeAprender(base, doMago("evocação")).ok);
+  assert.ok(podeAprender(base, doMago("abjuração")).ok);
+  assert.ok(podeAprender(base, doMago("necromancia")).ok, "a primeira de outra escola é a livre do 3º nível");
+  const comLivre = { ...base, magias: [{ id: "x", catalogoId: "y", nome: "y", nivel: 1, ativa: true, escola: "Necromancia", tempo: "", alcance: "", componentes: "", duracao: "", descricao: "", tipo: "nenhum", dano: "", salvaguarda: "des" } as FichaDnd["magias"][number]] };
+  assert.equal(podeAprender(comLivre, doMago("ilusão")).ok, false);
+  assert.ok(podeAprender({ ...comLivre, nivel: 8 }, doMago("ilusão")).ok, "no 8º nível ganha outra livre");
+  assert.equal(podeAprender(base, magias.find((m) => !m.classes.includes("mago") && m.nivel === 1)!).ok, false);
+  assert.equal(podeAprender(base, doMago("evocação", 2)).ok, false, "ainda sem espaços de 2º círculo");
+});
+
+test("ações de opções: metamagia, manobra, disciplina e sopro", () => {
+  const sorc = acoesDeOpcoes(efetiva(ficha("feiticeiro", 3, "magia-selvagem", { metamagia: ["magia-acelerada", "magia-duplicada"] })));
+  assert.deepEqual(sorc.map((a) => [a.nome, a.custo?.qtd, a.custoVariavel]), [["Magia Acelerada", 2, undefined], ["Magia Duplicada", 1, "nivel-da-magia"]]);
+  const mb = acoesDeOpcoes(efetiva(ficha("guerreiro", 10, "mestre-de-batalha", { manobras: ["aparar"], "manobras-7": ["derrubar"] })));
+  assert.equal(mb.length, 2);
+  assert.equal(mb[0].teste?.dado, "1d10");
+  assert.equal(mb[0].custo?.recurso, "superioridade-em-combate");
+  const mg = acoesDeOpcoes(efetiva(ficha("monge", 3, "caminho-dos-quatro-elementos", { "disciplina-3": ["chicote-de-agua"] })));
+  assert.ok(mg.some((a) => a.id === "disciplina-sintonia-elemental"));
+  assert.equal(mg.find((a) => a.id === "disciplina-chicote-de-agua")?.custo?.qtd, 2);
+  assert.equal(custoDeChi("Você pode gastar 4 pontos de chi para conjurar voo"), 4);
+  const dr = normalizar({ ...FICHA_VAZIA, build: { raca: { id: "draconato", escolhas: { ancestral: ["ouro"] } }, classes: [{ id: "guerreiro", nivel: 6, escolhas: { pericias: [] } }], atributosBase: { for: 15, des: 10, con: 14, int: 10, sab: 10, car: 10 } } });
+  const sopro = acoesDeOpcoes(efetiva(dr)).find((a) => a.id === "arma-de-sopro")!;
+  assert.equal(sopro.teste?.dado, "3d6");
+  assert.match(sopro.info ?? "", /cone de 4,5 m.*Destreza.*CD 13/);
+  assert.match(sopro.nome, /fogo/);
+});
+
+test("estilos: Proteção e Armas Grandes viram ações; Duas Armas cria a linha da mão secundária", () => {
+  assert.deepEqual(acoesDeOpcoes(efetiva(ficha("guerreiro", 1, undefined, { "estilo-de-luta": ["protecao"] }))).map((a) => a.reacao), [true]);
+  assert.equal(acoesDeOpcoes(efetiva(ficha("guerreiro", 1, undefined, { "estilo-de-luta": ["armas-grandes"] })))[0].pedeFaces, true);
+  const arma = (id: string, catalogoId: string) => ({ id, nome: catalogoId, quantidade: 1, peso: 1, equipado: true, descricao: "", catalogoId });
+  const itens = [arma("a", "espada-curta"), arma("b", "adaga")];
+  const com = derivar(ficha("guerreiro", 1, undefined, { "estilo-de-luta": ["duas-armas"] }, { itens }), cat).ataques.find((a) => a.id === "arma:b:sec")!;
+  const sem = derivar(ficha("guerreiro", 1, undefined, { "estilo-de-luta": ["defesa"] }, { itens }), cat).ataques.find((a) => a.id === "arma:b:sec")!;
+  assert.equal(com.bonusDano, 0);
+  assert.ok(sem.bonusDano <= 0 && sem.bonusDano === -Math.max(0, 2), "sem o estilo o modificador positivo some do dano");
+  assert.ok(!derivar(ficha("guerreiro", 1, undefined, {}, { itens: [arma("a", "espada-curta")] }), cat).ataques.some((a) => a.id.endsWith(":sec")), "com uma arma só não há mão secundária");
+});
+
+// ---------- multiclasse: limites por classe; Mão Mágica; idioma do inimigo; reação ----------
+import { contagemPorClasse, limitesPorClasse, podeAtivar } from "../../dnd5e.ts";
+
+test("multiclasse: limites de magias ativas por classe (mago 3 / clérigo 2)", () => {
+  const ficha2 = normalizar({
+    ...FICHA_VAZIA, nome: "M", atributos: { ...FICHA_VAZIA.atributos, int: 16, sab: 14 },
+    build: { classes: [{ id: "mago", nivel: 3, escolhas: { pericias: [] } }, { id: "clerigo", nivel: 2, subclasse: "dominio-da-vida", escolhas: { pericias: [] } }], atributosBase: { for: 10, des: 10, con: 10, int: 16, sab: 14, car: 10 } },
+  });
+  const ef = { ...efetiva(ficha2), atributos: { ...FICHA_VAZIA.atributos, int: 16, sab: 14 } };
+  assert.equal(ef.classes?.length, 2);
+  const l = limitesPorClasse(ef)!;
+  assert.deepEqual(l.map((x) => [x.classe, x.truques, x.magias]), [["mago", 3, 3 + 3], ["clerigo", 3, 2 + 2]]);
+  assert.deepEqual(limitesMagia(ef), { truques: 6, magias: 10 });
+  // quatro magias ativas de clérigo: a quinta é recusada, mas uma de mago ainda cabe
+  const mk = (id: string, classeOrigem: string, ativa: boolean) => ({ id, catalogoId: id, classeOrigem, nome: id, nivel: 1, ativa, escola: "", tempo: "", alcance: "", componentes: "", duracao: "", descricao: "", tipo: "nenhum", dano: "", salvaguarda: "des" } as FichaDnd["magias"][number]);
+  const cheio = { ...ef, magias: [mk("a", "clerigo", true), mk("b", "clerigo", true), mk("c", "clerigo", true), mk("d", "clerigo", true), mk("e", "clerigo", false), mk("f", "mago", false)] };
+  assert.equal(podeAtivar(cheio, cheio.magias[4]), false);
+  assert.equal(podeAtivar(cheio, cheio.magias[5]), true);
+  assert.deepEqual(contagemPorClasse(cheio).map((c) => [c.classe, c.magiasAtivas, c.magias]), [["mago", 0, 6], ["clerigo", 4, 4]]);
+});
+
+test("Trapaceiro Arcano ganha Mão Mágica como truque extra no 3º nível", () => {
+  const b = (nivel: number) => ({ classes: [{ id: "ladino", nivel, subclasse: "trapaceiro-arcano" }], atributosBase: { for: 10, des: 10, con: 10, int: 10, sab: 10, car: 10 } });
+  assert.deepEqual(magiasConcedidas(b(3), []).map((m) => m.catalogoId), ["maos-magicas"]);
+  assert.deepEqual(magiasConcedidas(b(2), []), []);
+});
+
+test("idioma do inimigo favorito é opcional e entra como idioma", () => {
+  const f = ficha("patrulheiro", 1, undefined, { "inimigo-favorito": ["dragoes"], "terreno-favorito": ["floresta"], "idioma-inimigo": ["Dracônico"] });
+  assert.ok(derivar(f, cat).idiomas.some((i) => i.nome === "Dracônico"));
+  const sem = ficha("patrulheiro", 1, undefined, { "inimigo-favorito": ["bestas"], "terreno-favorito": ["floresta"] });
+  assert.ok(!validar(sem, cat).some((v) => v.id.includes("idioma-inimigo")));
 });

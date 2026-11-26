@@ -112,7 +112,7 @@ test("validação: opção da mesa desligada bloqueia o jogador; perícia/instru
   assert.ok(excesso.some((v) => v.id === "classe.pericias.excesso")); // mago não ganha perícia ao entrar
 });
 
-test("ficha efetiva: classes e níveis, subclasses juntas, limites de magia desligados, nada disso é gravado", () => {
+test("ficha efetiva: classes e níveis, subclasses juntas, limites de magia por classe, nada disso é gravado", () => {
   const b = adicionarClasse(base([{ id: "mago", nivel: 3, subclasse: "escola-de-evocacao", escolhas: { pericias: [] } }]), { id: "guerreiro", pv: "medio" });
   const f = ficha(b);
   const ef = fichaEfetiva(f, derivar(f, cat, T), cat);
@@ -121,7 +121,9 @@ test("ficha efetiva: classes e níveis, subclasses juntas, limites de magia desl
   assert.equal(ef.classe, "mago");
   assert.match(ef.subclasse, /Evocação/);
   assert.equal(nivelNaClasse(ef, "guerreiro"), 1);
-  assert.equal(limitesMagia({ ...ef, atrConjuracao: "int" }), null); // limites por classe: pendência
+  // só o mago conjura (3º nível, Int do build): limite por classe = limite do mago; o guerreiro sem subclasse conjuradora não soma
+  const lim = limitesMagia({ ...ef, atrConjuracao: "int" });
+  assert.equal(lim?.truques, 3);
   assert.equal(gravavel(f, { ...ef, classes: [{ id: "x", nivel: 9 }] }).classes, undefined);
   assert.deepEqual(classesDaFicha(normalizar({ classe: "mago", nivel: 5 })), [{ id: "mago", nivel: 5 }]);
   const unica = fichaEfetiva(ficha(base([{ id: "mago", nivel: 3, escolhas: { pericias: [] } }])), derivar(ficha(base([{ id: "mago", nivel: 3, escolhas: { pericias: [] } }])), cat), cat);

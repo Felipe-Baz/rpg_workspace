@@ -3,7 +3,7 @@
 // (os campos derivados nunca são gravados, ver planejamento §5). Sem `build`, tudo passa direto.
 // Também reconhece texto livre de fichas antigas ("Alto Elfo", "Mago 5") e monta o primeiro `build`.
 
-import { ATRIBUTOS, CLASSES_CONJ, PERICIAS, ehConjuradora, type Atributo, type FichaDnd, type ClasseId } from "../../dnd5e.ts";
+import { ATRIBUTOS, CLASSES_CONJ, PERICIAS, ehConjuradora, subConjuradora, type Atributo, type FichaDnd, type ClasseId } from "../../dnd5e.ts";
 import { derivar, type FichaCalculada } from "./derivar.ts";
 import type { Build } from "./build.ts";
 import type { Catalogo } from "./catalogo.ts";
@@ -45,7 +45,7 @@ export function fichaEfetiva(ficha: FichaDnd, calc: FichaCalculada, cat: Catalog
     deslocamento: `${fmt(calc.deslocamento.total)} m`,
     classe: (c0?.id as ClasseId | undefined) ?? ficha.classe,
     // classe única conjuradora: o atributo de conjuração é o da classe (multiclasse e subclasses conjuradoras seguem o valor da ficha)
-    atrConjuracao: !multi && c0 && ehConjuradora(c0.id as ClasseId) ? CLASSES_CONJ[c0.id as keyof typeof CLASSES_CONJ].atr : ficha.atrConjuracao,
+    atrConjuracao: !multi && c0 && ehConjuradora(c0.id as ClasseId) ? CLASSES_CONJ[c0.id as keyof typeof CLASSES_CONJ].atr : !multi && c0 && subConjuradora(c0.id, sub?.nome) ? "int" : ficha.atrConjuracao,
     subclasse: multi ? subclasses : sub?.nome ?? "",
     ...(multi ? { classes: b.classes.map((k) => ({ id: k.id, nivel: k.nivel })) } : { classes: undefined }),
     raca: subRaca && raca && subRaca.id !== `${raca.id}-padrao` ? subRaca.nome : raca?.nome ?? ficha.raca,

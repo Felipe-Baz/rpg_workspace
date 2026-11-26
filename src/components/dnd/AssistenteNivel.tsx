@@ -77,7 +77,7 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
     ? escolhasDaClasse(classeIdAlvo, resumo.para, subFinal, primeiraClasse).filter((d) => !escolhasDaClasse(classeIdAlvo, resumo.de, classeAtual?.subclasse, primeiraClasse).some((x) => x.id === d.id))
     : [];
   const proficientes = Object.keys(calc.pericias);
-  const pendNivel = defsNivel.reduce((n, d) => n + Math.max(0, d.qtd - (escNivel[d.id] ?? []).length), 0);
+  const pendNivel = defsNivel.filter((d) => !d.opcional).reduce((n, d) => n + Math.max(0, d.qtd - (escNivel[d.id] ?? []).length), 0);
   const conMod = modificador(calc.atributos.con.total);
   const pvGanho = Math.max(1, (pvModo === "medio" ? resumo.pvMedio : pvRolado) + conMod);
   const totais = Object.fromEntries(ATRIBUTOS.map((a) => [a, calc.atributos[a].total])) as Record<Atributo, number>;

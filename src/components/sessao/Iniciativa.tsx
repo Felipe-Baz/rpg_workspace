@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronRight, Dices, Heart, Plus, RotateCcw, Send, Shield, X } from "lucide-react";
 import { useRolagem } from "../dados/RolagemProvider";
 import { usePersistido } from "@/lib/persistido";
-import { atualizarEstadoDaFicha, lerPvDaFicha, useFichaEfetiva } from "@/lib/fichaPersonagem";
+import { atualizarEstadoDaFicha, devolverReacaoDaFicha, lerPvDaFicha, useFichaEfetiva } from "@/lib/fichaPersonagem";
 import { condicaoDe, condicoesEfetivas, pvMaxEfetivo } from "@/lib/regras/dnd5e/combate";
 import type { OpcoesMesa } from "@/lib/regras/sistema";
 import { assinarPedidosDaMesa, pedirTeste, removerPedido } from "@/lib/pedidosTeste";
@@ -69,6 +69,13 @@ export default function Iniciativa({ mesaId, jogadores, opcoes, aoVivo = false }
     setEst((e) => ({ ...e, lista: e.lista.map((c) => (c.id === id ? { ...c, ...patch } : c)) }));
 
   function proximo() {
+    // quem começa o turno recupera a reação (jogador vinculado, mesas D&D 5e ao vivo)
+    const n = ordem.length;
+    if (aoVivo && n) {
+      const t = Math.min(est.turno, n - 1) + 1;
+      const quem = ordem[t >= n ? 0 : t];
+      if (quem?.uid) devolverReacaoDaFicha(mesaId, quem.uid).catch(() => {});
+    }
     setEst((e) => {
       const n = e.lista.length;
       if (!n) return e;

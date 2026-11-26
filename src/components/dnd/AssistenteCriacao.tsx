@@ -123,7 +123,7 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
 
   const defsClasse = useMemo(() => (classeId ? escolhasDaClasse(classeId, 1, subclasse, true) : []), [classeId, subclasse]);
   const proficientes = Object.keys(semExtras.pericias);
-  const pendClasse = defsClasse.reduce((n, d) => n + Math.max(0, d.qtd - (escClasse[d.id] ?? []).length), 0);
+  const pendClasse = defsClasse.filter((d) => !d.opcional).reduce((n, d) => n + Math.max(0, d.qtd - (escClasse[d.id] ?? []).length), 0);
 
   // subclasse já no 1º nível (bruxo: Patrono; clérigo: Domínio; feiticeiro: Origem)
   const subclasses = classeCat?.subclasses ?? [];

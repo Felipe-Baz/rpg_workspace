@@ -1,7 +1,7 @@
 // Multiclasse (regra opcional da mesa): pré-requisitos de atributo, proficiências reduzidas da nova classe, espaços de
 // magia pelo nível de conjurador combinado, e a entrada numa classe nova. Funções puras; a interface só pergunta.
 
-import { CLASSES_CONJ, definirClasse, ehConjuradora, espacosDaClasse, type Atributo, type ClasseId, type FichaDnd } from "../../dnd5e.ts";
+import { CLASSES_CONJ, definirClasse, ehConjuradora, espacosDaClasse, espacosDaSub, type Atributo, type ClasseId, type FichaDnd } from "../../dnd5e.ts";
 import type { Build, Escolhas, PassoNivel } from "./build.ts";
 import type { Catalogo, ClasseCat } from "./catalogo.ts";
 
@@ -94,6 +94,10 @@ export function espacosMulticlasse(classes: readonly ClasseNaFicha[], tabela: re
   } else if (conj.length === 1 && ehConjuradora(conj[0].id as ClasseId)) {
     espacos = espacosDaClasse(conj[0].id as keyof typeof CLASSES_CONJ, conj[0].nivel);
     nivelConjurador = conj[0].nivel;
+    modo = "classe";
+  } else if (conj.length === 1 && TERCO[conj[0].id]) {
+    espacos = espacosDaSub(conj[0].nivel);
+    nivelConjurador = Math.floor(conj[0].nivel / 3);
     modo = "classe";
   }
   const bruxo = classes.find((c) => c.id === "bruxo");

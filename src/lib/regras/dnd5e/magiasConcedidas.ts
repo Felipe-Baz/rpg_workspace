@@ -72,6 +72,8 @@ export function magiasConcedidas(b: Build, fontes: Pick<FonteAtiva, "id" | "nome
   for (const c of b.classes) {
     const dom = c.subclasse ? DOMINIOS[c.subclasse] : undefined;
     if (dom && dom.classe === c.id) for (const [n, ...ids] of dom.linhas) if (n <= c.nivel) for (const id of ids) out.push({ catalogoId: id, classeOrigem: c.id, origem: c.subclasse! });
+    // Trapaceiro Arcano: aprende o truque Mão Mágica além dos truques da lista (e a Mão do Trapaceiro Arcano faz dela uma ferramenta de ladrão)
+    if (c.id === "ladino" && c.subclasse === "trapaceiro-arcano" && c.nivel >= 3) out.push({ catalogoId: "maos-magicas", atributo: "int", origem: "trapaceiro-arcano" });
     if (c.id === "druida" && c.subclasse === "circulo-da-terra") {
       const t = TERRENOS[c.escolhas?.["terreno-circulo"]?.[0] ?? ""];
       if (t) NIVEIS_TERRA.forEach((n, i) => { if (n <= c.nivel) for (const id of t[i]) out.push({ catalogoId: id, classeOrigem: "druida", origem: "circulo-da-terra" }); });

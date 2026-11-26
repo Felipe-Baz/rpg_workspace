@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { deleteField, doc, getDoc, updateDoc } from "firebase/firestore";
+import { arrayRemove, deleteField, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { FICHA_VAZIA, normalizar, type FichaDnd } from "./dnd5e";
 import { useDocSincronizado } from "./mesas";
@@ -81,6 +81,11 @@ export type { PatchEstado };
  * Atualização atômica POR CAMPO (`updateDoc`): dano, cura e condições aplicados pelo mestre não pisam em quem está
  * editando outras partes da ficha ao mesmo tempo. `undefined` apaga o campo.
  */
+/** Início do turno de um jogador na iniciativa: devolve a reação (apaga a marca "reação gasta" da ficha, por campo). */
+export async function devolverReacaoDaFicha(mesaId: string, donoUid: string): Promise<void> {
+  await updateDoc(doc(db, "mesas", mesaId, "personagens", donoUid), { ativos: arrayRemove("reacao-gasta") });
+}
+
 export async function atualizarEstadoDaFicha(mesaId: string, donoUid: string, patch: PatchEstado): Promise<void> {
   const dados: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(patch)) dados[k] = v === undefined ? deleteField() : JSON.parse(JSON.stringify(v));

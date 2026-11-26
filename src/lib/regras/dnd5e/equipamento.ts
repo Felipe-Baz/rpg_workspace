@@ -127,6 +127,8 @@ export type EntradaAtaques = {
 /** Linhas de ataque das armas equipadas (e do ataque desarmado). Versátil gera uma linha extra de duas mãos. */
 export function ataquesDeArmas(e: EntradaAtaques): Ataque[] {
   const out: Ataque[] = [];
+  // Combate com Duas Armas: com duas armas leves corpo a corpo equipadas, cada uma tem uma linha de mão secundária
+  const leves = e.itens.filter((i) => { const a = i.equipado && i.catalogoId ? e.arma(i.catalogoId) : undefined; return !!a?.dado && !!a.propriedades.leve && !a.distancia; }).length;
   for (const item of e.itens) {
     if (!item.equipado || !item.catalogoId) continue;
     const arma = e.arma(item.catalogoId);
@@ -149,6 +151,12 @@ export function ataquesDeArmas(e: EntradaAtaques): Ataque[] {
     const duelo = !arma.distancia && !arma.propriedades.duasMaos && est.includes("duelismo") ? 2 : 0;
     const arco = arma.distancia && est.includes("arquearia") ? 2 : 0;
     out.push({ ...base, id: `arma:${item.id}`, nome, dano: arma.dado, bonusAtaque: base.bonusAtaque + arco, bonusDano: base.bonusDano + duelo, notas: lembretes(!!arma.propriedades.duasMaos) });
+    if (leves >= 2 && arma.propriedades.leve && !arma.distancia) {
+      // sem o estilo, a mão secundária não soma o modificador ao dano (só se for negativo)
+      const mod = e.mods[base.atr];
+      const semMod = est.includes("duas-armas") ? 0 : -Math.max(0, mod);
+      out.push({ ...base, id: `arma:${item.id}:sec`, nome: `${nome} (mão secundária)`, dano: arma.dado, bonusDano: base.bonusDano + semMod, notas: `ação bônus, depois de atacar com outra arma leve${est.includes("duas-armas") ? "; Duas Armas soma o modificador ao dano" : "; sem o modificador no dano"}` });
+    }
     if (arma.propriedades.versatil) out.push({ ...base, id: `arma:${item.id}:2m`, nome: `${nome} (duas mãos)`, dano: arma.propriedades.versatil, notas: lembretes(true) });
   }
   if (e.artesMarciais) out.push({ id: "arma:desarmado", nome: "Ataque desarmado (Artes Marciais)", atr: e.mods.des > e.mods.for ? "des" : "for", proficiente: true, bonusAtaque: 0, dano: e.artesMarciais, bonusDano: 0, tipoDano: "concussão", notas: "Artes Marciais: usa Força ou Destreza; ataque desarmado como ação bônus depois de atacar", derivado: true });

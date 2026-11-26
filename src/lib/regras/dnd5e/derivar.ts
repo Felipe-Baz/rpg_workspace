@@ -190,6 +190,8 @@ export function fontesDoBuild(b: Build, cat: Catalogo, opcoes?: OpcoesMesa): Fon
     // escolhas do livro (Estilo de Luta, Especialização, Inimigo Favorito, instrumentos...) já liberadas neste nível
     const defs = escolhasDaClasse(c.id, c.nivel, c.subclasse, i === 0);
     const esc = aplicarEscolhas(defs, c.escolhas, cl.nome);
+    // escolhas opcionais (ex.: idioma do inimigo favorito) não viram pendência
+    esc.pendentes = esc.pendentes.filter((p) => !defs.find((d) => d.id === p.escolha.id)?.opcional);
     juntar(concede, esc.concede);
     const tracos: Traco[] = [...(cl.caracteristicas ?? []).filter((x) => (x.nivel ?? 1) <= c.nivel).map((x) => ({ id: x.id, nome: x.nome, texto: x.texto })), ...tracosDeEscolhas(defs, c.escolhas)];
     fontes.push({ id: cl.id, nome: b.classes.length > 1 ? `${cl.nome} ${c.nivel}${i > 0 ? " (multiclasse)" : ""}` : `${cl.nome} ${c.nivel}`, tipo: "classe", efeitos: esc.efeitos, concede, tracos, pendentes: esc.pendentes, talentos: esc.talentos, truques: esc.truques });
