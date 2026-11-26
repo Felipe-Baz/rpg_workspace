@@ -4,6 +4,7 @@ Registro curto de **mudanças de comportamento** que alteraram esta base (mais r
 
 Se uma alteração de código **não** afeta nenhuma feature, fluxo, regra de acesso, modelo de dados ou rota, registre mesmo assim com `sem impacto na base` (isso marca a revisão como feita).
 
+- 2026-11-26: pedir teste: jogador pode dispensar o cartão do pedido com um X (só local; o pedido continua pendente para o mestre). Páginas: `features/sessao-ao-vivo.md`.
 - 2026-11-26: ficha D&D 5e: **arma do pacto** do Pacto da Lâmina (forma escolhida no cartão de invocações vira linha de ataque calculada) com Lâmina Sedenta e Sorvedor de Vida aplicados; `escolhas.armaPacto`. Páginas: `features/ficha-dnd5e.md`.
 - 2026-11-26: ficha D&D 5e: **Invocações Místicas e Dádiva do Pacto do bruxo**: catálogo das 32 invocações (`invocacoes.json`), escolha no assistente de subida de nível (limite por nível, uma troca por nível, pré-requisitos), cartão na aba Traços, Armadura de Sombras na CA, Influência Enganadora nas perícias, magias à vontade/1× por descanso como usos, bônus da Rajada Mística; escolhas em `build.classes[bruxo].escolhas`. Páginas: `features/ficha-dnd5e.md`.
 - 2026-11-26: ficha D&D 5e: bruxo com patrono (Corruptor, Arquifada, Grande Antigo) pode aprender as magias da **lista expandida** fixa, mesmo fora da lista de bruxo (`podeAprender`, compêndio e assistente de criação). Páginas: `features/ficha-dnd5e.md`.

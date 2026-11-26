@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { Dices, Swords } from "lucide-react";
+import { Dices, Swords, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useFichaEfetiva } from "@/lib/fichaPersonagem";
 import { modoDaJogada, type Jogada } from "@/lib/regras/dnd5e/combate";
@@ -22,12 +22,15 @@ export default function PedidoTesteJogador() {
 
   useEffect(() => (meuUid ? assinarMeusPedidos(mesa.id, meuUid, setFila) : undefined), [mesa.id, meuUid]);
 
-  const pedido = fila[0];
+  // pedidos que o jogador dispensou no X (só some da tela dele; o mestre continua vendo o pedido como pendente)
+  const [dispensados, setDispensados] = useState<string[]>([]);
+  const visiveis = fila.filter((p) => !dispensados.includes(p.id));
+  const pedido = visiveis[0];
   if (!pedido || typeof document === "undefined") return null;
-  return createPortal(<Cartao key={pedido.id} pedido={pedido} restantes={fila.length - 1} mesaId={mesa.id} meuUid={meuUid} sistema={mesa.sistema} opcoes={mesa.opcoesRegras} />, document.body);
+  return createPortal(<Cartao key={pedido.id} pedido={pedido} restantes={visiveis.length - 1} aoFechar={() => setDispensados((d) => [...d, pedido.id])} mesaId={mesa.id} meuUid={meuUid} sistema={mesa.sistema} opcoes={mesa.opcoesRegras} />, document.body);
 }
 
-function Cartao({ pedido, restantes, mesaId, meuUid, sistema, opcoes }: { pedido: PedidoTeste; restantes: number; mesaId: string; meuUid: string; sistema: string; opcoes?: OpcoesMesa }) {
+function Cartao({ pedido, restantes, aoFechar, mesaId, meuUid, sistema, opcoes }: { pedido: PedidoTeste; restantes: number; aoFechar: () => void; mesaId: string; meuUid: string; sistema: string; opcoes?: OpcoesMesa }) {
   const dnd = ehDnd5e(sistema);
   // ficha com os valores calculados pelo livro (a gravada tem números defasados quando há construção)
   const { ficha, calc, carregado } = useFichaEfetiva(mesaId, meuUid, opcoes, dnd);
@@ -85,7 +88,10 @@ function Cartao({ pedido, restantes, mesaId, meuUid, sistema, opcoes }: { pedido
 
   return (
     <aside role="dialog" aria-label={`Teste pedido pelo mestre: ${titulo}`} className="anim-surgir fixed inset-x-3 bottom-3 z-[60] mx-auto max-h-[85dvh] max-w-xl overflow-y-auto rounded-2xl border-2 border-accent bg-card p-4 shadow-2xl">
-      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-accent-soft">
+      <button type="button" onClick={aoFechar} aria-label="Fechar pedido de teste" title="Fechar" className="absolute right-2 top-2 rounded-lg p-1.5 text-muted hover:bg-background hover:text-foreground">
+        <X size={18} />
+      </button>
+      <p className="flex items-center gap-2 pr-8 text-xs font-semibold uppercase tracking-[0.2em] text-accent-soft">
         <Swords size={14} /> O mestre pediu um teste{restantes > 0 ? ` · +${restantes} na fila` : ""}
       </p>
       <h3 className="mt-1 font-display text-xl font-semibold text-gold">{titulo}</h3>
