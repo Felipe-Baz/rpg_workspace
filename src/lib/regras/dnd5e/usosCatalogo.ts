@@ -29,6 +29,8 @@ export const USOS_CATALOGO: UsoCatalogo[] = [
   // raça
   { id: "magia-drow-fogo-das-fadas", nome: "Magia Drow: Fogo das Fadas", fonte: "Elfo Negro (Drow)", raca: "elfo", subRaca: "elfo-negro-drow", nivel: 3, max: um, recarga: "longo", descricao: "Conjura fogo das fadas sem gastar espaço de magia." },
   { id: "magia-drow-escuridao", nome: "Magia Drow: Escuridão", fonte: "Elfo Negro (Drow)", raca: "elfo", subRaca: "elfo-negro-drow", nivel: 5, max: um, recarga: "longo", descricao: "Conjura escuridão sem gastar espaço de magia." },
+  { id: "magia-abissal-raio-adoecente", nome: "Legado Abissal: Raio Adoecente", fonte: "Tiefling Abissal", raca: "tiefling", subRaca: "tiefling-abyssal", nivel: 3, max: um, recarga: "longo", descricao: "Conjura raio adoecente sem gastar espaço de magia." },
+  { id: "magia-abissal-imobilizar-pessoa", nome: "Legado Abissal: Imobilizar Pessoa", fonte: "Tiefling Abissal", raca: "tiefling", subRaca: "tiefling-abyssal", nivel: 5, max: um, recarga: "longo", descricao: "Conjura imobilizar pessoa sem gastar espaço de magia." },
   { id: "magia-ctonico-vitalidade-falsa", nome: "Legado Ctônico: Vitalidade Falsa", fonte: "Tiefling Ctônico", raca: "tiefling", subRaca: "tiefling-chthonic", nivel: 3, max: um, recarga: "longo", descricao: "Conjura vitalidade falsa sem gastar espaço de magia." },
   { id: "magia-ctonico-raio-do-enfraquecimento", nome: "Legado Ctônico: Raio do Enfraquecimento", fonte: "Tiefling Ctônico", raca: "tiefling", subRaca: "tiefling-chthonic", nivel: 5, max: um, recarga: "longo", descricao: "Conjura raio do enfraquecimento sem gastar espaço de magia." },
   // classe
@@ -69,6 +71,7 @@ export const USOS_CATALOGO: UsoCatalogo[] = [
   { id: "halo-sagrado", nome: "Halo Sagrado", fonte: "Paladino: Devoção", classe: "paladino", subclasse: "juramento-de-devocao", nivel: 20, max: um, recarga: "longo", descricao: "Aura de luz do sol por 1 minuto." },
   { id: "sentinela-imortal", nome: "Sentinela Imortal", fonte: "Paladino: Anciões", classe: "paladino", subclasse: "juramento-dos-ancioes", nivel: 15, max: um, recarga: "longo", descricao: "Ao cair a 0 PV, fica com 1 PV." },
   { id: "campeao-dos-ancioes", nome: "Campeão dos Anciões", fonte: "Paladino: Anciões", classe: "paladino", subclasse: "juramento-dos-ancioes", nivel: 20, max: um, recarga: "longo", descricao: "Transformação em força elemental por 1 minuto." },
+  { id: "senhor-do-pavor", nome: "Senhor do Pavor", fonte: "Paladino: Quebrador de Juramento", classe: "paladino", subclasse: "quebrador-de-juramento", nivel: 20, max: um, recarga: "longo", descricao: "Aura de trevas por 1 minuto: 4d10 psíquico em inimigos amedrontados e ataques de sombras (3d10 + Car necrótico) como ação bônus." },
   { id: "anjo-vingador", nome: "Anjo Vingador", fonte: "Paladino: Vingança", classe: "paladino", subclasse: "juramento-de-vinganca", nivel: 20, max: um, recarga: "longo", descricao: "Asas e aura de medo por 1 hora." },
   // talentos
   { id: "talento-adepto-marcial", nome: "Dado de Superioridade (Adepto Marcial)", fonte: "Talento: Adepto Marcial", talento: "adepto-marcial", nivel: 1, max: um, recarga: "curto", descricao: "Um dado d6 para manobras." },

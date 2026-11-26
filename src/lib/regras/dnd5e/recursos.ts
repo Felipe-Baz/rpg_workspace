@@ -3,7 +3,9 @@
 
 import { classesDaFicha, modificador, nivelNaClasse, type FichaDnd, type Habilidade, type Teste } from "../../dnd5e.ts";
 import { usosDoCatalogo } from "./usosCatalogo.ts";
+import { recursosDeInvocacoes } from "./invocacoes.ts";
 import { ATIVAVEIS, danoDeFuria } from "./combate.ts";
+import type { Catalogo } from "./catalogo.ts";
 
 /** `manual` só existe nas habilidades cadastradas: nenhum descanso devolve os usos. */
 export type Recarga = "curto" | "longo" | "manual";
@@ -28,7 +30,7 @@ const mod = (f: FichaDnd, a: keyof FichaDnd["atributos"]) => modificador(f.atrib
 const porNivel = (nivel: number, faixas: [number, number][]) => faixas.reduce((v, [de, valor]) => (nivel >= de ? valor : v), 0);
 
 /** Recursos da classe (e de raça/talento informados) para a ficha efetiva. Fichas sem classe não têm recursos. */
-export function recursosDaFicha(f: FichaDnd, extras: { racaId?: string; subRacaId?: string; talentos?: string[]; subclasses?: Record<string, string | undefined> } = {}): RecursoDef[] {
+export function recursosDaFicha(f: FichaDnd, extras: { racaId?: string; subRacaId?: string; talentos?: string[]; subclasses?: Record<string, string | undefined>; catalogo?: Pick<Catalogo, "invocacao"> } = {}): RecursoDef[] {
   const out: RecursoDef[] = [];
   // cada classe dá os recursos do SEU nível (multiclasse: guerreiro 5 / mago 3 tem Surto de Ação de guerreiro 5 e Recuperação Arcana de mago 3)
   for (const { id: classe, nivel: n } of classesDaFicha(f)) switch (classe) {
@@ -76,6 +78,8 @@ export function recursosDaFicha(f: FichaDnd, extras: { racaId?: string; subRacaI
     racaId: extras.racaId, subRacaId: extras.subRacaId, talentos: extras.talentos, subclasses: extras.subclasses,
     niveis: Object.fromEntries(classes.map((c) => [c.id, c.nivel])), nivelTotal: classes.reduce((a, c) => a + c.nivel, 0) || f.nivel,
   })) out.push({ id: u.id, nome: u.nome, max, recarga: u.recarga, fonte: u.fonte, descricao: u.descricao });
+  // Invocações Místicas que conjuram magia (à vontade ou uma vez por descanso longo)
+  out.push(...recursosDeInvocacoes(f, extras.catalogo));
   // habilidades cadastradas pelo jogador entram na mesma lista (usos em `recursos["hab-{id}"]`)
   for (const h of f.habilidades ?? []) out.push(defDeHabilidade(h));
   return out;
@@ -109,7 +113,10 @@ export function gastarRecurso(f: FichaDnd, defs: readonly RecursoDef[], id: stri
 export function restaurarRecursos(f: FichaDnd, defs: readonly RecursoDef[], descanso: Descanso): FichaDnd {
   const recursos = { ...f.recursos };
   for (const d of defs) if (d.recarga !== "manual" && (descanso === "longo" || d.recarga === "curto")) delete recursos[d.id];
-  return { ...f, recursos, ativos: [] };
+  // o descanso também encerra a Forma Selvagem (a ficha volta aos PV e números do druida)
+  const { forma: _forma, ...sem } = f;
+  void _forma;
+  return { ...sem, recursos, ativos: [] };
 }
 
 /** Pode ligar a característica? Gasta o recurso que ela usa. `null` quando falta recurso. */

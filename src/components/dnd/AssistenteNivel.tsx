@@ -13,7 +13,9 @@ import { fichaEfetiva } from "@/lib/regras/dnd5e/efetiva";
 import { carregarMagias, type MagiaCat } from "@/lib/regras/dnd5e/magias";
 import { ajustarConjuracao, adicionarClasse, classesNovas, conferirRequisitos, PROF_MULTICLASSE, textoRequisito, lerRequisito } from "@/lib/regras/dnd5e/multiclasse";
 import { incrementoValido, incrementosDisponiveis, incrementosUsados, resumoSubida, subirNivel, type EscolhasSubida } from "@/lib/regras/dnd5e/progressao";
+import { BRUXO, NIVEL_PACTO, invocacoesConhecidas, invocacoesDaFicha, pactoDaFicha, truquesDaFicha } from "@/lib/regras/dnd5e/invocacoes";
 import { EscolhaCampos } from "./ConstrucaoPersonagem";
+import { SeletorInvocacoes, SeletorPacto } from "./InvocacoesMisticas";
 import TextoLivro from "./TextoLivro";
 
 const campo = "rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
@@ -47,6 +49,9 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
   const [a2, setA2] = useState<Atributo>("con");
   const [talento, setTalento] = useState("");
   const [escTalento, setEscTalento] = useState<Escolhas>({});
+  // bruxo: invocações místicas e Dádiva do Pacto (partem do que a ficha já tem; no máximo uma troca por nível)
+  const [invs, setInvs] = useState<string[]>(() => invocacoesDaFicha(ficha));
+  const [pacto, setPacto] = useState<string>(() => pactoDaFicha(ficha) ?? "");
   const [erro, setErro] = useState("");
   const [magias, setMagias] = useState<MagiaCat[]>([]);
   useEffect(() => { void carregarMagias().then(setMagias).catch(() => {}); }, []);
@@ -78,9 +83,19 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
   const pvInvalido = pvModo === "rolar" && (pvRolado < 1 || pvRolado > resumo.dadoVida);
 
   const pvEscolhido = pvModo === "medio" ? "medio" : pvRolado;
+  // o bruxo (já na classe) escolhe invocações a partir do 2º nível e o pacto no 3º
+  const ehBruxo = !novaId && b.classes[indice]?.id === BRUXO;
+  const pedeInvocacoes = ehBruxo && resumo.para >= 2;
+  const pedePacto = ehBruxo && resumo.para >= NIVEL_PACTO && !pactoDaFicha(ficha);
+  const limiteInv = invocacoesConhecidas(resumo.para);
+  const antesInv = invocacoesDaFicha(ficha);
+  const trocas = antesInv.filter((id) => !invs.includes(id)).length;
   const novoBuild = () => novaId
     ? adicionarClasse(b, { id: novaId, pv: pvEscolhido, subclasse: subclasse || undefined, escolhas: escNova })
-    : subirNivel(b, { classe: indice, pv: pvEscolhido, incremento: pedeIncremento ? incremento : undefined, subclasse: subclasse || undefined, escolhasTalento: talento ? escTalento : undefined });
+    : subirNivel(b, {
+      classe: indice, pv: pvEscolhido, incremento: pedeIncremento ? incremento : undefined, subclasse: subclasse || undefined, escolhasTalento: talento ? escTalento : undefined,
+      ...(pedeInvocacoes ? { invocacoes: invs } : {}), ...(pedePacto && pacto ? { pacto } : {}),
+    });
 
   /** Ficha como ficaria no próximo nível (para mostrar o efeito nas magias e nos PV). */
   const depois = (() => {
@@ -93,6 +108,8 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
 
   const confirmar = () => {
     if (novaId && requisitosFalhos.length && papel !== "mestre") { setErro(`Multiclasse: ${requisitosFalhos.map((r) => `${r.nome} pede ${textoRequisito(lerRequisito(r.requisito))}`).join("; ")}.`); return; }
+    if (pedeInvocacoes && trocas > 1 && papel !== "mestre") { setErro("Ao subir de nível você pode trocar no máximo uma invocação por outra."); return; }
+    if (pedeInvocacoes && invs.length > limiteInv) { setErro(`Neste nível o bruxo conhece ${limiteInv} invocações.`); return; }
     if (faltaSubclasse || pvInvalido || erroInc) { setErro(erroInc || (faltaSubclasse ? "Escolha a subclasse." : "Informe um PV válido.")); return; }
     const viol = validar(depois.t, cat, opcoes);
     if (bloqueia(papel, viol)) { setErro(viol.filter((v) => v.gravidade !== "aviso").map((v) => v.mensagem).join(" ")); return; }
@@ -164,6 +181,29 @@ export default function AssistenteNivel({ ficha, cat, opcoes, papel, onSalvar, o
               {novaSub.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
             </select>
             {subclasse && <TextoLivro texto={novaSub.find((s) => s.id === subclasse)?.caracteristicas[0]?.texto ?? ""} className="mt-1" />}
+          </section>
+        )}
+
+        {pedePacto && (
+          <section className={secao}>
+            <h3 className={titulo}>Dádiva do Pacto</h3>
+            <SeletorPacto valor={pacto} onChange={setPacto} />
+            {!pacto && <p className="mt-1 text-xs text-muted">Pode ficar para depois (a ficha avisa que falta), mas várias invocações dependem do pacto.</p>}
+          </section>
+        )}
+
+        {pedeInvocacoes && (
+          <section className={secao}>
+            <h3 className={titulo}>Invocações Místicas</h3>
+            <SeletorInvocacoes
+              cat={cat} selecionadas={invs} limite={limiteInv} liberado={papel === "mestre"}
+              ctx={{ nivelBruxo: resumo.para, pacto: pacto || pactoDaFicha(ficha), truques: truquesDaFicha(ficha) }}
+              onChange={setInvs}
+            />
+            <p className="mt-1 text-xs text-muted">
+              {invs.length < limiteInv ? `Faltam ${limiteInv - invs.length}: dá para completar depois na aba Traços. ` : ""}
+              {antesInv.length ? `Trocas neste nível: ${trocas}/1 (o livro permite trocar uma invocação por outra ao subir de nível).` : ""}
+            </p>
           </section>
         )}
 

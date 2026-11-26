@@ -14,7 +14,7 @@ const Aviso = ({ children }: { children: React.ReactNode }) => (
 
 /** Ficha do próprio jogador (ou do mestre, quando ele joga). */
 export function FichaDndJogador() {
-  const { uid } = useUidJogador();
+  const { uid, vendoComo } = useUidJogador();
   const mesa = useMesaAtual();
   const meu = mesa.jogadores.find((j) => j.uid === uid);
   return (
@@ -23,7 +23,7 @@ export function FichaDndJogador() {
       {!ehDnd5e(mesa.sistema) ? (
         <Aviso>Esta mesa não usa D&D 5e, então a ficha automatizada não está disponível.</Aviso>
       ) : uid ? (
-        <FichaDnd5e mesaId={mesa.id} donoUid={uid} nomePadrao={meu?.personagem} opcoes={mesa.opcoesRegras} />
+        <FichaDnd5e mesaId={mesa.id} donoUid={uid} nomePadrao={meu?.personagem} papel={vendoComo ? "mestre" : "jogador"} opcoes={mesa.opcoesRegras} />
       ) : null}
     </>
   );

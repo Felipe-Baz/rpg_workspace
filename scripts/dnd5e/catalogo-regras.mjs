@@ -122,6 +122,20 @@ const RACAS = {
     // Legado Ctônico (Livro do Jogador 2024, D&D Beyond). Substitui a Resistência Infernal e a Linhagem Infernal da base:
     // `retira` tira a resistência a fogo que a raça base concede. Os bônus de atributo continuam os da raça base (livro 2014).
     variantes: {
+      // Infernal = a própria raça base (Resistência Infernal e Linhagem Infernal do livro 2014); existe como opção para o assistente
+      // sempre oferecer a escolha de legado e para a ficha não cair no legado Ctônico por ser a única sub-raça.
+      infernal: {
+        nome: "Tiefling Infernal", atr: {}, concede: {},
+        texto: "**Legado Infernal.** Sem mudanças em relação à raça base: use a Resistência Infernal (resistência a dano de fogo) e a Linhagem Infernal (taumaturgia; no 3º nível repreensão infernal; no 5º escuridão).",
+      },
+      // Legado Abissal (Livro do Jogador 2024): troca fogo por veneno.
+      abyssal: {
+        nome: "Tiefling Abissal (Abyssal)", atr: {}, concede: { resistencias: ["veneno"] },
+        retira: { resistencias: ["fogo"] },
+        texto: [ "**Legado Abissal.** Seu legado vem dos Abismos. Você tem resistência a dano de veneno e conhece o truque rajada de veneno. Ao alcançar o 3º nível de personagem, você aprende a magia raio adoecente e, ao alcançar o 5º nível, a magia imobilizar pessoa: ambas ficam sempre preparadas. Você pode conjurar cada uma uma vez sem gastar espaço de magia e recupera esse uso ao terminar um descanso longo; também pode conjurá-las com espaços de magia do círculo adequado. Inteligência, Sabedoria ou Carisma é sua habilidade de conjuração para essas magias (escolha ao selecionar o legado).",
+          "**Presença de Outro Mundo.** Você conhece o truque taumaturgia. Ao conjurá-lo com esta característica, usa a mesma habilidade de conjuração do Legado Abissal.",
+        ].join("\n\n"),
+      },
       chthonic: {
         nome: "Tiefling Ctônico (Chthonic)", atr: {}, concede: { resistencias: ["necrótico"] },
         retira: { resistencias: ["fogo"] },
@@ -263,7 +277,38 @@ function nomesDaTabela(celula) {
     .filter((n) => n && n !== "–" && !/^[\d\s+d/–-]+$/.test(n));
 }
 
-function classes(md, avisos) {
+// Subclasses do Guia do Mestre (docs/referencias/master_guide/dnd5e-classes-vilanescas.md): cada bloco "# Classe: Nome" vira
+// uma subclasse da classe correspondente e cada "## Título" vira uma característica. A introdução do bloco (requisitos do
+// Quebrador de Juramento, descrição do Domínio da Morte) entra como a primeira característica. São opções que o livro
+// só libera com aprovação do Mestre; o catálogo as oferece como as demais subclasses.
+const SUBS_GUIA_MESTRE = {
+  "Paladino": { classe: "paladino", intro: "Tornando-se Quebrador de Juramento" },
+  "Clérigo": { classe: "clerigo", intro: "Domínio da Morte (Guia do Mestre)" },
+};
+
+function subclassesGuiaMestre(md, avisos) {
+  const out = [];
+  const limpa = (t) => t.replace(/\n---\s*$/, "").trim();
+  for (const bloco of md.split(/\n# /).slice(1)) {
+    const [cab, ...resto] = bloco.split("\n");
+    const m = cab.match(/^([^:]+):\s*(.+)$/);
+    const def = m && SUBS_GUIA_MESTRE[m[1].trim()];
+    if (!def) continue;
+    const partes = resto.join("\n").split(/\n## /);
+    const intro = limpa(partes[0]);
+    const caracteristicas = partes.slice(1).map((p) => {
+      const nome = p.split("\n")[0].trim();
+      return { id: slug(nome), nome, texto: limpa(p.split("\n").slice(1).join("\n")) };
+    });
+    if (!caracteristicas.length) { avisos.push(`Guia do Mestre: ${m[2]} sem características`); continue; }
+    if (intro) caracteristicas.unshift({ id: slug(def.intro), nome: def.intro, texto: intro });
+    out.push({ classe: def.classe, sub: { id: slug(m[2]), nome: m[2].trim(), pacote: "dmg", caracteristicas } });
+  }
+  if (out.length !== 2) avisos.push(`Guia do Mestre: esperadas 2 subclasses, lidas ${out.length}`);
+  return out;
+}
+
+function classes(md, avisos, extras = []) {
   const secoes = md.split(/\n## /).slice(1);
   const out = [];
   for (const sec of secoes) {
@@ -348,6 +393,7 @@ function classes(md, avisos) {
       subclasses.push({ id: slug(sn), nome: sn, pacote: "phb", caracteristicas: feats });
     }
     if (!subclasses.length) avisos.push(`${nome}: nenhuma subclasse lida`);
+    for (const e of extras) if (e.classe === def.id) subclasses.push(e.sub);
 
     out.push({
       id: def.id, nome, pacote: "phb",
@@ -434,7 +480,7 @@ export function gerarRegras(dirFonte) {
   return {
     racas: racas(ler(dirFonte, "dnd5e-racas.md"), avisos),
     antecedentes: antecedentes(ler(dirFonte, "dnd5e-antecedentes.md"), avisos),
-    classes: classes(ler(dirFonte, "dnd5e-classes.md"), avisos),
+    classes: classes(ler(dirFonte, "dnd5e-classes.md"), avisos, subclassesGuiaMestre(ler(join(dirFonte, "../master_guide"), "dnd5e-classes-vilanescas.md"), avisos)),
     talentos: talentos(ler(dirFonte, "dnd5e-talentos-multiclasse.md"), avisos),
     multiclasse: multiclasse(ler(dirFonte, "dnd5e-talentos-multiclasse.md"), avisos),
     avisos,

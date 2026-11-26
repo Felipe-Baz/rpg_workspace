@@ -7,8 +7,9 @@ import type { Catalogo } from "./catalogo.ts";
 import { validar, type FichaCalculada } from "./derivar.ts";
 import { podeSubirDeNivel } from "./progressao.ts";
 import type { OpcoesMesa } from "../sistema.ts";
+import { danoNaForma } from "./formaSelvagem.ts";
 
-export type PatchEstado = Partial<Pick<FichaDnd, "pv" | "pvTemp" | "morteSucessos" | "morteFalhas" | "condicoes" | "exaustao" | "concentracao" | "ativos">>;
+export type PatchEstado = Partial<Pick<FichaDnd, "pv" | "pvTemp" | "morteSucessos" | "morteFalhas" | "condicoes" | "exaustao" | "concentracao" | "ativos" | "forma">>;
 
 export type LinhaGrupo = {
   uid: string;
@@ -115,7 +116,7 @@ export function resumoDoGrupo(linhas: readonly LinhaGrupo[]): ResumoGrupo {
 }
 
 // ---------- operações do mestre (viram atualização por campo) ----------
-const CAMPOS_ESTADO = ["pv", "pvTemp", "morteSucessos", "morteFalhas", "condicoes", "exaustao", "concentracao", "ativos"] as const;
+const CAMPOS_ESTADO = ["pv", "pvTemp", "morteSucessos", "morteFalhas", "condicoes", "exaustao", "concentracao", "ativos", "forma"] as const;
 
 /** Só o que mudou entre duas versões da ficha, nos campos de estado de combate. Campo removido vira `undefined`. */
 export function diferencaDeEstado(antes: FichaDnd, depois: FichaDnd): PatchEstado {
@@ -125,14 +126,24 @@ export function diferencaDeEstado(antes: FichaDnd, depois: FichaDnd): PatchEstad
 }
 
 /** Dano aplicado pelo mestre à ficha efetiva: devolve o que gravar e o texto do que aconteceu. Cair a 0 PV encerra a concentração. */
-export function danoDoMestre(ef: FichaDnd, calc: FichaCalculada | null, dano: { valor: number; tipo?: string; critico?: boolean }): { patch: PatchEstado; texto: string[] } {
+export function danoDoMestre(ef: FichaDnd, calc: FichaCalculada | null, dano: { valor: number; tipo?: string; critico?: boolean }, base?: FichaDnd): { patch: PatchEstado; texto: string[] } {
   const r = aplicarDano(ef, { ...dano, defesas: defesasDe(ef, calc?.resistencias.map((x) => x.nome)) });
+  // transformado (Forma Selvagem): `ef` traz os números da fera e `base` é a ficha do druida; o dano sai dos PV da fera
+  if (ef.forma && base) {
+    const d = danoNaForma(base, r.final, (real, valor) => { const x = aplicarDano(real, { valor, defesas: defesasDe(real, calc?.resistencias.map((y) => y.nome)) }); return { ficha: x.ficha, texto: x.texto }; });
+    const depoisF = d.ficha.pv <= 0 ? { ...d.ficha, concentracao: undefined } : d.ficha;
+    return { patch: diferencaDeEstado(base, depoisF), texto: [`${ef.nome || "Personagem"} sofreu ${r.final} de dano${dano.tipo ? ` (${dano.tipo})` : ""}.`, ...r.texto, ...d.texto] };
+  }
   const depois = r.caiu || r.morreu ? { ...r.ficha, concentracao: undefined } : r.ficha;
   const texto = [`${ef.nome || "Personagem"} sofreu ${r.final} de dano${dano.tipo ? ` (${dano.tipo})` : ""}.`, ...r.texto];
   return { patch: diferencaDeEstado(ef, depois), texto };
 }
 
-export function curaDoMestre(ef: FichaDnd, valor: number): { patch: PatchEstado; texto: string[] } {
+export function curaDoMestre(ef: FichaDnd, valor: number, base?: FichaDnd): { patch: PatchEstado; texto: string[] } {
+  if (ef.forma && base) { // cura a fera (ef.pv/pvMax são os dela)
+    const c = aplicarCura(ef, valor, ef.pvMax);
+    return { patch: c.pv === ef.pv ? {} : { forma: { ...ef.forma, pv: c.pv } }, texto: [`${ef.nome || "Personagem"} recebeu ${valor} de cura.`] };
+  }
   const depois = aplicarCura(ef, valor, pvMaxEfetivo(ef.pvMax, ef));
   return { patch: diferencaDeEstado(ef, depois), texto: [`${ef.nome || "Personagem"} recebeu ${valor} de cura.`] };
 }

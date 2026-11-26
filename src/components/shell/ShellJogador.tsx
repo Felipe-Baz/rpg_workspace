@@ -106,7 +106,7 @@ export default function ShellJogador({ id, children }: { id: string; children: R
                 <option key={j.id} value={j.uid}>{j.personagem || j.nome}</option>
               ))}
             </select>
-            {jogadorVisto && <span className="text-muted">Somente leitura: o que você vê é o que este jogador vê, incluindo as anotações dele.</span>}
+            {jogadorVisto && <span className="text-muted">Você vê o que este jogador vê (anotações e fichas dele em leitura). Na ficha de D&D você pode editar tudo para ajudá-lo.</span>}
           </div>
         )}
         {children}

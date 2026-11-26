@@ -174,6 +174,8 @@ export type FichaDnd = {
   recursos?: Record<string, number>;
   /** Habilidades com usos cadastradas pelo jogador (raça, subclasse, talento, item). Os usos gastos vão em `recursos["hab-{id}"]`. */
   habilidades?: Habilidade[];
+  /** Forma Selvagem do druida: a fera assumida (id em `feras.json`) e os PV dela. Enquanto existe, a ficha efetiva usa os números da fera. */
+  forma?: { feraId: string; pv: number };
   /** Características ligadas agora (furia, ataque-descuidado...). Encerram no descanso. */
   ativos?: string[];
   /** Condições do Apêndice A aplicadas (ids); "inconsciente" a 0 PV é implícita. */

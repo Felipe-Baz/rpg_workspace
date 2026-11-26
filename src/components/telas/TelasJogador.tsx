@@ -92,6 +92,7 @@ export function FichasJ() {
       rotulo={efeitos.termos[`fichas.${c.id}` as never] ?? c.rotulo}
       singular={c.singular}
       icone={c.icone}
+      apenasLeitura={vendoComo}
       opinioes={{ valores: opinioes, carregado, definir: definirOpiniao }}
     />
   );

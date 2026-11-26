@@ -4,6 +4,7 @@
 import { ATRIBUTOS, type Atributo } from "../../dnd5e.ts";
 import type { Build, Escolhas, PassoNivel } from "./build.ts";
 import type { Catalogo, ClasseCat } from "./catalogo.ts";
+import { definirInvocacoes } from "./invocacoes.ts";
 
 // ---------- XP ----------
 /** XP mínimo de cada nível (índice 0 = nível 1). Tabela "Avanço de Personagem" do livro. */
@@ -114,6 +115,9 @@ export type EscolhasSubida = {
   subclasse?: string;
   /** Escolhas do talento adquirido (ex.: o atributo de Atleta). */
   escolhasTalento?: Escolhas;
+  /** Bruxo: invocações místicas e Dádiva do Pacto depois do nível (ausente = não muda). */
+  invocacoes?: string[];
+  pacto?: string;
 };
 
 /** Sobe um nível: registra o passo no histórico e atualiza classe, subclasse e talento. Não valida regras da mesa (use `validar`). */
@@ -123,12 +127,13 @@ export function subirNivel(b: Build, e: EscolhasSubida): Build {
   if (!c) return b;
   const incremento = e.incremento && (e.incremento.talento || Object.keys(e.incremento.atributos ?? {}).length) ? e.incremento : undefined;
   const passo: PassoNivel = { classe: c.id, pv: e.pv, ...(incremento ? { incremento } : {}) };
-  return {
+  const subido: Build = {
     ...b,
     classes: b.classes.map((k, j) => (j === i ? { ...k, nivel: k.nivel + 1, ...(e.subclasse ? { subclasse: e.subclasse } : {}) } : k)),
     historicoNiveis: [...(b.historicoNiveis ?? []), passo],
     ...(incremento?.talento && e.escolhasTalento ? { escolhasTalentos: { ...b.escolhasTalentos, [incremento.talento]: e.escolhasTalento } } : {}),
   };
+  return c.id === "bruxo" && (e.invocacoes || e.pacto) ? definirInvocacoes(subido, e.invocacoes ?? c.escolhas?.invocacoes ?? [], e.pacto) : subido;
 }
 
 /** O incremento é um +2 em um atributo ou +1 em dois (ou um talento)? E respeita o teto de 20 dado o total atual? */

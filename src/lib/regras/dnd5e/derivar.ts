@@ -12,6 +12,7 @@ import { nivelTotal, type Ajuste, type Build, type Escolhas } from "./build.ts";
 import type { ArmaCat, ArmaduraCat, Catalogo, Concessoes, EscolhaDef, EscolhaOpcao, EscudoCat, Traco } from "./catalogo.ts";
 import { opcaoAtiva, type OpcoesMesa, type Violacao } from "../sistema.ts";
 import { dnd5e } from "./sistema.ts";
+import { PACTOS, ataqueDaArmaDoPacto, conferirInvocacoes, invocacoesDaFicha, nomeDoPacto, pactoDaFicha, periciasDeInvocacoes, temArmaduraDeSombras } from "./invocacoes.ts";
 import { PROF_MULTICLASSE, conferirRequisitos, textoRequisito, lerRequisito } from "./multiclasse.ts";
 
 export type TipoFonte = "raca" | "subraca" | "antecedente" | "classe" | "subclasse" | "talento";
@@ -160,6 +161,19 @@ export function fontesDoBuild(b: Build, cat: Catalogo, opcoes?: OpcoesMesa): Fon
       fontes.push({ id: sub.id, nome: sub.nome, tipo: "subclasse", efeitos: [], concede: vazio(), tracos: caracteristicasSubAteNivel(sub, c.nivel, cl.subclasseNivel ?? 1), pendentes: [], talentos: [], truques: [] });
     }
   });
+  // Invocações Místicas e Dádiva do Pacto do bruxo: traços de consulta e as perícias que concedem
+  const doBruxo = { build: b };
+  const invs = invocacoesDaFicha(doBruxo);
+  const pacto = pactoDaFicha(doBruxo);
+  if (invs.length || pacto) {
+    const tracos: Traco[] = [
+      ...(pacto ? [{ id: `pacto-${pacto}`, nome: `Dádiva do Pacto: ${nomeDoPacto(pacto)}`, texto: PACTOS.find((p) => p.id === pacto)?.resumo ?? "" }] : []),
+      ...invs.flatMap((id) => { const i = cat.invocacao(id); return i ? [{ id: i.id, nome: i.nome, texto: i.texto }] : []; }),
+    ];
+    const concede = vazio();
+    concede.pericias.push(...periciasDeInvocacoes(doBruxo));
+    fontes.push({ id: "invocacoes-misticas", nome: "Invocações Místicas", tipo: "classe", efeitos: [], concede, tracos, pendentes: [], talentos: [], truques: [] });
+  }
   if (opcaoAtiva(dnd5e, opcoes, "talentos")) {
     const ids = new Set([...(b.talentos ?? []), ...fontes.flatMap((f) => f.talentos), ...(b.historicoNiveis ?? []).flatMap((p) => (p.incremento?.talento ? [p.incremento.talento] : []))]);
     for (const id of ids) {
@@ -317,7 +331,8 @@ export function derivar(ficha: FichaDnd, cat: Catalogo, opcoes?: OpcoesMesa): Fi
   let ca: Valor;
   if (b) {
     const pc = partesDeCa({
-      mods, classeIds: b.classes.map((c) => c.id), armaduraArcana: (ficha.ativos ?? []).includes("armadura-arcana"),
+      mods, classeIds: b.classes.map((c) => c.id), armaduraArcana: (ficha.ativos ?? []).includes("armadura-arcana") || temArmaduraDeSombras(ficha),
+      rotuloArmaduraArcana: !(ficha.ativos ?? []).includes("armadura-arcana") && temArmaduraDeSombras(ficha) ? "Armadura de Sombras" : undefined,
       armadura: armadura ? { cat: armadura.c, bonusMagico: armadura.i.bonusMagico ?? 0, nome: armadura.i.nome || armadura.c.nome } : undefined,
       escudo: escudo ? { cat: escudo.c, bonusMagico: escudo.i.bonusMagico ?? 0 } : undefined,
     });
@@ -328,6 +343,8 @@ export function derivar(ficha: FichaDnd, cat: Catalogo, opcoes?: OpcoesMesa): Fi
   const pvMax = b ? calcularPv(b, cat, nivel, mods.con, efeitos) : fixo(ficha.pvMax, "Ficha");
 
   const ataques = b ? ataquesDeArmas({ itens: ficha.itens, arma: (id) => { const x = cat.item(id); return x?.tipo === "arma" ? (x as ArmaCat) : undefined; }, mods, proficiencias: armas.map((x) => x.nome) }) : [];
+  const armaPacto = b ? ataqueDaArmaDoPacto(ficha, cat, mods) : null;
+  if (armaPacto) ataques.splice(Math.max(0, ataques.length - 1), 0, armaPacto); // antes do ataque desarmado
   const peso = pesoTotal(ficha.itens);
   const capacidade = capacidadeDeCarga(atributos.for.total);
   if (peso > capacidade) avisos.push(`Carga de ${peso} kg acima da capacidade (${capacidade} kg).`);
@@ -430,6 +447,7 @@ export function validar(ficha: FichaDnd, cat: Catalogo, opcoes?: OpcoesMesa): Vi
   const usados = (b.historicoNiveis ?? []).filter((p) => p.incremento && (p.incremento.talento || Object.keys(p.incremento.atributos ?? {}).length)).length;
   const direito = b.classes.reduce((s, c) => s + (cat.classe(c.id)?.tabela ?? []).filter((t) => t.nivel <= c.nivel && t.caracteristicas.some((x) => /incremento no valor/i.test(x.nome))).length, 0);
   if (usados > direito) v.push({ id: "incremento.excesso", mensagem: `Há ${usados} aumentos de atributo/talentos, mas o nível dá direito a ${direito}.`, campo: "build.historicoNiveis" });
+  for (const p of conferirInvocacoes(ficha, cat)) v.push({ id: p.id, ...(p.grave ? {} : { gravidade: "aviso" as const }), mensagem: p.mensagem, campo: "build.classes" });
   const calcAtr = derivar(ficha, cat, opcoes);
   for (const a of ATRIBUTOS) if (calcAtr.atributos[a].total > 20 && !b.ajustes?.[`atr.${a}`]) v.push({ id: `atributo.acima20.${a}`, gravidade: "aviso", mensagem: `${a.toUpperCase()} passou de 20 (${calcAtr.atributos[a].total}).`, campo: "build.atributosBase" });
   for (const id of b.talentos ?? []) if (!cat.talento(id)) v.push({ id: "talento.desconhecido", mensagem: `Talento "${id}" não existe no catálogo.`, campo: "build.talentos" });

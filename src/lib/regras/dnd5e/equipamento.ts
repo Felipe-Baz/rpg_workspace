@@ -55,6 +55,8 @@ export type EntradaCa = {
   escudo?: { cat: EscudoCat; bonusMagico: number };
   /** Magia Armadura Arcana ligada: sem armadura, a base é 13. */
   armaduraArcana?: boolean;
+  /** Nome da origem da base 13 quando não é a magia ligada (ex.: "Armadura de Sombras", invocação do bruxo). */
+  rotuloArmaduraArcana?: string;
 };
 
 /** Base e partes da CA: armadura (com limite de Des) ou o melhor cálculo sem armadura; escudo e bônus mágicos somam. */
@@ -67,10 +69,13 @@ export function partesDeCa(e: EntradaCa): { base: ParteCa; extras: ParteCa[] } {
     if (a.somaDes) extras.push({ rotulo: a.maxDes !== undefined && e.mods.des > a.maxDes ? `Destreza (máx. +${a.maxDes})` : "Destreza", valor: a.maxDes !== undefined ? Math.min(e.mods.des, a.maxDes) : e.mods.des });
     if (e.armadura.bonusMagico) extras.push({ rotulo: "Bônus mágico da armadura", valor: e.armadura.bonusMagico });
   } else {
-    base = e.armaduraArcana ? { rotulo: "Armadura Arcana", valor: 13 } : { rotulo: "Base sem armadura", valor: 10 };
+    const alt = (e.classeIds ?? []).map((id) => SEM_ARMADURA[id]).find(Boolean);
+    const altValido = !!alt && !(alt.semEscudo && e.escudo) && e.mods[alt.atr] > 0;
+    // Armadura Arcana (base 13) e Defesa sem Armadura são fórmulas diferentes: vale a melhor (a base 13 só perde com bônus de atributo acima de +3)
+    const arcana = e.armaduraArcana && !(altValido && e.mods[alt!.atr] > 3);
+    base = arcana ? { rotulo: e.rotuloArmaduraArcana ?? "Armadura Arcana", valor: 13 } : { rotulo: "Base sem armadura", valor: 10 };
     extras.push({ rotulo: "Destreza", valor: e.mods.des });
-    const alt = e.armaduraArcana ? undefined : (e.classeIds ?? []).map((id) => SEM_ARMADURA[id]).find(Boolean);
-    if (alt && !(alt.semEscudo && e.escudo) && e.mods[alt.atr] > 0) extras.push({ rotulo: alt.rotulo, valor: e.mods[alt.atr] });
+    if (!arcana && altValido) extras.push({ rotulo: alt!.rotulo, valor: e.mods[alt!.atr] });
   }
   if (e.escudo) {
     extras.push({ rotulo: "Escudo", valor: e.escudo.cat.bonusCa });
@@ -82,7 +87,7 @@ export function partesDeCa(e: EntradaCa): { base: ParteCa; extras: ParteCa[] } {
 // ---------- ataques das armas ----------
 const dec = (n: number) => String(n).replace(".", ",");
 
-function notasDaArma(a: ArmaCat): string {
+export function notasDaArma(a: ArmaCat): string {
   const p = a.propriedades;
   const t: string[] = [];
   if (p.acuidade) t.push("acuidade");

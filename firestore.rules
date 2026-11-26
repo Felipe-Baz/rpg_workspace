@@ -134,7 +134,8 @@ service cloud.firestore {
         allow read: if logado() && (
           (resource.data.donoUid == request.auth.uid
             && request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros)
-          || (resource.data.get('mestre', false) == true && get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid)
+          // O mestre lê todas (inclusive as privadas do jogador) para "Ver como" jogador; só leitura.
+          || get(/databases/$(database)/documents/mesas/$(mesaId)).data.donoUid == request.auth.uid
           || (request.auth.uid in get(/databases/$(database)/documents/mesas/$(mesaId)).data.membros
               && resource.data.get('mestre', false) == true
               && (resource.data.get('todos', false) == true

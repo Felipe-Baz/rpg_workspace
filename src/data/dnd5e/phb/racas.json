@@ -1087,6 +1087,48 @@
     "deslocamento": 9,
     "sub": [
       {
+        "id": "tiefling-infernal",
+        "nome": "Tiefling Infernal",
+        "pacote": "phb",
+        "efeitos": [],
+        "concede": {},
+        "tracos": [
+          {
+            "id": "legado-infernal",
+            "nome": "Legado Infernal",
+            "texto": "Sem mudanças em relação à raça base: use a Resistência Infernal (resistência a dano de fogo) e a Linhagem Infernal (taumaturgia; no 3º nível repreensão infernal; no 5º escuridão)."
+          }
+        ]
+      },
+      {
+        "id": "tiefling-abyssal",
+        "nome": "Tiefling Abissal (Abyssal)",
+        "pacote": "phb",
+        "efeitos": [],
+        "concede": {
+          "resistencias": [
+            "veneno"
+          ]
+        },
+        "retira": {
+          "resistencias": [
+            "fogo"
+          ]
+        },
+        "tracos": [
+          {
+            "id": "legado-abissal",
+            "nome": "Legado Abissal",
+            "texto": "Seu legado vem dos Abismos. Você tem resistência a dano de veneno e conhece o truque rajada de veneno. Ao alcançar o 3º nível de personagem, você aprende a magia raio adoecente e, ao alcançar o 5º nível, a magia imobilizar pessoa: ambas ficam sempre preparadas. Você pode conjurar cada uma uma vez sem gastar espaço de magia e recupera esse uso ao terminar um descanso longo; também pode conjurá-las com espaços de magia do círculo adequado. Inteligência, Sabedoria ou Carisma é sua habilidade de conjuração para essas magias (escolha ao selecionar o legado)."
+          },
+          {
+            "id": "presenca-de-outro-mundo",
+            "nome": "Presença de Outro Mundo",
+            "texto": "Você conhece o truque taumaturgia. Ao conjurá-lo com esta característica, usa a mesma habilidade de conjuração do Legado Abissal."
+          }
+        ]
+      },
+      {
         "id": "tiefling-chthonic",
         "nome": "Tiefling Ctônico (Chthonic)",
         "pacote": "phb",

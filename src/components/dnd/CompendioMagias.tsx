@@ -22,7 +22,7 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
  * busca, círculo, escola, classe, ritual e concentração. Com `onAdicionar`, cada magia ganha o botão de levá-la à
  * ficha (campos já preenchidos). Sem ele, é só leitura.
  */
-export default function CompendioMagias({ classeInicial, circuloMax, jaNaFicha, avaliar, onAdicionar, onFechar, rotuloAdicionar = "Adicionar à ficha" }: {
+export default function CompendioMagias({ classeInicial, circuloMax, jaNaFicha, avaliar, onAdicionar, onFechar, rotuloAdicionar = "Adicionar à ficha", extras }: {
   classeInicial?: string;
   /** Maior círculo que o personagem já conjura. Com ele aparece o filtro "só no meu nível" (ligado de início). */
   circuloMax?: number;
@@ -33,6 +33,8 @@ export default function CompendioMagias({ classeInicial, circuloMax, jaNaFicha, 
   onAdicionar?: (m: MagiaCat) => void;
   onFechar: () => void;
   rotuloAdicionar?: string;
+  /** Magias de fora da lista da classe liberadas pelo patrono (bruxo); aparecem no filtro da classe inicial. */
+  extras?: string[];
 }) {
   const [todas, setTodas] = useState<MagiaCat[] | null>(null);
   const [erro, setErro] = useState(false);
@@ -67,8 +69,15 @@ export default function CompendioMagias({ classeInicial, circuloMax, jaNaFicha, 
 
   // filtros comuns (sem a categoria): servem para contar as categorias e subcategorias
   const base = useMemo(
-    () => (todas ? buscarMagias(todas, { texto, nivel: nivel === "" ? undefined : nivel, escola: escola || undefined, classe: classe || undefined, ritual, concentracao }).filter((m) => limite === undefined || m.nivel <= limite) : []),
-    [todas, texto, nivel, escola, classe, ritual, concentracao, limite],
+    () => {
+      if (!todas) return [];
+      // a lista expandida do patrono (bruxo) entra junto com a lista da classe
+      const comExtras = !!classe && classe === classeInicial && !!extras?.length;
+      return buscarMagias(todas, { texto, nivel: nivel === "" ? undefined : nivel, escola: escola || undefined, classe: comExtras ? undefined : classe || undefined, ritual, concentracao })
+        .filter((m) => !comExtras || m.classes.includes(classe) || extras!.includes(m.id))
+        .filter((m) => limite === undefined || m.nivel <= limite);
+    },
+    [todas, texto, nivel, escola, classe, classeInicial, extras, ritual, concentracao, limite],
   );
   const contagem = useMemo(() => {
     const c = new Map<string, number>();

@@ -59,6 +59,13 @@ export type Antecedente = ConteudoComEfeitos & {
 };
 export type Talento = ConteudoComEfeitos & { prerequisito?: string; texto?: string };
 
+/** Invocação Mística do bruxo. `requisitos` é o pré-requisito em dados (nível de bruxo, Dádiva do Pacto, truque conhecido). */
+export type InvocacaoCat = Conteudo & {
+  texto: string;
+  requisitoTexto?: string;
+  requisitos?: { nivel?: number; pacto?: string; truque?: string };
+};
+
 export type CaracteristicaClasse = { id: string; nome: string; texto: string; nivel?: number };
 export type Subclasse = Conteudo & { caracteristicas: { id: string; nome: string; texto: string }[] };
 export type ClasseCat = Conteudo & {
@@ -111,6 +118,7 @@ export type PacoteConteudo = {
   classes?: ClasseCat[];
   equipamento?: ItemCat[];
   multiclasse?: MulticlasseDados;
+  invocacoes?: InvocacaoCat[];
   // magias (carregadas à parte, ver magias.ts), equipamento etc. entram nas fases seguintes
 };
 
@@ -123,17 +131,19 @@ export type Catalogo = {
   item(id: string): ItemCat | undefined;
   equipamento(): ItemCat[];
   multiclasse(): MulticlasseDados;
+  invocacao(id: string): InvocacaoCat | undefined;
+  invocacoes(): InvocacaoCat[];
   racas(): Raca[];
   antecedentes(): Antecedente[];
   talentos(): Talento[];
   classes(): ClasseCat[];
 };
 
-const CHAVES = ["racas", "antecedentes", "talentos", "classes", "equipamento"] as const;
+const CHAVES = ["racas", "antecedentes", "talentos", "classes", "equipamento", "invocacoes"] as const;
 
 /** Junta pacotes num catálogo. Id repetido no mesmo tipo é erro (evita um pacote sobrescrever o outro em silêncio). */
 export function criarCatalogo(pacotes: readonly PacoteConteudo[]): Catalogo {
-  const mapas = { racas: new Map<string, Raca>(), antecedentes: new Map<string, Antecedente>(), talentos: new Map<string, Talento>(), classes: new Map<string, ClasseCat>(), equipamento: new Map<string, ItemCat>() };
+  const mapas = { racas: new Map<string, Raca>(), antecedentes: new Map<string, Antecedente>(), talentos: new Map<string, Talento>(), classes: new Map<string, ClasseCat>(), equipamento: new Map<string, ItemCat>(), invocacoes: new Map<string, InvocacaoCat>() };
   for (const p of pacotes) {
     for (const k of CHAVES) {
       for (const c of (p[k] ?? []) as Conteudo[]) {
@@ -152,6 +162,8 @@ export function criarCatalogo(pacotes: readonly PacoteConteudo[]): Catalogo {
     item: (id) => mapas.equipamento.get(id),
     equipamento: () => [...mapas.equipamento.values()],
     multiclasse: () => pacotes.find((p) => p.multiclasse)?.multiclasse ?? SEM_MULTICLASSE,
+    invocacao: (id) => mapas.invocacoes.get(id),
+    invocacoes: () => [...mapas.invocacoes.values()],
     racas: () => [...mapas.racas.values()],
     antecedentes: () => [...mapas.antecedentes.values()],
     talentos: () => [...mapas.talentos.values()],
@@ -171,7 +183,8 @@ export function carregarCatalogoPhb(): Promise<Catalogo> {
     import("../../../data/dnd5e/phb/classes.json"),
     import("../../../data/dnd5e/phb/equipamento.json"),
     import("../../../data/dnd5e/phb/multiclasse.json"),
-  ]).then(([r, a, t, c, e, m]) => criarCatalogo([{
+    import("../../../data/dnd5e/phb/invocacoes.json"),
+  ]).then(([r, a, t, c, e, m, inv]) => criarCatalogo([{
     id: "phb", nome: "Livro do Jogador",
     racas: (r.default ?? r) as unknown as Raca[],
     antecedentes: (a.default ?? a) as unknown as Antecedente[],
@@ -179,6 +192,7 @@ export function carregarCatalogoPhb(): Promise<Catalogo> {
     classes: (c.default ?? c) as unknown as ClasseCat[],
     equipamento: (e.default ?? e) as unknown as ItemCat[],
     multiclasse: (m.default ?? m) as unknown as MulticlasseDados,
+    invocacoes: (inv.default ?? inv) as unknown as InvocacaoCat[],
   }]));
   return phb;
 }

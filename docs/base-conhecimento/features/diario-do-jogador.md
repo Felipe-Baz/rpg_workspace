@@ -14,7 +14,7 @@ O jogador precisa de um lugar próprio para registrar o que viveu, sem o mestre 
 
 ## Regras e limites
 - Só o dono escreve (e precisa ser membro). O **mestre lê** (regras do Firestore), mas nunca escreve.
-- **Ver como jogador:** na visão do jogador, o mestre escolhe um jogador (seletor "Ver como", guardado em `sessionStorage` por mesa). As telas passam a usar o uid desse jogador (`useUidJogador`), em modo somente leitura nas anotações; serve para testar o as-is e ler o diário, pinos e quadro dele. Fichas privadas do jogador (`mestre:false`) continuam ilegíveis ao mestre.
+- **Ver como jogador:** na visão do jogador, o mestre escolhe um jogador (seletor "Ver como", guardado em `sessionStorage` por mesa). As telas passam a usar o uid desse jogador (`useUidJogador`), em modo somente leitura nas anotações; serve para testar o as-is e ler o diário, pinos e quadro dele. As fichas privadas do jogador (`mestre:false`, NPCs/itens que ele cadastrou) também ficam legíveis ao mestre (regra do Firestore) e a tela vira somente leitura (sem cadastrar nem editar), como se ele tivesse entrado na conta do jogador sem poder alterá-la. Exceção: na **ficha D&D 5e** o mestre edita tudo (`papel="mestre"`: ignora ficha publicada travada, XP para subir de nível, opção de compras e lista de magias da classe) para ajudar o jogador.
 
 ## Onde está no código
 `src/lib/mesas.ts` (`useAnotacoes`), `src/components/shell/VisaoJogadorContext.tsx`, `ShellJogador.tsx`, `src/components/telas/DiarioJogador.tsx`, `src/app/mesas/[id]/jogador/page.tsx`.

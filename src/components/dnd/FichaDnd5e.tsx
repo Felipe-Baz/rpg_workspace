@@ -23,7 +23,9 @@ import AssistenteCriacao from "./AssistenteCriacao";
 import { nivelPorXp, podeSubirDeNivel, xpParaNivel } from "@/lib/regras/dnd5e/progressao";
 import { TIPOS_DE_DANO, aplicarCura, aplicarDano, comSugestao, danoDeFuria, defesasDe, estabilizar, estadoVital, modoDaJogada, salvaguardaDeMorte, type EstadoJogo, type Jogada } from "@/lib/regras/dnd5e/combate";
 import HabilidadesUsos from "./HabilidadesUsos";
+import InvocacoesMisticas from "./InvocacoesMisticas";
 import { recursosCalculados, recursosDaFicha, restaurarRecursos } from "@/lib/regras/dnd5e/recursos";
+import { carregarFeras, comForma, danoNaForma, reverterForma, type Fera } from "@/lib/regras/dnd5e/formaSelvagem";
 import { MAX_SINTONIZADOS, emOuro, pagar, reembolsar, totalEmCobre, trocarMoedas } from "@/lib/regras/dnd5e/equipamento";
 import type { Moeda } from "@/lib/regras/dnd5e/catalogo";
 import { PARTES_IMPORTACAO, mesclarPartes, type ParteImportacao } from "@/lib/importarFichaPdf";
@@ -34,6 +36,7 @@ import { fichaEfetiva, gravavel } from "@/lib/regras/dnd5e/efetiva";
 import { opcaoAtiva, type OpcoesMesa } from "@/lib/regras/sistema";
 import { dnd5e } from "@/lib/regras/dnd5e/sistema";
 import { carregarMagias, magiaParaFicha, type MagiaCat } from "@/lib/regras/dnd5e/magias";
+import { magiasExpandidas } from "@/lib/regras/dnd5e/listaExpandida";
 import { classeFazRitual, conjurarMagia, encerrarConcentracao, maiorCirculo, planoDeConjuracao, podeAprender, testeConcentracao } from "@/lib/regras/dnd5e/conjuracao";
 
 const campo = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
@@ -143,6 +146,16 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   const [catalogo, setCatalogo] = useState<Map<string, MagiaCat>>(new Map());
   // dano recém-sofrido enquanto concentrado: oferece o teste de Constituição
   const [danoConc, setDanoConc] = useState<number | null>(null);
+  // feras da Forma Selvagem (bestiário): só carrega para druida de 2º nível ou mais, ou se já está transformado
+  const [feras, setFeras] = useState<Fera[] | null>(null);
+  // (com a construção pelo livro a classe vem do `build`; o campo `classe` gravado pode estar defasado)
+  const precisaFeras = !!bruta.forma || nivelNaClasse(bruta, "druida") >= 2 || !!bruta.build?.classes.some((c) => c.id === "druida" && c.nivel >= 2);
+  useEffect(() => {
+    if (!precisaFeras) return;
+    let vivo = true;
+    carregarFeras().then((l) => vivo && setFeras(l)).catch(() => {});
+    return () => { vivo = false; };
+  }, [precisaFeras]);
   const fichaEmBranco = useMemo<FichaDnd>(() => ({ ...FICHA_VAZIA, nome: bruta.nome }), [bruta.nome]);
   const precisaCatalogo = true; // o cabeçalho usa o catálogo (subclasses)
   useEffect(() => {
@@ -155,8 +168,11 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   const calc = useMemo(() => (bruta.build && catLivro ? derivar(bruta, catLivro, opcoes) : null), [bruta, catLivro, opcoes]);
   // ficha manual (sem build): só a CA e os ataques vêm do que está equipado no inventário
   const equipManual = useMemo(() => (!bruta.build && catLivro ? equipamentoManual(bruta, catLivro) : null), [bruta, catLivro]);
-  const f = bruta.build && catLivro && calc ? fichaEfetiva(bruta, calc, catLivro)
+  const fBase = bruta.build && catLivro && calc ? fichaEfetiva(bruta, calc, catLivro)
     : equipManual ? { ...bruta, ca: equipManual.ca?.total ?? bruta.ca, ataques: [...equipManual.ataques, ...bruta.ataques.filter((a) => !a.derivado)] } : bruta;
+  // transformado (Forma Selvagem): a tela lê os números da fera; `salvar` devolve os do druida antes de gravar
+  const feraAtual = bruta.forma ? feras?.find((x) => x.id === bruta.forma!.feraId) : undefined;
+  const f = feraAtual ? comForma(fBase, feraAtual) : fBase;
   const auto = !!bruta.build;
   const caDoEquipamento = !!equipManual?.ca;
   // a CA calculada pelo equipamento nunca é gravada (a gravada continua sendo a do jogador)
@@ -168,7 +184,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
     return () => { vivo = false; };
   }, [aba]);
 
-  if (!carregado || (bruta.build && !catLivro)) return <p className="py-10 text-center text-muted">Abrindo a ficha…</p>;
+  if (!carregado || (bruta.build && !catLivro) || (bruta.forma && !feras)) return <p className="py-10 text-center text-muted">Abrindo a ficha…</p>;
 
   // os assistentes são uma página no lugar da ficha (dentro do layout do site), não um popup
   if (assistente === "nivel" && catLivro) return <AssistenteNivel ficha={bruta} cat={catLivro} opcoes={opcoes} papel={papel} onSalvar={salvarBruto} onFechar={() => setAssistente(null)} />;
@@ -217,6 +233,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
   const defsRecursos = recursosDaFicha(f, {
     racaId: bruta.build?.raca?.id, subRacaId: bruta.build?.raca?.sub, talentos: bruta.build?.talentos,
     subclasses: Object.fromEntries((bruta.build?.classes ?? []).map((c) => [c.id, c.subclasse])),
+    catalogo: catLivro ?? undefined,
   });
   const recursos = recursosCalculados(f, defsRecursos);
   const corpoACorpo = (a: Ataque) => !/munição/i.test(a.notas);
@@ -232,6 +249,14 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
     setPulso("dano");
     const defesas = defesasDe(f, calc?.resistencias.map((r) => r.nome));
     const r = aplicarDano(f, { valor: valorPv, tipo: tipoDano || undefined, critico: danoCritico, defesas });
+    if (bruta.forma) {
+      // com a fera, o dano sai dos PV dela; ao zerar, volta à forma normal e o excedente passa para o druida
+      const d = danoNaForma(fBase, r.final, (real, dano) => { const x = aplicarDano(real, { valor: dano, defesas: defesasDe(real) }); return { ficha: x.ficha, texto: x.texto }; });
+      salvar(d.ficha.pv <= 0 ? { ...d.ficha, concentracao: undefined } : d.ficha);
+      setLogCombate([`Sofreu ${r.final} de dano${tipoDano ? ` (${tipoDano})` : ""}.`, ...r.texto, ...d.texto]);
+      setDanoConc(f.concentracao && r.final > 0 && d.ficha.pv > 0 ? r.final : null);
+      return;
+    }
     // chegar a 0 PV encerra a concentração; senão, oferece o teste de Constituição
     const ficha = r.caiu || r.morreu ? { ...r.ficha, concentracao: undefined } : r.ficha;
     set(ficha);
@@ -412,6 +437,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
             papel={papel}
             onMudar={set}
             onRolar={(t) => rolar(t)}
+            feras={feras}
+            onSairForma={() => salvar(reverterForma(fBase))}
           />
         </section>
   );
@@ -614,6 +641,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
                                   : m.tipo === "salvaguarda" && <span className="text-xs text-muted">CD <strong className="text-gold">{cdMagia(f, m)}</strong> · {ATRIBUTO_NOME[m.salvaguarda]}</span>}
                                 {plano.danos.map((t, i) => <button key={i} onClick={() => rolar(t)} className={botaoRolar} title={t.titulo}>Dano {t.dado}</button>)}
                                 {plano.dardos && <span className="text-xs text-muted" title="Quantidade de dardos ou raios">{plano.dardos} dardos/raios</span>}
+                                {plano.notas?.map((n) => <span key={n} className="basis-full text-xs text-gold">{n}</span>)}
                                 {plano.cura && <button onClick={() => rolar(plano.cura!)} className={botaoRolar}>Cura {plano.cura.dado}</button>}
                                 {plano.extras.map((t, i) => <button key={i} onClick={() => rolar(t)} className={botaoRolar} title={t.titulo}>{t.titulo.split(":")[0]} {t.dado}</button>)}
                                 {semDados && m.dano.trim() && <button onClick={() => rolar(testeDanoMagia(m))} className={botaoRolar}>Dano {m.dano}</button>}
@@ -767,14 +795,14 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
             <Star size={14} className={f.inspiracao ? "fill-gold" : ""} /> Inspiração
           </button>
           <button
-            onClick={() => { set({ ...restaurarRecursos(descansoLongo(f), defsRecursos, "longo"), exaustao: Math.max(0, (f.exaustao ?? 0) - 1) }); if (limitesMagia(f) && f.magias.length > 0) setTrocaMagias("perguntar"); }}
+            onClick={() => { salvar({ ...restaurarRecursos(descansoLongo(fBase), defsRecursos, "longo"), exaustao: Math.max(0, (fBase.exaustao ?? 0) - 1) }); if (limitesMagia(f) && f.magias.length > 0) setTrocaMagias("perguntar"); }}
             title="Recupera tudo: PV, espaços de magia, dados de vida e descansos curtos"
             className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-muted hover:border-gold hover:text-gold"
           >
             <BedDouble size={14} /> Descanso longo
           </button>
           <button
-            onClick={() => { const havia = temDadoVida(f); set(restaurarRecursos(descansoCurto(f), defsRecursos, "curto")); if (havia) rolar(testeDadoVida(f)); }}
+            onClick={() => { const havia = temDadoVida(fBase); salvar(restaurarRecursos(descansoCurto(fBase), defsRecursos, "curto")); if (havia) rolar(testeDadoVida(fBase)); }}
             disabled={!podeDescansoCurto(f)}
             title="Até 2 por descanso longo: gasta 1 dado de vida (cura) e restaura todos os espaços de magia"
             className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-muted hover:border-gold hover:text-gold disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border disabled:hover:text-muted"
@@ -827,7 +855,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
         {importacao && (
           <p role="status" className={`relative mt-3 text-sm ${importacao.ok ? "text-gold" : "text-red-400"}`}>{importacao.texto}</p>
         )}
-        <fieldset disabled={travada} title={travada ? "Ficha publicada: só o mestre reabre para edição" : undefined} className={`relative m-0 mt-3 grid min-w-0 grid-cols-2 gap-2 border-0 p-0 sm:grid-cols-4 lg:grid-cols-7 ${compacto ? "hidden" : ""}`}>
+        <div title={travada ? "Ficha publicada: só o mestre reabre para edição (alinhamento e XP continuam livres)" : undefined} className={`relative m-0 mt-3 grid min-w-0 grid-cols-2 gap-2 border-0 p-0 sm:grid-cols-4 lg:grid-cols-7 ${compacto ? "hidden" : ""}`}>
+          <fieldset disabled={travada} className="contents">
           <label className="text-[11px] uppercase tracking-wider text-muted">
             Classe
             <select
@@ -880,6 +909,8 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
               </select>
             </label>
           ))}
+          </fieldset>
+          {/* Alinhamento e XP continuam livres com a ficha publicada */}
           <label className="text-[11px] uppercase tracking-wider text-muted">
             Alinhamento
             <select value={f.alinhamento} onChange={(e) => set({ alinhamento: e.target.value })} className={`${campo} mt-0.5 normal-case tracking-normal text-foreground`}>
@@ -888,15 +919,17 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
               {ALINHAMENTOS.map((al) => <option key={al} value={al}>{al}</option>)}
             </select>
           </label>
+          <fieldset disabled={travada} className="contents">
           <label className="text-[11px] uppercase tracking-wider text-muted">
             Nível
             <Num valor={f.nivel} min={1} disabled={auto} title={auto ? "Calculado pelo livro" : undefined} onChange={(n) => set({ nivel: Math.min(20, Math.max(1, n)) })} className="mt-0.5" />
           </label>
+          </fieldset>
           <label className="text-[11px] uppercase tracking-wider text-muted">
             XP
             <Num valor={f.xp} min={0} onChange={(n) => set({ xp: n })} className="mt-0.5" />
           </label>
-        </fieldset>
+        </div>
         <div className="relative mt-2 flex flex-wrap items-center gap-2 text-xs">
           <button
             onClick={() => { setCompacto(!compacto); if (!compacto) setAba("combate"); }}
@@ -907,7 +940,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
             Modo combate{compacto ? " ✓" : ""}
           </button>
           {f.status === "publicada" ? (
-            <span className="inline-flex items-center gap-1 rounded-md border border-ok/50 px-2 py-0.5 font-semibold text-ok" title="Ficha publicada: identidade, atributos, proficiências e textos de personagem estão travados. Vida, magias, inventário, rolagens e subir de nível continuam liberados.">
+            <span className="inline-flex items-center gap-1 rounded-md border border-ok/50 px-2 py-0.5 font-semibold text-ok" title="Ficha publicada: identidade, atributos, proficiências e textos de personagem estão travados (alinhamento e XP seguem livres). Vida, magias, inventário, rolagens e subir de nível continuam liberados.">
               <Lock size={12} aria-hidden /> Publicada
             </span>
           ) : (
@@ -963,9 +996,20 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
                       {comSinal(modDe(f, a))}
                     </button>
                   </Medalhao>
-                  <ValorNumero valor={f.atributos[a]} editavel={!auto && !travada} min={1} max={30} rotulo={`Valor de ${ATRIBUTO_NOME[a]}`}
+                  <ValorNumero valor={f.atributos[a]} editavel={(!auto && !travada) || (auto && papel === "mestre")} min={1} max={30} rotulo={`Valor de ${ATRIBUTO_NOME[a]}`}
                     titulo={calc ? calc.atributos[a].partes.map((p, i) => `${i ? (p.valor >= 0 ? "+ " : "− ") : ""}${i ? Math.abs(p.valor) : p.valor} ${p.rotulo}`).join(" ") : "Só muda na criação do personagem ou ao subir de nível"}
-                    onChange={(n) => set({ atributos: { ...f.atributos, [a]: n } })} />
+                    onChange={(n) => {
+                      // ficha automática: o mestre grava a diferença como ajuste manual do motor (`atr.<a>`)
+                      if (auto && bruta.build) {
+                        const chave = `atr.${a}`;
+                        const atual = bruta.build.ajustes?.[chave];
+                        const somar = (atual?.somar ?? 0) + (n - f.atributos[a]);
+                        const ajustes = { ...(bruta.build.ajustes ?? {}) };
+                        if (somar === 0 && atual?.substituir === undefined) delete ajustes[chave];
+                        else ajustes[chave] = { ...atual, somar, rotulo: atual?.rotulo ?? "Ajuste do mestre" };
+                        set({ build: { ...bruta.build, ajustes } });
+                      } else set({ atributos: { ...f.atributos, [a]: n } });
+                    }} />
                 </div>
               ))}
             </div>
@@ -1048,6 +1092,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
 
           {abaAtual === "tracos" && (
             <section className={`${cartao} space-y-4`}>
+              {catLivro && <InvocacoesMisticas ficha={f} cat={catLivro} papel={papel === "mestre" ? "mestre" : "jogador"} travada={travada} onMudar={set} />}
               <HabilidadesUsos ficha={f} defs={defsRecursos} recursos={recursos} onMudar={set} />
               {calc && <CaracteristicasPorFonte calc={calc} />}
               <fieldset disabled={travada} className="m-0 min-w-0 space-y-4 border-0 p-0">
@@ -1178,6 +1223,7 @@ export default function FichaDnd5e({ mesaId, donoUid, nomePadrao = "", papel = "
       {compendio && (
         <CompendioMagias
           classeInicial={f.classe}
+          extras={magiasExpandidas(f)}
           circuloMax={ehConjuradora(f.classe) && maiorCirculo(f) > 0 ? maiorCirculo(f) : undefined}
           avaliar={(m) => (papel === "mestre" ? { ok: true } : podeAprender(f, m))}
           jaNaFicha={new Set(f.magias.map((m) => m.catalogoId).filter((x): x is string => !!x))}

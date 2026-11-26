@@ -8,6 +8,7 @@ import { derivar, type FichaCalculada } from "./derivar.ts";
 import type { Build } from "./build.ts";
 import type { Catalogo } from "./catalogo.ts";
 import type { OpcoesMesa } from "../sistema.ts";
+import { semSobreposicao } from "./formaSelvagem.ts";
 
 const fmt = (n: number) => String(Math.round(n * 10) / 10).replace(".", ",");
 
@@ -53,7 +54,9 @@ export function fichaEfetiva(ficha: FichaDnd, calc: FichaCalculada, cat: Catalog
 }
 
 /** Prepara a ficha editada (efetiva) para gravar: devolve os campos derivados aos valores gravados. */
-export function gravavel(bruta: FichaDnd, editada: FichaDnd): FichaDnd {
+export function gravavel(bruta: FichaDnd, editadaComForma: FichaDnd): FichaDnd {
+  // transformado: os números da fera (atributos, CA, PV, ataques) não vão para a ficha do druida
+  const editada = semSobreposicao(bruta, editadaComForma);
   // sem build, as linhas de ataque das armas equipadas (`derivado`) também são recalculadas, nunca gravadas
   if (!bruta.build) return editada.ataques.some((a) => a.derivado) ? { ...editada, ataques: editada.ataques.filter((a) => !a.derivado) } : editada;
   const out = { ...editada, build: editada.build ?? bruta.build } as FichaDnd & Record<string, unknown>;

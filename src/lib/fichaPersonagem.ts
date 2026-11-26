@@ -8,6 +8,7 @@ import { useDocSincronizado } from "./mesas";
 import { carregarCatalogoPhb, type Catalogo } from "./regras/dnd5e/catalogo";
 import { derivar, type FichaCalculada } from "./regras/dnd5e/derivar";
 import { fichaEfetiva } from "./regras/dnd5e/efetiva";
+import { carregarFeras, comForma, type Fera } from "./regras/dnd5e/formaSelvagem";
 import type { PatchEstado } from "./regras/dnd5e/grupo";
 import type { OpcoesMesa } from "./regras/sistema";
 
@@ -34,16 +35,32 @@ export function useFichaEfetiva(mesaId: string, donoUid: string, opcoes?: Opcoes
     return () => { vivo = false; };
   }, [precisa]);
   const calc = useMemo<FichaCalculada | null>(() => (bruta.build && cat ? derivar(bruta, cat, opcoes) : null), [bruta, cat, opcoes]);
-  const ficha = useMemo(() => (bruta.build && cat && calc ? fichaEfetiva(bruta, calc, cat) : bruta), [bruta, cat, calc]);
-  return { ficha, bruta, calc, catalogo: cat, carregado: carregado && (!bruta.build || !!cat) };
+  const base = useMemo(() => (bruta.build && cat && calc ? fichaEfetiva(bruta, calc, cat) : bruta), [bruta, cat, calc]);
+  // transformado (Forma Selvagem): quem lê vê os números da fera; `base` é a ficha do druida, sem eles
+  const [feras, setFeras] = useState<Fera[] | null>(null);
+  const emForma = habilitado && !!bruta.forma;
+  useEffect(() => {
+    if (!emForma) return;
+    let vivo = true;
+    carregarFeras().then((l) => vivo && setFeras(l)).catch(() => {});
+    return () => { vivo = false; };
+  }, [emForma]);
+  const fera = emForma ? feras?.find((x) => x.id === bruta.forma!.feraId) : undefined;
+  const ficha = useMemo(() => (fera ? comForma(base, fera) : base), [base, fera]);
+  return { ficha, base, fera, bruta, calc, catalogo: cat, carregado: carregado && (!bruta.build || !!cat) && (!emForma || !!feras) };
 }
 
 /** Versão assíncrona de `fichaEfetiva` para quem não está num componente. Sem `build`, devolve a ficha como está. */
 export async function efetivaDe(bruta: FichaDnd, opcoes?: OpcoesMesa): Promise<{ ficha: FichaDnd; calc: FichaCalculada | null }> {
-  if (!bruta.build) return { ficha: bruta, calc: null };
+  const sobre = async (f: FichaDnd) => { // transformado: os PV e números lidos são os da fera
+    if (!f.forma) return f;
+    const fera = (await carregarFeras()).find((x) => x.id === f.forma!.feraId);
+    return fera ? comForma(f, fera) : f;
+  };
+  if (!bruta.build) return { ficha: await sobre(bruta), calc: null };
   const cat = await carregarCatalogoPhb();
   const calc = derivar(bruta, cat, opcoes);
-  return { ficha: fichaEfetiva(bruta, calc, cat), calc };
+  return { ficha: await sobre(fichaEfetiva(bruta, calc, cat)), calc };
 }
 
 /** Lê uma vez os PV atuais (e máximos) da ficha de um jogador; `null` se ele ainda não tem ficha. Uso do mestre. */

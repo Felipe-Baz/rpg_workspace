@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import type { FichaDnd, Teste } from "@/lib/dnd5e";
+import { alterarSeAVontade, assumirForma, custoDaForma, limiteDaForma, temMilFormas, type Fera } from "@/lib/regras/dnd5e/formaSelvagem";
+import { CartaoForma, EscolherForma } from "./FormaSelvagem";
 import { ATIVAVEIS, CONDICOES, EXAUSTAO, ataquesContraVoce, ativaveisDisponiveis, deslocamentoEfetivo, estadoVital, pvMaxEfetivo, type EstadoJogo } from "@/lib/regras/dnd5e/combate";
 import { desligarAtivavel, gastarRecurso, imposicaoDasMaos, ligarAtivavel, testeAtaqueFurtivo, type RecursoCalculado, type RecursoDef } from "@/lib/regras/dnd5e/recursos";
 
@@ -14,7 +17,7 @@ const ESTADO_ROTULO = { vivo: "", inconsciente: "Inconsciente (0 PV)", estavel: 
  * Recursos com usos, características ativáveis, condições e exaustão, defesas manuais e o resumo do que isso muda
  * (deslocamento, PV máximos, ataques contra você). Tudo vem do motor (`regras/dnd5e`); aqui só há controles.
  */
-export default function EstadoCombate({ ficha: f, defs, recursos, estado, deslocamentoBase, papel, onMudar, onRolar }: {
+export default function EstadoCombate({ ficha: f, defs, recursos, estado, deslocamentoBase, papel, onMudar, onRolar, feras, onSairForma }: {
   ficha: FichaDnd;
   defs: RecursoDef[];
   recursos: RecursoCalculado[];
@@ -23,7 +26,13 @@ export default function EstadoCombate({ ficha: f, defs, recursos, estado, desloc
   papel: "jogador" | "mestre";
   onMudar: (f: FichaDnd) => void;
   onRolar: (t: Teste) => void;
+  /** Bestiário da Forma Selvagem (carrega sob demanda; `null` enquanto não chegou). */
+  feras?: Fera[] | null;
+  /** Volta à forma normal (a ficha base, sem os números da fera, é do pai). */
+  onSairForma?: () => void;
 }) {
+  const [escolhendoForma, setEscolhendoForma] = useState(false);
+  const feraAtual = f.forma ? feras?.find((x) => x.id === f.forma!.feraId) : undefined;
   const condicoes = f.condicoes ?? [];
   const exaustao = f.exaustao ?? 0;
   const vital = estadoVital(f);
@@ -47,6 +56,31 @@ export default function EstadoCombate({ ficha: f, defs, recursos, estado, desloc
           {pvMaxEf !== f.pvMax && <p>PV máximos {pvMaxEf} (exaustão 4)</p>}
           {contra.map((c) => <p key={c} className="text-muted">Ataques contra você: {c}</p>)}
         </div>
+      )}
+
+      {f.forma && feraAtual && onSairForma && <CartaoForma ficha={f} fera={feraAtual} onSair={onSairForma} onMudar={onMudar} onRolar={onRolar} />}
+      {temMilFormas(f) && (
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-semibold">Mil Formas:</span>
+          <button className="rounded-md border border-gold/40 bg-gold/10 px-2 py-0.5 font-semibold text-gold hover:bg-gold/20" title="Conjura alterar-se à vontade, sem gastar espaço de magia (concentração, até 1 hora)." onClick={() => {
+            const r = alterarSeAVontade(f);
+            if (!r.ok) return window.alert(r.motivo);
+            if (r.encerrou && !window.confirm(`Isto encerra a concentração em ${r.encerrou}. Continuar?`)) return;
+            onMudar(r.ficha);
+          }}>Alterar-se (à vontade)</button>
+          {f.concentracao?.magiaId === "alterar-se" && <span className="text-muted">em concentração</span>}
+        </div>
+      )}
+      {escolhendoForma && feras && (
+        <EscolherForma ficha={f} feras={feras} onFechar={() => setEscolhendoForma(false)} onEscolher={(fera) => {
+          // gasta o uso da característica (o mestre pode sem usos) e assume a forma com os PV cheios da fera
+          const custo = custoDaForma(fera);
+          const r = recursos.find((x) => x.id === "forma-selvagem");
+          const faltam = !!r && !r.ilimitado && r.restantes < custo;
+          if (faltam && papel !== "mestre") return window.alert(`Sem usos de Forma Selvagem restantes (${custo} necessário${custo > 1 ? "s" : ""}).`);
+          onMudar(assumirForma(r?.ilimitado ? f : gastarRecurso(f, defs, "forma-selvagem", custo), fera));
+          setEscolhendoForma(false);
+        }} />
       )}
 
       {!nada && (
@@ -97,6 +131,15 @@ export default function EstadoCombate({ ficha: f, defs, recursos, estado, desloc
                     aria-pressed={ligado}
                     title={a.descricao}
                     onClick={() => {
+                      if (a.id === "forma-selvagem") {
+                        // a Forma Selvagem pede a fera: sair volta à ficha do druida, entrar abre a escolha
+                        if (f.forma) return onSairForma?.();
+                        if (!feras) return window.alert("Carregando as feras… tente de novo em instantes.");
+                        if (!limiteDaForma(f)) return window.alert("A Forma Selvagem exige druida de 2º nível ou mais.");
+                        const restam = recursos.find((r) => r.id === "forma-selvagem");
+                        if (restam && !restam.ilimitado && restam.restantes <= 0 && papel !== "mestre") return window.alert("Sem usos de Forma Selvagem restantes.");
+                        return setEscolhendoForma(true);
+                      }
                       if (ligado) return onMudar(desligarAtivavel(f, a.id));
                       const novo = ligarAtivavel(f, defs, a.id);
                       if (novo) onMudar(novo); else if (papel === "mestre") onMudar({ ...f, ativos: [...(f.ativos ?? []), a.id] }); else window.alert(`Sem usos de ${ATIVAVEIS.find((x) => x.id === a.id)?.nome} restantes.`);

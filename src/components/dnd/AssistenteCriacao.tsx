@@ -19,6 +19,7 @@ import { Moldura } from "./AssistenteNivel";
 import TextoLivro from "./TextoLivro";
 import CatalogoEquipamento, { itensParaAdicionar } from "./CatalogoEquipamento";
 import CompendioMagias from "./CompendioMagias";
+import { LISTA_EXPANDIDA } from "@/lib/regras/dnd5e/listaExpandida";
 
 const campo = "rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
 const secao = "rounded-xl border border-border bg-background/40 p-3";
@@ -128,7 +129,8 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
   const passos: Passo[] = ["Raça", "Classe", "Antecedente", "Atributos", "Vida", ...(conjura ? ["Magias" as const] : []), "Equipamento", "Revisão"];
   const atual = passos[Math.min(passo, passos.length - 1)];
   const avaliarMagia = (m: MagiaCat): { ok: boolean; motivo?: string } => {
-    if (!m.classes.includes(classeId)) return { ok: false, motivo: `Não está na lista de magias de ${classeCat?.nome ?? "sua classe"}.` };
+    const expandida = classeId === "bruxo" && !!subclasse && (LISTA_EXPANDIDA[subclasse] ?? []).includes(m.id);
+    if (!m.classes.includes(classeId) && !expandida) return { ok: false, motivo: `Não está na lista de magias de ${classeCat?.nome ?? "sua classe"}.` };
     if (m.nivel > 1) return { ok: false, motivo: "No 1º nível só há espaços de 1º círculo." };
     if (m.nivel === 0 && truquesEsc.length >= maxTruques) return { ok: false, motivo: `Você já escolheu os ${maxTruques} truques que a classe conhece.` };
     if (m.nivel === 1 && magiasEsc.length >= maxMagias) return { ok: false, motivo: `Você já escolheu as ${maxMagias} magias de 1º círculo.` };
@@ -522,6 +524,7 @@ export default function AssistenteCriacao({ ficha, cat, opcoes, papel, onSalvar,
       {compendioAberto && (
         <CompendioMagias
           classeInicial={classeId}
+          extras={classeId === "bruxo" && subclasse ? LISTA_EXPANDIDA[subclasse] : undefined}
           circuloMax={1}
           jaNaFicha={new Set(escolhidas.map((m) => m.id))}
           avaliar={avaliarMagia}

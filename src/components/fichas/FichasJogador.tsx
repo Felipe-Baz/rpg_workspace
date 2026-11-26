@@ -25,7 +25,10 @@ export default function FichasJogador({
   singular,
   mesa,
   opinioes,
+  apenasLeitura = false,
 }: {
+  /** Mestre vendo como jogador: nada é criado nem editado. */
+  apenasLeitura?: boolean;
   opinioes?: Opinioes;
   /** Presente = modo mestre: cadastra fichas e escolhe quem as vê. */
   mesa?: Mesa;
@@ -59,7 +62,8 @@ export default function FichasJogador({
         <h2 className="text-xl font-semibold">{rotulo}</h2>
         <button
           onClick={nova}
-          disabled={criando}
+          disabled={criando || apenasLeitura}
+          hidden={apenasLeitura}
           className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
         >
           + Cadastrar
@@ -103,7 +107,7 @@ export default function FichasJogador({
           mesaId={mesaId}
           ficha={aberta}
           mesa={mesa}
-          somenteLeitura={aberta.mestre && !mesa}
+          somenteLeitura={(aberta.mestre && !mesa) || apenasLeitura}
           opinioes={opinioes}
           onFechar={() => setAbertaId(null)}
         />

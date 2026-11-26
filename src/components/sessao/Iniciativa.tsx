@@ -175,7 +175,7 @@ function PvAoVivo({ mesaId, uid, opcoes, nome }: { mesaId: string; uid: string; 
   const gravar = () => {
     const n = Number(rascunho);
     setRascunho(null);
-    if (rascunho !== null && rascunho.trim() !== "" && Number.isFinite(n)) atualizarEstadoDaFicha(mesaId, uid, { pv: Math.max(0, Math.round(n)) }).catch((e) => console.error(e));
+    if (rascunho !== null && rascunho.trim() !== "" && Number.isFinite(n)) atualizarEstadoDaFicha(mesaId, uid, ficha.forma ? { forma: { ...ficha.forma, pv: Math.min(ficha.pvMax, Math.max(0, Math.round(n))) } } : { pv: Math.max(0, Math.round(n)) }).catch((e) => console.error(e));
   };
   return (
     <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted">

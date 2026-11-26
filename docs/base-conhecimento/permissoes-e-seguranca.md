@@ -12,7 +12,7 @@ A barreira real é **Firestore Rules + Storage Rules + rotas de servidor**. A in
 | Mundo | escreve | lê | Lore público da campanha |
 | Missões (pública) | escreve | lê | Versão derivada, sem segredos |
 | Missões do mestre | só ele | nada | Etapas pendentes e notas nunca vazam |
-| Fichas do jogador (`mestre:false`) | **não** lê | dono lê/escreve; não liberável | Privacidade do jogador |
+| Fichas do jogador (`mestre:false`) | **lê** (nunca escreve) | dono lê/escreve; não liberável | O mestre as lê só para "Ver como" jogador; escrever continua só do dono |
 | Fichas do mestre (`mestre:true`) | lê/escreve | lê só se `todos` ou `liberadoPara` contém o uid | Liberação seletiva |
 | Diário (`anotacoes/{uid}`), pinos, quadro | **lê** (nunca escreve) | só o próprio dono | O mestre lê as anotações e usa "Ver como" jogador; escrever continua só do dono |
 | Extensões instaladas | gerencia | lê só as `visivelJogadores` | Mestre decide o que aparece |

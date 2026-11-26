@@ -66,7 +66,7 @@ const Dado = ({ rotulo, valor }: { rotulo: string; valor: string }) => (
 );
 
 function Linha({ mesaId, jogador, opcoes, oculta, informar, aoAbrir }: { mesaId: string; jogador: JogadorDoGrupo; opcoes?: OpcoesMesa; oculta: boolean; informar: (uid: string, l: LinhaGrupo) => void; aoAbrir: (uid: string) => void }) {
-  const { ficha, bruta, calc, catalogo, carregado } = useFichaEfetiva(mesaId, jogador.uid, opcoes);
+  const { ficha, base, fera, bruta, calc, catalogo, carregado } = useFichaEfetiva(mesaId, jogador.uid, opcoes);
   const [valor, setValor] = useState(1);
   const [tipo, setTipo] = useState("");
   const [critico, setCritico] = useState(false);
@@ -99,6 +99,7 @@ function Linha({ mesaId, jogador, opcoes, oculta, informar, aoAbrir }: { mesaId:
         {l.cd !== null && <span className="text-sm text-muted" title="CD de magia">CD {l.cd}</span>}
         <span className="text-sm text-muted" title="Percepção passiva">Perc. {l.percepcao}</span>
         <span className="text-sm text-muted" title="Deslocamento">Desl. {l.deslocamento}</span>
+        {fera && <span className="rounded-full border border-gold/60 bg-gold/10 px-2 text-[10px] text-gold" title="Forma Selvagem: PV, CA, deslocamento e ataques são os da fera">em forma de {fera.nome}</span>}
         {l.vital !== "vivo" && <span className="rounded-full border border-danger/60 px-2 text-xs text-danger">{l.vital === "morto" ? "Morto" : l.vital === "estavel" ? "Estável" : "Inconsciente"}</span>}
         {l.podeSubir && <span className="rounded-full border border-gold px-2 text-xs text-gold">pode subir de nível</span>}
         {l.conferir.length > 0 && (
@@ -134,8 +135,8 @@ function Linha({ mesaId, jogador, opcoes, oculta, informar, aoAbrir }: { mesaId:
           </select>
         </label>
         <label className="flex items-center gap-1 pb-1.5 text-xs text-muted" title="Dobra os dados do dano"><input type="checkbox" checked={critico} onChange={(e) => setCritico(e.target.checked)} />acerto crítico</label>
-        <button disabled={ocupado} onClick={() => aplicar(danoDoMestre(ficha, calc, { valor, tipo: tipo || undefined, critico }))} className="rounded-lg border border-danger/50 px-3 py-1 text-danger hover:bg-danger/10 disabled:opacity-50" title="Tira o valor dos PV (passa por resistências e PV temporários)">Aplicar dano</button>
-        <button disabled={ocupado} onClick={() => aplicar(curaDoMestre(ficha, valor))} className="rounded-lg border border-ok/50 px-3 py-1 text-ok hover:bg-ok/10 disabled:opacity-50" title="Soma o valor aos PV">Aplicar cura</button>
+        <button disabled={ocupado} onClick={() => aplicar(danoDoMestre(ficha, calc, { valor, tipo: tipo || undefined, critico }, base))} className="rounded-lg border border-danger/50 px-3 py-1 text-danger hover:bg-danger/10 disabled:opacity-50" title="Tira o valor dos PV (passa por resistências e PV temporários)">Aplicar dano</button>
+        <button disabled={ocupado} onClick={() => aplicar(curaDoMestre(ficha, valor, base))} className="rounded-lg border border-ok/50 px-3 py-1 text-ok hover:bg-ok/10 disabled:opacity-50" title="Soma o valor aos PV">Aplicar cura</button>
         <label className="flex flex-col gap-0.5 text-[10px] uppercase tracking-wider text-muted">
           Condição
           <select value="" onChange={(e) => e.target.value && aplicar({ patch: alternarCondicaoDoMestre(ficha, e.target.value), texto: [`${CONDICOES.find((c) => c.id === e.target.value)?.nome} alternada em ${l.nome}.`] })} aria-label="Alternar condição" className={`${campo} !w-auto text-xs normal-case tracking-normal text-foreground`}>

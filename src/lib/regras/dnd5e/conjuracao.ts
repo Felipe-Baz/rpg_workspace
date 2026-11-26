@@ -6,6 +6,9 @@ import {
   type Atributo, type ClasseId, type FichaDnd, type Magia, type Teste,
 } from "../../dnd5e.ts";
 import { dadoDoTruque, dadoNoCirculo, dardosDoTruque, type MagiaCat } from "./magias.ts";
+import { motivoSemConjurar } from "./formaSelvagem.ts";
+import { magiasExpandidas } from "./listaExpandida.ts";
+import { efeitosNaRajada } from "./invocacoes.ts";
 
 // ---------- rolagens da conjuração ----------
 export type PlanoConjuracao = {
@@ -20,6 +23,8 @@ export type PlanoConjuracao = {
   salvaguarda?: { cd: number; atributo: Atributo };
   /** Quantos dardos/raios (Mísseis Mágicos...), quando a magia é por dardo. */
   dardos?: number;
+  /** Lembretes de características que mexem na magia (invocações do bruxo na Rajada Mística). */
+  notas?: string[];
 };
 
 /** "1d4+1" × 3 = "3d4+3". */
@@ -50,6 +55,10 @@ export function planoDeConjuracao(f: FichaDnd, m: Magia, cat: MagiaCat | undefin
     : mec.dardos + (esc?.dardosExtras ?? 0) * Math.floor(Math.max(0, circulo - m.nivel) / (esc?.porNivel ?? 1));
   if (dardos) plano.dardos = dardos;
 
+  // Rajada Mística: as invocações do bruxo somam dano por raio e mudam alcance/empurrão
+  const rajada = cat?.id === "rajada-mistica" ? efeitosNaRajada(f) : undefined;
+  if (rajada?.notas.length) plano.notas = rajada.notas;
+
   (mec?.danos ?? []).forEach((d, i) => {
     let dado = d.dado;
     if (cat && i === 0 && !d.porDardo) dado = m.nivel === 0 ? dadoDoTruque(cat, dado, f.nivel) : dadoNoCirculo(cat, dado, circulo);
@@ -57,7 +66,10 @@ export function planoDeConjuracao(f: FichaDnd, m: Magia, cat: MagiaCat | undefin
     plano.danos.push({
       // a CD no título aparece no histórico da mesa ("Aria — Dano (fogo): Bola de Fogo — CD 14 Des")
       titulo: `Dano (${d.tipo}): ${m.nome}${plano.salvaguarda ? ` — CD ${plano.salvaguarda.cd} ${ATRIBUTO_NOME[plano.salvaguarda.atributo].slice(0, 3)}` : ""}`, dado, d20: false, dano: true,
-      partes: d.somaMod ? [{ rotulo: rotuloMod, valor: modConj }] : [],
+      partes: [
+        ...(d.somaMod ? [{ rotulo: rotuloMod, valor: modConj }] : []),
+        ...(rajada?.danoPorRaio && i === 0 ? [{ rotulo: "Explosão Agonizante (Carisma)", valor: rajada.danoPorRaio }] : []),
+      ],
     });
   });
 
@@ -101,6 +113,8 @@ export const classeFazRitual = (f: FichaDnd) => classesDaFicha(f).some((c) => RI
  * Ritual: precisa de classe que o permita e a magia marcada como ritual; usa o círculo original.
  */
 export function conjurarMagia(f: FichaDnd, m: Magia, circulo: number, opcoes: { ritual?: boolean } = {}): ResultadoConjuracao {
+  const semConjurar = motivoSemConjurar(f);
+  if (semConjurar) return { ok: false, motivo: semConjurar };
   let ficha = f;
   if (opcoes.ritual) {
     if (!m.ritual) return { ok: false, motivo: "Esta magia não pode ser conjurada como ritual." };
@@ -131,7 +145,7 @@ export const maiorCirculo = (f: FichaDnd) => f.espacos.reduce((a, e, i) => (e.to
 export function podeAprender(f: FichaDnd, cat: MagiaCat): { ok: boolean; motivo?: string } {
   const conj = classesDaFicha(f).map((c) => c.id).filter((id) => ehConjuradora(id as ClasseId));
   if (!conj.length) return { ok: true };
-  if (!conj.some((id) => cat.classes.includes(id))) {
+  if (!conj.some((id) => cat.classes.includes(id)) && !magiasExpandidas(f).includes(cat.id)) {
     const nomes = conj.map((id) => (id === "clerigo" ? "clérigo" : id)).join(" ou ");
     return { ok: false, motivo: `Não está na lista de magias de ${nomes}.` };
   }
